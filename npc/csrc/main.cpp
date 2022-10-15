@@ -16,7 +16,7 @@ int main(int argc , char** argv, char** env) {
 	VerilatedVcdC* tfp = new VerilatedVcdC;
 	Verilated::traceEverOn(true);	
 	example -> trace(tfp,0);
-	tfp		-> open("wave.vcd");
+	tfp     -> open("wave.vcd");
 	
 
 	while (!contextp->gotFinish()&&time0 <= 20)

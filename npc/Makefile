@@ -1,5 +1,5 @@
 #Makefile for Verilator
-
+TOPNAME = example
 
 all:
 	@echo "Write this Makefile by your self."
@@ -31,6 +31,7 @@ VERILATOR_FLAGS += --coverage
 #VERILATOR_FLAGS += --gdbbt
 #VERILATOR_FLAGS += --top-module
 VERILATOR_FLAGS += -Wno-fatal
+VERILATOR_FLAGS += --top-module $(TOPNAME)
 # Input files for Verilator
 #VERILATOR_INPUT = -f ./vsrc/*.v ./csrc/*.cpp ./csrc/*.h
 VSRC = $(wildcard ./vsrc/*.v)
@@ -46,11 +47,11 @@ run:
 
 	@echo "-----------------BUILD-------------------"
 
-	$(MAKE) -j -C obj_dir -f Vexample.mk Vexample
+	$(MAKE) -j -C obj_dir -f V$(TOPNAME).mk V$(TOPNAME)
 	# $(MAKE) -j -C obj_dir -f ../Makefile_obj
 
 	@echo "-------------------RUN-------------------"
-	./obj_dir/Vexample
+	./obj_dir/V$(TOPNAME)
 	gtkwave wave.vcd
 
 	
