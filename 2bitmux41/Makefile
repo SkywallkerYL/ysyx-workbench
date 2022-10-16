@@ -10,32 +10,22 @@ INC_PATH ?=
 
 VERILATOR = verilator
 # Generate C++ in executable form
-VERILATOR_FLAGS += -MMD --build -cc
-
 #for nvboard
-#VERILATOR_FLAGS += -cc --exe
-#for test bench
-# Generate makefile dependencies (not shown as complicates the Makefile)
-#VERILATOR_FLAGS += -MMD
-# Optimize
+VERILATOR_FLAGS += -MMD --build -cc
 VERILATOR_FLAGS += -O3 --x-assign fast
 VERILATOR_FLAGS += --x-initial fast --noassert
-# Warn abount lint issues; may not want this on less solid designs
-#VERILATOR_FLAGS += -Wno-fatal
-# Make waveforms
-#VERILATOR_FLAGS += --trace
-# Check SystemVerilog assertions
-#VERILATOR_FLAGS += --assert
-# Generate coverage analysis
-#VERILATOR_FLAGS += --coverage
-# Run Verilator in debug mode
-#VERILATOR_FLAGS += --debug
-# Add this trace to get a backtrace in gdb
-#VERILATOR_FLAGS += --gdbbt
-#VERILATOR_FLAGS += --top-module
-#VERILATOR_FLAGS += -Wno-fatal
-# Input files for Verilator
-#VERILATOR_INPUT = -f ./vsrc/*.v ./csrc/*.cpp ./csrc/*.h
+
+#for testbench
+VERILATOR_CFLAGS += -cc --exe -Os -x-assign 0
+VERILATOR_CFLAGS += --trace --coverage 
+VERILATOR_CFLAGS += -Wno-fatal
+VERILATOR_CFLAGS += --top-module $(TOPNAME)
+#VERILATOR_CFLAGS += --x-initial fast --noassert
+
+
+
+
+CSRCT = $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "top_tb.cpp") 
 
 BUILD_DIR = ./build
 OBJ_DIR = $(BUILD_DIR)/obj_dir
@@ -82,21 +72,21 @@ include ../Makefile
 run: $(BIN)
 	#for nvboard
 	@$^
-
+test: 
 	#for testbench        
-	#@echo "---------------VERILATE------------------"
-	#$(VERILATOR) $(VSRC) $(CSRC) $(HSRC) $(VERILATOR_FLAGS)
+	@echo "---------------VERILATE------------------"
+	$(VERILATOR) $(VERILATOR_CFLAGS) $(CSRCT) $(VSRC)
 	
 	
 
-	#@echo "-----------------BUILD-------------------"
+	@echo "-----------------BUILD-------------------"
 
-	#$(MAKE) -j -C obj_dir -f Vexample.mk Vexample
+	$(MAKE) -j -C obj_dir -f V$(TOPNAME).mk V$(TOPNAME)
 	# $(MAKE) -j -C obj_dir -f ../Makefile_obj
 
-	#@echo "-------------------RUN-------------------"
-	#./obj_dir/Vexample
-	#gtkwave wave.vcd
+	@echo "-------------------RUN-------------------"
+	./obj_dir/V$(TOPNAME)
+	gtkwave wave.vcd
 
 
 show-config:
