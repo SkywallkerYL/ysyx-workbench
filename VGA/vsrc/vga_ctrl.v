@@ -1,18 +1,30 @@
-module vga_ctrl (
-    input pclk,
-    input reset,
-    input [23:0] vga_data,
-    output [9:0] h_addr,
-    output [9:0] v_addr,
-    output hsync,
-    output vsync,
-    output valid,
-    output [7:0] vga_r,
-    output [7:0] vga_g,
-    output [7:0] vga_b
+module vga_ctrl #(parameter h_size = 100,
+                parameter v_size = 100)(
+    pclk,
+    reset,
+    vga_data,
+    h_addr,
+     v_addr,
+     hsync,
+     vsync,
+     valid,
+     vga_r,
+     vga_g,
+      vga_b
 );
-parameter h_size = 100; 
-parameter v_size = 100;
+    input pclk;
+    input reset;
+    input [23:0] vga_data;
+    output [$clog2(h_size)-1:0] h_addr;
+    output [$clog2(v_size)-1:0] v_addr;
+    output hsync;
+    output vsync;
+    output valid;
+    output [7:0] vga_r;
+    output [7:0] vga_g;
+    output [7:0] vga_b;
+
+
 parameter h_frontporch = 96;
 parameter h_active = 144;
 parameter h_backporch = h_active + h_size;
