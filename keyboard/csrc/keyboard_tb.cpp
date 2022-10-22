@@ -45,31 +45,46 @@ void clockntimes(int n ){
 		temp --;
 	}
 }
-void inputkey (int a )
+void inputkey (int * a )
 {
-	top->kbd_sendcode(a);
+	
 	int i = 0;
+	//clockntimes(3); top->ps2_clk = 0b1; //step_and_dump_wave();
+	//clockntimes(3); top->ps2_clk = 0b0;
 	while (i < 11)
 	{
-		top->ps2_data = top->send_buffer[i];
-		clockntimes(3); top->ps2_clk = 0b0; step_and_dump_wave();
-		clockntimes(3); top->ps2_clk = 0b1; step_and_dump_wave();
+		//top->ps2_data = a[i]; //step_and_dump_wave();
+		clockntimes(3); top->ps2_clk = 0b1; //step_and_dump_wave();
+		top->ps2_data = a[i];
+		clockntimes(3); top->ps2_clk = 0b0; //step_and_dump_wave();
+		//top->ps2_data = a[i];
 		i++;
 	}
-	
+	top->ps2_clk = 0b0;
 }
 
 
 int main(int argc , char** argv, char** env) {
 	
 	sim_init();
-	
+	int a[11];
+	int back[11];
+	back[0] = 0b0; for ( int i = 1; i <=4 ; i++) back[i] = 0b0;for ( int i = 5; i <=8 ; i++) back[i] = 0b1; back[9] = 0b1; back[10] = 0b1;
+
+	//a[0] = 0b0; a[1] = rand()%2 ;for (int i = 2;i<=8; i++){a[i] = rand()%2; a[9] = a[i]^a[i-1];} a[10] = 0b1;  	
 	top->clrn = 0b0; clockntimes(2);
 	top->clrn = 0b1; clockntimes(2);	
 	//top.model.kbd_sendcode(8'h1C); clockntimes(2);
-	inputkey(0x1C);
-	top->nextdata_n = 0b0; clockntimes(2);
-	top->nextdata_n = 0b1; clockntimes(2);
+	a[0] = 0b0; a[1] = 0b0; a[2] = 0b0;a[3] = 0b1;a[4] = 0b1;a[5] = 0b1;a[6] = 0b0;a[7] = 0b0;a[8] = 0b0;a[9] = 0b0; a[10] = 0b1;  	
+	inputkey(a);
+	clockntimes(2);top->nextdata_n = 0b0; //clockntimes(2);
+	clockntimes(2);top->nextdata_n = 0b1; //clockntimes(2);
+	inputkey(back);
+	clockntimes(2);top->nextdata_n = 0b0;
+	clockntimes(2);top->nextdata_n = 0b1;
+	inputkey(a);
+	clockntimes(2);top->nextdata_n = 0b0;
+	clockntimes(2);top->nextdata_n = 0b1;
 	
 	sim_exit();
 	return 0;
