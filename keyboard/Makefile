@@ -2,6 +2,7 @@
 
 
 TOPNAME=top
+TOPNAMETEST=keyboard_top
 #FSM_m #keyboard_top #top
 NXDC_FILES=constr/top.nxdc
 INC_PATH?=
@@ -20,7 +21,7 @@ VERILATOR_FLAGS += -Wno-fatal
 VERILATOR_CFLAGS += -cc --exe -Os -x-assign 0
 VERILATOR_CFLAGS += --trace --coverage 
 VERILATOR_CFLAGS += -Wno-fatal
-VERILATOR_CFLAGS += --top-module $(TOPNAME)
+VERILATOR_CFLAGS += --top-module $(TOPNAMETEST)
 #VERILATOR_CFLAGS += --x-initial fast --noassert
 #VERILATOR_CFLAGS += --timing
 
@@ -31,7 +32,7 @@ CSRCT = $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "k
 
 BUILD_DIR = ./build
 OBJ_DIR = $(BUILD_DIR)/obj_dir
-BIN = $(BUILD_DIR)/$(TOPNAME)
+BIN = $(BUILD_DIR)/$(TOPNAMETEST)
 
 #HSRC = $($(NVBOARD_HOME)/include/    -name "*.h")
  
@@ -84,11 +85,11 @@ test:
 
 	@echo "-----------------BUILD-------------------"
 
-	$(MAKE) -j -C obj_dir -f V$(TOPNAME).mk V$(TOPNAME)
+	$(MAKE) -j -C obj_dir -f V$(TOPNAMETEST).mk V$(TOPNAMETEST)
 	# $(MAKE) -j -C obj_dir -f ../Makefile_obj
 
 	@echo "-------------------RUN-------------------"
-	./obj_dir/V$(TOPNAME)
+	./obj_dir/V$(TOPNAMETEST)
 	gtkwave wave.vcd
 
 
