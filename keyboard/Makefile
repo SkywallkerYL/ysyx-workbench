@@ -1,7 +1,7 @@
 #Makefile for Verilator
 
 
-TOPNAME=keyboard_top
+TOPNAME=top
 #FSM_m #keyboard_top #top
 NXDC_FILES=constr/top.nxdc
 INC_PATH?=

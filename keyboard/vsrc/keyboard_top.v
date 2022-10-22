@@ -4,11 +4,12 @@ module keyboard_top(
 	input ps2_clk,
 	input ps2_data,
 	output reg [7:0] data,
+	output reg [11:0] ps2_count,
 	output reg ready,
 	input nextdata_n,
 	output overflow,
 	output reg [7:0] outdata
-	
+
 );
 
 	//wire [10:0] send_buffer;
@@ -31,6 +32,7 @@ module keyboard_top(
 		.ps2_clk(ps2_clk),
 		.ps2_data(ps2_data),
 		.data(data),
+		.ps2_count(ps2_count),
 		.ready(ready),
 		.nextdata_n(nextdata_n),
 		.overflow(overflow)
