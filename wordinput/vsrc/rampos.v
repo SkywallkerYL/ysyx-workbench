@@ -1,29 +1,36 @@
 module rampos(
+    input clk,
+    input rst,
     input addflag,
     input enterflag,
-    input reg [6:0] lastx,
-    input reg [4:0] lasty,
     output reg [6:0] x,
     output reg [4:0] y
 );
     wire realenterflag ;
-    assign realenterflag = enterflag &&(lastx == 7'd69) ;
-    always @ (addflag or enterflag or lastx or lasty) begin
-        if (addflag) begin
-            if (enterflag) begin
-                x = 7'd0;
-                y = lasty + 1'b1;
-            end
-            else begin
-                x = lastx + 1'b1;
-                y = lasty;
-            end
+    assign realenterflag = enterflag ||(x == 7'd69) ;
+    always @ (posedge clk) begin
+        if (rst) begin
+            x <= 7'd0;
+            y <= 5'd0;
         end
         else begin
-            x = lastx;
-            y = lasty;
+            if (addflag) begin
+                if (realenterflag) begin
+                    x <= 7'd0;
+                    y <= y + 1'b1;
+                    //$display("x: %d, y: %d",x,y);
+                end
+                else begin
+                    x <= x + 1'b1;
+                    y <= y;
+                    //$display("x: %d, y: %d",x,y);
+                end
+            end
+            else begin
+                x <= x;
+                y <= y;
+            end
         end
-
     end 
 
 

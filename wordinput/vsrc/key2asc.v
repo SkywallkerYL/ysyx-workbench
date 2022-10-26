@@ -1,9 +1,9 @@
 module key2asc(
     input [7:0] keybuffer,
-    output reg [11:0] asci 
+    output reg [7:0] asci 
 
 );
-    MuxKeyWithDefault#(67, 8, 8) key2ascMux(.out(asci), .key(keybuffer), .default_out(12'b1111_1111_1111), .lut({
+    MuxKeyWithDefault#(67, 8, 8) key2ascMux(.out(asci), .key(keybuffer), .default_out(8'b0000_0000), .lut({
 	8'h1C, 8'd65,
 	8'h32, 8'd66,
     8'h21, 8'd67,

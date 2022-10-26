@@ -7,15 +7,16 @@
 
 
 module ps2_keyboard(clk,clrn,ps2_clk,ps2_data,data,ps2_count,
-                    ready,nextdata_n,overflow,enterflag,addflag);
+                    ready,nextdata_n,overflow,enterflag,addflag,outflag);
     input clk,clrn,ps2_clk,ps2_data;
     input nextdata_n;
     output [7:0] data;    
     output reg [11:0] ps2_count;
     output reg ready;
     output reg overflow;     // fifo overflow
-    output reg enterflag; // 换行符检测
-    output reg addflag;
+    output enterflag; // 换行符检测
+    output addflag;
+    output outflag;
     // internal signal, for test
     reg [9:0] buffer;        // ps2_data bits
     reg [7:0] fifo[7:0];     // data fifo
@@ -33,23 +34,25 @@ module ps2_keyboard(clk,clrn,ps2_clk,ps2_data,data,ps2_count,
     always @(posedge clk) begin
         if (clrn == 0) begin // reset
             count <= 0; w_ptr <= 0; r_ptr <= 0; overflow <= 0; ready<= 0;
-            ps2_count <= 0; enterflag <= 0;
+            ps2_count <= 0; //enterflag <= 0;
         end
         else begin
             if ( ready ) begin // read to output next data
                 if( fifo[r_ptr] == 8'hF0||(fifo[r_ptr-3'b001]==8'hF0)) begin
                      ps2_count <= ps2_count;
-                     addflag <= 0;
-                     enterflag <= 1'b0;
+                     //addflag <= 0;
+                     //enterflag <= 1'b0;
                     end
                      else begin 
                         ps2_count <= ps2_count + 1'b1;
-                        addflag <= 1;
+                        //addflag <= 1;
                         //检测到换行符
+                        /*
                         if (fifo[r_ptr] == 8'h5A) begin
                             enterflag <= 1'b1;
                         end
                         else enterflag <= 1'b0;
+                        */
                         //$display("pscount %d", ps2_count);
                      end
                 if(nextdata_n == 1'b0) //read next data
@@ -77,6 +80,8 @@ module ps2_keyboard(clk,clrn,ps2_clk,ps2_data,data,ps2_count,
             end
         end
     end
-    assign data = fifo[r_ptr]; //always set output data
-
+    assign outflag = ~(fifo[r_ptr] == 8'hF0||(fifo[r_ptr-3'b001]==8'hF0));
+    assign data = ready&&outflag?fifo[r_ptr]:8'hF0; //always set output data
+    assign addflag = ready && outflag;
+    assign enterflag = addflag && fifo[r_ptr] == 8'h5A&&fifo[r_ptr-3'b001]!=8'hF0;
 endmodule
