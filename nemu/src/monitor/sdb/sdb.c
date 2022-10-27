@@ -56,7 +56,14 @@ static int cmd_help(char *args);
 
 static int cmd_si(char *args){
   printf("single excutaion step!!!\n");
-  return -1;
+  char *time = strtok(args," ");
+  if (time == NULL) {
+    printf("Times for excuting is needed !!\n");
+    return 0;
+  }
+  int num = atoi(time);
+  cpu_exec(num);
+  return 0;
 }
 
 static struct {
