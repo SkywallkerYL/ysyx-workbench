@@ -99,10 +99,10 @@ static int cmd_x(char *args){
   sscanf(N,"%d",&addrn);
   paddr_t addexpr;
   sscanf(EXPR,"%x",&addexpr);
-  printf ("%x\t",addexpr);
+  //printf ("%x\t",addexpr);
   for (size_t i = 0; i < addrn; i++)
   {
-    printf("%lx\t",paddr_read(addexpr,4));
+    printf("0x%08x\t%08lx\n",addexpr,paddr_read(addexpr,4));
     addexpr+=4;
   }
   printf("\n");
