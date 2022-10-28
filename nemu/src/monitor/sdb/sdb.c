@@ -88,6 +88,26 @@ static int cmd_reginf(char *args){
   else printf("Invalid SUBCMD!\n");
   return 0;
 }
+//paddr_read() 实现对内存的读取
+//paddr_write()
+
+word_t paddr_read(paddr_t addr, int len) ;
+static int cmd_x(char *args){
+  char *N = strtok(NULL," ");
+  char *EXPR = strtok(NULL," ");
+  int addrn ;
+  sscanf(N,"%d",&addrn);
+  paddr_t addexpr;
+  sscanf(EXPR,"%x",&addexpr);
+  printf ("0x%x\t",addexpr);
+  for (size_t i = 0; i < addrn; i++)
+  {
+    printf("0x%8lx\t",paddr_read(addexpr,4));
+    addexpr+=4;
+  }
+  printf("\n");
+  return 0;
+}
 
 static struct {
   const char *name;
@@ -98,7 +118,8 @@ static struct {
   { "c", "Continue the execution of the program", cmd_c },
   { "q", "Exit NEMU", cmd_q },
   { "si", "Single excutaion", cmd_si},
-  {"info","info SUBCMD",cmd_reginf}
+  {"info","info SUBCMD",cmd_reginf},
+  {"x","EXPR SCAN",cmd_x}
   /* TODO: Add more commands */
 
 };
