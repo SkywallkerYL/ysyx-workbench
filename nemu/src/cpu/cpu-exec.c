@@ -43,6 +43,7 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 static void exec_once(Decode *s, vaddr_t pc) {
   s->pc = pc;
   s->snpc = pc;
+  printf("inside exec_once_before_isa: nemu_state :%d\n ",nemu_state.state);
   isa_exec_once(s);
   printf("inside exec_once: nemu_state :%d\n ",nemu_state.state);
   cpu.pc = s->dnpc;
