@@ -66,7 +66,8 @@ static int cmd_si(char *args){
   }
   else 
   {
-    int num = atoi(time);
+    int num ;
+    sscanf(args,"%d",&num);
     cpu_exec(num);
   }
   return 0;
