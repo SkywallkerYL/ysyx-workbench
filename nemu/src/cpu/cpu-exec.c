@@ -43,9 +43,9 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 static void exec_once(Decode *s, vaddr_t pc) {
   s->pc = pc;
   s->snpc = pc;
-  printf("inside exec_once_before_isa: nemu_state :%d\n ",nemu_state.state);
+  //printf("inside exec_once_before_isa: nemu_state :%d\n ",nemu_state.state);
   isa_exec_once(s);
-  printf("inside exec_once: nemu_state :%d\n ",nemu_state.state);
+  //printf("inside exec_once: nemu_state :%d\n ",nemu_state.state);
   cpu.pc = s->dnpc;
 #ifdef CONFIG_ITRACE
   char *p = s->logbuf;
@@ -75,13 +75,13 @@ static void exec_once(Decode *s, vaddr_t pc) {
 static void execute(uint64_t n) {
   Decode s;
   for (;n > 0; n --) {
-    printf("before exec_once:  n: %ld  nemu_state :%d\n ",n,nemu_state.state);
+    //printf("before exec_once:  n: %ld  nemu_state :%d\n ",n,nemu_state.state);
     exec_once(&s, cpu.pc);
-    printf("before g_nr_guest_inst: n: %ld  nemu_state :%d\n ",n,nemu_state.state);
+    //printf("before g_nr_guest_inst: n: %ld  nemu_state :%d\n ",n,nemu_state.state);
     g_nr_guest_inst ++;
-    printf("before trace_and_difftest: n: %ld  nemu_state :%d\n ",n,nemu_state.state);
+    //printf("before trace_and_difftest: n: %ld  nemu_state :%d\n ",n,nemu_state.state);
     trace_and_difftest(&s, cpu.pc);
-    printf("n: %ld  nemu_state :%d\n ",n,nemu_state.state);
+    //printf("n: %ld  nemu_state :%d\n ",n,nemu_state.state);
     if (nemu_state.state != NEMU_RUNNING) break;
     IFDEF(CONFIG_DEVICE, device_update());
   }
