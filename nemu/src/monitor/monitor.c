@@ -52,7 +52,7 @@ static long load_img()
   if (img_file == NULL)
   {
     Log("No image is given. Use the default build-in image.");
-    return 1; // built-in image size
+    return 4096; // built-in image size
   }
 
   FILE *fp = fopen(img_file, "rb");
