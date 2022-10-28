@@ -55,6 +55,9 @@ static int cmd_q(char *args) {
 static int cmd_help(char *args);
 
 static int cmd_si(char *args){
+  //最多只能執行四步，因爲img 只有4個
+  //如果要增加執行的次數 ，修改img 的大小
+  //並且img最後一個不要定義爲nemu_trap
   printf("single excutaion step!!!\n");
   char *time = strtok(args," ");
   if (time == NULL) {
@@ -69,6 +72,19 @@ static int cmd_si(char *args){
   return 0;
 }
 
+static int cmd_reginf(char *args){
+  char *arg = strtok(NULL," ");
+  if (strcmp(arg,"r")==0)
+  {
+    for (size_t i = 0; i < 32; i++)
+    {
+      printf ("pc: %lx \t regi: %ld \t  info: %lx \n",cpu.pc,i,cpu.gpr[i]); 
+    }
+  }
+  else printf("Invalid SUBCMD!\n");
+  return 0;
+}
+
 static struct {
   const char *name;
   const char *description;
@@ -77,7 +93,8 @@ static struct {
   { "help", "Display information about all supported commands", cmd_help },
   { "c", "Continue the execution of the program", cmd_c },
   { "q", "Exit NEMU", cmd_q },
-  { "si", "Single excutaion", cmd_si}
+  { "si", "Single excutaion", cmd_si},
+  {"info","info SUBCMD",cmd_reginf}
   /* TODO: Add more commands */
 
 };
