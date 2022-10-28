@@ -58,11 +58,14 @@ static int cmd_si(char *args){
   printf("single excutaion step!!!\n");
   char *time = strtok(args," ");
   if (time == NULL) {
-    printf("Times for excuting is needed !!\n");
+    cpu_exec(1);
     return 0;
   }
-  int num = atoi(time);
-  cpu_exec(num);
+  else 
+  {
+    int num = atoi(time);
+    cpu_exec(num);
+  }
   return 0;
 }
 
