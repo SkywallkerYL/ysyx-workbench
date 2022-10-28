@@ -76,10 +76,13 @@ static int cmd_reginf(char *args){
   char *arg = strtok(NULL," ");
   if (strcmp(arg,"r")==0)
   {
+    isa_reg_display();
+    /*
     for (size_t i = 0; i < 32; i++)
     {
       printf ("pc: %lx \t regi: %ld \t  info: %lx \n",cpu.pc,i,cpu.gpr[i]); 
     }
+    */
   }
   else printf("Invalid SUBCMD!\n");
   return 0;
