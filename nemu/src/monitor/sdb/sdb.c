@@ -73,7 +73,7 @@ static int cmd_si(char *args){
   }
   return 0;
 }
-
+//寄存器信息打印
 static int cmd_reginf(char *args){
   char *arg = strtok(NULL," ");
   if (strcmp(arg,"r")==0)
@@ -93,6 +93,7 @@ static int cmd_reginf(char *args){
 //paddr_write()
 
 word_t paddr_read(paddr_t addr, int len) ;
+//从起始地址打印给定个数的寄存器信息
 static int cmd_x(char *args){
   char *N = strtok(NULL," ");
   char *EXPR = strtok(NULL," ");
