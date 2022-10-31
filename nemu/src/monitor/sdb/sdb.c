@@ -49,7 +49,7 @@ static int cmd_c(char *args) {
 
 
 static int cmd_q(char *args) {
-  return -1;
+  return 0;
 }
 
 static int cmd_help(char *args);
@@ -102,7 +102,7 @@ static int cmd_x(char *args){
   //printf ("%x\t",addexpr);
   for (size_t i = 0; i < addrn; i++)
   {
-    printf("0x%08x\t%08lx\n",addexpr,paddr_read(addexpr,4));
+    printf("0x%08x\t 0x%08lx\n",addexpr,paddr_read(addexpr,4));
     addexpr+=4;
   }
   printf("\n");
