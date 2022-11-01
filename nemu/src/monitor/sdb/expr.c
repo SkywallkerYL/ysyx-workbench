@@ -114,7 +114,7 @@ static bool make_token(char *e) {
          * of tokens, some extra actions should be performed.
          */
         tokens[nr_token].type = rules[i].token_type;
-        printf("nr_token : %d type : %d \n",nr_token,tokens[nr_token].type);
+        //printf("nr_token : %d type : %d \n",nr_token,tokens[nr_token].type);
         switch (rules[i].token_type) {
           //case TK_NOTYPE: ;
           case TK_NOTYPE : break;
@@ -162,11 +162,12 @@ word_t expr(char *e, bool *success) {
 
   /* TODO: Insert codes to evaluate the expression. */
   printf("nr_token: %d\n", nr_token);
+  /*
   for (size_t i = 0; i < nr_token; i++)
   {
     printf("tokens[%ld].type: %d \n",i,tokens[i].type);
   }
-  
+  */
   return eval(0,nr_token-1);
 
   return 0;
