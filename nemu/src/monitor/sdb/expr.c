@@ -194,6 +194,11 @@ bool check_parentheses(int p , int q ){
     }
     //(1+2)*(3+4) 也是错的
   }
+  if (flag != 0)
+  {
+    return false;
+  }
+  
   return true;
 }
 //同一个括号内的情况
