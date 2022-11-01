@@ -254,6 +254,7 @@ int dominant_operator(int p , int q){
       {
         if (tokens[i].type == '(')   pair++;
         else if (tokens[i].type == ')') pair--;
+        printf("ind:tokens[%ld].type: %d\n",i,tokens[i].type);
         i++;
         if (pair == 0)
         {
@@ -268,7 +269,7 @@ int dominant_operator(int p , int q){
     //目前只实现了加减乘除
     else if ( tokens[i].type == TK_DEX || tokens[i].type == TK_HEX)
     {
-      printf("tokens[%ld].type: %d",i,tokens[i].type);
+      printf("tokens[%ld].type: %d\n",i,tokens[i].type);
       continue;
     }
     //越小优先级越高
