@@ -258,6 +258,7 @@ int dominant_operator(int p , int q){
            || tokens[i].type !='*' \
            || tokens[i].type != '/')
     {
+      printf("tokens[%ld].type: %d",i,tokens[i].type);
       continue;
     }
     //越小优先级越高
