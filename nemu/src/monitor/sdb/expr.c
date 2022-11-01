@@ -260,10 +260,7 @@ int dominant_operator(int p , int q){
       }
     }
     //目前只实现了加减乘除
-    else if ( tokens[i].type !='+' \
-           || tokens[i].type !='-' \
-           || tokens[i].type !='*' \
-           || tokens[i].type != '/')
+    else if ( tokens[i].type !='+'|| tokens[i].type !='-'|| tokens[i].type !='*'|| tokens[i].type != '/')
     {
       printf("tokens[%ld].type: %d",i,tokens[i].type);
       continue;
