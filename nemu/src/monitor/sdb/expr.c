@@ -294,6 +294,7 @@ int eval (int p , int q) {
   }
   else {
     int op = dominant_operator(p,q);
+    printf("dominator : %d \n",op);
     int val1 = eval (p,op-1);
     int val2 = eval (op+1,q);
     switch (tokens[op].type)
