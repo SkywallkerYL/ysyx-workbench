@@ -269,6 +269,7 @@ int dominant_operator(int p , int q){
     //越不是主操作符
     else if (prior(tokens[i].type) > pr)
     {
+      printf("gen: tokens[%ld].type: %d",i,tokens[i].type);
       pr = prior(tokens[i].type);
       dompos = i;
     }
