@@ -210,8 +210,8 @@ int prior (int type)
     case '*'        :   pir = 3;    break;
     case '/'        :   pir = 3;    break;
     case '-'        :   pir = 4;    break;
-    case TK_HEX     :       break;
-    case TK_DEX     :       break;
+    case TK_HEX     :   pir =-2;    break;
+    case TK_DEX     :   pir =-2;    break;
     case TK_UNEQ    :   pir = 2;    break;
     case TK_AND     :   pir = 1;    break;
     case TK_OR      :   pir = 1;    break;
