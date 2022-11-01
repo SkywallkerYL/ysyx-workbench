@@ -93,7 +93,8 @@ static int cmd_reginf(char *args){
 //paddr_write()
 
 word_t paddr_read(paddr_t addr, int len) ;
-//从起始地址打印给定个数的寄存器信息
+//从起始地址打印给定个数的地址存储的信息
+//example x 10 0x8000_0000
 static int cmd_x(char *args){
   char *N = strtok(NULL," ");
   char *EXPR = strtok(NULL," ");
@@ -110,6 +111,28 @@ static int cmd_x(char *args){
   printf("\n");
   return 0;
 }
+// 表达式求值
+static int cmd_p(char *args){
+  if (args == NULL)
+  {
+    printf("Please input the expression to calculate!");
+  }
+  else 
+  {
+    init_regex();
+    bool success = true;
+    int result = expr(args,&success);
+    if (success)
+    {
+      printf("result == %d\n",result);
+    }
+    else
+    {
+      printf("Invalid expression!\n");
+    }
+  }
+  return 0;
+}
 
 static struct {
   const char *name;
@@ -121,7 +144,8 @@ static struct {
   { "q", "Exit NEMU", cmd_q },
   { "si", "Single excutaion", cmd_si},
   {"info","info SUBCMD",cmd_reginf},
-  {"x","EXPR SCAN",cmd_x}
+  {"x","EXPR SCAN",cmd_x},
+  {"p","Expression calculation",cmd_p}
   /* TODO: Add more commands */
 
 };

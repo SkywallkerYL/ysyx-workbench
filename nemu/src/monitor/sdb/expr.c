@@ -22,7 +22,7 @@
 
 enum {
   TK_NOTYPE = 256, TK_EQ,TK_HEX,TK_DEX,TK_UNEQ,TK_AND,TK_OR
-  ,TK_BEQ,TK_LEQ,TK_LSHIFT,TK_RSHIFT
+  ,TK_BEQ,TK_LEQ,TK_LSHIFT,TK_RSHIFT,TK_POINT,TK_SUB
   /* TODO: Add more token types */
 
 };
@@ -40,11 +40,13 @@ static struct rule {
   {"\\+", '+'},         // plus
   {"==", TK_EQ},        // equal
   {"\\*", '*'},         //multiply
+  {"\\*", TK_POINT},    //指针
   {"/", '/'},            //div
   {"-",'-'},             //minus
+  {"-",TK_SUB},          // 复数
   {"0x[0-9,a-f,A-F]+", TK_HEX}, // HEX 十六进制在十进制之前
   {"[0-9]+", TK_DEX},   //DEX
-  {"!=", TK_UNEQ},      //UNEQ
+  {"!=", TK_UNEQ},      //UNEQ !=放在非前，防止被识别为！
   {"&&",TK_AND},        //AND
   {"\\|\\|",TK_OR},     //OR
   {"!",'!'},            //NOR
@@ -100,7 +102,8 @@ static bool make_token(char *e) {
       if (regexec(&re[i], e + position, 1, &pmatch, 0) == 0 && pmatch.rm_so == 0) {
         char *substr_start = e + position;
         int substr_len = pmatch.rm_eo;
-
+        //strncpy(tokens[nr_token].str,substr_start,substr_len);
+        //tokens[nr_token].str[substr_len] = '\0';
         Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
             i, rules[i].regex, position, substr_len, substr_len, substr_start);
 
@@ -112,7 +115,28 @@ static bool make_token(char *e) {
          */
 
         switch (rules[i].token_type) {
-          default: TODO();
+          //case TK_NOTYPE: ;
+          case TK_NOTYPE : break;
+          case '+'  : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
+          case TK_EQ: strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
+          case '*'  : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
+          case '/'  : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
+          case '-'  : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
+          case TK_HEX  : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
+          case TK_DEX  : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
+          case TK_UNEQ : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
+          case TK_AND  : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
+          case TK_OR   : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
+          case '!'  : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
+          case '('  : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
+          case ')'  : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
+          case TK_BEQ  : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
+          case TK_LEQ  : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
+          case TK_LSHIFT  : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
+          case TK_RSHIFT  : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
+          case '>'  : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
+          case '<'  : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
+          default: break;
         }
 
         break;
@@ -128,7 +152,7 @@ static bool make_token(char *e) {
   return true;
 }
 
-
+int eval(int p,int q);
 word_t expr(char *e, bool *success) {
   if (!make_token(e)) {
     *success = false;
@@ -136,7 +160,156 @@ word_t expr(char *e, bool *success) {
   }
 
   /* TODO: Insert codes to evaluate the expression. */
-  TODO();
+  return eval(0,nr_token);
 
+  return 0;
+}
+
+//括号匹配函数
+bool check_parentheses(int p , int q ){
+  int i = 0;
+  int flag = 0;
+  if (tokens[p].type!='('|| tokens[q].type!=')') return false;
+  for (i = p; i <= q; i++)
+  {
+    if (tokens[p].type == '(')
+    {
+      flag++;
+    }
+    else if (tokens[p].type == ')')
+    {
+      flag--;    
+    }
+    if (flag == 0 && i < q)
+    {
+      return false ;
+    }
+    //(1+2)*(3+4) 也是错的
+  }
+  return true;
+}
+//同一个括号内的情况
+//操作符优先级函数
+//越小优先级越高
+int prior (int type)
+{
+  int pir = -1;
+  switch (type)
+  {
+    case TK_NOTYPE  :       break;
+    case '+'        :   pir = 4;    break;
+    case TK_EQ      :   pir = 2;    break;
+    case '*'        :   pir = 3;    break;
+    case '/'        :   pir = 3;    break;
+    case '-'        :   pir = 4;    break;
+    case TK_HEX     :       break;
+    case TK_DEX     :       break;
+    case TK_UNEQ    :   pir = 2;    break;
+    case TK_AND     :   pir = 1;    break;
+    case TK_OR      :   pir = 1;    break;
+    case '!'        :   pir = 0;    break;
+    case '('        :       break;
+    case ')'        :       break;
+    case TK_BEQ     :   pir = 2;    break;
+    case TK_LEQ     :   pir = 2;    break;
+    case TK_LSHIFT  :   pir = 0;    break;
+    case TK_RSHIFT  :   pir = 0;    break;
+    case '>'        :   pir = 2;    break;
+    case '<'        :   pir = 2;    break; 
+  
+  default: break;
+  }
+  return pir;
+}
+//主操作数寻找函数
+//返回主操作数的位置
+//括号外相对括号里的是主操作符
+//符号的优先级越高 要先计算 就不是主操作符
+//主操作符应该是优先级最低的
+int dominant_operator(int p , int q){
+  int dompos = p, pair = 0;
+  int pr = -2;
+  for (size_t i = p; i <= q; i++)
+  {  
+    //确定符号在括号之外
+    if (tokens[i].type == '(')
+    {
+      pair ++;
+      i++;
+      while (1)
+      {
+        if (tokens[i].type == '(')   pair++;
+        else if (tokens[i].type == ')') pair--;
+        i++;
+        if (pair == 0)
+        {
+          break;
+        }
+      }
+      if (i>q)
+      {
+        break;
+      }
+    }
+    //目前只实现了加减乘除
+    else if ( tokens[i].type !='+' \
+           || tokens[i].type !='-' \
+           || tokens[i].type !='*' \
+           || tokens[i].type != '/')
+    {
+      continue;
+    }
+    //越小优先级越高
+    //越不是主操作符
+    else if (prior(tokens[i].type) > pr)
+    {
+      pr = prior(tokens[i].type);
+      dompos = i;
+    }
+  }
+  return dompos;
+}
+//表达式求值函数
+int eval (int p , int q) {
+  if (p > q)
+  {
+    assert("Bad expression");
+  }
+  else if (p == q)
+  {
+    int number ;
+    if (tokens[p].type == TK_HEX)
+    {
+      sscanf(tokens[p].str,"%x",&number);
+    }
+    else if (tokens[p].type == TK_DEX)
+    {
+      sscanf(tokens[p].str,"%d",&number);
+    }
+    return number;
+  }
+  else if (check_parentheses(p,q) == true)
+  {
+    return eval(p+1,q-1);
+  }
+  else {
+    int op = dominant_operator(p,q);
+    int val1 = eval (p,op-1);
+    int val2 = eval (op+1,q);
+    switch (tokens[op].type)
+    {
+    case '+' : return val1+val2; break;
+    case '-' : return val1-val2; break;
+    case '*' : return val1*val2; break;
+    case '/' : 
+      if (val2 == 0)
+      {
+          assert("Invalid expression for 0 as mother");
+      }
+      else return val1/val2; 
+      break;
+    default: assert(0);break;
+    }
+  }
   return 0;
 }
