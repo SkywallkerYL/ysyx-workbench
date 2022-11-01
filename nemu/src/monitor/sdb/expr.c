@@ -244,6 +244,7 @@ int dominant_operator(int p , int q){
     {
       pair ++;
       i++;
+      printf("ind:tokens[%ld].type: %d\n",i,tokens[i].type);
       while (1)
       {
         if (tokens[i].type == '(')   pair++;
