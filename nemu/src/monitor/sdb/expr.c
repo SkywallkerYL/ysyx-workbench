@@ -248,13 +248,13 @@ int dominant_operator(int p , int q){
     if (tokens[i].type == '(')
     {
       pair ++;
-      printf("ind:tokens[%ld].type: %d\n",i,tokens[i].type);
+      //printf("ind:tokens[%ld].type: %d\n",i,tokens[i].type);
       while (1)
       {
         i++;
         if (tokens[i].type == '(')   pair++;
         else if (tokens[i].type == ')') pair--;
-        printf("ind:tokens[%ld].type: %d\n",i,tokens[i].type);
+        //printf("ind:tokens[%ld].type: %d\n",i,tokens[i].type);
         if (pair == 0)
         {
           break;
@@ -268,7 +268,7 @@ int dominant_operator(int p , int q){
     //目前只实现了加减乘除
     else if ( tokens[i].type == TK_DEX || tokens[i].type == TK_HEX)
     {
-      printf("tokens[%ld].type: %d\n",i,tokens[i].type);
+      //printf("tokens[%ld].type: %d\n",i,tokens[i].type);
       continue;
     }
     //越小优先级越高
@@ -277,7 +277,7 @@ int dominant_operator(int p , int q){
     {
       //printf("gen: tokens[%ld].type: %d",i,tokens[i].type);
       pr = prior(tokens[i].type);
-      printf("pr:%d tokens[%ld].type: %d",pr,i,tokens[i].type);
+      //printf("pr:%d tokens[%ld].type: %d",pr,i,tokens[i].type);
       dompos = i;
     }
   }
@@ -308,7 +308,7 @@ int eval (int p , int q) {
   }
   else {
     int op = dominant_operator(p,q);
-    printf("start: %d end: %d dominator : %d \n",p,q,op);
+    //printf("start: %d end: %d dominator : %d \n",p,q,op);
     int val1 = eval (p,op-1);
     int val2 = eval (op+1,q);
     switch (tokens[op].type)
