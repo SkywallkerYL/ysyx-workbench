@@ -180,11 +180,11 @@ bool check_parentheses(int p , int q ){
   if (tokens[p].type!='('|| tokens[q].type!=')') return false;
   for (i = p; i <= q; i++)
   {
-    if (tokens[p].type == '(')
+    if (tokens[i].type == '(')
     {
       flag++;
     }
-    else if (tokens[p].type == ')')
+    else if (tokens[i].type == ')')
     {
       flag--;    
     }
