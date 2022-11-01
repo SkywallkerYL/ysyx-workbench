@@ -161,7 +161,12 @@ word_t expr(char *e, bool *success) {
 
   /* TODO: Insert codes to evaluate the expression. */
   printf("nr_token: %d\n", nr_token);
-  return eval(0,nr_token);
+  for (size_t i = 0; i < nr_token; i++)
+  {
+    printf("tokens[%ld].type: %d \n",i,tokens[i].type);
+  }
+  
+  return eval(0,nr_token-1);
 
   return 0;
 }
