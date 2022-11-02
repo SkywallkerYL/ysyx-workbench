@@ -38,9 +38,9 @@ static void gen(char a){
   addpos++;
 }
 static void gen_num(){
-  int num = rand()%2147483647;
+  int num = rand()%10;
   char s[13] ;
-  switch (choose(2))
+  switch (choose(1))
   {
   case 0:   snprintf(s,sizeof(s),"%d",num);   break;
   case 1:   snprintf(s,sizeof(s),"%x",num);  break;
