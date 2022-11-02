@@ -30,12 +30,49 @@ static char *code_format =
 "  printf(\"%%u\", result); "
 "  return 0; "
 "}";
-
+int addpos = 0;
+int choose(int n) {return rand()%n;}
+static void gen(char a){
+  buf[addpos] = a;
+  buf[addpos+1] = '\0';
+  addpos++;
+}
+static void gen_num(){
+  int num = rand()%2147483647;
+  char s[13] ;
+  switch (choose(2))
+  {
+  case 0:   snprintf(s,sizeof(s),"%d",num);   break;
+  case 1:   snprintf(s,sizeof(s),"%x",num);  break;
+  default:   snprintf(s,sizeof(s),"%d",num);  break;
+  }
+  for (size_t i = 0; s[i]!='\0'; i++)
+  {
+    gen(s[i]);
+  }
+}
+static void gen_rand_op(){
+  switch (choose(4))
+  {
+  case 0: gen('+');break;
+  case 1: gen('-');break;
+  case 2: gen('*');break;
+  case 3: gen('/');break;
+  default: gen('+');break;
+  }
+}
 static void gen_rand_expr() {
-  buf[0] = '\0';
+  
+  switch (choose(3))
+  {
+    case 0: gen_num(); break;
+    case 1: gen('(');gen_rand_expr();gen(')');break;
+    default: gen_rand_expr();gen_rand_op();gen_rand_expr();break;
+  }
 }
 
 int main(int argc, char *argv[]) {
+  buf[0] = '\0';
   int seed = time(0);
   srand(seed);
   int loop = 1;
