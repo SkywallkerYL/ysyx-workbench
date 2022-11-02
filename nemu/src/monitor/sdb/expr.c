@@ -123,6 +123,7 @@ static bool make_token(char *e) {
           case '*'  : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
           case '/'  : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
           case '-'  : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
+          case TK_SUB  : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
           case TK_HEX  : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
           case TK_DEX  : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
           case TK_UNEQ : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
@@ -162,12 +163,26 @@ word_t expr(char *e, bool *success) {
 
   /* TODO: Insert codes to evaluate the expression. */
   //printf("nr_token: %d\n", nr_token);
-  /*
+  
   for (size_t i = 0; i < nr_token; i++)
   {
-    printf("tokens[%ld].type: %d \n",i,tokens[i].type);
+    //判断负号
+    if (tokens[i].type == '-')
+    {
+      if (i==0||tokens[i-1].type == '+' || \
+            tokens[i-1].type == '-' || \
+            tokens[i-1].type == '*' || \
+            tokens[i-1].type == '/' || \
+            tokens[i-1].type == TK_SUB ||\
+            tokens[i-1].type == '(')
+      {
+        tokens[i].type = TK_SUB;
+      }
+      
+    }
+    
   }
-  */
+  
   return eval(0,nr_token-1);
 
   return 0;
@@ -215,6 +230,7 @@ int prior (int type)
     case '*'        :   pir = 3;    break;
     case '/'        :   pir = 3;    break;
     case '-'        :   pir = 4;    break;
+    case TK_SUB     :   pir =-1;    break;
     case TK_HEX     :   pir =-2;    break;
     case TK_DEX     :   pir =-2;    break;
     case TK_UNEQ    :   pir = 2;    break;
@@ -323,6 +339,7 @@ int eval (int p , int q) {
       }
       else return val1/val2; 
       break;
+    case TK_SUB: return -val2; break; 
     default: assert(0);break;
     }
   }
