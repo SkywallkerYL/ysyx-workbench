@@ -289,7 +289,9 @@ int dominant_operator(int p , int q){
     }
     //越小优先级越高
     //越不是主操作符
-    //同一优先级 在前面的 i小的 为主操作符
+    //同一优先级 在前面的 要先计算所以不是主操作符
+    //主操作符应该是最后计算的
+    //这里要写成= 同一优先级后面来的后计算 是主操作符
     else if (prior(tokens[i].type) >= pr)
     {
       //printf("gen: tokens[%ld].type: %d",i,tokens[i].type);
@@ -316,7 +318,7 @@ int eval (int p , int q) {
     else if (tokens[p].type == TK_DEX)
     {
       sscanf(tokens[p].str,"%d",&number);
-      printf("tempval: %d\n",number);
+      //printf("tempval: %d\n",number);
     }
     return number;
   }
@@ -332,19 +334,19 @@ int eval (int p , int q) {
     printf("op_pos: %d\n",op);
     switch (tokens[op].type)
     {
-    case '+' : printf("tempval+: %d %d %d\n",val1,val2,val1+val2);return val1+val2; break;
-    case '-' : printf("tempval-: %d %d %d\n",val1,val2,val1-val2);return val1-val2; break;
-    case '*' : printf("tempval*: %d %d %d\n",val1,val2,val1*val2);return val1*val2; break;
+    case '+' : /*printf("tempval+: %d %d %d\n",val1,val2,val1+val2);*/return val1+val2; break;
+    case '-' : /*printf("tempval-: %d %d %d\n",val1,val2,val1-val2);*/return val1-val2; break;
+    case '*' : /*printf("tempval*: %d %d %d\n",val1,val2,val1*val2);*/return val1*val2; break;
     case '/' : 
       if (val2 == 0)
       {
           assert("Invalid expression for 0 as mother");
       }
       else {
-        printf("tempval/: %d %d %d\n",val1,val2,val1/val2);
+        /*printf("tempval/: %d %d %d\n",val1,val2,val1/val2);*/
         return val1/val2; 
       break;}
-    case TK_SUB: printf("tempval: %d %d %d\n",val1,val2,-val2);return -val2; break; 
+    case TK_SUB: /*printf("tempval: %d %d %d\n",val1,val2,-val2);*/return -val2; break; 
     default: assert(0);break;
     }
   }
