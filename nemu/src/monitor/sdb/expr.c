@@ -289,7 +289,8 @@ int dominant_operator(int p , int q){
     }
     //越小优先级越高
     //越不是主操作符
-    else if (prior(tokens[i].type) > pr)
+    //同一优先级 在前面的 i小的 为主操作符
+    else if (prior(tokens[i].type) >= pr)
     {
       //printf("gen: tokens[%ld].type: %d",i,tokens[i].type);
       pr = prior(tokens[i].type);
