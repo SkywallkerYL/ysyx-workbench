@@ -70,7 +70,8 @@ static void gen_rand_expr() {
     default: gen_rand_expr();gen_rand_op();gen_rand_expr();break;
   }
 }
-
+int exprr  = (((8))+((((1)))*((((((1/8-((5*7))/5)))+(7))+(9+6+5-8+2+3+0))/(1)/((9))))+((1+((0)*(1)))-(9-5+1)));
+int exprrr1 = (8+(1*((1/8-5*7/5+7+9+6+5-8+2+3+0)/1/9))+(1+0*1-9-5+1));
 int main(int argc, char *argv[]) {
   buf[0] = '\0';
   int seed = time(0);
