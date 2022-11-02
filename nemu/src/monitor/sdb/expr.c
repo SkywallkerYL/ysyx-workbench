@@ -330,19 +330,19 @@ int eval (int p , int q) {
     int val2 = eval (op+1,q);
     switch (tokens[op].type)
     {
-    case '+' : printf("tempval+: %d\n",val1+val2);return val1+val2; break;
-    case '-' : printf("tempval-: %d\n",val1-val2);return val1-val2; break;
-    case '*' : printf("tempval*: %d\n",val1*val2);return val1*val2; break;
+    case '+' : printf("tempval+: %d %d %d\n",val1,val2,val1+val2);return val1+val2; break;
+    case '-' : printf("tempval-: %d %d %d\n",val1,val2,val1-val2);return val1-val2; break;
+    case '*' : printf("tempval*: %d %d %d\n",val1,val2,val1*val2);return val1*val2; break;
     case '/' : 
       if (val2 == 0)
       {
           assert("Invalid expression for 0 as mother");
       }
       else {
-        printf("tempval/: %d\n",val1/val2);
+        printf("tempval/: %d %d %d\n",val1,val2,val1/val2);
         return val1/val2; 
       break;}
-    case TK_SUB: printf("tempval: %d\n",-val2);return -val2; break; 
+    case TK_SUB: printf("tempval: %d %d %d\n",val1,val2,-val2);return -val2; break; 
     default: assert(0);break;
     }
   }
