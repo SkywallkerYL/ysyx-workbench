@@ -315,6 +315,7 @@ int eval (int p , int q) {
     else if (tokens[p].type == TK_DEX)
     {
       sscanf(tokens[p].str,"%d",&number);
+      printf("tempval: %d\n",number);
     }
     return number;
   }
@@ -329,17 +330,19 @@ int eval (int p , int q) {
     int val2 = eval (op+1,q);
     switch (tokens[op].type)
     {
-    case '+' : return val1+val2; break;
-    case '-' : return val1-val2; break;
-    case '*' : return val1*val2; break;
+    case '+' : printf("tempval: %d\n",val1+val2);return val1+val2; break;
+    case '-' : printf("tempval: %d\n",val1-val2);return val1-val2; break;
+    case '*' : printf("tempval: %d\n",val1*val2);return val1*val2; break;
     case '/' : 
       if (val2 == 0)
       {
           assert("Invalid expression for 0 as mother");
       }
-      else return val1/val2; 
-      break;
-    case TK_SUB: return -val2; break; 
+      else {
+        printf("tempval: %d\n",val1/val2);
+        return val1/val2; 
+      break;}
+    case TK_SUB: printf("tempval: %d\n",-val2);return -val2; break; 
     default: assert(0);break;
     }
   }
