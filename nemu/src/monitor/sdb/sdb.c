@@ -155,8 +155,8 @@ static int cmd_pt(char* args){
   while (!feof(fp)&&i<len)
   {
     printf("%d\n",i);
-    char temp[65536];
-    if(fscanf(fp,"%d %s",&a[i],temp)==1)
+
+    if(fscanf(fp,"%d %s",&a[i],str[i])==1)
     {
       printf("success : %d\n",i);
     }
@@ -170,6 +170,11 @@ static int cmd_pt(char* args){
       int cal_result;
       init_regex();
       bool success = true;
+      for (size_t j = 0; str[i][j]!='\0'; j++)
+      {
+        printf("%d",str[i][j]);
+      }printf("\n");
+      
       cal_result = expr(str[i],&success);
       if (success)
       {
