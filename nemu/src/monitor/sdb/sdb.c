@@ -152,10 +152,10 @@ static int cmd_pt(char* args){
   int a [len];
   char str [len][65536];
   int i = 0;
-  while (!feof(fp))
+  while (!feof(fp)&&i<len)
   {
     printf("%d\n",i);
-    if(fscanf(fp,"%u %s",&a[i],str[i])==1)
+    if(fscanf(fp,"%d %s",&a[i],str[i])==1)
     {
       printf("success : %d\n",i);
     }
