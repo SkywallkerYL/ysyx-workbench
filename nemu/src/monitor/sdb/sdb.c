@@ -165,7 +165,7 @@ static int cmd_pt(char* args){
     }
     i++;  
   }
-  for (size_t j = 0; j < len&&j<i; j++)
+  for (size_t j = 0; j < len&&j<i-1; j++)
   {
     int strl = strlen(str[j]);
     if (strl<=256)
