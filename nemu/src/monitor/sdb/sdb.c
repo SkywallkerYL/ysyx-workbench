@@ -154,14 +154,14 @@ static int cmd_pt(char* args){
   int i = 0;
   while (!feof(fp)&&i<len)
   {
-    printf("%d\n",i);
-    if(fscanf(fp,"%s",str[i])==1)
-    {
-      printf("success : %s %d\n",str[i],a[i]);
-    }
+    //printf("%d\n",i);
     if(fscanf(fp,"%d",&a[i])==1)
     {
-      printf("success : %s %d\n",str[i],a[i]);
+      printf("result : %d ",a[i]);
+    }
+    if(fscanf(fp,"%s",str[i])==1)
+    {
+      printf("expr : %s \n",str[i]);
     }
     i++;  
   }
