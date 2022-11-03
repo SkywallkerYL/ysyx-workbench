@@ -83,10 +83,10 @@ void init_regex() {
 
 typedef struct token {
   int type;
-  char str[128];
+  char str[65536];
 } Token;
 
-static Token tokens[128] __attribute__((used)) = {};
+static Token tokens[65536] __attribute__((used)) = {};
 static int nr_token __attribute__((used))  = 0;
 
 static bool make_token(char *e) {
