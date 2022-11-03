@@ -143,7 +143,7 @@ static int cmd_pt(char* args){
     sscanf(args,"%d",&len);
   }
   printf("%d",len);
-  FILE *fp = fopen("/home/yangli/ysyx-workbench/nemu/tools/gen-expr/input","r");
+  FILE *fp = fopen("tools/gen-expr/input","r");
   if (fp == NULL)
   {
     printf("No testfile input!!\n");
