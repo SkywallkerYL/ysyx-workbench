@@ -157,7 +157,7 @@ static int cmd_pt(char* args){
     printf("%d\n",i);
     if(fscanf(fp,"%s ,%d",str[i],&a[i])==1)
     {
-      printf("success : %d\n",i);
+      printf("success : %s %d\n",str[i],a[i]);
     }
     i++;  
   }
