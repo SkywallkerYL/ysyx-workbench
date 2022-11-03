@@ -167,16 +167,16 @@ static int cmd_pt(char* args){
   }
   for (size_t j = 0; j < len&&j<i; j++)
   {
-    int strl = strlen(str[i]);
+    int strl = strlen(str[j]);
     if (strl<=256)
     {
       int cal_result;
       init_regex();
       bool success = true;
-      cal_result = expr(str[i],&success);
+      cal_result = expr(str[j],&success);
       if (success)
       {
-        printf("realresult = %d, result = %d\n",a[i],cal_result);
+        printf("realresult = %d, result = %d\n",a[j],cal_result);
       }
       else
       {
