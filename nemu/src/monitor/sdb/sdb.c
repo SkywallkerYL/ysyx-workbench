@@ -133,7 +133,55 @@ static int cmd_p(char *args){
   }
   return 0;
 }
-static int cmd_pt(){
+static int cmd_pt(char* args){
+  int len;
+  if (args == NULL)
+  {
+    len = 100;
+  }
+  else {
+    sscanf(args,"%d",&len);
+  }
+  
+  FILE *fp = fopen("/tools/gen-expr/input","r");
+  if (fp == NULL)
+  {
+    printf("No testfile input!!\n");
+    return 0;
+  }
+  int a [len];
+  char str [len][65536];
+  int i = 0;
+  while (!feof(fp))
+  {
+    
+    if(fscanf(fp,"%u %s",&a[i],str[i])==1)
+    {
+      printf("%d",i);
+    }
+    i++;  
+  }
+  for (size_t j = 0; j < len&&j<i; j++)
+  {
+    int strl = strlen(str[i]);
+    if (strl<=256)
+    {
+      int cal_result;
+      init_regex();
+      bool success = true;
+      cal_result = expr(str[i],&success);
+      if (success)
+      {
+        printf("realresult = %d, result = %d\n",a[i],cal_result);
+      }
+      else
+      {
+        printf("Invalid expression!\n");
+      }
+    }
+  }
+  
+  
   return 0;
 }
 
