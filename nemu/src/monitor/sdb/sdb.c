@@ -142,7 +142,7 @@ static int cmd_pt(char* args){
   else {
     sscanf(args,"%d",&len);
   }
-  
+  printf("%d",len);
   FILE *fp = fopen("/home/yangli/ysyx-workbench/nemu/tools/gen-expr/input","r");
   if (fp == NULL)
   {
