@@ -155,7 +155,8 @@ static int cmd_pt(char* args){
   while (!feof(fp)&&i<len)
   {
     printf("%d\n",i);
-    if(fscanf(fp,"%d %s",&a[i],str[i])==1)
+    char temp[65536];
+    if(fscanf(fp,"%d %s",&a[i],temp)==1)
     {
       printf("success : %d\n",i);
     }
