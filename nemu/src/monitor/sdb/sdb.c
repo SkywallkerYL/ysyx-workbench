@@ -142,7 +142,7 @@ static int cmd_pt(char* args){
   else {
     sscanf(args,"%d",&len);
   }
-  printf("%d",len);
+  printf("%d\n",len);
   FILE *fp = fopen("/tools/gen-expr/input","r");
   if (fp == NULL)
   {
