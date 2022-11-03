@@ -133,6 +133,9 @@ static int cmd_p(char *args){
   }
   return 0;
 }
+static int cmd_pt(){
+  return 0;
+}
 
 static struct {
   const char *name;
@@ -145,7 +148,8 @@ static struct {
   { "si", "Single excutaion", cmd_si},
   {"info","info SUBCMD",cmd_reginf},
   {"x","EXPR SCAN",cmd_x},
-  {"p","Expression calculation",cmd_p}
+  {"p","Expression calculation",cmd_p},
+  {"pt","Expression calculation test",cmd_pt}
   /* TODO: Add more commands */
 
 };
