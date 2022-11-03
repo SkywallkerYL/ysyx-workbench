@@ -170,11 +170,6 @@ static int cmd_pt(char* args){
       int cal_result;
       init_regex();
       bool success = true;
-      for (size_t j = 0; str[i][j]!='\0'; j++)
-      {
-        printf("%d",str[i][j]);
-      }printf("\n");
-      
       cal_result = expr(str[i],&success);
       if (success)
       {
