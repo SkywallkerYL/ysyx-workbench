@@ -154,10 +154,10 @@ static int cmd_pt(char* args){
   int i = 0;
   while (!feof(fp))
   {
-    printf("%d",i);
+    printf("%d\n",i);
     if(fscanf(fp,"%u %s",&a[i],str[i])==1)
     {
-      printf("%d",i);
+      printf("success : %d\n",i);
     }
     i++;  
   }
