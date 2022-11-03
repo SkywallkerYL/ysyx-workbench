@@ -33,12 +33,33 @@ static char *code_format =
 int addpos = 0;
 int choose(int n) {return rand()%n;}
 static void gen(char a){
+  //char str[2];
+  //str[0] = a;
+  //str[1] = '\0';
+  //printf("%d %s\n",addpos,str);
   buf[addpos] = a;
   buf[addpos+1] = '\0';
   addpos++;
 }
 static void gen_num(){
   int num = rand()%10;
+  if (addpos>0)
+  {
+    while (num == 0)
+    {
+      int temppos = addpos-1;
+      while (buf[temppos] == '('&&temppos>0)
+      {
+        temppos--;
+      }
+      if (buf[temppos] == '/')
+      {
+        num = choose(10);
+      }
+      else break;
+    }
+  }
+  
   char s[13] ;
   switch (choose(1))
   {
@@ -67,12 +88,12 @@ static void gen_rand_expr() {
   {
     case 0: gen_num(); break;
     case 1: gen('(');gen_rand_expr();gen(')');break;
+    case 2: gen_rand_expr();gen_rand_op();gen_rand_expr();break;
+    //case 3: gen(' ');gen_rand_expr();
     default: gen_rand_expr();gen_rand_op();gen_rand_expr();break;
   }
 }
-//int exprr  = (((8))+((((1)))*((((((1/8-((5*7))/5)))+(7))+(9+6+5-8+2+3+0))/(1)/((9))))+((1+((0)*(1)))-(9-5+1)));
-//int exprrr1 = (8+(1*((1/8-5*7/5+7+9+6+5-8+2+3+0)/1/9))+(1+0*1-(9-5+1)));
-//int exprrrr = (1-9-5+1);
+
 int main(int argc, char *argv[]) {
   buf[0] = '\0';
   int seed = time(0);
@@ -83,6 +104,9 @@ int main(int argc, char *argv[]) {
   }
   int i;
   for (i = 0; i < loop; i ++) {
+    strcpy(buf,"");
+    addpos = 0;
+    buf[0] = '\0';
     gen_rand_expr();
 
     sprintf(code_buf, code_format, buf);
