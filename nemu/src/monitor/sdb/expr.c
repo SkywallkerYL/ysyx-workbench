@@ -46,7 +46,8 @@ static struct rule {
   {"-",TK_SUB},          // 复数
   {"0x[0-9,a-f,A-F]+", TK_HEX}, // HEX 十六进制在十进制之前
   {"[0-9]+", TK_DEX},   //DEX
-  {"\\$[a-z]{2,3}",TK_REGNAME},
+  //{"\\$[a-z]{2,3}",TK_REGNAME},
+  {"gpr\\[[0-9]+\\]",TK_REGNAME},
   {"!=", TK_UNEQ},      //UNEQ !=放在非前，防止被识别为！
   {"&&",TK_AND},        //AND
   {"\\|\\|",TK_OR},     //OR
@@ -360,6 +361,18 @@ int eval (int p , int q) {
     {
       sscanf(tokens[p].str,"%d",&number);
       //printf("tempval: %d\n",number);
+    }
+    else if (tokens[p].type == TK_REGNAME)
+    {
+      char strtemp[3];
+      int chari = 4;
+      while (tokens[p].str[chari]!=']'&&chari<=6)
+      {
+        strtemp[chari-4] = tokens[p].str[chari];
+        chari++;
+      }
+      strtemp[chari-4] = '\0';
+      sscanf(strtemp,"%d",&number);
     }
     return number;
   }
