@@ -48,7 +48,7 @@ static struct rule {
   {"[0-9]+", TK_DEX},   //DEX
   //{"cpu.gpr\\[[0-9]+\\]",TK_REGNAME},
   //{"cpu.pc",TK_REGNAME},
-  {"[//$,0-9,a-z]{1,3}",TK_REGNAME},
+  //{"[//$,0-9,a-z]{1,3}",TK_REGNAME},
   {"!=", TK_UNEQ},      //UNEQ !=放在非前，防止被识别为！
   {"&&",TK_AND},        //AND
   {"\\|\\|",TK_OR},     //OR
