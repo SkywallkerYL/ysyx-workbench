@@ -394,7 +394,7 @@ word_t eval (word_t p , word_t q) {
         return val1/val2; 
       break;}
     case TK_SUB: /*printf("tempval: %d %d %d\n",val1,val2,-val2);*/return -val2; break; 
-    case TK_POINT: return vaddr_read(val2,4);break;
+    case TK_POINT: return val2/*vaddr_read(val2,4)*/;break;
     default: assert(0);break;
     }
   }
