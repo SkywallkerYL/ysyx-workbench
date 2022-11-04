@@ -21,7 +21,7 @@
 #include <regex.h>
 
 enum {
-  TK_NOTYPE = 256, TK_EQ,TK_HEX,TK_DEX,TK_UNEQ,TK_AND,TK_OR
+  TK_NOTYPE = 256, TK_EQ,TK_HEX,TK_DEX,TK_REGNAME,TK_UNEQ,TK_AND,TK_OR
   ,TK_BEQ,TK_LEQ,TK_LSHIFT,TK_RSHIFT,TK_POINT,TK_SUB
   /* TODO: Add more token types */
 
@@ -46,6 +46,7 @@ static struct rule {
   {"-",TK_SUB},          // 复数
   {"0x[0-9,a-f,A-F]+", TK_HEX}, // HEX 十六进制在十进制之前
   {"[0-9]+", TK_DEX},   //DEX
+  {"\\$[a-z]{2,3}",TK_REGNAME},
   {"!=", TK_UNEQ},      //UNEQ !=放在非前，防止被识别为！
   {"&&",TK_AND},        //AND
   {"\\|\\|",TK_OR},     //OR
@@ -169,17 +170,26 @@ word_t expr(char *e, bool *success) {
     //判断负号
     if (tokens[i].type == '-')
     {
-      if (i==0||tokens[i-1].type == '+' || \
-            tokens[i-1].type == '-' || \
-            tokens[i-1].type == '*' || \
-            tokens[i-1].type == '/' || \
-            tokens[i-1].type == TK_SUB ||\
-            tokens[i-1].type == '(')
+      if (i==0||tokens[i-1].type != TK_DEX || \
+            tokens[i-1].type != TK_HEX || \
+            tokens[i-1].type != TK_REGNAME || \
+            tokens[i-1].type != ')')
       {
         tokens[i].type = TK_SUB;
       }
       
     }
+    if (tokens[i].type == '*')
+    {
+      if (i==0||tokens[i-1].type != TK_DEX || \
+            tokens[i-1].type != TK_HEX || \
+            tokens[i-1].type != TK_REGNAME || \
+            tokens[i-1].type != ')' )
+      {
+        tokens[i].type = TK_POINT;
+      }
+    }
+    
     
   }
   
