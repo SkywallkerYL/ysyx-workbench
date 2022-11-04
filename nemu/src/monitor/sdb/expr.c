@@ -46,8 +46,8 @@ static struct rule {
   {"-",TK_SUB},          // 复数
   {"0x[0-9,a-f,A-F]+", TK_HEX}, // HEX 十六进制在十进制之前
   {"[0-9]+", TK_DEX},   //DEX
-  //{"cpu.gpr\\[[0-9]+\\]",TK_REGNAME},
-  {"cpu.pc",TK_REGNAME},
+  {"cpu.gpr\\[[0-9]+\\]",TK_REGNAME},
+  //{"cpu.pc",TK_REGNAME},
   {"!=", TK_UNEQ},      //UNEQ !=放在非前，防止被识别为！
   {"&&",TK_AND},        //AND
   {"\\|\\|",TK_OR},     //OR
@@ -324,14 +324,20 @@ word_t eval (word_t p , word_t q) {
   }
   else if (p == q)
   {
-    int number ;
+    word_t number ;
     if (tokens[p].type == TK_HEX)
     {
-      sscanf(tokens[p].str,"%x",&number);
+      sscanf(tokens[p].str,"%lx",&number);
     }
     else if (tokens[p].type == TK_DEX)
     {
-      sscanf(tokens[p].str,"%d",&number);
+      sscanf(tokens[p].str,"%ld",&number);
+      //printf("tempval: %d\n",number);
+    }
+    else if (tokens[p].type == TK_REGNAME)
+    {
+        //sscanf(tokens[p].str,"%x",&number);
+
       //printf("tempval: %d\n",number);
     }
     return number;
