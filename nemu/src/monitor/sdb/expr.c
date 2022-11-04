@@ -21,7 +21,7 @@
 #include <regex.h>
 
 enum {
-  TK_NOTYPE = 256, TK_EQ,TK_HEX,TK_DEX,TK_REGNAME,TK_UNEQ,TK_AND,TK_OR
+  TK_NOTYPE = 256, TK_EQ,TK_HEX,TK_DEX,TK_UNEQ,TK_AND,TK_OR
   ,TK_BEQ,TK_LEQ,TK_LSHIFT,TK_RSHIFT,TK_POINT,TK_SUB
   /* TODO: Add more token types */
 
@@ -46,9 +46,6 @@ static struct rule {
   {"-",TK_SUB},          // 复数
   {"0x[0-9,a-f,A-F]+", TK_HEX}, // HEX 十六进制在十进制之前
   {"[0-9]+", TK_DEX},   //DEX
-  //{"cpu.gpr\\[[0-9]+\\]",TK_REGNAME},
-  //{"cpu.pc",TK_REGNAME},
-  //{"[//$,0-9,a-z]{1,3}",TK_REGNAME},
   {"!=", TK_UNEQ},      //UNEQ !=放在非前，防止被识别为！
   {"&&",TK_AND},        //AND
   {"\\|\\|",TK_OR},     //OR
@@ -158,7 +155,7 @@ static bool make_token(char *e) {
 }
 
 int eval(int p,int q);
-int expr(char *e, bool *success) {
+word_t expr(char *e, bool *success) {
   if (!make_token(e)) {
     *success = false;
     return 0;
@@ -172,26 +169,17 @@ int expr(char *e, bool *success) {
     //判断负号
     if (tokens[i].type == '-')
     {
-      if (i==0||tokens[i-1].type != TK_DEX || \
-            tokens[i-1].type != TK_HEX || \
-            tokens[i-1].type != TK_REGNAME || \
-            tokens[i-1].type != ')')
+      if (i==0||tokens[i-1].type == '+' || \
+            tokens[i-1].type == '-' || \
+            tokens[i-1].type == '*' || \
+            tokens[i-1].type == '/' || \
+            tokens[i-1].type == TK_SUB ||\
+            tokens[i-1].type == '(')
       {
         tokens[i].type = TK_SUB;
       }
       
     }
-    if (tokens[i].type == '*')
-    {
-      if (i==0||tokens[i-1].type != TK_DEX || \
-            tokens[i-1].type != TK_HEX || \
-            tokens[i-1].type != TK_REGNAME || \
-            tokens[i-1].type != ')' )
-      {
-        tokens[i].type = TK_POINT;
-      }
-    }
-    
     
   }
   
@@ -240,13 +228,11 @@ int prior (int type)
     case '+'        :   pir = 4;    break;
     case TK_EQ      :   pir = 2;    break;
     case '*'        :   pir = 3;    break;
-    case TK_POINT   :   pir =-1;    break;
     case '/'        :   pir = 3;    break;
     case '-'        :   pir = 4;    break;
     case TK_SUB     :   pir =-1;    break;
     case TK_HEX     :   pir =-2;    break;
     case TK_DEX     :   pir =-2;    break;
-    case TK_REGNAME :   pir =-2;    break;
     case TK_UNEQ    :   pir = 2;    break;
     case TK_AND     :   pir = 1;    break;
     case TK_OR      :   pir = 1;    break;
@@ -316,22 +302,15 @@ int dominant_operator(int p , int q){
   }
   return dompos;
 }
-const char *regscopy[] = {
-  "$0", "ra", "sp", "gp", "tp", "t0", "t1", "t2",
-  "s0", "s1", "a0", "a1", "a2", "a3", "a4", "a5",
-  "a6", "a7", "s2", "s3", "s4", "s5", "s6", "s7",
-  "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6"
-};
-word_t vaddr_read(vaddr_t addr, int len);
 //表达式求值函数
-int eval (int p , int  q) {
+int eval (int p , int q) {
   if (p > q)
   {
     assert("Bad expression");
   }
   else if (p == q)
   {
-    int number = 0 ;
+    int number ;
     if (tokens[p].type == TK_HEX)
     {
       sscanf(tokens[p].str,"%x",&number);
@@ -339,34 +318,6 @@ int eval (int p , int  q) {
     else if (tokens[p].type == TK_DEX)
     {
       sscanf(tokens[p].str,"%d",&number);
-      //printf("tempval: %d\n",number);
-    }
-    else if (tokens[p].type == TK_REGNAME)
-    {
-      printf("a reg!!\n");
-      int regi = 0;
-      for ( regi = 0; regi < 32; regi++)
-      {
-        if (strcmp(tokens[p].str,regscopy[regi]) == 0)
-        {
-          printf("regi : %d\n",regi);
-          break;
-        }
-      }
-      /*
-      if (regi >= 32)
-      {
-         if (strcmp(tokens[p].str,"eip")==0)
-         {
-            num = 
-         }
-         
-      }
-      */
-      //sscanf(cpu.gpr[regi],"%ld",&number);
-      number = cpu.gpr[regi];
-        //sscanf(tokens[p].str,"%x",&number);
-
       //printf("tempval: %d\n",number);
     }
     return number;
@@ -396,7 +347,6 @@ int eval (int p , int  q) {
         return val1/val2; 
       break;}
     case TK_SUB: /*printf("tempval: %d %d %d\n",val1,val2,-val2);*/return -val2; break; 
-    case TK_POINT: return val2/*vaddr_read(val2,4)*/;break;
     default: assert(0);break;
     }
   }
