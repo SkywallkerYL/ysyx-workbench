@@ -352,7 +352,7 @@ int eval (int p , int q) {
   }
   else if (p == q)
   {
-    int number ;
+    int number = 0;
     if (tokens[p].type == TK_HEX)
     {
       sscanf(tokens[p].str,"%x",&number);
@@ -371,8 +371,11 @@ int eval (int p , int q) {
         strtemp[chari-4] = tokens[p].str[chari];
         chari++;
       }
+      
       strtemp[chari-4] = '\0';
-      sscanf(strtemp,"%d",&number);
+      int index ;
+      sscanf(strtemp,"%d",&index);
+      number = cpu.gpr[index];
     }
     return number;
   }
