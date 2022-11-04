@@ -377,8 +377,8 @@ int eval (int p , int q) {
       strtemp[chari-4] = '\0';
       int index ;
       sscanf(strtemp,"%d",&index);
-      printf("index %d\n",index);
-      printf("index %lx\n",cpu.gpr[index]);
+      //printf("index %d\n",index);
+      //printf("addr %lx\n",cpu.gpr[index]);
       number = cpu.gpr[index];
     }
     return number;
