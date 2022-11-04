@@ -346,7 +346,7 @@ word_t eval (word_t p , word_t q) {
       int regi = 0;
       for ( regi = 0; regi < 32; regi++)
       {
-        if (strcmp(tokens[p].str,regscopy[regi]) == 0)
+        if (strcmp(tokens[p].str,regscopy[regi]) == 1)
         {
           printf("regi : %d\n",regi);
           break;
