@@ -170,26 +170,17 @@ word_t expr(char *e, bool *success) {
     //判断负号
     if (tokens[i].type == '-')
     {
-      if (i==0||tokens[i-1].type != TK_DEX || \
-            tokens[i-1].type != TK_HEX || \
-            tokens[i-1].type != TK_REGNAME || \
-            tokens[i-1].type != ')')
+      if (i==0||tokens[i-1].type == '+' || \
+            tokens[i-1].type == '-' || \
+            tokens[i-1].type == '*' || \
+            tokens[i-1].type == '/' || \
+            tokens[i-1].type == TK_SUB ||\
+            tokens[i-1].type == '(')
       {
         tokens[i].type = TK_SUB;
       }
       
     }
-    if (tokens[i].type == '*')
-    {
-      if (i==0||tokens[i-1].type != TK_DEX || \
-            tokens[i-1].type != TK_HEX || \
-            tokens[i-1].type != TK_REGNAME || \
-            tokens[i-1].type != ')' )
-      {
-        tokens[i].type = TK_POINT;
-      }
-    }
-    
     
   }
   
@@ -238,7 +229,6 @@ int prior (int type)
     case '+'        :   pir = 4;    break;
     case TK_EQ      :   pir = 2;    break;
     case '*'        :   pir = 3;    break;
-    case TK_POINT   :   pir =-1;    break;
     case '/'        :   pir = 3;    break;
     case '-'        :   pir = 4;    break;
     case TK_SUB     :   pir =-1;    break;
