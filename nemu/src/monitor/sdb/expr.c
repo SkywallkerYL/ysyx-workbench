@@ -46,8 +46,9 @@ static struct rule {
   {"-",TK_SUB},          // 复数
   {"0x[0-9,a-f,A-F]+", TK_HEX}, // HEX 十六进制在十进制之前
   {"[0-9]+", TK_DEX},   //DEX
-  {"cpu.gpr\\[[0-9]+\\]",TK_REGNAME},
+  //{"cpu.gpr\\[[0-9]+\\]",TK_REGNAME},
   //{"cpu.pc",TK_REGNAME},
+  {"[//$,0-9,a-z]{1,2}",TK_REGNAME},
   {"!=", TK_UNEQ},      //UNEQ !=放在非前，防止被识别为！
   {"&&",TK_AND},        //AND
   {"\\|\\|",TK_OR},     //OR
@@ -315,6 +316,12 @@ word_t dominant_operator(word_t p , word_t q){
   }
   return dompos;
 }
+const char *regscopy[] = {
+  "$0", "ra", "sp", "gp", "tp", "t0", "t1", "t2",
+  "s0", "s1", "a0", "a1", "a2", "a3", "a4", "a5",
+  "a6", "a7", "s2", "s3", "s4", "s5", "s6", "s7",
+  "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6"
+};
 word_t vaddr_read(vaddr_t addr, int len);
 //表达式求值函数
 word_t eval (word_t p , word_t q) {
@@ -324,7 +331,7 @@ word_t eval (word_t p , word_t q) {
   }
   else if (p == q)
   {
-    word_t number ;
+    word_t number = 0 ;
     if (tokens[p].type == TK_HEX)
     {
       sscanf(tokens[p].str,"%lx",&number);
@@ -336,6 +343,26 @@ word_t eval (word_t p , word_t q) {
     }
     else if (tokens[p].type == TK_REGNAME)
     {
+      int regi = 0;
+      for ( regi = 0; regi < 32; regi++)
+      {
+        if (strcmp(tokens[p].str,regscopy[regi]) == 0)
+        {
+          break;
+        }
+      }
+      /*
+      if (regi >= 32)
+      {
+         if (strcmp(tokens[p].str,"eip")==0)
+         {
+            num = 
+         }
+         
+      }
+      */
+      //sscanf(cpu.gpr[regi],"%ld",&number);
+      number = cpu.gpr[regi];
         //sscanf(tokens[p].str,"%x",&number);
 
       //printf("tempval: %d\n",number);
