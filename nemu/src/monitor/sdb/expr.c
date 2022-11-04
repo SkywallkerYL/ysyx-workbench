@@ -157,8 +157,8 @@ static bool make_token(char *e) {
   return true;
 }
 
-word_t eval(word_t p,word_t q);
-word_t expr(char *e, bool *success) {
+int eval(int p,int q);
+int expr(char *e, bool *success) {
   if (!make_token(e)) {
     *success = false;
     return 0;
@@ -201,7 +201,7 @@ word_t expr(char *e, bool *success) {
 }
 
 //括号匹配函数
-bool check_parentheses(word_t p , word_t q ){
+bool check_parentheses(int p , int q ){
   int i = 0;
   int flag = 0;
   if (tokens[p].type!='('|| tokens[q].type!=')') return false;
@@ -269,9 +269,9 @@ int prior (int type)
 //括号外相对括号里的是主操作符
 //符号的优先级越高 要先计算 就不是主操作符
 //主操作符应该是优先级最低的
-word_t dominant_operator(word_t p , word_t q){
-  word_t dompos = p, pair = 0;
-  word_t pr = -2;
+int dominant_operator(int p , int q){
+  int dompos = p, pair = 0;
+  int pr = -2;
   for (size_t i = p; i <= q; i++)
   {  
     //确定符号在括号之外
@@ -324,21 +324,21 @@ const char *regscopy[] = {
 };
 word_t vaddr_read(vaddr_t addr, int len);
 //表达式求值函数
-word_t eval (word_t p , word_t q) {
+int eval (int p , int  q) {
   if (p > q)
   {
     assert("Bad expression");
   }
   else if (p == q)
   {
-    word_t number = 0 ;
+    int number = 0 ;
     if (tokens[p].type == TK_HEX)
     {
-      sscanf(tokens[p].str,"%lx",&number);
+      sscanf(tokens[p].str,"%x",&number);
     }
     else if (tokens[p].type == TK_DEX)
     {
-      sscanf(tokens[p].str,"%ld",&number);
+      sscanf(tokens[p].str,"%d",&number);
       //printf("tempval: %d\n",number);
     }
     else if (tokens[p].type == TK_REGNAME)
