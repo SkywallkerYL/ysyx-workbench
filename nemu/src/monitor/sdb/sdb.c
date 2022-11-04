@@ -157,11 +157,11 @@ static int cmd_pt(char* args){
     //printf("%d\n",i);
     if(fscanf(fp,"%d",&a[i])==1)
     {
-      printf("result : %d ",a[i]);
+      //printf("result : %d ",a[i]);
     }
     if(fscanf(fp,"%s",str[i])==1)
     {
-      printf("expr : %s \n",str[i]);
+      //printf("expr : %s \n",str[i]);
     }
     i++;  
   }

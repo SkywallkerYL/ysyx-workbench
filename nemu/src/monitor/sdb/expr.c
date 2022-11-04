@@ -176,7 +176,17 @@ word_t expr(char *e, bool *success) {
             tokens[i-1].type == '*' || \
             tokens[i-1].type == '/' || \
             tokens[i-1].type == TK_SUB ||\
-            tokens[i-1].type == '(')
+            tokens[i-1].type == '('||\
+            tokens[i-1].type == TK_BEQ || \
+            tokens[i-1].type == TK_LEQ || \
+            tokens[i-1].type == TK_UNEQ|| \
+            tokens[i-1].type == '>' || \
+            tokens[i-1].type == '<' || \
+            tokens[i-1].type == TK_AND|| \
+            tokens[i-1].type == TK_OR || \
+            tokens[i-1].type == '!' || \
+            tokens[i-1].type == TK_LSHIFT || \
+            tokens[i-1].type == TK_RSHIFT )
       
      /*
       if (i==0||(tokens[i-1].type != TK_DEX && \
@@ -195,7 +205,17 @@ word_t expr(char *e, bool *success) {
             tokens[i-1].type == '*' || \
             tokens[i-1].type == '/' || \
             tokens[i-1].type == TK_SUB ||\
-            tokens[i-1].type == '(')
+            tokens[i-1].type == '('||\
+            tokens[i-1].type == TK_BEQ || \
+            tokens[i-1].type == TK_LEQ || \
+            tokens[i-1].type == TK_UNEQ|| \
+            tokens[i-1].type == '>' || \
+            tokens[i-1].type == '<' || \
+            tokens[i-1].type == TK_AND|| \
+            tokens[i-1].type == TK_OR || \
+            tokens[i-1].type == '!' || \
+            tokens[i-1].type == TK_LSHIFT || \
+            tokens[i-1].type == TK_RSHIFT )
       {
         tokens[i].type = TK_POINT;
       }
@@ -303,7 +323,7 @@ int dominant_operator(int p , int q){
       }
     }
     //目前只实现了加减乘除
-    else if ( tokens[i].type == TK_DEX || tokens[i].type == TK_HEX)
+    else if ( tokens[i].type == TK_DEX || tokens[i].type == TK_HEX|| tokens[i].type== TK_REGNAME)
     {
       //printf("tokens[%ld].type: %d\n",i,tokens[i].type);
       continue;
