@@ -238,11 +238,13 @@ int prior (int type)
     case '+'        :   pir = 4;    break;
     case TK_EQ      :   pir = 2;    break;
     case '*'        :   pir = 3;    break;
+    case TK_POINT   :   pir =-1;    break;
     case '/'        :   pir = 3;    break;
     case '-'        :   pir = 4;    break;
     case TK_SUB     :   pir =-1;    break;
     case TK_HEX     :   pir =-2;    break;
     case TK_DEX     :   pir =-2;    break;
+    case TK_REGNAME :   pir =-2;    break;
     case TK_UNEQ    :   pir = 2;    break;
     case TK_AND     :   pir = 1;    break;
     case TK_OR      :   pir = 1;    break;
@@ -312,6 +314,7 @@ int dominant_operator(int p , int q){
   }
   return dompos;
 }
+word_t vaddr_read(vaddr_t addr, int len);
 //表达式求值函数
 int eval (int p , int q) {
   if (p > q)
@@ -357,6 +360,7 @@ int eval (int p , int q) {
         return val1/val2; 
       break;}
     case TK_SUB: /*printf("tempval: %d %d %d\n",val1,val2,-val2);*/return -val2; break; 
+    case TK_POINT: return vaddr_read(val2,4);break;
     default: assert(0);break;
     }
   }
