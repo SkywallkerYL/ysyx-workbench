@@ -348,6 +348,7 @@ word_t eval (word_t p , word_t q) {
       {
         if (strcmp(tokens[p].str,regscopy[regi]) == 0)
         {
+          printf("regi : %d\n",regi);
           break;
         }
       }
