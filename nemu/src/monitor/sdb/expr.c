@@ -140,6 +140,8 @@ static bool make_token(char *e) {
           case TK_RSHIFT  : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
           case '>'  : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
           case '<'  : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
+          case TK_REGNAME : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
+          
           default: break;
         }
 
