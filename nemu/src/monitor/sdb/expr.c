@@ -154,7 +154,7 @@ static bool make_token(char *e) {
 
   return true;
 }
-
+word_t vaddr_read(vaddr_t addr, int len);
 int eval(int p,int q);
 word_t expr(char *e, bool *success) {
   if (!make_token(e)) {
@@ -388,6 +388,12 @@ int eval (int p , int q) {
         return val1/val2; 
       break;}
     case TK_SUB: /*printf("tempval: %d %d %d\n",val1,val2,-val2);*/return -val2; break; 
+    case TK_AND: return val1&&val2;break;
+    case TK_OR : return val1||val2;break;
+    case TK_EQ : return val1 == val2;break;
+    case TK_UNEQ : return val1!=val2;break;
+    case '!'  : return !val2;break;
+    case TK_POINT: return vaddr_read(val2,4);
     default: assert(0);break;
     }
   }
