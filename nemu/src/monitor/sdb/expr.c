@@ -186,6 +186,16 @@ word_t expr(char *e, bool *success) {
       }
       
     }
+    if (tokens[i].type == '*')
+    {
+      if (i==0||(tokens[i-1].type != TK_DEX && \
+      tokens[i-1].type != TK_HEX && \
+      tokens[i-1].type != TK_REGNAME ))
+      {
+        tokens[i].type = TK_POINT;
+      }
+      
+    }
     
   }
   
