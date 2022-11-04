@@ -343,10 +343,11 @@ word_t eval (word_t p , word_t q) {
     }
     else if (tokens[p].type == TK_REGNAME)
     {
+      printf("a reg!!\n");
       int regi = 0;
       for ( regi = 0; regi < 32; regi++)
       {
-        if (strcmp(tokens[p].str,regscopy[regi]) == 1)
+        if (strcmp(tokens[p].str,regscopy[regi]) == 0)
         {
           printf("regi : %d\n",regi);
           break;
