@@ -73,8 +73,10 @@ static int cmd_si(char *args){
   }
   return 0;
 }
-//寄存器信息打印
-static int cmd_reginf(char *args){
+//寄存器信息打印 r
+//监视点打印 w
+void print_wp();
+static int cmd_info(char *args){
   char *arg = strtok(NULL," ");
   if (strcmp(arg,"r")==0)
   {
@@ -86,6 +88,11 @@ static int cmd_reginf(char *args){
     }
     */
   }
+  else if (strcmp(arg,"w")==0)
+  {
+    print_wp();
+  }
+  
   else printf("Invalid SUBCMD!\n");
   return 0;
 }
@@ -188,6 +195,29 @@ static int cmd_pt(char* args){
   
   return 0;
 }
+//添加监视点
+WP* new_wp(char *expre);
+static int cmd_w (char *args){
+  WP *wp = new_wp(args);
+  printf("Watchpoint %d : %s has been set\n",wp->NO,wp->expre);
+  return 0;
+}
+bool delete_wp(int NO);
+static int cmd_d (char *args){
+  char *arg = strtok(NULL," ");
+  int NO = 0;
+  sscanf(arg,"%d",&NO);
+  bool dele = delete_wp(NO);
+  if (dele)
+  {
+    printf("Watchpoint %d has been delete\n",NO);
+  }
+  else printf("NO Watchpoint %d \n",NO);
+  return 0;
+}
+
+
+
 
 static struct {
   const char *name;
@@ -198,10 +228,12 @@ static struct {
   { "c", "Continue the execution of the program", cmd_c },
   { "q", "Exit NEMU", cmd_q },
   { "si", "Single excutaion", cmd_si},
-  {"info","info SUBCMD",cmd_reginf},
+  {"info","info SUBCMD",cmd_info},
   {"x","EXPR SCAN",cmd_x},
   {"p","Expression calculation",cmd_p},
-  {"pt","Expression calculation test",cmd_pt}
+  {"pt","Expression calculation test",cmd_pt},
+  {"w","Watchpoint add",cmd_w},
+  {"d","Watchpoint delete",cmd_d}
   /* TODO: Add more commands */
 
 };

@@ -20,4 +20,11 @@
 
 word_t expr(char *e, bool *success);
 
+typedef struct watchpoint {
+  int NO;
+  struct watchpoint *next;
+  char expre[256]; //表达式字符串
+  word_t value; //表达式数值
+  /* TODO: Add more members if necessary */
+} WP;
 #endif

@@ -71,7 +71,7 @@ static void exec_once(Decode *s, vaddr_t pc) {
       MUXDEF(CONFIG_ISA_x86, s->snpc, s->pc), (uint8_t *)&s->isa.inst.val, ilen);
 #endif
 }
-
+bool test_change();
 static void execute(uint64_t n) {
   Decode s;
   for (;n > 0; n --) {
@@ -82,6 +82,9 @@ static void execute(uint64_t n) {
     //printf("before trace_and_difftest: n: %ld  nemu_state :%d\n ",n,nemu_state.state);
     trace_and_difftest(&s, cpu.pc);
     //printf("n: %ld  nemu_state :%d\n ",n,nemu_state.state);
+    //检查监视点
+    bool change = test_change();
+    if(change) nemu_state.state = NEMU_STOP; 
     if (nemu_state.state != NEMU_RUNNING) break;
     IFDEF(CONFIG_DEVICE, device_update());
   }
