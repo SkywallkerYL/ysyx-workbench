@@ -48,7 +48,7 @@ WP* new_wp(char *expre){
   free_ = free_->next;
   temp-> next = NULL;
 
-  bool success = false ;
+  bool success = true ;
   strcpy(temp->expre,expre);
   temp->value = expr(expre,&success);
   assert(success);
