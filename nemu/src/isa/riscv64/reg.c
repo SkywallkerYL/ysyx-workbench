@@ -31,5 +31,17 @@ void isa_reg_display() {
 }
 
 word_t isa_reg_str2val(const char *s, bool *success) {
-  return 0;
+  char strtemp[3];
+  int chari = 4;
+  while (s[chari]!=']'&&chari<=6)
+  {
+    strtemp[chari-4] = s[chari];
+    chari++;
+  }
+  
+  strtemp[chari-4] = '\0';
+  int index ;
+  sscanf(strtemp,"%d",&index);
+  return cpu.gpr[index];
+  //return 0;
 }

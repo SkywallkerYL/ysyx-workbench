@@ -366,6 +366,7 @@ int eval (int p , int q) {
     }
     else if (tokens[p].type == TK_REGNAME)
     {
+      /*
       char strtemp[3];
       int chari = 4;
       while (tokens[p].str[chari]!=']'&&chari<=6)
@@ -379,7 +380,10 @@ int eval (int p , int q) {
       sscanf(strtemp,"%d",&index);
       //printf("index %d\n",index);
       //printf("addr %lx\n",cpu.gpr[index]);
-      number = cpu.gpr[index];
+      */
+      //number = cpu.gpr[index];
+      bool success1 = true;
+      number = isa_reg_str2val (tokens[p].str,&success1);
     }
     return number;
   }
