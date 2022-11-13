@@ -130,11 +130,12 @@ void print_wp()
 bool test_change(){
   bool change = 0;
   WP *wp = head;
-  printf("%d\n",change);
+
   if (wp == NULL)
   {
     change = 0;
   }
+   printf("%d\n",change);
   while (wp->next!=NULL)
   {
     //printf("jhjj\n");

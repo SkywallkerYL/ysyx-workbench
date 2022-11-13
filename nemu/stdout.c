@@ -3177,7 +3177,7 @@ _Bool
 # 131 "src/monitor/sdb/watchpoint.c"
       change = 0;
   WP *wp = head;
-  printf("%d\n",change);
+
   if (wp == 
 # 134 "src/monitor/sdb/watchpoint.c" 3 4
            ((void *)0)
@@ -3186,21 +3186,22 @@ _Bool
   {
     change = 0;
   }
+   printf("%d\n",change);
   while (wp->next!=
-# 138 "src/monitor/sdb/watchpoint.c" 3 4
+# 139 "src/monitor/sdb/watchpoint.c" 3 4
                   ((void *)0)
-# 138 "src/monitor/sdb/watchpoint.c"
+# 139 "src/monitor/sdb/watchpoint.c"
                       )
   {
 
     
-# 141 "src/monitor/sdb/watchpoint.c" 3 4
+# 142 "src/monitor/sdb/watchpoint.c" 3 4
    _Bool 
-# 141 "src/monitor/sdb/watchpoint.c"
+# 142 "src/monitor/sdb/watchpoint.c"
         success = 
-# 141 "src/monitor/sdb/watchpoint.c" 3 4
+# 142 "src/monitor/sdb/watchpoint.c" 3 4
                   1
-# 141 "src/monitor/sdb/watchpoint.c"
+# 142 "src/monitor/sdb/watchpoint.c"
                       ;
     word_t newvalue = expr(wp->expre,&success);
     if (newvalue!=wp->value)
