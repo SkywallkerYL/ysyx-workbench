@@ -136,10 +136,16 @@ bool test_change(){
      //printf("%d\n",change);
     change = 0;
   }
-   //printf("%d\n",change);
+   printf("%d\n",change);
+   if (wp->next==NULL)
+   {
+      printf("GOOD\n");
+   }
+   
+   printf("%d\n",change);
   while (wp->next!=NULL)
   {
-    printf("%d\n",change);
+    //printf("%d\n",change);
     //printf("jhjj\n");
     bool success = true;
     word_t newvalue = expr(wp->expre,&success);
