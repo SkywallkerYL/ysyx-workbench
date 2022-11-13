@@ -3184,14 +3184,15 @@ _Bool
 # 134 "src/monitor/sdb/watchpoint.c"
                       )
   {
+    printf("jhjj\n");
     
-# 136 "src/monitor/sdb/watchpoint.c" 3 4
+# 137 "src/monitor/sdb/watchpoint.c" 3 4
    _Bool 
-# 136 "src/monitor/sdb/watchpoint.c"
+# 137 "src/monitor/sdb/watchpoint.c"
         success = 
-# 136 "src/monitor/sdb/watchpoint.c" 3 4
+# 137 "src/monitor/sdb/watchpoint.c" 3 4
                   1
-# 136 "src/monitor/sdb/watchpoint.c"
+# 137 "src/monitor/sdb/watchpoint.c"
                       ;
     word_t newvalue = expr(wp->expre,&success);
     if (newvalue!=wp->value)
