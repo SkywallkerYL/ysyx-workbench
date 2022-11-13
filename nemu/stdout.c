@@ -3208,6 +3208,7 @@ _Bool
       change = 1;
       break;
     }
+    wp = wp->next;
   }
   return change;
 
