@@ -133,6 +133,7 @@ bool test_change(){
 
   if (wp == NULL)
   {
+     printf("%d\n",change);
     change = 0;
   }
    printf("%d\n",change);
