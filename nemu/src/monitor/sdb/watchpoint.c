@@ -134,7 +134,6 @@ bool test_change(){
   {
     change = 0;
   }
-  
   while (wp->next!=NULL)
   {
     //printf("jhjj\n");
@@ -147,6 +146,7 @@ bool test_change(){
     }
     wp = wp->next;
   }
+  printf("%d\n",change);
   return change;
   
 }
