@@ -135,14 +135,10 @@ bool test_change(){
   {
      //printf("%d\n",change);
     change = 0;
+    return change;
   }
-   printf("%d\n",change);
-   if (wp->next==NULL)
-   {
-      printf("GOOD\n");
-   }
-   
-   printf("%d\n",change);
+   //printf("%d\n",change);
+   //printf("%d\n",change);
   while (wp->next!=NULL)
   {
     //printf("%d\n",change);
