@@ -3177,29 +3177,30 @@ _Bool
 # 131 "src/monitor/sdb/watchpoint.c"
       change = 0;
   WP *wp = head;
+  printf("%d\n",change);
   if (wp == 
-# 133 "src/monitor/sdb/watchpoint.c" 3 4
+# 134 "src/monitor/sdb/watchpoint.c" 3 4
            ((void *)0)
-# 133 "src/monitor/sdb/watchpoint.c"
+# 134 "src/monitor/sdb/watchpoint.c"
                )
   {
     change = 0;
   }
   while (wp->next!=
-# 137 "src/monitor/sdb/watchpoint.c" 3 4
+# 138 "src/monitor/sdb/watchpoint.c" 3 4
                   ((void *)0)
-# 137 "src/monitor/sdb/watchpoint.c"
+# 138 "src/monitor/sdb/watchpoint.c"
                       )
   {
 
     
-# 140 "src/monitor/sdb/watchpoint.c" 3 4
+# 141 "src/monitor/sdb/watchpoint.c" 3 4
    _Bool 
-# 140 "src/monitor/sdb/watchpoint.c"
+# 141 "src/monitor/sdb/watchpoint.c"
         success = 
-# 140 "src/monitor/sdb/watchpoint.c" 3 4
+# 141 "src/monitor/sdb/watchpoint.c" 3 4
                   1
-# 140 "src/monitor/sdb/watchpoint.c"
+# 141 "src/monitor/sdb/watchpoint.c"
                       ;
     word_t newvalue = expr(wp->expre,&success);
     if (newvalue!=wp->value)
@@ -3209,7 +3210,7 @@ _Bool
     }
     wp = wp->next;
   }
-  printf("%d\n",change);
+
   return change;
 
 }

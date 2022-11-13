@@ -130,6 +130,7 @@ void print_wp()
 bool test_change(){
   bool change = 0;
   WP *wp = head;
+  printf("%d\n",change);
   if (wp == NULL)
   {
     change = 0;
@@ -146,7 +147,7 @@ bool test_change(){
     }
     wp = wp->next;
   }
-  printf("%d\n",change);
+  
   return change;
   
 }
