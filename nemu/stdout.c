@@ -5297,16 +5297,12 @@ static void execute(uint64_t n) {
     g_nr_guest_inst ++;
 
     trace_and_difftest(&s, cpu.pc);
-    printf("aaaaa\n");
 
 
-    
-# 89 "src/cpu/cpu-exec.c" 3 4
-   _Bool 
-# 89 "src/cpu/cpu-exec.c"
-        change = test_change();
 
-    if(change) nemu_state.state = NEMU_STOP;
+
+
+
     if (nemu_state.state != NEMU_RUNNING) break;
     ;
   }

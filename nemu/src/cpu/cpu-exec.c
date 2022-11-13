@@ -83,12 +83,12 @@ static void execute(uint64_t n) {
     g_nr_guest_inst ++;
     //printf("before trace_and_difftest: n: %ld  nemu_state :%d\n ",n,nemu_state.state);
     trace_and_difftest(&s, cpu.pc);
-    printf("aaaaa\n");
+    //printf("aaaaa\n");
     //printf("n: %ld  nemu_state :%d\n ",n,nemu_state.state);
     //检查监视点
-    bool change = test_change();
+    //bool change = test_change();
     //printf("aaaaa\n");
-    if(change) nemu_state.state = NEMU_STOP; 
+    //if(change) nemu_state.state = NEMU_STOP; 
     if (nemu_state.state != NEMU_RUNNING) break;
     IFDEF(CONFIG_DEVICE, device_update());
   }
