@@ -73,7 +73,7 @@ static void exec_once(Decode *s, vaddr_t pc) {
 }
 bool test_change();
 static void execute(uint64_t n) {
-  printf("aaaa\n");
+  //printf("aaaa\n");
   Decode s;
   for (;n > 0; n --) {
     //printf("before exec_once:  n: %ld  nemu_state :%d\n ",n,nemu_state.state);
@@ -89,6 +89,7 @@ static void execute(uint64_t n) {
     if (nemu_state.state != NEMU_RUNNING) break;
     IFDEF(CONFIG_DEVICE, device_update());
   }
+  printf("aaaa\n");
 }
 
 static void statistic() {
