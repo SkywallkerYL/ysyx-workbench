@@ -133,7 +133,7 @@ bool test_change(){
   
   while (wp->next!=NULL)
   {
-    bool success = false;
+    bool success = true;
     word_t newvalue = expr(wp->expre,&success);
     if (newvalue!=wp->value)
     {
