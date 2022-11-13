@@ -33,6 +33,12 @@ static bool g_print_step = false;
 void device_update();
 
 static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
+//检查监视点
+#ifdef CONFIG_WATHCPOINT
+    bool change = test_change();
+    //printf("aaaaa\n");
+    if(change) nemu_state.state = NEMU_STOP;
+#endif 
 #ifdef CONFIG_ITRACE_COND
   if (ITRACE_COND) { log_write("%s\n", _this->logbuf); }
 #endif
@@ -85,10 +91,7 @@ static void execute(uint64_t n) {
     trace_and_difftest(&s, cpu.pc);
     //printf("aaaaa\n");
     //printf("n: %ld  nemu_state :%d\n ",n,nemu_state.state);
-    //检查监视点
-    bool change = test_change();
-    //printf("aaaaa\n");
-    if(change) nemu_state.state = NEMU_STOP; 
+    
     if (nemu_state.state != NEMU_RUNNING) break;
     IFDEF(CONFIG_DEVICE, device_update());
   }

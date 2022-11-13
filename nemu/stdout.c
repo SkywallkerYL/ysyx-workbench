@@ -1,12 +1,12 @@
-# 0 "src/monitor/sdb/watchpoint.c"
+# 0 "src/cpu/cpu-exec.c"
 # 0 "<built-in>"
 # 0 "<command-line>"
 # 1 "/usr/include/stdc-predef.h" 1 3 4
 # 0 "<command-line>" 2
-# 1 "src/monitor/sdb/watchpoint.c"
-# 16 "src/monitor/sdb/watchpoint.c"
-# 1 "src/monitor/sdb/sdb.h" 1
-# 19 "src/monitor/sdb/sdb.h"
+# 1 "src/cpu/cpu-exec.c"
+# 16 "src/cpu/cpu-exec.c"
+# 1 "/home/yangli/ysyx-workbench/nemu/include/cpu/cpu.h" 1
+# 19 "/home/yangli/ysyx-workbench/nemu/include/cpu/cpu.h"
 # 1 "/home/yangli/ysyx-workbench/nemu/include/common.h" 1
 # 19 "/home/yangli/ysyx-workbench/nemu/include/common.h"
 # 1 "/usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h" 1 3 4
@@ -2943,279 +2943,2473 @@ extern NEMUState nemu_state;
 uint64_t get_time();
 # 22 "/home/yangli/ysyx-workbench/nemu/include/debug.h" 2
 # 48 "/home/yangli/ysyx-workbench/nemu/include/common.h" 2
-# 20 "src/monitor/sdb/sdb.h" 2
+# 20 "/home/yangli/ysyx-workbench/nemu/include/cpu/cpu.h" 2
 
-word_t expr(char *e, 
-# 21 "src/monitor/sdb/sdb.h" 3 4
-                    _Bool 
-# 21 "src/monitor/sdb/sdb.h"
-                         *success);
+void cpu_exec(uint64_t n);
 
-typedef struct watchpoint {
-  int NO;
-  struct watchpoint *next;
-  char expre[256];
-  word_t value;
-
-} WP;
-# 17 "src/monitor/sdb/watchpoint.c" 2
-# 28 "src/monitor/sdb/watchpoint.c"
-static WP wp_pool[32] = {};
-static WP *head = 
-# 29 "src/monitor/sdb/watchpoint.c" 3 4
-                 ((void *)0)
-# 29 "src/monitor/sdb/watchpoint.c"
-                     , *free_ = 
-# 29 "src/monitor/sdb/watchpoint.c" 3 4
-                                ((void *)0)
-# 29 "src/monitor/sdb/watchpoint.c"
-                                    ;
+void set_nemu_state(int state, vaddr_t pc, int halt_ret);
+void invalid_inst(vaddr_t thispc);
+# 17 "src/cpu/cpu-exec.c" 2
+# 1 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 1
+# 19 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+# 1 "/home/yangli/ysyx-workbench/nemu/include/isa.h" 1
+# 20 "/home/yangli/ysyx-workbench/nemu/include/isa.h"
+# 1 "/home/yangli/ysyx-workbench/nemu/src/isa/riscv64/include/isa-def.h" 1
+# 21 "/home/yangli/ysyx-workbench/nemu/src/isa/riscv64/include/isa-def.h"
+typedef struct {
+  word_t gpr[32];
+  vaddr_t pc;
+} riscv64_CPU_state;
 
 
-void init_wp_pool() {
-  int i;
-  for (i = 0; i < 32; i ++) {
-    wp_pool[i].NO = i;
-    wp_pool[i].next = (i == 32 - 1 ? 
-# 36 "src/monitor/sdb/watchpoint.c" 3 4
-                                       ((void *)0) 
-# 36 "src/monitor/sdb/watchpoint.c"
-                                            : &wp_pool[i + 1]);
-  }
-
-  head = 
-# 39 "src/monitor/sdb/watchpoint.c" 3 4
-        ((void *)0)
-# 39 "src/monitor/sdb/watchpoint.c"
-            ;
-  free_ = wp_pool;
-}
+typedef struct {
+  union {
+    uint32_t val;
+  } inst;
+} riscv64_ISADecodeInfo;
+# 21 "/home/yangli/ysyx-workbench/nemu/include/isa.h" 2
 
 
 
-WP* new_wp(char *expre){
-  
-# 46 "src/monitor/sdb/watchpoint.c" 3 4
+typedef riscv64_CPU_state CPU_state;
+typedef riscv64_ISADecodeInfo ISADecodeInfo;
+
+
+extern char isa_logo[];
+void init_isa();
+
+
+extern CPU_state cpu;
+void isa_reg_display();
+word_t isa_reg_str2val(const char *name, 
+# 34 "/home/yangli/ysyx-workbench/nemu/include/isa.h" 3 4
+                                        _Bool 
+# 34 "/home/yangli/ysyx-workbench/nemu/include/isa.h"
+                                             *success);
+
+
+struct Decode;
+int isa_exec_once(struct Decode *s);
+
+
+enum { MMU_DIRECT, MMU_TRANSLATE, MMU_FAIL };
+enum { MEM_TYPE_IFETCH, MEM_TYPE_READ, MEM_TYPE_WRITE };
+enum { MEM_RET_OK, MEM_RET_FAIL, MEM_RET_CROSS_PAGE };
+
+
+
+paddr_t isa_mmu_translate(vaddr_t vaddr, int len, int type);
+
+
+vaddr_t isa_raise_intr(word_t NO, vaddr_t epc);
+
+word_t isa_query_intr();
+
+
+
+# 55 "/home/yangli/ysyx-workbench/nemu/include/isa.h" 3 4
+_Bool 
+# 55 "/home/yangli/ysyx-workbench/nemu/include/isa.h"
+    isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc);
+void isa_difftest_attach();
+# 20 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 2
+
+typedef struct Decode {
+  vaddr_t pc;
+  vaddr_t snpc;
+  vaddr_t dnpc;
+  ISADecodeInfo isa;
+  char logbuf[128];
+} Decode;
+
+
+__attribute__((always_inline))
+static inline void pattern_decode(const char *str, int len,
+    uint64_t *key, uint64_t *mask, uint64_t *shift) {
+  uint64_t __key = 0, __mask = 0, __shift = 0;
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+  if ((0) >= len) goto finish; else { char c = str[0]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
  ((void) sizeof ((
-# 46 "src/monitor/sdb/watchpoint.c"
- free_!= 
-# 46 "src/monitor/sdb/watchpoint.c" 3 4
- ((void *)0)) ? 1 : 0), __extension__ ({ if (
-# 46 "src/monitor/sdb/watchpoint.c"
- free_!= 
-# 46 "src/monitor/sdb/watchpoint.c" 3 4
- ((void *)0)) ; else __assert_fail (
-# 46 "src/monitor/sdb/watchpoint.c"
- "free_!= NULL"
-# 46 "src/monitor/sdb/watchpoint.c" 3 4
- , "src/monitor/sdb/watchpoint.c", 46, __extension__ __PRETTY_FUNCTION__); }))
-# 46 "src/monitor/sdb/watchpoint.c"
-                      ;
-  WP *temp = free_;
-  free_ = free_->next;
-  temp-> next = 
-# 49 "src/monitor/sdb/watchpoint.c" 3 4
-               ((void *)0)
-# 49 "src/monitor/sdb/watchpoint.c"
-                   ;
-
-  
-# 51 "src/monitor/sdb/watchpoint.c" 3 4
- _Bool 
-# 51 "src/monitor/sdb/watchpoint.c"
-      success = 
-# 51 "src/monitor/sdb/watchpoint.c" 3 4
-                1 
-# 51 "src/monitor/sdb/watchpoint.c"
-                     ;
-  strcpy(temp->expre,expre);
-  temp->value = expr(expre,&success);
-  
-# 54 "src/monitor/sdb/watchpoint.c" 3 4
- ((void) sizeof ((
-# 54 "src/monitor/sdb/watchpoint.c"
- success
-# 54 "src/monitor/sdb/watchpoint.c" 3 4
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
  ) ? 1 : 0), __extension__ ({ if (
-# 54 "src/monitor/sdb/watchpoint.c"
- success
-# 54 "src/monitor/sdb/watchpoint.c" 3 4
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
  ) ; else __assert_fail (
-# 54 "src/monitor/sdb/watchpoint.c"
- "success"
-# 54 "src/monitor/sdb/watchpoint.c" 3 4
- , "src/monitor/sdb/watchpoint.c", 54, __extension__ __PRETTY_FUNCTION__); }))
-# 54 "src/monitor/sdb/watchpoint.c"
-                ;
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if (((0) + 1) >= len) goto finish; else { char c = str[(0) + 1]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if (((0) + 2) >= len) goto finish; else { char c = str[(0) + 2]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if ((((0) + 2) + 1) >= len) goto finish; else { char c = str[((0) + 2) + 1]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if (((0) + 4) >= len) goto finish; else { char c = str[(0) + 4]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if ((((0) + 4) + 1) >= len) goto finish; else { char c = str[((0) + 4) + 1]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if ((((0) + 4) + 2) >= len) goto finish; else { char c = str[((0) + 4) + 2]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if (((((0) + 4) + 2) + 1) >= len) goto finish; else { char c = str[(((0) + 4) + 2) + 1]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if (((0) + 8) >= len) goto finish; else { char c = str[(0) + 8]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if ((((0) + 8) + 1) >= len) goto finish; else { char c = str[((0) + 8) + 1]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if ((((0) + 8) + 2) >= len) goto finish; else { char c = str[((0) + 8) + 2]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if (((((0) + 8) + 2) + 1) >= len) goto finish; else { char c = str[(((0) + 8) + 2) + 1]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if ((((0) + 8) + 4) >= len) goto finish; else { char c = str[((0) + 8) + 4]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if (((((0) + 8) + 4) + 1) >= len) goto finish; else { char c = str[(((0) + 8) + 4) + 1]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if (((((0) + 8) + 4) + 2) >= len) goto finish; else { char c = str[(((0) + 8) + 4) + 2]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if ((((((0) + 8) + 4) + 2) + 1) >= len) goto finish; else { char c = str[((((0) + 8) + 4) + 2) + 1]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if (((0) + 16) >= len) goto finish; else { char c = str[(0) + 16]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if ((((0) + 16) + 1) >= len) goto finish; else { char c = str[((0) + 16) + 1]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if ((((0) + 16) + 2) >= len) goto finish; else { char c = str[((0) + 16) + 2]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if (((((0) + 16) + 2) + 1) >= len) goto finish; else { char c = str[(((0) + 16) + 2) + 1]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if ((((0) + 16) + 4) >= len) goto finish; else { char c = str[((0) + 16) + 4]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if (((((0) + 16) + 4) + 1) >= len) goto finish; else { char c = str[(((0) + 16) + 4) + 1]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if (((((0) + 16) + 4) + 2) >= len) goto finish; else { char c = str[(((0) + 16) + 4) + 2]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if ((((((0) + 16) + 4) + 2) + 1) >= len) goto finish; else { char c = str[((((0) + 16) + 4) + 2) + 1]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if ((((0) + 16) + 8) >= len) goto finish; else { char c = str[((0) + 16) + 8]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if (((((0) + 16) + 8) + 1) >= len) goto finish; else { char c = str[(((0) + 16) + 8) + 1]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if (((((0) + 16) + 8) + 2) >= len) goto finish; else { char c = str[(((0) + 16) + 8) + 2]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if ((((((0) + 16) + 8) + 2) + 1) >= len) goto finish; else { char c = str[((((0) + 16) + 8) + 2) + 1]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if (((((0) + 16) + 8) + 4) >= len) goto finish; else { char c = str[(((0) + 16) + 8) + 4]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if ((((((0) + 16) + 8) + 4) + 1) >= len) goto finish; else { char c = str[((((0) + 16) + 8) + 4) + 1]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if ((((((0) + 16) + 8) + 4) + 2) >= len) goto finish; else { char c = str[((((0) + 16) + 8) + 4) + 2]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if (((((((0) + 16) + 8) + 4) + 2) + 1) >= len) goto finish; else { char c = str[(((((0) + 16) + 8) + 4) + 2) + 1]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if (((0) + 32) >= len) goto finish; else { char c = str[(0) + 32]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if ((((0) + 32) + 1) >= len) goto finish; else { char c = str[((0) + 32) + 1]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if ((((0) + 32) + 2) >= len) goto finish; else { char c = str[((0) + 32) + 2]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if (((((0) + 32) + 2) + 1) >= len) goto finish; else { char c = str[(((0) + 32) + 2) + 1]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if ((((0) + 32) + 4) >= len) goto finish; else { char c = str[((0) + 32) + 4]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if (((((0) + 32) + 4) + 1) >= len) goto finish; else { char c = str[(((0) + 32) + 4) + 1]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if (((((0) + 32) + 4) + 2) >= len) goto finish; else { char c = str[(((0) + 32) + 4) + 2]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if ((((((0) + 32) + 4) + 2) + 1) >= len) goto finish; else { char c = str[((((0) + 32) + 4) + 2) + 1]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if ((((0) + 32) + 8) >= len) goto finish; else { char c = str[((0) + 32) + 8]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if (((((0) + 32) + 8) + 1) >= len) goto finish; else { char c = str[(((0) + 32) + 8) + 1]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if (((((0) + 32) + 8) + 2) >= len) goto finish; else { char c = str[(((0) + 32) + 8) + 2]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if ((((((0) + 32) + 8) + 2) + 1) >= len) goto finish; else { char c = str[((((0) + 32) + 8) + 2) + 1]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if (((((0) + 32) + 8) + 4) >= len) goto finish; else { char c = str[(((0) + 32) + 8) + 4]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if ((((((0) + 32) + 8) + 4) + 1) >= len) goto finish; else { char c = str[((((0) + 32) + 8) + 4) + 1]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if ((((((0) + 32) + 8) + 4) + 2) >= len) goto finish; else { char c = str[((((0) + 32) + 8) + 4) + 2]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if (((((((0) + 32) + 8) + 4) + 2) + 1) >= len) goto finish; else { char c = str[(((((0) + 32) + 8) + 4) + 2) + 1]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if ((((0) + 32) + 16) >= len) goto finish; else { char c = str[((0) + 32) + 16]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if (((((0) + 32) + 16) + 1) >= len) goto finish; else { char c = str[(((0) + 32) + 16) + 1]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if (((((0) + 32) + 16) + 2) >= len) goto finish; else { char c = str[(((0) + 32) + 16) + 2]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if ((((((0) + 32) + 16) + 2) + 1) >= len) goto finish; else { char c = str[((((0) + 32) + 16) + 2) + 1]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if (((((0) + 32) + 16) + 4) >= len) goto finish; else { char c = str[(((0) + 32) + 16) + 4]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if ((((((0) + 32) + 16) + 4) + 1) >= len) goto finish; else { char c = str[((((0) + 32) + 16) + 4) + 1]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if ((((((0) + 32) + 16) + 4) + 2) >= len) goto finish; else { char c = str[((((0) + 32) + 16) + 4) + 2]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if (((((((0) + 32) + 16) + 4) + 2) + 1) >= len) goto finish; else { char c = str[(((((0) + 32) + 16) + 4) + 2) + 1]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if (((((0) + 32) + 16) + 8) >= len) goto finish; else { char c = str[(((0) + 32) + 16) + 8]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if ((((((0) + 32) + 16) + 8) + 1) >= len) goto finish; else { char c = str[((((0) + 32) + 16) + 8) + 1]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if ((((((0) + 32) + 16) + 8) + 2) >= len) goto finish; else { char c = str[((((0) + 32) + 16) + 8) + 2]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if (((((((0) + 32) + 16) + 8) + 2) + 1) >= len) goto finish; else { char c = str[(((((0) + 32) + 16) + 8) + 2) + 1]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if ((((((0) + 32) + 16) + 8) + 4) >= len) goto finish; else { char c = str[((((0) + 32) + 16) + 8) + 4]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if (((((((0) + 32) + 16) + 8) + 4) + 1) >= len) goto finish; else { char c = str[(((((0) + 32) + 16) + 8) + 4) + 1]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if (((((((0) + 32) + 16) + 8) + 4) + 2) >= len) goto finish; else { char c = str[(((((0) + 32) + 16) + 8) + 4) + 2]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } }; if ((((((((0) + 32) + 16) + 8) + 4) + 2) + 1) >= len) goto finish; else { char c = str[((((((0) + 32) + 16) + 8) + 4) + 2) + 1]; if (c != ' ') { do { if (!(c == '0' || c == '1' || c == '?')) { (fflush(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ c == '0' || c == '1' || c == '?'
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "c == '0' || c == '1' || c == '?'"
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 53, __extension__ __PRETTY_FUNCTION__); }))
+# 53 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 1) | (c == '1' ? 1 : 0); __mask = (__mask << 1) | (c == '?' ? 0 : 1); __shift = (c == '?' ? __shift + 1 : 0); } };
+  do { if (!(0)) { (fflush(
+# 54 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 54 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 54 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 54 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "pattern too long" "\33[0m" "\n")); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 54 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 54 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ 0
+# 54 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 54 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ 0
+# 54 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 54 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "0"
+# 54 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 54, __extension__ __PRETTY_FUNCTION__); }))
+# 54 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0);
 
-  if (head == 
-# 56 "src/monitor/sdb/watchpoint.c" 3 4
-             ((void *)0)
-# 56 "src/monitor/sdb/watchpoint.c"
-                 )
-  {
-    head = temp;
-  }
-  else
-  {
-    WP *p = head;
-    while (p->next)
-    {
-      p = p->next;
-    }
-    p->next = temp;
-
-  }
-  return temp;
-
+finish:
+  *key = __key >> __shift;
+  *mask = __mask >> __shift;
+  *shift = __shift;
 }
 
+__attribute__((always_inline))
+static inline void pattern_decode_hex(const char *str, int len,
+    uint64_t *key, uint64_t *mask, uint64_t *shift) {
+  uint64_t __key = 0, __mask = 0, __shift = 0;
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+  if ((0) >= len) goto finish; else { char c = str[0]; if (c != ' ') { do { if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?')) { (fflush(
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?'
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?'
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "(c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?'"
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 79, __extension__ __PRETTY_FUNCTION__); }))
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 4) | (c == '?' ? 0 : (c >= '0' && c <= '9') ? c - '0' : c - 'a' + 10); __mask = (__mask << 4) | (c == '?' ? 0 : 0xf); __shift = (c == '?' ? __shift + 4 : 0); } }; if (((0) + 1) >= len) goto finish; else { char c = str[(0) + 1]; if (c != ' ') { do { if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?')) { (fflush(
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?'
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?'
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "(c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?'"
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 79, __extension__ __PRETTY_FUNCTION__); }))
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 4) | (c == '?' ? 0 : (c >= '0' && c <= '9') ? c - '0' : c - 'a' + 10); __mask = (__mask << 4) | (c == '?' ? 0 : 0xf); __shift = (c == '?' ? __shift + 4 : 0); } }; if (((0) + 2) >= len) goto finish; else { char c = str[(0) + 2]; if (c != ' ') { do { if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?')) { (fflush(
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?'
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?'
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "(c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?'"
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 79, __extension__ __PRETTY_FUNCTION__); }))
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 4) | (c == '?' ? 0 : (c >= '0' && c <= '9') ? c - '0' : c - 'a' + 10); __mask = (__mask << 4) | (c == '?' ? 0 : 0xf); __shift = (c == '?' ? __shift + 4 : 0); } }; if ((((0) + 2) + 1) >= len) goto finish; else { char c = str[((0) + 2) + 1]; if (c != ' ') { do { if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?')) { (fflush(
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?'
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?'
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "(c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?'"
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 79, __extension__ __PRETTY_FUNCTION__); }))
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 4) | (c == '?' ? 0 : (c >= '0' && c <= '9') ? c - '0' : c - 'a' + 10); __mask = (__mask << 4) | (c == '?' ? 0 : 0xf); __shift = (c == '?' ? __shift + 4 : 0); } }; if (((0) + 4) >= len) goto finish; else { char c = str[(0) + 4]; if (c != ' ') { do { if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?')) { (fflush(
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?'
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?'
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "(c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?'"
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 79, __extension__ __PRETTY_FUNCTION__); }))
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 4) | (c == '?' ? 0 : (c >= '0' && c <= '9') ? c - '0' : c - 'a' + 10); __mask = (__mask << 4) | (c == '?' ? 0 : 0xf); __shift = (c == '?' ? __shift + 4 : 0); } }; if ((((0) + 4) + 1) >= len) goto finish; else { char c = str[((0) + 4) + 1]; if (c != ' ') { do { if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?')) { (fflush(
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?'
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?'
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "(c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?'"
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 79, __extension__ __PRETTY_FUNCTION__); }))
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 4) | (c == '?' ? 0 : (c >= '0' && c <= '9') ? c - '0' : c - 'a' + 10); __mask = (__mask << 4) | (c == '?' ? 0 : 0xf); __shift = (c == '?' ? __shift + 4 : 0); } }; if ((((0) + 4) + 2) >= len) goto finish; else { char c = str[((0) + 4) + 2]; if (c != ' ') { do { if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?')) { (fflush(
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?'
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?'
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "(c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?'"
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 79, __extension__ __PRETTY_FUNCTION__); }))
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 4) | (c == '?' ? 0 : (c >= '0' && c <= '9') ? c - '0' : c - 'a' + 10); __mask = (__mask << 4) | (c == '?' ? 0 : 0xf); __shift = (c == '?' ? __shift + 4 : 0); } }; if (((((0) + 4) + 2) + 1) >= len) goto finish; else { char c = str[(((0) + 4) + 2) + 1]; if (c != ' ') { do { if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?')) { (fflush(
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?'
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?'
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "(c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?'"
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 79, __extension__ __PRETTY_FUNCTION__); }))
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 4) | (c == '?' ? 0 : (c >= '0' && c <= '9') ? c - '0' : c - 'a' + 10); __mask = (__mask << 4) | (c == '?' ? 0 : 0xf); __shift = (c == '?' ? __shift + 4 : 0); } }; if (((0) + 8) >= len) goto finish; else { char c = str[(0) + 8]; if (c != ' ') { do { if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?')) { (fflush(
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?'
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?'
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "(c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?'"
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 79, __extension__ __PRETTY_FUNCTION__); }))
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 4) | (c == '?' ? 0 : (c >= '0' && c <= '9') ? c - '0' : c - 'a' + 10); __mask = (__mask << 4) | (c == '?' ? 0 : 0xf); __shift = (c == '?' ? __shift + 4 : 0); } }; if ((((0) + 8) + 1) >= len) goto finish; else { char c = str[((0) + 8) + 1]; if (c != ' ') { do { if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?')) { (fflush(
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?'
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?'
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "(c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?'"
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 79, __extension__ __PRETTY_FUNCTION__); }))
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 4) | (c == '?' ? 0 : (c >= '0' && c <= '9') ? c - '0' : c - 'a' + 10); __mask = (__mask << 4) | (c == '?' ? 0 : 0xf); __shift = (c == '?' ? __shift + 4 : 0); } }; if ((((0) + 8) + 2) >= len) goto finish; else { char c = str[((0) + 8) + 2]; if (c != ' ') { do { if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?')) { (fflush(
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?'
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?'
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "(c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?'"
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 79, __extension__ __PRETTY_FUNCTION__); }))
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 4) | (c == '?' ? 0 : (c >= '0' && c <= '9') ? c - '0' : c - 'a' + 10); __mask = (__mask << 4) | (c == '?' ? 0 : 0xf); __shift = (c == '?' ? __shift + 4 : 0); } }; if (((((0) + 8) + 2) + 1) >= len) goto finish; else { char c = str[(((0) + 8) + 2) + 1]; if (c != ' ') { do { if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?')) { (fflush(
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?'
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?'
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "(c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?'"
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 79, __extension__ __PRETTY_FUNCTION__); }))
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 4) | (c == '?' ? 0 : (c >= '0' && c <= '9') ? c - '0' : c - 'a' + 10); __mask = (__mask << 4) | (c == '?' ? 0 : 0xf); __shift = (c == '?' ? __shift + 4 : 0); } }; if ((((0) + 8) + 4) >= len) goto finish; else { char c = str[((0) + 8) + 4]; if (c != ' ') { do { if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?')) { (fflush(
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?'
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?'
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "(c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?'"
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 79, __extension__ __PRETTY_FUNCTION__); }))
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 4) | (c == '?' ? 0 : (c >= '0' && c <= '9') ? c - '0' : c - 'a' + 10); __mask = (__mask << 4) | (c == '?' ? 0 : 0xf); __shift = (c == '?' ? __shift + 4 : 0); } }; if (((((0) + 8) + 4) + 1) >= len) goto finish; else { char c = str[(((0) + 8) + 4) + 1]; if (c != ' ') { do { if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?')) { (fflush(
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?'
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?'
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "(c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?'"
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 79, __extension__ __PRETTY_FUNCTION__); }))
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 4) | (c == '?' ? 0 : (c >= '0' && c <= '9') ? c - '0' : c - 'a' + 10); __mask = (__mask << 4) | (c == '?' ? 0 : 0xf); __shift = (c == '?' ? __shift + 4 : 0); } }; if (((((0) + 8) + 4) + 2) >= len) goto finish; else { char c = str[(((0) + 8) + 4) + 2]; if (c != ' ') { do { if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?')) { (fflush(
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?'
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?'
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "(c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?'"
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 79, __extension__ __PRETTY_FUNCTION__); }))
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 4) | (c == '?' ? 0 : (c >= '0' && c <= '9') ? c - '0' : c - 'a' + 10); __mask = (__mask << 4) | (c == '?' ? 0 : 0xf); __shift = (c == '?' ? __shift + 4 : 0); } }; if ((((((0) + 8) + 4) + 2) + 1) >= len) goto finish; else { char c = str[((((0) + 8) + 4) + 2) + 1]; if (c != ' ') { do { if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?')) { (fflush(
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "invalid character '%c' in pattern string" "\33[0m" "\n", c)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?'
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?'
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "(c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || c == '?'"
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 79, __extension__ __PRETTY_FUNCTION__); }))
+# 79 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0); __key = (__key << 4) | (c == '?' ? 0 : (c >= '0' && c <= '9') ? c - '0' : c - 'a' + 10); __mask = (__mask << 4) | (c == '?' ? 0 : 0xf); __shift = (c == '?' ? __shift + 4 : 0); } };
+  do { if (!(0)) { (fflush(
+# 80 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stdout
+# 80 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ), fprintf(
+# 80 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ stderr
+# 80 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ , "\33[1;31m" "pattern too long" "\33[0m" "\n")); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 80 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ((void) sizeof ((
+# 80 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ 0
+# 80 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 80 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ 0
+# 80 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ ) ; else __assert_fail (
+# 80 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ "0"
+# 80 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 3 4
+ , "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h", 80, __extension__ __PRETTY_FUNCTION__); }))
+# 80 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
+ ; } } while (0);
 
-# 74 "src/monitor/sdb/watchpoint.c" 3 4
-_Bool 
-# 74 "src/monitor/sdb/watchpoint.c"
-    free_wp(WP *wp){
-  if (wp == 
-# 75 "src/monitor/sdb/watchpoint.c" 3 4
-           ((void *)0)
-# 75 "src/monitor/sdb/watchpoint.c"
-               )
-  {
-    printf("wrong input\n");
+finish:
+  *key = __key >> __shift;
+  *mask = __mask >> __shift;
+  *shift = __shift;
+}
+# 18 "src/cpu/cpu-exec.c" 2
+# 1 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 1
+# 20 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+# 1 "/home/yangli/ysyx-workbench/nemu/include/difftest-def.h" 1
+# 20 "/home/yangli/ysyx-workbench/nemu/include/difftest-def.h"
+# 1 "/home/yangli/ysyx-workbench/nemu/include/generated/autoconf.h" 1
+# 21 "/home/yangli/ysyx-workbench/nemu/include/difftest-def.h" 2
+
+enum { DIFFTEST_TO_DUT, DIFFTEST_TO_REF };
+# 21 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 2
+# 30 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+static inline void difftest_skip_ref() {}
+static inline void difftest_skip_dut(int nr_ref, int nr_dut) {}
+static inline void difftest_set_patch(void (*fn)(void *arg), void *arg) {}
+static inline void difftest_step(vaddr_t pc, vaddr_t npc) {}
+static inline void difftest_detach() {}
+static inline void difftest_attach() {}
+
+
+extern void (*ref_difftest_memcpy)(paddr_t addr, void *buf, size_t n, 
+# 38 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
+                                                                     _Bool 
+# 38 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+                                                                          direction);
+extern void (*ref_difftest_regcpy)(void *dut, 
+# 39 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
+                                             _Bool 
+# 39 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+                                                  direction);
+extern void (*ref_difftest_exec)(uint64_t n);
+extern void (*ref_difftest_raise_intr)(uint64_t NO);
+
+static inline 
+# 43 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
+             _Bool 
+# 43 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+                  difftest_check_reg(const char *name, vaddr_t pc, word_t ref, word_t dut) {
+  if (ref != dut) {
+    do { printf("\33[1;34m" "[%s:%d %s] " "%s is different after executing instruction at pc = " "0x%016"
+# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
+   "l" "x" 
+# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+   ", right = " "0x%016"
+# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
+   "l" "x" 
+# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+   ", wrong = " "0x%016"
+# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
+   "l" "x" 
+# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+   ", diff = " "0x%016"
+# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
+   "l" "x" 
+# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+   "\33[0m" "\n", "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h", 45, __func__, name, pc, ref, dut, ref ^ dut); do { extern FILE* log_fp; extern 
+# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
+   _Bool 
+# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+   log_enable(); if (log_enable()) { fprintf(log_fp, "\33[1;34m" "[%s:%d %s] " "%s is different after executing instruction at pc = " "0x%016"
+# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
+   "l" "x" 
+# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+   ", right = " "0x%016"
+# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
+   "l" "x" 
+# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+   ", wrong = " "0x%016"
+# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
+   "l" "x" 
+# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+   ", diff = " "0x%016"
+# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
+   "l" "x" 
+# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+   "\33[0m" "\n", "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h", 45, __func__, name, pc, ref, dut, ref ^ dut); fflush(log_fp); } } while (0); } while (0)
+
+                                      ;
     return 
-# 78 "src/monitor/sdb/watchpoint.c" 3 4
+# 48 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
           0
-# 78 "src/monitor/sdb/watchpoint.c"
+# 48 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
                ;
   }
-  if (wp == head)
-  {
-    head = head->next;
-  }
-  else{
-    WP *temp = head;
-
-    while (temp->next!=wp)
-    {
-      temp = temp->next;
-    }
-    temp->next = temp->next->next;
-
-  }
-
-
-  wp -> next = free_;
-  free_ = wp;
   return 
-# 98 "src/monitor/sdb/watchpoint.c" 3 4
+# 50 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
         1
-# 98 "src/monitor/sdb/watchpoint.c"
+# 50 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
             ;
 }
+# 19 "src/cpu/cpu-exec.c" 2
+# 1 "/usr/include/locale.h" 1 3 4
+# 28 "/usr/include/locale.h" 3 4
+# 1 "/usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h" 1 3 4
+# 29 "/usr/include/locale.h" 2 3 4
+# 1 "/usr/include/x86_64-linux-gnu/bits/locale.h" 1 3 4
+# 30 "/usr/include/locale.h" 2 3 4
 
 
-# 101 "src/monitor/sdb/watchpoint.c" 3 4
-_Bool 
-# 101 "src/monitor/sdb/watchpoint.c"
-    delete_wp(int NO){
-  WP* wp;
-  if (head == 
-# 103 "src/monitor/sdb/watchpoint.c" 3 4
-             ((void *)0)
-# 103 "src/monitor/sdb/watchpoint.c"
-                 )
-  {
-    printf("NO watch point\n");
-    return 
-# 106 "src/monitor/sdb/watchpoint.c" 3 4
-          0
-# 106 "src/monitor/sdb/watchpoint.c"
-               ;
-  }
-  wp = head;
-  while (wp->NO != NO)
-  {
-    wp = wp->next;
-  }
-  if (wp != 
-# 113 "src/monitor/sdb/watchpoint.c" 3 4
-           ((void *)0)
-# 113 "src/monitor/sdb/watchpoint.c"
-               )
-  {
-    return free_wp(wp);
-  }
-  else return 
-# 117 "src/monitor/sdb/watchpoint.c" 3 4
-             0
-# 117 "src/monitor/sdb/watchpoint.c"
-                  ;
-}
-void print_wp()
+# 51 "/usr/include/locale.h" 3 4
+
+# 51 "/usr/include/locale.h" 3 4
+struct lconv
 {
-  WP *wp = head;
-  while (wp!=
-# 122 "src/monitor/sdb/watchpoint.c" 3 4
-            ((void *)0)
-# 122 "src/monitor/sdb/watchpoint.c"
-                )
-  {
-    printf("Watchpoint number: %d, exp: %s, value : %ld \n",wp->NO,wp->expre,wp->value);
-    wp = wp->next;
+
+
+  char *decimal_point;
+  char *thousands_sep;
+
+
+
+
+
+  char *grouping;
+
+
+
+
+
+  char *int_curr_symbol;
+  char *currency_symbol;
+  char *mon_decimal_point;
+  char *mon_thousands_sep;
+  char *mon_grouping;
+  char *positive_sign;
+  char *negative_sign;
+  char int_frac_digits;
+  char frac_digits;
+
+  char p_cs_precedes;
+
+  char p_sep_by_space;
+
+  char n_cs_precedes;
+
+  char n_sep_by_space;
+
+
+
+
+
+
+  char p_sign_posn;
+  char n_sign_posn;
+
+
+  char int_p_cs_precedes;
+
+  char int_p_sep_by_space;
+
+  char int_n_cs_precedes;
+
+  char int_n_sep_by_space;
+
+
+
+
+
+
+  char int_p_sign_posn;
+  char int_n_sign_posn;
+# 118 "/usr/include/locale.h" 3 4
+};
+
+
+
+extern char *setlocale (int __category, const char *__locale) __attribute__ ((__nothrow__ , __leaf__));
+
+
+extern struct lconv *localeconv (void) __attribute__ ((__nothrow__ , __leaf__));
+# 141 "/usr/include/locale.h" 3 4
+extern locale_t newlocale (int __category_mask, const char *__locale,
+      locale_t __base) __attribute__ ((__nothrow__ , __leaf__));
+# 176 "/usr/include/locale.h" 3 4
+extern locale_t duplocale (locale_t __dataset) __attribute__ ((__nothrow__ , __leaf__));
+
+
+
+extern void freelocale (locale_t __dataset) __attribute__ ((__nothrow__ , __leaf__));
+
+
+
+
+
+
+extern locale_t uselocale (locale_t __dataset) __attribute__ ((__nothrow__ , __leaf__));
+
+
+
+
+
+
+
+
+# 20 "src/cpu/cpu-exec.c" 2
+# 28 "src/cpu/cpu-exec.c"
+
+# 28 "src/cpu/cpu-exec.c"
+CPU_state cpu = {};
+uint64_t g_nr_guest_inst = 0;
+static uint64_t g_timer = 0;
+static 
+# 31 "src/cpu/cpu-exec.c" 3 4
+      _Bool 
+# 31 "src/cpu/cpu-exec.c"
+           g_print_step = 
+# 31 "src/cpu/cpu-exec.c" 3 4
+                          0
+# 31 "src/cpu/cpu-exec.c"
+                               ;
+
+void device_update();
+
+static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
+
+
+
+
+
+
+
+  if (
+# 43 "src/cpu/cpu-exec.c" 3 4
+     1
+# 43 "src/cpu/cpu-exec.c"
+                ) { do { extern FILE* log_fp; extern 
+# 43 "src/cpu/cpu-exec.c" 3 4
+                    _Bool 
+# 43 "src/cpu/cpu-exec.c"
+                    log_enable(); if (log_enable()) { fprintf(log_fp, "%s\n", _this->logbuf); fflush(log_fp); } } while (0); }
+
+  if (g_print_step) { puts(_this->logbuf); }
+  ;
+}
+
+static void exec_once(Decode *s, vaddr_t pc) {
+  s->pc = pc;
+  s->snpc = pc;
+
+  isa_exec_once(s);
+
+  cpu.pc = s->dnpc;
+
+  char *p = s->logbuf;
+
+  p += snprintf(p, sizeof(s->logbuf), "0x%016"
+# 59 "src/cpu/cpu-exec.c" 3 4
+                                     "l" "x" 
+# 59 "src/cpu/cpu-exec.c"
+                                              ":", s->pc);
+  int ilen = s->snpc - s->pc;
+  int i;
+  uint8_t *inst = (uint8_t *)&s->isa.inst.val;
+  for (i = ilen - 1; i >= 0; i --) {
+
+    p += snprintf(p, 4, " %02x", inst[i]);
   }
-  return;
+
+  int ilen_max = 4;
+  int space_len = ilen_max - ilen;
+  if (space_len < 0) space_len = 0;
+  space_len = space_len * 3 + 1;
+  memset(p, ' ', space_len);
+  p += space_len;
+
+  void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
+  disassemble(p, s->logbuf + sizeof(s->logbuf) - p,
+      s->pc, (uint8_t *)&s->isa.inst.val, ilen);
+
+}
+
+# 80 "src/cpu/cpu-exec.c" 3 4
+_Bool 
+# 80 "src/cpu/cpu-exec.c"
+    test_change();
+static void execute(uint64_t n) {
+
+  Decode s;
+  for (;n > 0; n --) {
+
+    exec_once(&s, cpu.pc);
+
+
+    g_nr_guest_inst ++;
+
+    trace_and_difftest(&s, cpu.pc);
+
+
+
+    if (nemu_state.state != NEMU_RUNNING) break;
+    ;
+  }
+
+}
+
+static void statistic() {
+  setlocale(
+# 102 "src/cpu/cpu-exec.c" 3 4
+ 1
+# 102 "src/cpu/cpu-exec.c"
+ , "");
+
+  do { printf("\33[1;34m" "[%s:%d %s] " "host time spent = " "%'" 
+# 104 "src/cpu/cpu-exec.c" 3 4
+ "l" "u" 
+# 104 "src/cpu/cpu-exec.c"
+ " us" "\33[0m" "\n", "src/cpu/cpu-exec.c", 104, __func__, g_timer); do { extern FILE* log_fp; extern 
+# 104 "src/cpu/cpu-exec.c" 3 4
+ _Bool 
+# 104 "src/cpu/cpu-exec.c"
+ log_enable(); if (log_enable()) { fprintf(log_fp, "\33[1;34m" "[%s:%d %s] " "host time spent = " "%'" 
+# 104 "src/cpu/cpu-exec.c" 3 4
+ "l" "u" 
+# 104 "src/cpu/cpu-exec.c"
+ " us" "\33[0m" "\n", "src/cpu/cpu-exec.c", 104, __func__, g_timer); fflush(log_fp); } } while (0); } while (0);
+  do { printf("\33[1;34m" "[%s:%d %s] " "total guest instructions = " "%'" 
+# 105 "src/cpu/cpu-exec.c" 3 4
+ "l" "u" 
+# 105 "src/cpu/cpu-exec.c"
+ "\33[0m" "\n", "src/cpu/cpu-exec.c", 105, __func__, g_nr_guest_inst); do { extern FILE* log_fp; extern 
+# 105 "src/cpu/cpu-exec.c" 3 4
+ _Bool 
+# 105 "src/cpu/cpu-exec.c"
+ log_enable(); if (log_enable()) { fprintf(log_fp, "\33[1;34m" "[%s:%d %s] " "total guest instructions = " "%'" 
+# 105 "src/cpu/cpu-exec.c" 3 4
+ "l" "u" 
+# 105 "src/cpu/cpu-exec.c"
+ "\33[0m" "\n", "src/cpu/cpu-exec.c", 105, __func__, g_nr_guest_inst); fflush(log_fp); } } while (0); } while (0);
+  if (g_timer > 0) do { printf("\33[1;34m" "[%s:%d %s] " "simulation frequency = " "%'" 
+# 106 "src/cpu/cpu-exec.c" 3 4
+                  "l" "u" 
+# 106 "src/cpu/cpu-exec.c"
+                  " inst/s" "\33[0m" "\n", "src/cpu/cpu-exec.c", 106, __func__, g_nr_guest_inst * 1000000 / g_timer); do { extern FILE* log_fp; extern 
+# 106 "src/cpu/cpu-exec.c" 3 4
+                  _Bool 
+# 106 "src/cpu/cpu-exec.c"
+                  log_enable(); if (log_enable()) { fprintf(log_fp, "\33[1;34m" "[%s:%d %s] " "simulation frequency = " "%'" 
+# 106 "src/cpu/cpu-exec.c" 3 4
+                  "l" "u" 
+# 106 "src/cpu/cpu-exec.c"
+                  " inst/s" "\33[0m" "\n", "src/cpu/cpu-exec.c", 106, __func__, g_nr_guest_inst * 1000000 / g_timer); fflush(log_fp); } } while (0); } while (0);
+  else do { printf("\33[1;34m" "[%s:%d %s] " "Finish running in less than 1 us and can not calculate the simulation frequency" "\33[0m" "\n", "src/cpu/cpu-exec.c", 107, __func__); do { extern FILE* log_fp; extern 
+# 107 "src/cpu/cpu-exec.c" 3 4
+      _Bool 
+# 107 "src/cpu/cpu-exec.c"
+      log_enable(); if (log_enable()) { fprintf(log_fp, "\33[1;34m" "[%s:%d %s] " "Finish running in less than 1 us and can not calculate the simulation frequency" "\33[0m" "\n", "src/cpu/cpu-exec.c", 107, __func__); fflush(log_fp); } } while (0); } while (0);
+}
+
+void assert_fail_msg() {
+  isa_reg_display();
+  statistic();
 }
 
 
-# 130 "src/monitor/sdb/watchpoint.c" 3 4
-_Bool 
-# 130 "src/monitor/sdb/watchpoint.c"
-    test_change(){
-  
-# 131 "src/monitor/sdb/watchpoint.c" 3 4
- _Bool 
-# 131 "src/monitor/sdb/watchpoint.c"
-      change = 0;
-  WP *wp = head;
-
-  if (wp == 
-# 134 "src/monitor/sdb/watchpoint.c" 3 4
-           ((void *)0)
-# 134 "src/monitor/sdb/watchpoint.c"
-               )
-  {
-
-    change = 0;
-    return change;
+void cpu_exec(uint64_t n) {
+  g_print_step = (n < 10);
+  printf("nemu_state :%d\n ",nemu_state.state);
+  switch (nemu_state.state) {
+    case NEMU_END: case NEMU_ABORT:
+      printf("Program execution has ended. To restart the program, exit NEMU and run again.\n");
+      return;
+    default: nemu_state.state = NEMU_RUNNING;
   }
 
+  uint64_t timer_start = get_time();
 
-  while (wp->next!=
-# 142 "src/monitor/sdb/watchpoint.c" 3 4
-                  ((void *)0)
-# 142 "src/monitor/sdb/watchpoint.c"
-                      )
-  {
+  execute(n);
+
+  uint64_t timer_end = get_time();
+  g_timer += timer_end - timer_start;
+  printf("nemu_state :%d\n ",nemu_state.state);
+  switch (nemu_state.state) {
+    case NEMU_RUNNING: nemu_state.state = NEMU_STOP; break;
+
+    case NEMU_END: case NEMU_ABORT:
+      do { printf("\33[1;34m" "[%s:%d %s] " "nemu: %s at pc = " "0x%016"
+# 137 "src/cpu/cpu-exec.c" 3 4
+     "l" "x" 
+# 137 "src/cpu/cpu-exec.c"
+     "\33[0m" "\n", "src/cpu/cpu-exec.c", 137, __func__, (nemu_state.state == NEMU_ABORT ? "\33[1;31m" "ABORT" "\33[0m" : (nemu_state.halt_ret == 0 ? "\33[1;32m" "HIT GOOD TRAP" "\33[0m" : "\33[1;31m" "HIT BAD TRAP" "\33[0m")), nemu_state.halt_pc); do { extern FILE* log_fp; extern 
+# 137 "src/cpu/cpu-exec.c" 3 4
+     _Bool 
+# 137 "src/cpu/cpu-exec.c"
+     log_enable(); if (log_enable()) { fprintf(log_fp, "\33[1;34m" "[%s:%d %s] " "nemu: %s at pc = " "0x%016"
+# 137 "src/cpu/cpu-exec.c" 3 4
+     "l" "x" 
+# 137 "src/cpu/cpu-exec.c"
+     "\33[0m" "\n", "src/cpu/cpu-exec.c", 137, __func__, (nemu_state.state == NEMU_ABORT ? "\33[1;31m" "ABORT" "\33[0m" : (nemu_state.halt_ret == 0 ? "\33[1;32m" "HIT GOOD TRAP" "\33[0m" : "\33[1;31m" "HIT BAD TRAP" "\33[0m")), nemu_state.halt_pc); fflush(log_fp); } } while (0); } while (0)
 
 
-    
-# 146 "src/monitor/sdb/watchpoint.c" 3 4
-   _Bool 
-# 146 "src/monitor/sdb/watchpoint.c"
-        success = 
-# 146 "src/monitor/sdb/watchpoint.c" 3 4
-                  1
-# 146 "src/monitor/sdb/watchpoint.c"
-                      ;
-    word_t newvalue = expr(wp->expre,&success);
-    if (newvalue!=wp->value)
-    {
-      change = 1;
-      break;
-    }
-    wp = wp->next;
+
+                             ;
+
+    case NEMU_QUIT: statistic();
   }
-
-  return change;
-
 }
