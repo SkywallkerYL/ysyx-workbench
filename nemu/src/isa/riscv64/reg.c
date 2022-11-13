@@ -31,6 +31,7 @@ void isa_reg_display() {
 }
 
 word_t isa_reg_str2val(const char *s, bool *success) {
+  /*
   char strtemp[3];
   int chari = 4;
   while (s[chari]!=']'&&chari<=6)
@@ -43,5 +44,14 @@ word_t isa_reg_str2val(const char *s, bool *success) {
   int index ;
   sscanf(strtemp,"%d",&index);
   return cpu.gpr[index];
-  //return 0;
+  */
+ for (size_t i = 0; i < 32; i++)
+ {
+    if (strcmp(s,regs[i]) == 0)
+    {
+      return cpu.gpr[i];
+    }
+ }
+  printf("Invalid regname!\n");
+  return 0;
 }
