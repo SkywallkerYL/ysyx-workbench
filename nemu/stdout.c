@@ -5300,13 +5300,9 @@ static void execute(uint64_t n) {
 
 
 
-    
-# 89 "src/cpu/cpu-exec.c" 3 4
-   _Bool 
-# 89 "src/cpu/cpu-exec.c"
-        change = test_change();
+
     printf("aaaa\n");
-    if(change) nemu_state.state = NEMU_STOP;
+
     if (nemu_state.state != NEMU_RUNNING) break;
     ;
   }
