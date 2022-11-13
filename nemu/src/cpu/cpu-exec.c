@@ -30,8 +30,9 @@ uint64_t g_nr_guest_inst = 0;
 static uint64_t g_timer = 0; // unit: us
 static bool g_print_step = false;
 
+bool test_change();
 void device_update();
-
+#define CONFIG_WATHCPOINT
 static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 //检查监视点
 #ifdef CONFIG_WATHCPOINT
