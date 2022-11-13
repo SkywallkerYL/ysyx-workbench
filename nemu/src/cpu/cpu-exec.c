@@ -86,9 +86,9 @@ static void execute(uint64_t n) {
 
     //printf("n: %ld  nemu_state :%d\n ",n,nemu_state.state);
     //检查监视点
-    //bool change = test_change();
-    printf("aaaa\n");
-    //if(change) nemu_state.state = NEMU_STOP; 
+    bool change = test_change();
+    //printf("\n");
+    if(change) nemu_state.state = NEMU_STOP; 
     if (nemu_state.state != NEMU_RUNNING) break;
     IFDEF(CONFIG_DEVICE, device_update());
   }
