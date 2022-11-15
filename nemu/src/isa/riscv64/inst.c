@@ -33,7 +33,7 @@ enum {
 #define immI() do { *imm = SEXT(BITS(i, 31, 20), 12); } while(0)
 #define immU() do { *imm = SEXT(BITS(i, 31, 12), 20) << 12; } while(0)
 #define immS() do { *imm = (SEXT(BITS(i, 31, 25), 7) << 5) | BITS(i, 11, 7); } while(0)
-
+#define immJ() do { *imm = SEXT(BITS(i, 31, 20), 12); } while(0)
 
 
 static void decode_operand(Decode *s, int *dest, word_t *src1, word_t *src2, word_t *imm, int type) {
@@ -47,7 +47,7 @@ static void decode_operand(Decode *s, int *dest, word_t *src1, word_t *src2, wor
     case TYPE_I: src1R();          immI(); break;
     case TYPE_U:                   immU(); break;
     case TYPE_S: src1R(); src2R(); immS(); break;
-    case TYPE_J:                   immU(); break;
+    case TYPE_J:                   immJ(); break;
   }
 }
 
@@ -72,8 +72,9 @@ static int decode_exec(Decode *s) {
   INSTPAT("0000000 00000 ????? 000 ????? 00100 11", mv     , I, R(dest) = src1);
   INSTPAT("??????? ????? ????? 000 ????? 00100 11", addi   , I, R(dest) = imm+src1);
   INSTPAT("??????? ????? ????? ??? ????? 00100 11", li     , I, R(dest) = imm);// Load Immediate x(rd) = sexr(imm)
-//j  
-  INSTPAT("??????? ????? ????? 000 ????? 11001 11", ret    , I, R(dest) = s->pc+4;s->pc = (src1+imm)&~1);
+//ret 被解释为jalr    I-type pc = (src1+offset)&~1(最低有效位设为0)  pc+4 写入rd 
+  INSTPAT("??????? ????? ????? 010 ????? 11001 11", ret    , I, R(dest) = s->pc+4;s->pc = (src1+imm)&~1);
+//J
   //INSTPAT("??????? ????? ????? ??? ????? 11011 11", j      , I, s->pc += imm);  // pc+=sext(offset)
   INSTPAT("??????? ????? ????? ??? ????? 11011 11", jal    , J, R(dest) = s->pc+4;s->pc += imm);//x[rd]=pc+4, pc+=sext(offset)
 
