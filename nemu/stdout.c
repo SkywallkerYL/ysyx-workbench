@@ -5086,7 +5086,7 @@ static void decode_operand(Decode *s, int *dest, word_t *src1, word_t *src2, wor
     case TYPE_I: do { *src1 = (cpu.gpr[check_reg_idx(rs1)]); } while (0); do { *imm = ({ struct { int64_t n : 12; } __x = { .n = (((i) >> (20)) & ((1ull << ((31) - (20) + 1)) - 1)) }; (uint64_t)__x.n; }); } while(0); break;
     case TYPE_U: do { *imm = ({ struct { int64_t n : 20; } __x = { .n = (((i) >> (12)) & ((1ull << ((31) - (12) + 1)) - 1)) }; (uint64_t)__x.n; }) << 12; } while(0); break;
     case TYPE_S: do { *src1 = (cpu.gpr[check_reg_idx(rs1)]); } while (0); do { *src2 = (cpu.gpr[check_reg_idx(rs2)]); } while (0); do { *imm = (({ struct { int64_t n : 7; } __x = { .n = (((i) >> (25)) & ((1ull << ((31) - (25) + 1)) - 1)) }; (uint64_t)__x.n; }) << 5) | (((i) >> (7)) & ((1ull << ((11) - (7) + 1)) - 1)); } while(0); break;
-    case TYPE_J: do { *imm = (({ struct { int64_t n : 1; } __x = { .n = (((i) >> (31)) & ((1ull << ((31) - (31) + 1)) - 1)) }; (uint64_t)__x.n; })<<17)|(({ struct { int64_t n : 10; } __x = { .n = (((i) >> (12)) & ((1ull << ((21) - (12) + 1)) - 1)) }; (uint64_t)__x.n; })<<9)| (({ struct { int64_t n : 1; } __x = { .n = (((i) >> (22)) & ((1ull << ((22) - (22) + 1)) - 1)) }; (uint64_t)__x.n; })<< 8) | (((i) >> (23)) & ((1ull << ((30) - (23) + 1)) - 1)); } while(0); break;
+    case TYPE_J: do { *imm = (({ struct { int64_t n : 1; } __x = { .n = (((i) >> (31)) & ((1ull << ((31) - (31) + 1)) - 1)) }; (uint64_t)__x.n; })<<19)|(({ struct { int64_t n : 10; } __x = { .n = (((i) >> (12)) & ((1ull << ((21) - (12) + 1)) - 1)) }; (uint64_t)__x.n; })<<9)| (({ struct { int64_t n : 1; } __x = { .n = (((i) >> (22)) & ((1ull << ((22) - (22) + 1)) - 1)) }; (uint64_t)__x.n; })<< 8) | (((i) >> (23)) & ((1ull << ((30) - (23) + 1)) - 1)); } while(0); break;
   }
 }
 
