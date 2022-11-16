@@ -83,10 +83,10 @@ static void execute(uint64_t n) {
   //printf("aaaa\n");
   Decode s;
   for (;n > 0; n --) {
-    //printf("before exec_once:  n: %ld  nemu_state :%d\n ",n,nemu_state.state);
+    printf("before exec_once:  n: %ld  nemu_state :%d\n ",n,nemu_state.state);
     exec_once(&s, cpu.pc);
 
-    //printf("before g_nr_guest_inst: n: %ld  nemu_state :%d\n ",n,nemu_state.state);
+    printf("before g_nr_guest_inst: n: %ld  nemu_state :%d\n ",n,nemu_state.state);
     g_nr_guest_inst ++;
     //printf("before trace_and_difftest: n: %ld  nemu_state :%d\n ",n,nemu_state.state);
     trace_and_difftest(&s, cpu.pc);
