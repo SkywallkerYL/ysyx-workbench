@@ -33,8 +33,8 @@ enum {
 #define immI() do { *imm = SEXT(BITS(i, 31, 20), 12); } while(0)
 #define immU() do { *imm = SEXT(BITS(i, 31, 12), 20) << 12; } while(0)
 #define immS() do { *imm = (SEXT(BITS(i, 31, 25), 7) << 5) | BITS(i, 11, 7); } while(0)
-#define immJ() do { *imm = (SEXT(BITS(i, 31, 31),1)<<19)|(SEXT(BITS(i, 19, 12), 8)<<11)|(SEXT(BITS(i, 20, 20), 1)<< 10)|BITS(i, 30, 21); } while(0)
-//#define immJ() do { *imm =(SEXT(BITS(i, 31, 31),1)<<19)|BITS(i, 19, 12)|BITS(i, 20, 20)|BITS(i, 30, 21); } while(0)
+#define immJ() do { *imm = (SEXT(BITS(i, 31, 31),1)<<19)|(SEXT(BITS(i, 19, 12), 8)<<11)|(SEXT(BITS(i, 20, 20), 1)<< 10)|BITS(i, 30, 21); *imm = *imm << 1; } while(0)
+//#define immJ() do { *imm =(SEXT(BITS(i, 31, 31),1)<<19)|BITS(i, 19, 12)|BITS(i, 20, 20)|BITS(i, 30, 21);  } while(0)
 
 static void decode_operand(Decode *s, int *dest, word_t *src1, word_t *src2, word_t *imm, int type) {
   uint32_t i = s->isa.inst.val;
@@ -75,11 +75,15 @@ static int decode_exec(Decode *s) {
   INSTPAT("??????? ????? ????? 000 ????? 00100 11", addi   , I, R(dest) = imm+src1);
   INSTPAT("??????? ????? ????? ??? ????? 00100 11", li     , I, R(dest) = imm);// Load Immediate x(rd) = sexr(imm)
 //ret 被解释为jalr    I-type pc = (src1+offset)&~1(最低有效位设为0)  原pc+4 写入rd 
-  INSTPAT("??????? ????? ????? 000 ????? 11001 11", ret    , I, R(dest) = s->pc+0x4;s->dnpc = (src1+imm)&~1;);
+  INSTPAT("??????? ????? ????? 000 ????? 11001 11", ret    , I, R(dest) = s->pc+0x4;s->dnpc = ((src1+imm)&~1)-0x4;);
 //J
   //INSTPAT("??????? ????? ????? ??? ????? 11011 11", j      , I, s->pc += imm);  // pc+=sext(offset)
-  //dnpc 是动态指令 对于跳转指令，用dnpc更新下一条指令
-  INSTPAT("??????? ????? ????? ??? ????? 11011 11", jal    , J, R(dest) = s->pc+0x4;printf("%lx\n",s->dnpc);s->dnpc +=0x18-0x4;printf("%lx\n",s->dnpc));//x[rd]=pc+4, pc+=sext(offset)
+  //dnpc 是动态指令 对于跳转指令，用dnpc更新下一条指令,并且dnpc本来就指向下一条指令
+  //因此更新时要先-4 返回当前指令，再进行+-来跳转 
+  //或者直接在当前指令上来操作
+  //jal 首先对20bits宽的imm*2后，在进行符号扩展，然后将符号扩展的值与pc相加
+  //这里是由于J型指令的表示方法造成的，imm[20:1] 默认最低位为0,因此在最地位补上一个0，即左移一位，就是x2
+  INSTPAT("??????? ????? ????? ??? ????? 11011 11", jal    , J, R(dest) = s->pc+0x4;printf("%lx\n",s->dnpc);s->dnpc =0x18+s->pc;printf("%lx\n",s->dnpc));//x[rd]=pc+4, pc+=sext(offset)
 
   INSTPAT("0000000 00001 00000 000 00000 11100 11", ebreak , N, NEMUTRAP(s->pc, R(10))); // R(10) is $a0
   INSTPAT("??????? ????? ????? ??? ????? ????? ??", inv    , N, INV(s->pc));
