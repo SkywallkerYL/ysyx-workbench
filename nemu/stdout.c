@@ -5073,8 +5073,9 @@ enum {
   TYPE_I, TYPE_U, TYPE_S,
   TYPE_N,
   TYPE_J,
+  TYPE_RI,
 };
-# 39 "src/isa/riscv64/inst.c"
+# 40 "src/isa/riscv64/inst.c"
 static void decode_operand(Decode *s, int *dest, word_t *src1, word_t *src2, word_t *imm, int type) {
   uint32_t i = s->isa.inst.val;
   int rd = (((i) >> (7)) & ((1ull << ((11) - (7) + 1)) - 1));
@@ -5088,6 +5089,7 @@ static void decode_operand(Decode *s, int *dest, word_t *src1, word_t *src2, wor
     case TYPE_U: do { *imm = ({ struct { int64_t n : 20; } __x = { .n = (((i) >> (12)) & ((1ull << ((31) - (12) + 1)) - 1)) }; (uint64_t)__x.n; }) << 12; } while(0); break;
     case TYPE_S: do { *src1 = (cpu.gpr[check_reg_idx(rs1)]); } while (0); do { *src2 = (cpu.gpr[check_reg_idx(rs2)]); } while (0); do { *imm = (({ struct { int64_t n : 7; } __x = { .n = (((i) >> (25)) & ((1ull << ((31) - (25) + 1)) - 1)) }; (uint64_t)__x.n; }) << 5) | (((i) >> (7)) & ((1ull << ((11) - (7) + 1)) - 1)); } while(0); break;
     case TYPE_J: do { *imm = (({ struct { int64_t n : 1; } __x = { .n = (((i) >> (31)) & ((1ull << ((31) - (31) + 1)) - 1)) }; (uint64_t)__x.n; })<<19)|(({ struct { int64_t n : 8; } __x = { .n = (((i) >> (12)) & ((1ull << ((19) - (12) + 1)) - 1)) }; (uint64_t)__x.n; })<<11)|(({ struct { int64_t n : 1; } __x = { .n = (((i) >> (20)) & ((1ull << ((20) - (20) + 1)) - 1)) }; (uint64_t)__x.n; })<< 10)|(((i) >> (21)) & ((1ull << ((30) - (21) + 1)) - 1)); *imm = *imm << 1; } while(0); break;
+    case TYPE_RI: do { *src1 = (cpu.gpr[check_reg_idx(rs1)]); } while (0); do { *src2 = (cpu.gpr[check_reg_idx(rs2)]); } while (0); break;
   }
 
 }
@@ -5124,6 +5126,9 @@ static int decode_exec(Decode *s) {
 
 
   do { uint64_t key, mask, shift; pattern_decode("??????? ????? ????? ??? ????? 11011 11", (sizeof("??????? ????? ????? ??? ????? 11011 11") - 1), &key, &mask, &shift); if (((((s)->isa.inst.val) >> shift) & mask) == key) { { decode_operand(s, &dest, &src1, &src2, &imm, TYPE_J); (cpu.gpr[check_reg_idx(dest)]) = s->pc+0x4;s->dnpc =imm+s->pc ; }; goto *(__instpat_end); } } while (0);
+
+
+  do { uint64_t key, mask, shift; pattern_decode("0000000 ????? ????? 000 ????? 01110 11", (sizeof("0000000 ????? ????? 000 ????? 01110 11") - 1), &key, &mask, &shift); if (((((s)->isa.inst.val) >> shift) & mask) == key) { { decode_operand(s, &dest, &src1, &src2, &imm, TYPE_RI); (cpu.gpr[check_reg_idx(dest)]) = src1+src2 ; }; goto *(__instpat_end); } } while (0);
 
   do { uint64_t key, mask, shift; pattern_decode("0000000 00001 00000 000 00000 11100 11", (sizeof("0000000 00001 00000 000 00000 11100 11") - 1), &key, &mask, &shift); if (((((s)->isa.inst.val) >> shift) & mask) == key) { { decode_operand(s, &dest, &src1, &src2, &imm, TYPE_N); set_nemu_state(NEMU_END, s->pc, (cpu.gpr[check_reg_idx(10)])) ; }; goto *(__instpat_end); } } while (0);
   do { uint64_t key, mask, shift; pattern_decode("??????? ????? ????? ??? ????? ????? ??", (sizeof("??????? ????? ????? ??? ????? ????? ??") - 1), &key, &mask, &shift); if (((((s)->isa.inst.val) >> shift) & mask) == key) { { decode_operand(s, &dest, &src1, &src2, &imm, TYPE_N); invalid_inst(s->pc) ; }; goto *(__instpat_end); } } while (0);

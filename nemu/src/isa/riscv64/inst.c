@@ -26,6 +26,7 @@ enum {
   TYPE_I, TYPE_U, TYPE_S,
   TYPE_N, // none
   TYPE_J,
+  TYPE_RI,
 };
 
 #define src1R() do { *src1 = R(rs1); } while (0)
@@ -49,6 +50,7 @@ static void decode_operand(Decode *s, int *dest, word_t *src1, word_t *src2, wor
     case TYPE_U:                   immU(); break;
     case TYPE_S: src1R(); src2R(); immS(); break;
     case TYPE_J:                   immJ(); break;
+    case TYPE_RI: src1R(); src2R();         break;
   }
   //printf("%lx\n",*imm);
 }
@@ -85,6 +87,9 @@ static int decode_exec(Decode *s) {
   //jal 首先对20bits宽的imm*2后，在进行符号扩展，然后将符号扩展的值与pc相加
   //这里是由于J型指令的表示方法造成的，imm[20:1] 默认最低位为0,因此在最地位补上一个0，即左移一位，就是x2
   INSTPAT("??????? ????? ????? ??? ????? 11011 11", jal    , J, R(dest) = s->pc+0x4;s->dnpc =imm+s->pc);//x[rd]=pc+4, pc+=sext(offset)
+
+//R
+  INSTPAT("0000000 ????? ????? 000 ????? 01110 11", addw   , RI, R(dest) = src1+src2); 
 
   INSTPAT("0000000 00001 00000 000 00000 11100 11", ebreak , N, NEMUTRAP(s->pc, R(10))); // R(10) is $a0
   INSTPAT("??????? ????? ????? ??? ????? ????? ??", inv    , N, INV(s->pc));
