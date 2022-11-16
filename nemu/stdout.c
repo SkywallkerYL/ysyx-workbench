@@ -1,12 +1,12 @@
-# 0 "src/cpu/cpu-exec.c"
+# 0 "src/isa/riscv64/inst.c"
 # 0 "<built-in>"
 # 0 "<command-line>"
 # 1 "/usr/include/stdc-predef.h" 1 3 4
 # 0 "<command-line>" 2
-# 1 "src/cpu/cpu-exec.c"
-# 16 "src/cpu/cpu-exec.c"
-# 1 "/home/yangli/ysyx-workbench/nemu/include/cpu/cpu.h" 1
-# 19 "/home/yangli/ysyx-workbench/nemu/include/cpu/cpu.h"
+# 1 "src/isa/riscv64/inst.c"
+# 16 "src/isa/riscv64/inst.c"
+# 1 "src/isa/riscv64/local-include/reg.h" 1
+# 19 "src/isa/riscv64/local-include/reg.h"
 # 1 "/home/yangli/ysyx-workbench/nemu/include/common.h" 1
 # 19 "/home/yangli/ysyx-workbench/nemu/include/common.h"
 # 1 "/usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h" 1 3 4
@@ -2943,13 +2943,58 @@ extern NEMUState nemu_state;
 uint64_t get_time();
 # 22 "/home/yangli/ysyx-workbench/nemu/include/debug.h" 2
 # 48 "/home/yangli/ysyx-workbench/nemu/include/common.h" 2
-# 20 "/home/yangli/ysyx-workbench/nemu/include/cpu/cpu.h" 2
+# 20 "src/isa/riscv64/local-include/reg.h" 2
 
+static inline int check_reg_idx(int idx) {
+  
+# 22 "src/isa/riscv64/local-include/reg.h" 3 4
+ ((void) sizeof ((
+# 22 "src/isa/riscv64/local-include/reg.h"
+ idx >= 0 && idx < 32
+# 22 "src/isa/riscv64/local-include/reg.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 22 "src/isa/riscv64/local-include/reg.h"
+ idx >= 0 && idx < 32
+# 22 "src/isa/riscv64/local-include/reg.h" 3 4
+ ) ; else __assert_fail (
+# 22 "src/isa/riscv64/local-include/reg.h"
+ "idx >= 0 && idx < 32"
+# 22 "src/isa/riscv64/local-include/reg.h" 3 4
+ , "src/isa/riscv64/local-include/reg.h", 22, __extension__ __PRETTY_FUNCTION__); }))
+# 22 "src/isa/riscv64/local-include/reg.h"
+                                                     ;
+  return idx;
+}
+
+
+
+static inline const char* reg_name(int idx, int width) {
+  extern const char* regs[];
+  return regs[check_reg_idx(idx)];
+}
+# 17 "src/isa/riscv64/inst.c" 2
+# 1 "/home/yangli/ysyx-workbench/nemu/include/cpu/cpu.h" 1
+# 21 "/home/yangli/ysyx-workbench/nemu/include/cpu/cpu.h"
 void cpu_exec(uint64_t n);
 
 void set_nemu_state(int state, vaddr_t pc, int halt_ret);
 void invalid_inst(vaddr_t thispc);
-# 17 "src/cpu/cpu-exec.c" 2
+# 18 "src/isa/riscv64/inst.c" 2
+# 1 "/home/yangli/ysyx-workbench/nemu/include/cpu/ifetch.h" 1
+# 18 "/home/yangli/ysyx-workbench/nemu/include/cpu/ifetch.h"
+# 1 "/home/yangli/ysyx-workbench/nemu/include/memory/vaddr.h" 1
+# 21 "/home/yangli/ysyx-workbench/nemu/include/memory/vaddr.h"
+word_t vaddr_ifetch(vaddr_t addr, int len);
+word_t vaddr_read(vaddr_t addr, int len);
+void vaddr_write(vaddr_t addr, int len, word_t data);
+# 19 "/home/yangli/ysyx-workbench/nemu/include/cpu/ifetch.h" 2
+
+static inline uint32_t inst_fetch(vaddr_t *pc, int len) {
+  uint32_t inst = vaddr_ifetch(*pc, len);
+  (*pc) += len;
+  return inst;
+}
+# 19 "src/isa/riscv64/inst.c" 2
 # 1 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h" 1
 # 19 "/home/yangli/ysyx-workbench/nemu/include/cpu/decode.h"
 # 1 "/home/yangli/ysyx-workbench/nemu/include/isa.h" 1
@@ -5018,407 +5063,70 @@ finish:
   *mask = __mask >> __shift;
   *shift = __shift;
 }
-# 18 "src/cpu/cpu-exec.c" 2
-# 1 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 1
-# 20 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
-# 1 "/home/yangli/ysyx-workbench/nemu/include/difftest-def.h" 1
-# 20 "/home/yangli/ysyx-workbench/nemu/include/difftest-def.h"
-# 1 "/home/yangli/ysyx-workbench/nemu/include/generated/autoconf.h" 1
-# 21 "/home/yangli/ysyx-workbench/nemu/include/difftest-def.h" 2
-
-enum { DIFFTEST_TO_DUT, DIFFTEST_TO_REF };
-# 21 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 2
-# 30 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
-static inline void difftest_skip_ref() {}
-static inline void difftest_skip_dut(int nr_ref, int nr_dut) {}
-static inline void difftest_set_patch(void (*fn)(void *arg), void *arg) {}
-static inline void difftest_step(vaddr_t pc, vaddr_t npc) {}
-static inline void difftest_detach() {}
-static inline void difftest_attach() {}
-
-
-extern void (*ref_difftest_memcpy)(paddr_t addr, void *buf, size_t n, 
-# 38 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
-                                                                     _Bool 
-# 38 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
-                                                                          direction);
-extern void (*ref_difftest_regcpy)(void *dut, 
-# 39 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
-                                             _Bool 
-# 39 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
-                                                  direction);
-extern void (*ref_difftest_exec)(uint64_t n);
-extern void (*ref_difftest_raise_intr)(uint64_t NO);
-
-static inline 
-# 43 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
-             _Bool 
-# 43 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
-                  difftest_check_reg(const char *name, vaddr_t pc, word_t ref, word_t dut) {
-  if (ref != dut) {
-    do { printf("\33[1;34m" "[%s:%d %s] " "%s is different after executing instruction at pc = " "0x%016"
-# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
-   "l" "x" 
-# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
-   ", right = " "0x%016"
-# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
-   "l" "x" 
-# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
-   ", wrong = " "0x%016"
-# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
-   "l" "x" 
-# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
-   ", diff = " "0x%016"
-# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
-   "l" "x" 
-# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
-   "\33[0m" "\n", "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h", 45, __func__, name, pc, ref, dut, ref ^ dut); do { extern FILE* log_fp; extern 
-# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
-   _Bool 
-# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
-   log_enable(); if (log_enable()) { fprintf(log_fp, "\33[1;34m" "[%s:%d %s] " "%s is different after executing instruction at pc = " "0x%016"
-# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
-   "l" "x" 
-# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
-   ", right = " "0x%016"
-# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
-   "l" "x" 
-# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
-   ", wrong = " "0x%016"
-# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
-   "l" "x" 
-# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
-   ", diff = " "0x%016"
-# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
-   "l" "x" 
-# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
-   "\33[0m" "\n", "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h", 45, __func__, name, pc, ref, dut, ref ^ dut); fflush(log_fp); } } while (0); } while (0)
-
-                                      ;
-    return 
-# 48 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
-          0
-# 48 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
-               ;
-  }
-  return 
-# 50 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
-        1
-# 50 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
-            ;
-}
-# 19 "src/cpu/cpu-exec.c" 2
-# 1 "/usr/include/locale.h" 1 3 4
-# 28 "/usr/include/locale.h" 3 4
-# 1 "/usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h" 1 3 4
-# 29 "/usr/include/locale.h" 2 3 4
-# 1 "/usr/include/x86_64-linux-gnu/bits/locale.h" 1 3 4
-# 30 "/usr/include/locale.h" 2 3 4
-
-
-# 51 "/usr/include/locale.h" 3 4
-
-# 51 "/usr/include/locale.h" 3 4
-struct lconv
-{
-
-
-  char *decimal_point;
-  char *thousands_sep;
+# 20 "src/isa/riscv64/inst.c" 2
 
 
 
 
 
-  char *grouping;
-
-
-
-
-
-  char *int_curr_symbol;
-  char *currency_symbol;
-  char *mon_decimal_point;
-  char *mon_thousands_sep;
-  char *mon_grouping;
-  char *positive_sign;
-  char *negative_sign;
-  char int_frac_digits;
-  char frac_digits;
-
-  char p_cs_precedes;
-
-  char p_sep_by_space;
-
-  char n_cs_precedes;
-
-  char n_sep_by_space;
-
-
-
-
-
-
-  char p_sign_posn;
-  char n_sign_posn;
-
-
-  char int_p_cs_precedes;
-
-  char int_p_sep_by_space;
-
-  char int_n_cs_precedes;
-
-  char int_n_sep_by_space;
-
-
-
-
-
-
-  char int_p_sign_posn;
-  char int_n_sign_posn;
-# 118 "/usr/include/locale.h" 3 4
+enum {
+  TYPE_I, TYPE_U, TYPE_S,
+  TYPE_N,
+  TYPE_J,
 };
+# 39 "src/isa/riscv64/inst.c"
+static void decode_operand(Decode *s, int *dest, word_t *src1, word_t *src2, word_t *imm, int type) {
+  uint32_t i = s->isa.inst.val;
+  int rd = (((i) >> (7)) & ((1ull << ((11) - (7) + 1)) - 1));
+  int rs1 = (((i) >> (15)) & ((1ull << ((19) - (15) + 1)) - 1));
+  int rs2 = (((i) >> (20)) & ((1ull << ((24) - (20) + 1)) - 1));
 
-
-
-extern char *setlocale (int __category, const char *__locale) __attribute__ ((__nothrow__ , __leaf__));
-
-
-extern struct lconv *localeconv (void) __attribute__ ((__nothrow__ , __leaf__));
-# 141 "/usr/include/locale.h" 3 4
-extern locale_t newlocale (int __category_mask, const char *__locale,
-      locale_t __base) __attribute__ ((__nothrow__ , __leaf__));
-# 176 "/usr/include/locale.h" 3 4
-extern locale_t duplocale (locale_t __dataset) __attribute__ ((__nothrow__ , __leaf__));
-
-
-
-extern void freelocale (locale_t __dataset) __attribute__ ((__nothrow__ , __leaf__));
-
-
-
-
-
-
-extern locale_t uselocale (locale_t __dataset) __attribute__ ((__nothrow__ , __leaf__));
-
-
-
-
-
-
-
-
-# 20 "src/cpu/cpu-exec.c" 2
-# 28 "src/cpu/cpu-exec.c"
-
-# 28 "src/cpu/cpu-exec.c"
-CPU_state cpu = {};
-uint64_t g_nr_guest_inst = 0;
-static uint64_t g_timer = 0;
-static 
-# 31 "src/cpu/cpu-exec.c" 3 4
-      _Bool 
-# 31 "src/cpu/cpu-exec.c"
-           g_print_step = 
-# 31 "src/cpu/cpu-exec.c" 3 4
-                          0
-# 31 "src/cpu/cpu-exec.c"
-                               ;
-
-
-# 33 "src/cpu/cpu-exec.c" 3 4
-_Bool 
-# 33 "src/cpu/cpu-exec.c"
-    test_change();
-void device_update();
-
-static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
-
-
-    
-# 39 "src/cpu/cpu-exec.c" 3 4
-   _Bool 
-# 39 "src/cpu/cpu-exec.c"
-        change = test_change();
-
-    if(change) nemu_state.state = NEMU_STOP;
-
-
-  if (
-# 44 "src/cpu/cpu-exec.c" 3 4
-     1
-# 44 "src/cpu/cpu-exec.c"
-                ) { do { extern FILE* log_fp; extern 
-# 44 "src/cpu/cpu-exec.c" 3 4
-                    _Bool 
-# 44 "src/cpu/cpu-exec.c"
-                    log_enable(); if (log_enable()) { fprintf(log_fp, "%s\n", _this->logbuf); fflush(log_fp); } } while (0); }
-
-  if (g_print_step) { puts(_this->logbuf); }
-  ;
-}
-
-static void exec_once(Decode *s, vaddr_t pc) {
-  s->pc = pc;
-  s->snpc = pc;
-
-  isa_exec_once(s);
-
-  cpu.pc = s->dnpc;
-
-  char *p = s->logbuf;
-
-  p += snprintf(p, sizeof(s->logbuf), "0x%016"
-# 60 "src/cpu/cpu-exec.c" 3 4
-                                     "l" "x" 
-# 60 "src/cpu/cpu-exec.c"
-                                              ":", s->pc);
-  int ilen = s->snpc - s->pc;
-  int i;
-  uint8_t *inst = (uint8_t *)&s->isa.inst.val;
-  for (i = ilen - 1; i >= 0; i --) {
-
-    p += snprintf(p, 4, " %02x", inst[i]);
+  *dest = rd;
+  switch (type) {
+    case TYPE_I: do { *src1 = (cpu.gpr[check_reg_idx(rs1)]); } while (0); do { *imm = ({ struct { int64_t n : 12; } __x = { .n = (((i) >> (20)) & ((1ull << ((31) - (20) + 1)) - 1)) }; (uint64_t)__x.n; }); } while(0); break;
+    case TYPE_U: do { *imm = ({ struct { int64_t n : 20; } __x = { .n = (((i) >> (12)) & ((1ull << ((31) - (12) + 1)) - 1)) }; (uint64_t)__x.n; }) << 12; } while(0); break;
+    case TYPE_S: do { *src1 = (cpu.gpr[check_reg_idx(rs1)]); } while (0); do { *src2 = (cpu.gpr[check_reg_idx(rs2)]); } while (0); do { *imm = (({ struct { int64_t n : 7; } __x = { .n = (((i) >> (25)) & ((1ull << ((31) - (25) + 1)) - 1)) }; (uint64_t)__x.n; }) << 5) | (((i) >> (7)) & ((1ull << ((11) - (7) + 1)) - 1)); } while(0); break;
+    case TYPE_J: do { *imm = (({ struct { int64_t n : 1; } __x = { .n = (((i) >> (31)) & ((1ull << ((31) - (31) + 1)) - 1)) }; (uint64_t)__x.n; })<<19)|(({ struct { int64_t n : 8; } __x = { .n = (((i) >> (12)) & ((1ull << ((19) - (12) + 1)) - 1)) }; (uint64_t)__x.n; })<<11)|(({ struct { int64_t n : 1; } __x = { .n = (((i) >> (20)) & ((1ull << ((20) - (20) + 1)) - 1)) }; (uint64_t)__x.n; })<< 10)|(((i) >> (21)) & ((1ull << ((30) - (21) + 1)) - 1)); } while(0); break;
   }
-
-  int ilen_max = 4;
-  int space_len = ilen_max - ilen;
-  if (space_len < 0) space_len = 0;
-  space_len = space_len * 3 + 1;
-  memset(p, ' ', space_len);
-  p += space_len;
-
-  void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
-  disassemble(p, s->logbuf + sizeof(s->logbuf) - p,
-      s->pc, (uint8_t *)&s->isa.inst.val, ilen);
-
 }
 
-# 81 "src/cpu/cpu-exec.c" 3 4
-_Bool 
-# 81 "src/cpu/cpu-exec.c"
-    test_change();
-static void execute(uint64_t n) {
-
-  Decode s;
-  for (;n > 0; n --) {
-
-    exec_once(&s, cpu.pc);
-
-
-    g_nr_guest_inst ++;
-
-    trace_and_difftest(&s, cpu.pc);
+static int decode_exec(Decode *s) {
+  int dest = 0;
+  word_t src1 = 0, src2 = 0, imm = 0;
+  s->dnpc = s->snpc;
 
 
 
-    if (nemu_state.state != NEMU_RUNNING) break;
-    ;
-  }
 
+
+
+
+  { const void ** __instpat_end = &&__instpat_end_;;
+  do { uint64_t key, mask, shift; pattern_decode("??????? ????? ????? ??? ????? 00101 11", (sizeof("??????? ????? ????? ??? ????? 00101 11") - 1), &key, &mask, &shift); if (((((s)->isa.inst.val) >> shift) & mask) == key) { { decode_operand(s, &dest, &src1, &src2, &imm, TYPE_U); (cpu.gpr[check_reg_idx(dest)]) = s->pc + imm ; }; goto *(__instpat_end); } } while (0);
+  do { uint64_t key, mask, shift; pattern_decode("??????? ????? ????? 011 ????? 00000 11", (sizeof("??????? ????? ????? 011 ????? 00000 11") - 1), &key, &mask, &shift); if (((((s)->isa.inst.val) >> shift) & mask) == key) { { decode_operand(s, &dest, &src1, &src2, &imm, TYPE_I); (cpu.gpr[check_reg_idx(dest)]) = vaddr_read(src1 + imm, 8) ; }; goto *(__instpat_end); } } while (0);
+  do { uint64_t key, mask, shift; pattern_decode("??????? ????? ????? 011 ????? 01000 11", (sizeof("??????? ????? ????? 011 ????? 01000 11") - 1), &key, &mask, &shift); if (((((s)->isa.inst.val) >> shift) & mask) == key) { { decode_operand(s, &dest, &src1, &src2, &imm, TYPE_S); vaddr_write(src1 + imm, 8, src2) ; }; goto *(__instpat_end); } } while (0);
+
+
+
+  do { uint64_t key, mask, shift; pattern_decode("0000000 00000 ????? 000 ????? 00100 11", (sizeof("0000000 00000 ????? 000 ????? 00100 11") - 1), &key, &mask, &shift); if (((((s)->isa.inst.val) >> shift) & mask) == key) { { decode_operand(s, &dest, &src1, &src2, &imm, TYPE_I); (cpu.gpr[check_reg_idx(dest)]) = src1 ; }; goto *(__instpat_end); } } while (0);
+  do { uint64_t key, mask, shift; pattern_decode("??????? ????? ????? 000 ????? 00100 11", (sizeof("??????? ????? ????? 000 ????? 00100 11") - 1), &key, &mask, &shift); if (((((s)->isa.inst.val) >> shift) & mask) == key) { { decode_operand(s, &dest, &src1, &src2, &imm, TYPE_I); (cpu.gpr[check_reg_idx(dest)]) = imm+src1 ; }; goto *(__instpat_end); } } while (0);
+  do { uint64_t key, mask, shift; pattern_decode("??????? ????? ????? ??? ????? 00100 11", (sizeof("??????? ????? ????? ??? ????? 00100 11") - 1), &key, &mask, &shift); if (((((s)->isa.inst.val) >> shift) & mask) == key) { { decode_operand(s, &dest, &src1, &src2, &imm, TYPE_I); (cpu.gpr[check_reg_idx(dest)]) = imm ; }; goto *(__instpat_end); } } while (0);
+
+  do { uint64_t key, mask, shift; pattern_decode("??????? ????? ????? 000 ????? 11001 11", (sizeof("??????? ????? ????? 000 ????? 11001 11") - 1), &key, &mask, &shift); if (((((s)->isa.inst.val) >> shift) & mask) == key) { { decode_operand(s, &dest, &src1, &src2, &imm, TYPE_I); (cpu.gpr[check_reg_idx(dest)]) = s->pc+4;s->pc = (src1+imm)&~1 ; }; goto *(__instpat_end); } } while (0);
+
+
+  do { uint64_t key, mask, shift; pattern_decode("??????? ????? ????? ??? ????? 11011 11", (sizeof("??????? ????? ????? ??? ????? 11011 11") - 1), &key, &mask, &shift); if (((((s)->isa.inst.val) >> shift) & mask) == key) { { decode_operand(s, &dest, &src1, &src2, &imm, TYPE_I); (cpu.gpr[check_reg_idx(dest)]) = s->pc+4;s->pc += imm ; }; goto *(__instpat_end); } } while (0);
+
+  do { uint64_t key, mask, shift; pattern_decode("0000000 00001 00000 000 00000 11100 11", (sizeof("0000000 00001 00000 000 00000 11100 11") - 1), &key, &mask, &shift); if (((((s)->isa.inst.val) >> shift) & mask) == key) { { decode_operand(s, &dest, &src1, &src2, &imm, TYPE_N); set_nemu_state(NEMU_END, s->pc, (cpu.gpr[check_reg_idx(10)])) ; }; goto *(__instpat_end); } } while (0);
+  do { uint64_t key, mask, shift; pattern_decode("??????? ????? ????? ??? ????? ????? ??", (sizeof("??????? ????? ????? ??? ????? ????? ??") - 1), &key, &mask, &shift); if (((((s)->isa.inst.val) >> shift) & mask) == key) { { decode_operand(s, &dest, &src1, &src2, &imm, TYPE_N); invalid_inst(s->pc) ; }; goto *(__instpat_end); } } while (0);
+  __instpat_end_: ; };
+
+  (cpu.gpr[check_reg_idx(0)]) = 0;
+
+  return 0;
 }
 
-static void statistic() {
-  setlocale(
-# 103 "src/cpu/cpu-exec.c" 3 4
- 1
-# 103 "src/cpu/cpu-exec.c"
- , "");
-
-  do { printf("\33[1;34m" "[%s:%d %s] " "host time spent = " "%'" 
-# 105 "src/cpu/cpu-exec.c" 3 4
- "l" "u" 
-# 105 "src/cpu/cpu-exec.c"
- " us" "\33[0m" "\n", "src/cpu/cpu-exec.c", 105, __func__, g_timer); do { extern FILE* log_fp; extern 
-# 105 "src/cpu/cpu-exec.c" 3 4
- _Bool 
-# 105 "src/cpu/cpu-exec.c"
- log_enable(); if (log_enable()) { fprintf(log_fp, "\33[1;34m" "[%s:%d %s] " "host time spent = " "%'" 
-# 105 "src/cpu/cpu-exec.c" 3 4
- "l" "u" 
-# 105 "src/cpu/cpu-exec.c"
- " us" "\33[0m" "\n", "src/cpu/cpu-exec.c", 105, __func__, g_timer); fflush(log_fp); } } while (0); } while (0);
-  do { printf("\33[1;34m" "[%s:%d %s] " "total guest instructions = " "%'" 
-# 106 "src/cpu/cpu-exec.c" 3 4
- "l" "u" 
-# 106 "src/cpu/cpu-exec.c"
- "\33[0m" "\n", "src/cpu/cpu-exec.c", 106, __func__, g_nr_guest_inst); do { extern FILE* log_fp; extern 
-# 106 "src/cpu/cpu-exec.c" 3 4
- _Bool 
-# 106 "src/cpu/cpu-exec.c"
- log_enable(); if (log_enable()) { fprintf(log_fp, "\33[1;34m" "[%s:%d %s] " "total guest instructions = " "%'" 
-# 106 "src/cpu/cpu-exec.c" 3 4
- "l" "u" 
-# 106 "src/cpu/cpu-exec.c"
- "\33[0m" "\n", "src/cpu/cpu-exec.c", 106, __func__, g_nr_guest_inst); fflush(log_fp); } } while (0); } while (0);
-  if (g_timer > 0) do { printf("\33[1;34m" "[%s:%d %s] " "simulation frequency = " "%'" 
-# 107 "src/cpu/cpu-exec.c" 3 4
-                  "l" "u" 
-# 107 "src/cpu/cpu-exec.c"
-                  " inst/s" "\33[0m" "\n", "src/cpu/cpu-exec.c", 107, __func__, g_nr_guest_inst * 1000000 / g_timer); do { extern FILE* log_fp; extern 
-# 107 "src/cpu/cpu-exec.c" 3 4
-                  _Bool 
-# 107 "src/cpu/cpu-exec.c"
-                  log_enable(); if (log_enable()) { fprintf(log_fp, "\33[1;34m" "[%s:%d %s] " "simulation frequency = " "%'" 
-# 107 "src/cpu/cpu-exec.c" 3 4
-                  "l" "u" 
-# 107 "src/cpu/cpu-exec.c"
-                  " inst/s" "\33[0m" "\n", "src/cpu/cpu-exec.c", 107, __func__, g_nr_guest_inst * 1000000 / g_timer); fflush(log_fp); } } while (0); } while (0);
-  else do { printf("\33[1;34m" "[%s:%d %s] " "Finish running in less than 1 us and can not calculate the simulation frequency" "\33[0m" "\n", "src/cpu/cpu-exec.c", 108, __func__); do { extern FILE* log_fp; extern 
-# 108 "src/cpu/cpu-exec.c" 3 4
-      _Bool 
-# 108 "src/cpu/cpu-exec.c"
-      log_enable(); if (log_enable()) { fprintf(log_fp, "\33[1;34m" "[%s:%d %s] " "Finish running in less than 1 us and can not calculate the simulation frequency" "\33[0m" "\n", "src/cpu/cpu-exec.c", 108, __func__); fflush(log_fp); } } while (0); } while (0);
-}
-
-void assert_fail_msg() {
-  isa_reg_display();
-  statistic();
-}
-
-
-void cpu_exec(uint64_t n) {
-  g_print_step = (n < 10);
-
-  switch (nemu_state.state) {
-    case NEMU_END: case NEMU_ABORT:
-      printf("Program execution has ended. To restart the program, exit NEMU and run again.\n");
-      return;
-    default: nemu_state.state = NEMU_RUNNING;
-  }
-
-  uint64_t timer_start = get_time();
-
-  execute(n);
-
-  uint64_t timer_end = get_time();
-  g_timer += timer_end - timer_start;
-
-  switch (nemu_state.state) {
-    case NEMU_RUNNING: nemu_state.state = NEMU_STOP; break;
-
-    case NEMU_END: case NEMU_ABORT:
-      do { printf("\33[1;34m" "[%s:%d %s] " "nemu: %s at pc = " "0x%016"
-# 138 "src/cpu/cpu-exec.c" 3 4
-     "l" "x" 
-# 138 "src/cpu/cpu-exec.c"
-     "\33[0m" "\n", "src/cpu/cpu-exec.c", 138, __func__, (nemu_state.state == NEMU_ABORT ? "\33[1;31m" "ABORT" "\33[0m" : (nemu_state.halt_ret == 0 ? "\33[1;32m" "HIT GOOD TRAP" "\33[0m" : "\33[1;31m" "HIT BAD TRAP" "\33[0m")), nemu_state.halt_pc); do { extern FILE* log_fp; extern 
-# 138 "src/cpu/cpu-exec.c" 3 4
-     _Bool 
-# 138 "src/cpu/cpu-exec.c"
-     log_enable(); if (log_enable()) { fprintf(log_fp, "\33[1;34m" "[%s:%d %s] " "nemu: %s at pc = " "0x%016"
-# 138 "src/cpu/cpu-exec.c" 3 4
-     "l" "x" 
-# 138 "src/cpu/cpu-exec.c"
-     "\33[0m" "\n", "src/cpu/cpu-exec.c", 138, __func__, (nemu_state.state == NEMU_ABORT ? "\33[1;31m" "ABORT" "\33[0m" : (nemu_state.halt_ret == 0 ? "\33[1;32m" "HIT GOOD TRAP" "\33[0m" : "\33[1;31m" "HIT BAD TRAP" "\33[0m")), nemu_state.halt_pc); fflush(log_fp); } } while (0); } while (0)
-
-
-
-                             ;
-
-    case NEMU_QUIT: statistic();
-  }
+int isa_exec_once(Decode *s) {
+  s->isa.inst.val = inst_fetch(&s->snpc, 4);
+  return decode_exec(s);
 }
