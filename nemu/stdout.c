@@ -5310,9 +5310,9 @@ static void execute(uint64_t n) {
 
 
     g_nr_guest_inst ++;
-    printf("before trace_and_difftest: n: %ld  nemu_state :%d\n ",n,nemu_state.state);
+
     trace_and_difftest(&s, cpu.pc);
-    printf("aaaaa\n");
+
 
 
     if (nemu_state.state != NEMU_RUNNING) break;
