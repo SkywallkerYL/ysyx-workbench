@@ -5130,6 +5130,7 @@ static int decode_exec(Decode *s) {
 
   do { uint64_t key, mask, shift; pattern_decode("0000000 ????? ????? 000 ????? 01110 11", (sizeof("0000000 ????? ????? 000 ????? 01110 11") - 1), &key, &mask, &shift); if (((((s)->isa.inst.val) >> shift) & mask) == key) { { decode_operand(s, &dest, &src1, &src2, &imm, TYPE_RI); int val = src1+src2;(cpu.gpr[check_reg_idx(dest)]) = val ; }; goto *(__instpat_end); } } while (0);
   do { uint64_t key, mask, shift; pattern_decode("0100000 ????? ????? 000 ????? 01100 11", (sizeof("0100000 ????? ????? 000 ????? 01100 11") - 1), &key, &mask, &shift); if (((((s)->isa.inst.val) >> shift) & mask) == key) { { decode_operand(s, &dest, &src1, &src2, &imm, TYPE_RI); (cpu.gpr[check_reg_idx(dest)]) = src1-src2 ; }; goto *(__instpat_end); } } while (0);
+  do { uint64_t key, mask, shift; pattern_decode("0000000 ????? ????? 000 ????? 01100 11", (sizeof("0000000 ????? ????? 000 ????? 01100 11") - 1), &key, &mask, &shift); if (((((s)->isa.inst.val) >> shift) & mask) == key) { { decode_operand(s, &dest, &src1, &src2, &imm, TYPE_RI); (cpu.gpr[check_reg_idx(dest)]) = src1+src2 ; }; goto *(__instpat_end); } } while (0);
 
 
 
