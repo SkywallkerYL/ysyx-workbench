@@ -29,7 +29,7 @@ enum {
   TYPE_RI,
   TYPE_B,
 };
-
+//SEXT 就是手册里面的sext 把立即数扩展到多少位，有符号就进行符号扩展，无符号就进行无符号扩展
 #define src1R() do { *src1 = R(rs1); } while (0)
 #define src2R() do { *src2 = R(rs2); } while (0)
 #define immI() do { *imm = SEXT(BITS(i, 31, 20), 12); } while(0)
