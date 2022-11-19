@@ -418,6 +418,10 @@ int eval (int p , int q) {
     case TK_EQ : return val1 == val2;break;
     case TK_UNEQ : return val1!=val2;break;
     case '!'  : return !val2;break;
+    case '<'  : return val1<val2;break;
+    case '>'  : return val1>val2;break;
+    case TK_LSHIFT: return val1<<val2;break;
+    case TK_RSHIFT: return val1>>val2;break;
     case TK_POINT: return vaddr_read(val2,4);
     default: assert(0);break;
     }
