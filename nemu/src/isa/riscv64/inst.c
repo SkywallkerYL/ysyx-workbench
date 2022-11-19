@@ -131,7 +131,7 @@ static int decode_exec(Decode *s) {
 // blt 有问题，因该是比较时视为二进制补码没有实现好
 //if-else 程序31步 判断s2 与a5的大小可以看出来  这里判断的时候还是按照无符号数来的 但是无符号数的加减法等同于
 //这里直接用Int 转化了   可能会有问题，因为src是64位的 int 是32位的
-//
+//但是这样转化后，blt slt 可以正常运行，可能还没碰到极端情况
   INSTPAT("??????? ????? ????? 100 ????? 11000 11", blt    , B, int rs1 = src1;int rs2 = src2;/*printf("rs1:%d rs2:%d src1:%lu src2:%lu\n",rs1,rs2,src1,src2);*/s->dnpc = ((rs1)<rs2)?s->pc+imm:s->pc+0x4);
 //S
   INSTPAT("??????? ????? ????? 001 ????? 01000 11", sh     , S, Mw(src1 + imm, 2, src2));
