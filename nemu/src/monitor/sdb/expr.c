@@ -22,7 +22,7 @@
 
 enum {
   TK_NOTYPE = 256, TK_EQ,TK_HEX,TK_DEX,TK_REGNAME,TK_UNEQ,TK_AND,TK_OR
-  ,TK_BEQ,TK_LEQ,TK_LSHIFT,TK_RSHIFT,TK_POINT,TK_SUB
+  ,TK_BEQ,TK_LEQ,TK_LSHIFT,TK_RSHIFT,TK_POINT,TK_SUB,TK_BITAND,TK_BITOR
   /* TODO: Add more token types */
 
 };
@@ -60,7 +60,9 @@ static struct rule {
   {"<<",TK_LSHIFT},
   {">>",TK_RSHIFT},
   {">",'>'},             //biger
-  {"<",'<'}               //less
+  {"<",'<'},               //less
+  {"&",TK_BITAND},
+  {"\\|",TK_BITOR}
 };
 
 #define NR_REGEX ARRLEN(rules)
@@ -142,7 +144,8 @@ static bool make_token(char *e) {
           case '>'  : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
           case '<'  : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
           case TK_REGNAME : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
-          
+          case TK_BITAND  : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
+          case TK_BITOR  : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
           default: break;
         }
 
@@ -423,6 +426,8 @@ int eval (int p , int q) {
     case TK_LSHIFT: return val1<<val2;break;
     case TK_RSHIFT: return val1>>val2;break;
     case TK_POINT: return vaddr_read(val2,4);
+    case TK_BITAND: return val1&val2;break;
+    case TK_BITOR : return val1|val2;break;
     default: assert(0);break;
     }
   }
