@@ -29,7 +29,8 @@ enum {
   TYPE_RI,
   TYPE_B,
 };
-//SEXT 就是手册里面的sext 把立即数扩展到多少位，有符号就进行符号扩展，无符号就进行无符号扩展
+//SEXT 就是手册里面的sext 把立即数扩展到64位，有符号就进行符号扩展，无符号就进行无符号扩展,最后都是返回一个无符号的数
+//SEXRU 是自己写的 ，对一个数扩展到64位，高位补0
 #define src1R() do { *src1 = R(rs1); } while (0)
 #define src2R() do { *src2 = R(rs2); } while (0)
 #define immI() do { *imm = SEXT(BITS(i, 31, 20), 12); } while(0)
@@ -113,7 +114,7 @@ static int decode_exec(Decode *s) {
   INSTPAT("??????? ????? ????? ??? ????? 11011 11", jal   , J, R(dest) = s->pc+0x4;s->dnpc =imm+s->pc);//x[rd]=pc+4, pc+=sext(offset)
 
 //R
-  INSTPAT("0000000 ????? ????? 000 ????? 01110 11", addw  , RI, R(dest) = src1+src2;R(dest)=(R(dest)<<32)>>32); 
+  INSTPAT("0000000 ????? ????? 000 ????? 01110 11", addw  , RI, word_t val = src1+src2;val = SEXT(val,32); CUT(val,32);R(dest)=val); 
   INSTPAT("0100000 ????? ????? 000 ????? 01100 11", sub   , RI, R(dest) = src1-src2); 
   INSTPAT("0000000 ????? ????? 000 ????? 01100 11", add   , RI, R(dest) = src1+src2);
   //snez 被扩展为sltu rd 0 src2 目前有问题
