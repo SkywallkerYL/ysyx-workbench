@@ -41,6 +41,8 @@ enum {
 #define CUT(a,bit) (a=(a<<(64-bit)>>(64-bit))) //将64位的a 截断为 bit 位
 //目前感觉是cut操作出了问题，因为截断会导致符号位被截掉，采用移位的操作进行截断，原来的负数会变成正数，再理解以下位域的表示，
 //通过位于操作来进行截断 其实SEXT直接进行了截断操作以及符号位扩展，直接使用即可，不要用CUT,这样自可以过load-store
+#define low32(a) (a&0x00000000FFFFFFFF)   // 返回一个数的低32位
+
 
 static void decode_operand(Decode *s, int *dest, word_t *src1, word_t *src2, word_t *imm, int type) {
   uint32_t i = s->isa.inst.val;
@@ -88,7 +90,7 @@ static int decode_exec(Decode *s) {
 //s否则会识别为srai shamt bits[25:20]
   //srai(w) 右移，高位用src1的31或者最高位填充，这里是自动实现的，
   //在C++中对于负数右移是符号位右移，高位自动补1,对于正数，高位自动补0；这里先转化为有符号数即可
-  INSTPAT("010000? ????? ????? 101 ????? 00110 11", sraiw  , I, int32_t rs1 = src1;word_t shamt=SEXT(imm,6);R(dest) = SEXT((rs1 >> shamt),32));
+  INSTPAT("010000? ????? ????? 101 ????? 00110 11", sraiw  , I, int32_t rs1 = low32(src1);word_t shamt=SEXT(imm,6);R(dest) = SEXT((rs1 >> shamt),32));
   INSTPAT("010000? ????? ????? 101 ????? 00100 11", srai   , I, int64_t rs1 = src1;word_t shamt=SEXT(imm,6);R(dest) = rs1 >> shamt);//  
   INSTPAT("??????? ????? ????? 111 ????? 00100 11", andi   , I, R(dest) = src1 & imm);
   //li 被解释为 lui (U) slli(I) addi(I)
@@ -98,7 +100,7 @@ static int decode_exec(Decode *s) {
   INSTPAT("000000? ????? ????? 001 ????? 00100 11", slli   , I, word_t shamt=SEXT(imm,6);R(dest) = src1 << shamt);
   INSTPAT("000000? ????? ????? 001 ????? 00110 11", slliw   , I, word_t shamt=SEXT(imm,6);R(dest) = SEXT((src1 << shamt),32));
   INSTPAT("000000? ????? ????? 101 ????? 00100 11", srli   , I, word_t shamt=SEXT(imm,6);R(dest) = src1 >> shamt);
-  INSTPAT("000000? ????? ????? 101 ????? 00110 11", srliw   , I, uint32_t rs1 = src1;word_t shamt=SEXT(imm,6);R(dest) = SEXT((rs1 >> shamt),32));
+  INSTPAT("000000? ????? ????? 101 ????? 00110 11", srliw   , I, uint32_t rs1 = low32(src1);word_t shamt=SEXT(imm,6);R(dest) = SEXT((rs1 >> shamt),32));
 
   INSTPAT("??????? ????? ????? 000 ????? 00110 11", addiw  , I, word_t val = SEXT((src1+SEXT(imm,12)),64);val = SEXT(val,32);R(dest) = val);//结果截断为32位
   INSTPAT("??????? ????? ????? 100 ????? 00000 11", lbu    , I, imm = SEXT(imm,12);word_t val = Mr(src1 + imm, 1);val = SEXTU(val,8);R(dest)=val);
@@ -130,7 +132,8 @@ static int decode_exec(Decode *s) {
   INSTPAT("0000000 ????? ????? 011 ????? 01100 11", sltu  , RI, R(dest) = (src1<(src2)));
   //逻辑左移字 src1的低32位左移 src2[4:0] 低五位 其高位被忽略
   INSTPAT("0000000 ????? ????? 001 ????? 01110 11", sllw  , RI, src2 = SEXTU(src2,5);src1 =SEXT((src1<<src2),32);R(dest) = src1);
-  INSTPAT("0100000 ????? ????? 101 ????? 01110 11", sraw  , RI, int32_t rs1 = src1;src2 = SEXTU(src2,5);R(dest) = SEXT((rs1>>src2),32));
+  INSTPAT("0100000 ????? ????? 101 ????? 01110 11", sraw  , RI, int32_t  rs1 = low32(src1);src2 = SEXTU(src2,5);R(dest) = SEXT((rs1>>src2),32));
+  INSTPAT("0000000 ????? ????? 101 ????? 01110 11", srlw  , RI, uint32_t rs1 = low32(src1);src2 = SEXTU(src2,5);R(dest) = SEXT((rs1>>src2),32));
   INSTPAT("0000000 ????? ????? 110 ????? 01100 11", or    , RI, R(dest) = src1|src2 );
   INSTPAT("0000000 ????? ????? 111 ????? 01100 11", and   , RI, R(dest) = src1&src2 );
   //slt 目前有问题 // 还是不理解为什么用Int 进行强制类型转化就对的， 用int64_t就步行
