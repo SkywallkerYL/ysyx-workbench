@@ -59,7 +59,7 @@ static int cmd_si(char *args){
   //最多只能執行四步，因爲img 只有4個
   //如果要增加執行的次數 ，修改img 的大小
   //並且img最後一個不要定義爲nemu_trap
-  printf("single excutaion step!!!\n");
+  //printf("single excutaion step!!!\n");
   char *time = strtok(args," ");
   if (time == NULL) {
     cpu_exec(1);

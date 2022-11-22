@@ -1,4 +1,4 @@
-STUID = ysyx_22040000
+STUID = ysyx_22050550
 STUNAME = yangli
 
 # DO NOT modify the following code!!!

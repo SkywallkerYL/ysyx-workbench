@@ -22,7 +22,7 @@
 
 enum {
   TK_NOTYPE = 256, TK_EQ,TK_HEX,TK_DEX,TK_REGNAME,TK_UNEQ,TK_AND,TK_OR
-  ,TK_BEQ,TK_LEQ,TK_LSHIFT,TK_RSHIFT,TK_POINT,TK_SUB
+  ,TK_BEQ,TK_LEQ,TK_LSHIFT,TK_RSHIFT,TK_POINT,TK_SUB,TK_BITAND,TK_BITOR
   /* TODO: Add more token types */
 
 };
@@ -47,7 +47,8 @@ static struct rule {
   {"0x[0-9,a-f,A-F]+", TK_HEX}, // HEX 十六进制在十进制之前
   {"[0-9]+", TK_DEX},   //DEX
   //{"\\$[a-z]{2,3}",TK_REGNAME},
-  {"gpr\\[[0-9]+\\]",TK_REGNAME},
+  //{"gpr\\[[0-9]+\\]",TK_REGNAME},
+  {"[\\$,0-9,a-z]{2}",TK_REGNAME},
   {"!=", TK_UNEQ},      //UNEQ !=放在非前，防止被识别为！
   {"&&",TK_AND},        //AND
   {"\\|\\|",TK_OR},     //OR
@@ -59,7 +60,9 @@ static struct rule {
   {"<<",TK_LSHIFT},
   {">>",TK_RSHIFT},
   {">",'>'},             //biger
-  {"<",'<'}               //less
+  {"<",'<'},               //less
+  {"&",TK_BITAND},
+  {"\\|",TK_BITOR}
 };
 
 #define NR_REGEX ARRLEN(rules)
@@ -141,7 +144,8 @@ static bool make_token(char *e) {
           case '>'  : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
           case '<'  : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
           case TK_REGNAME : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
-          
+          case TK_BITAND  : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
+          case TK_BITOR  : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
           default: break;
         }
 
@@ -417,7 +421,13 @@ int eval (int p , int q) {
     case TK_EQ : return val1 == val2;break;
     case TK_UNEQ : return val1!=val2;break;
     case '!'  : return !val2;break;
+    case '<'  : return val1<val2;break;
+    case '>'  : return val1>val2;break;
+    case TK_LSHIFT: return val1<<val2;break;
+    case TK_RSHIFT: return val1>>val2;break;
     case TK_POINT: return vaddr_read(val2,4);
+    case TK_BITAND: return val1&val2;break;
+    case TK_BITOR : return val1|val2;break;
     default: assert(0);break;
     }
   }

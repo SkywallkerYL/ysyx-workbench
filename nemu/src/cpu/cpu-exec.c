@@ -30,9 +30,16 @@ uint64_t g_nr_guest_inst = 0;
 static uint64_t g_timer = 0; // unit: us
 static bool g_print_step = false;
 
+bool test_change();
 void device_update();
-
+#define CONFIG_WATHCPOINT
 static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
+//检查监视点
+#ifdef CONFIG_WATHCPOINT
+    bool change = test_change();
+    //printf("aaaaa\n");
+    if(change) nemu_state.state = NEMU_STOP;
+#endif 
 #ifdef CONFIG_ITRACE_COND
   if (ITRACE_COND) { log_write("%s\n", _this->logbuf); }
 #endif
@@ -73,21 +80,23 @@ static void exec_once(Decode *s, vaddr_t pc) {
 }
 bool test_change();
 static void execute(uint64_t n) {
+  //printf("aaaa\n");
   Decode s;
   for (;n > 0; n --) {
     //printf("before exec_once:  n: %ld  nemu_state :%d\n ",n,nemu_state.state);
     exec_once(&s, cpu.pc);
+
     //printf("before g_nr_guest_inst: n: %ld  nemu_state :%d\n ",n,nemu_state.state);
     g_nr_guest_inst ++;
     //printf("before trace_and_difftest: n: %ld  nemu_state :%d\n ",n,nemu_state.state);
     trace_and_difftest(&s, cpu.pc);
+    //printf("aaaaa\n");
     //printf("n: %ld  nemu_state :%d\n ",n,nemu_state.state);
-    //检查监视点
-    bool change = test_change();
-    if(change) nemu_state.state = NEMU_STOP; 
+    
     if (nemu_state.state != NEMU_RUNNING) break;
     IFDEF(CONFIG_DEVICE, device_update());
   }
+  
 }
 
 static void statistic() {
@@ -107,7 +116,7 @@ void assert_fail_msg() {
 /* Simulate how the CPU works. */
 void cpu_exec(uint64_t n) {
   g_print_step = (n < MAX_INST_TO_PRINT);
-  printf("nemu_state :%d\n ",nemu_state.state);
+  //printf("nemu_state :%d\n ",nemu_state.state);
   switch (nemu_state.state) {
     case NEMU_END: case NEMU_ABORT:
       printf("Program execution has ended. To restart the program, exit NEMU and run again.\n");
@@ -121,7 +130,7 @@ void cpu_exec(uint64_t n) {
 
   uint64_t timer_end = get_time();
   g_timer += timer_end - timer_start;
-  printf("nemu_state :%d\n ",nemu_state.state);
+  //printf("nemu_state :%d\n ",nemu_state.state);
   switch (nemu_state.state) {
     case NEMU_RUNNING: nemu_state.state = NEMU_STOP; break;
 
