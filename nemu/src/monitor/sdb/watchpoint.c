@@ -130,29 +130,17 @@ void print_wp()
 bool test_change(){
   bool change = 0;
   WP *wp = head;
-
-  if (wp == NULL)
-  {
-     //printf("%d\n",change);
-    change = 0;
-    return change;
-  }
-   //printf("%d\n",change);
-   //printf("%d\n",change);
+  
   while (wp->next!=NULL)
   {
-    //printf("%d\n",change);
-    //printf("jhjj\n");
-    bool success = true;
+    bool success = false;
     word_t newvalue = expr(wp->expre,&success);
     if (newvalue!=wp->value)
     {
       change = 1;
       break;
     }
-    wp = wp->next;
   }
-  
   return change;
   
 }
