@@ -1,8 +1,8 @@
 #Makefile for Verilator
 
 
-TOPNAME=example
-TOPNAMETEST=example
+TOPNAME=ysyx_22050550_cpu
+TOPNAMETEST=ysyx_22050550_cpu
 #FSM_m #keyboard_top #top
 NXDC_FILES=constr/top.nxdc
 INC_PATH?=
@@ -48,8 +48,8 @@ $(SRC_AUTO_BIND): $(NXDC_FILES)
 VSRC = $(shell find $(abspath ./vsrc) -name "*.v")
 CSRC = $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "main.cpp")
 CSRC += $(SRC_AUTO_BIND)
-VSRC += $(shell find $(abspath ../templete/Mux) -name "*.v")
-VSRC += $(shell find $(abspath ../templete/bcd7seg) -name "*.v")
+//VSRC += $(shell find $(abspath ../templete/Mux) -name "*.v")
+//VSRC += $(shell find $(abspath ../templete/bcd7seg) -name "*.v")
 
 #rules for nvboard
 include $(NVBOARD_HOME)/scripts/nvboard.mk
