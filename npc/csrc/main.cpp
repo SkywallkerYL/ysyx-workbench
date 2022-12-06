@@ -67,7 +67,7 @@ void exuinstr(int pc){
   step_and_dump_wave();
   top->clk = 1;
   step_and_dump_wave();
-  clockntimes(3);
+  clockntimes(1);
 }
 
 
