@@ -101,7 +101,7 @@ ysyx_22050550_ID_EX id_ex(
 wire [`ysyx_22050550_RegAddrBus] 	exo_rd		;
 wire [`ysyx_22050550_RegBus] 		exo_wdata	;
 wire 								exo_wen		;
-
+wire 								ex_ebreak	;
 ysyx_22050550_EXU exu(
 	.clk       (clk),
 	.rst       (rst),
@@ -113,8 +113,8 @@ ysyx_22050550_EXU exu(
 	.rden_i    (ex_rd_en),
 	.o_rd      (exo_rd),
 	.o_wen     (exo_wen),
-	.o_wdata   (exo_wdata)
-
+	.o_wdata   (exo_wdata),
+	.e_break	(ex_ebreak)
 );
 
 ysyx_22050550_Regfile regfile(
@@ -130,8 +130,19 @@ ysyx_22050550_Regfile regfile(
 );
 
 assign npc = pc + `ysyx_22050550_PCWIDTH'h4;
+//import "DPI-C" function int ebreak_inst();
+export "DPI-C" function ebreakflag;
+//always #5 if (ex_ebreak) ebreak_inst(ex_ebreak); 
 
-
+/*
+import "DPI-C" function int add (input int a, input int b);
+initial begin
+	 $display("%x+%x = %x",1,2,add(1,2));
+end
+*/
+function  ebreakflag ;
+	ebreakflag = ex_ebreak;
+endfunction
 
 
 endmodule

@@ -12,15 +12,18 @@ module ysyx_22050550_EXU (
 
     output  reg [4:0]                               o_rd        ,
     output  reg                                     o_wen       ,
-    output  reg [`ysyx_22050550_CPUWIDTH-1:0]       o_wdata                 
+    output  reg [`ysyx_22050550_CPUWIDTH-1:0]       o_wdata     ,
+    output  reg                                     e_break                
     
 );
+
     wire        [6:0]                       opcode ;  
     wire        [2:0]                       func3  ; 
     wire                                    func7   ;
     wire        [4:0]                       rs1     ;
     wire        [4:0]                       rs2     ;
     wire        [4:0]                       rd      ;
+    wire        [11:0]                      imm     ;
 
     assign opcode = instr_i[6:0];
     assign func3  = instr_i[14:12];
@@ -29,6 +32,7 @@ module ysyx_22050550_EXU (
     assign rs2 = instr_i [24:20];
     assign rd  = instr_i [11:7];
     assign func3  = instr_i[14:12];
+    assign imm = instr_i [31:20];
 
     always @(*) begin
         case (opcode) 
@@ -38,17 +42,38 @@ module ysyx_22050550_EXU (
                         o_wdata = op1_i+op2_i;
                         o_rd = rd_addr_i;
                         o_wen = rden_i;
+                        e_break = ~`ysyx_22050550_ebreakflag;
                    end
                     default: begin
                         o_wdata = `ysyx_22050550_RegWidth'b0;
                         o_rd = 5'b0;
                         o_wen = `ysyx_22050550_WriteDisable;
+                        e_break = ~`ysyx_22050550_ebreakflag;
+                    end
+                endcase
+            end
+            `ysyx_22050550_I_type_ebreak :begin
+                case (imm) 
+                   12'b001: begin 
+                        o_wdata = `ysyx_22050550_RegWidth'b0;
+                        o_rd = 5'b0;
+                        o_wen = `ysyx_22050550_WriteDisable;
+                        e_break = `ysyx_22050550_ebreakflag;
+                   end
+                    default: begin
+                        o_wdata = `ysyx_22050550_RegWidth'b0;
+                        o_rd = 5'b0;
+                        o_wen = `ysyx_22050550_WriteDisable;
+                        e_break = ~`ysyx_22050550_ebreakflag;
                     end
                 endcase
             end
 
         default:begin
             o_wdata = `ysyx_22050550_RegWidth'b0; 
+            o_rd = 5'b0;
+            o_wen = `ysyx_22050550_WriteDisable;
+            e_break = ~`ysyx_22050550_ebreakflag;
         end
         endcase
     end

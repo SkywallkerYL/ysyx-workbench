@@ -100,6 +100,14 @@ module ysyx_22050550_IDU (
                     */
                 //endcase
             end
+            `ysyx_22050550_I_type_ebreak :begin
+                rs1_addr_o = rs1;
+                rs2_addr_o = rs2;
+                op1_o = rs1_data_i;
+                op2_o = imm     ;
+                rd_addr_o = rd  ;
+                rden_o = 1'b1;
+            end
 
         default:begin
                 rs1_addr_o = 5'b0;

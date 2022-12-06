@@ -38,6 +38,8 @@
 `define ysyx_22050550_jalr                            7'b1100111
 `define ysyx_22050550_B_type                          7'b1100011
 `define ysyx_22050550_I_type_alu                            7'b0010011
+`define ysyx_22050550_I_type_ebreak                         7'b1110011
+`define ysyx_22050550_ebreakflag                        1'b1
 `define ysyx_22050550_R_type                          7'b0110011
 `define ysyx_22050550_load                            7'b0000011
 `define ysyx_22050550_store                           7'b0100011

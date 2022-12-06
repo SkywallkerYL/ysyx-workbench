@@ -3,7 +3,10 @@
 #include <assert.h>
 #include <stdlib.h>
 #include "Vysyx_22050550_cpu.h"
+#include "Vysyx_22050550_cpu__Dpi.h"
 #include "verilated_vcd_c.h"
+#include "svdpi.h"
+
 
 
 VerilatedContext* contextp = NULL;
@@ -32,6 +35,14 @@ void sim_exit(){
   delete top;
   delete contextp;
 }
+bool checkebreak ()
+{
+  const svScope scope = svGetScopeFromName("TOP.ysyx_22050550_cpu");
+  assert(scope);
+  svSetScope(scope);
+  bool flag = ebreakflag();
+  return flag;
+}
 
 void clockntimes(int n ){
 	
@@ -56,8 +67,7 @@ void exuinstr(int pc){
   step_and_dump_wave();
   top->clk = 1;
   step_and_dump_wave();
-  clockntimes(10);
-
+  clockntimes(2);
 }
 
 
@@ -65,19 +75,22 @@ int main(int argc , char** argv, char** env) {
   instr_mem[0] = 0b00000000000100000000000010010011;
   instr_mem[1] = 0b00000000001100000000000100010011;
   instr_mem[2] = 0b00000000011100001000000100010011;
+  instr_mem[3] = 0b00000000000100000000000001110011;
+  instr_mem[4] = 0b00000000111100001000000100010011;
 	sim_init();
 	top->rst = 0b1;
   clockntimes(4);
   top->rst = 0b0;
   top->pc = 0x80000000;
   clockntimes(10);
-  int n = 3;
+  int n = 5;
   
   while (n > 0)
   {
     int pc = top->pc;
     exuinstr(pc);
     top->pc = top->npc;
+    if (checkebreak()) break;
     n--;
   }
   
