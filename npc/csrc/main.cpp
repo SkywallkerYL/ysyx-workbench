@@ -6,7 +6,7 @@
 #include "Vysyx_22050550_cpu__Dpi.h"
 #include "verilated_vcd_c.h"
 #include "svdpi.h"
-
+#define instr_break 0b00000000000100000000000001110011
 
 
 VerilatedContext* contextp = NULL;
@@ -67,7 +67,7 @@ void exuinstr(int pc){
   step_and_dump_wave();
   top->clk = 1;
   step_and_dump_wave();
-  clockntimes(2);
+  clockntimes(3);
 }
 
 
@@ -75,8 +75,9 @@ int main(int argc , char** argv, char** env) {
   instr_mem[0] = 0b00000000000100000000000010010011;
   instr_mem[1] = 0b00000000001100000000000100010011;
   instr_mem[2] = 0b00000000011100001000000100010011;
-  instr_mem[3] = 0b00000000000100000000000001110011;
+  instr_mem[3] = instr_break;
   instr_mem[4] = 0b00000000111100001000000100010011;
+  instr_mem[5] = 0b00000001111100001000001100010011;
 	sim_init();
 	top->rst = 0b1;
   clockntimes(4);

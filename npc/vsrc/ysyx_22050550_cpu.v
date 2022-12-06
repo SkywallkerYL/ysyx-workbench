@@ -20,9 +20,19 @@ ysyx_22050550_pcreg pc_reg(
 	.npc (if_pc)
 );
 //这里instr暂且直接从顶层拉进来
+//这样没有与if_pc同步，加一级寄存器
+
+wire [`ysyx_22050550_InstBus] rom_inst;
+ysyx_22050550_Reg #(`ysyx_22050550_INSTWIDTH,`ysyx_22050550_INSTWIDTH'h00000000) instrreg (
+        .rst(rst),
+        .clk(clk),
+        .wen(`ysyx_22050550_WriteEnable),
+        .din(instr),
+        .dout(rom_inst)
+);
 ysyx_22050550_IFU ifu(
 	.pc         	(if_pc),
-	.rom_inst   	(instr),
+	.rom_inst   	(rom_inst),
 	.rom_pc_addr	(),
 	.if_pc      	(ifid_pc),
 	.if_inst		(ifid_inst)

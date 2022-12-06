@@ -13,7 +13,7 @@ module ysyx_22050550_IF_ID (
     output  reg [`ysyx_22050550_PCBus]    id_pc       ,
     output  reg [`ysyx_22050550_InstBus]    id_inst     
 );
-    ysyx_22050550_Reg #(`ysyx_22050550_INSTWIDTH,`ysyx_22050550_INSTWIDTH'h80000000) regpc (
+    ysyx_22050550_Reg #(`ysyx_22050550_PCWIDTH,`ysyx_22050550_PCWIDTH'h80000000) regpc (
         .rst(rst),
         .clk(clk),
         .wen(`ysyx_22050550_WriteEnable),
