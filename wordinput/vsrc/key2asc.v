@@ -90,7 +90,7 @@ module key2asc(
     8'h71, 8'd46
 	}));
     */
-    MuxKeyWithDefault#(70, 8, 8) key2ascMux(.out(asci), .key(keybuffer), .default_out(8'b0000_0000), .lut({
+    MuxKeyWithDefault#(69, 8, 8) key2ascMux(.out(asci), .key(keybuffer), .default_out(8'b0000_0000), .lut({
 	8'h1C, 8'd97,
 	8'h32, 8'd98,
     8'h21, 8'd99,
@@ -128,9 +128,9 @@ module key2asc(
     8'h3E, 8'd56,
     8'h46, 8'd57,
 
-    8'h66, 8'd8,
+    //8'h66, 8'd8,
     8'h0D, 8'd9,
-    8'h5A, 8'd13,
+    //8'h5A, 8'd13,
     8'h12, 8'd16,
     8'h14, 8'd17,
     8'h11, 8'd18,
