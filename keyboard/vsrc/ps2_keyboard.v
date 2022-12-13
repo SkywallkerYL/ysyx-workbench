@@ -1,11 +1,12 @@
 module ps2_keyboard(clk,clrn,ps2_clk,ps2_data,data,ps2_count,
-                    ready,nextdata_n,overflow);
+                    ready,nextdata_n,overflow,flagen);
     input clk,clrn,ps2_clk,ps2_data;
     input nextdata_n;
     output [7:0] data;    
     output reg [11:0] ps2_count;
     output reg ready;
     output reg overflow;     // fifo overflow
+    output  flagen;// 用来只是显示管是否显示键码
     // internal signal, for test
     reg [9:0] buffer;        // ps2_data bits
     reg [7:0] fifo[7:0];     // data fifo
@@ -19,7 +20,7 @@ module ps2_keyboard(clk,clrn,ps2_clk,ps2_data,data,ps2_count,
     end
 
     wire sampling = ps2_clk_sync[2] & ~ps2_clk_sync[1];
-
+    assign flagen = ( fifo[r_ptr-3'b001]!=8'hF0 &&fifo[r_ptr-3'b010]!=8'hF0 ) ;
     always @(posedge clk) begin
         if (clrn == 0) begin // reset
             count <= 0; w_ptr <= 0; r_ptr <= 0; overflow <= 0; ready<= 0;
@@ -27,13 +28,22 @@ module ps2_keyboard(clk,clrn,ps2_clk,ps2_data,data,ps2_count,
         end
         else begin
             if ( ready ) begin // read to output next data
-                if( fifo[r_ptr] == 8'hF0||(fifo[r_ptr-3'b001]==8'hF0)||(fifo[r_ptr]==fifo[r_ptr-3'b001]&&fifo[r_ptr-3'b010]!=8'hF0)) begin
+                //不是码字时也不要加
+                if( (fifo[r_ptr]==8'h00)||fifo[r_ptr] == 8'hF0||(fifo[r_ptr-3'b001]==8'hF0)||(fifo[r_ptr]==fifo[r_ptr-3'b001]&&fifo[r_ptr-3'b010]!=8'hF0)) begin
                      ps2_count <= ps2_count;
                     end
                      else begin 
                         ps2_count <= ps2_count + 1'b1;
                         $display("pscount %d", ps2_count);
                      end
+                     /*
+                if( (fifo[r_ptr]==8'h00)||fifo[r_ptr] == 8'hF0||(fifo[r_ptr-3'b001]==8'hF0)) begin
+                    flagen <= 1'b0;
+                end
+                else begin 
+                    flagen<=1'b1;
+                end
+                */
                 if(nextdata_n == 1'b0) //read next data
                 begin
 
@@ -77,6 +87,6 @@ module ps2_keyboard(clk,clrn,ps2_clk,ps2_data,data,ps2_count,
             end
         end
     end
-    assign data = fifo[r_ptr]; //always set output data
+    assign data = fifo[r_ptr-3'b001]; //always set output data
 
 endmodule

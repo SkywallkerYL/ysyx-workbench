@@ -45,7 +45,19 @@ void clockntimes(int n ){
 		temp --;
 	}
 }
-void inputkey (int * a )
+void ps2clockntimes(int n,int ntimes)
+{
+	while (n--)
+	{
+		top->ps2_clk = 0b1;
+		clockntimes(ntimes);
+		top->ps2_clk = 0b0;
+		clockntimes(ntimes);
+	}
+	
+}
+#define USE 1
+void inputkey (int * a ,int ntimes,int ntimes2)
 {
 	
 	int i = 0;
@@ -55,10 +67,18 @@ void inputkey (int * a )
 	{
 		//top->ps2_data = a[i]; //step_and_dump_wave();
 		//negedge detect     so while negedge   change the value
-		clockntimes(3); top->ps2_clk = 0b1; //step_and_dump_wave();
+#if USE
+		int n ;
+		if (i==0) n = ntimes-ntimes2;
+		else n = ntimes; 
+		clockntimes(n); top->ps2_clk = 0b1; //step_and_dump_wave();
 		top->ps2_data = a[i];
-		clockntimes(3); top->ps2_clk = 0b0; //step_and_dump_wave();
-		//top->ps2_data = a[i];
+		clockntimes(ntimes); top->ps2_clk = 0b0; //step_and_dump_wave();
+#else
+		ps2clockntimes(1,ntimes);
+		top->ps2_data = a[i];
+		ps2clockntimes(1,ntimes);
+#endif
 		i++;
 	}
 	top->ps2_clk = 0b0;
@@ -78,40 +98,61 @@ int main(int argc , char** argv, char** env) {
 	//top.model.kbd_sendcode(8'h1C); clockntimes(2);
 	a[0] = 0b0; a[1] = 0b0; a[2] = 0b0;a[3] = 0b1;a[4] = 0b1;a[5] = 0b1;a[6] = 0b0;a[7] = 0b0;a[8] = 0b0;a[9] = 0b0; a[10] = 0b1;  	
 	//A    8'h1C
-	inputkey(a);
-	clockntimes(2);top->nextdata_n = 0b0; //clockntimes(2);
-	clockntimes(2);top->nextdata_n = 0b1; //clockntimes(2);
-	inputkey(back);
-	clockntimes(2);top->nextdata_n = 0b0;
-	clockntimes(2);top->nextdata_n = 0b1;
-	inputkey(a);
-	clockntimes(2);top->nextdata_n = 0b0;
-	clockntimes(2);top->nextdata_n = 0b1;
-	inputkey(a);
-	clockntimes(2);top->nextdata_n = 0b0; //clockntimes(2);
-	clockntimes(2);top->nextdata_n = 0b1; //clockntimes(2);
-	inputkey(a);
-	clockntimes(2);top->nextdata_n = 0b0;
-	clockntimes(2);top->nextdata_n = 0b1;
-	inputkey(a);
-	clockntimes(2);top->nextdata_n = 0b0; //clockntimes(2);
-	clockntimes(2);top->nextdata_n = 0b1; //clockntimes(2);
-	inputkey(back);
-	clockntimes(2);top->nextdata_n = 0b0;
-	clockntimes(2);top->nextdata_n = 0b1;
-	inputkey(a);
-	clockntimes(2);top->nextdata_n = 0b0;
-	clockntimes(2);top->nextdata_n = 0b1;
-	inputkey(a);
-	clockntimes(2);top->nextdata_n = 0b0; //clockntimes(2);
-	clockntimes(2);top->nextdata_n = 0b1; //clockntimes(2);
-	inputkey(back);
-	clockntimes(2);top->nextdata_n = 0b0;
-	clockntimes(2);top->nextdata_n = 0b1;
-	inputkey(a);
-	clockntimes(2);top->nextdata_n = 0b0;
-	clockntimes(2);top->nextdata_n = 0b1;
+	int ntimes = 10;
+	int ntimes2 = 2;
+#if USE 
+	//仿真过程中不要在更新nextdata_n时更新采样信号，因为那样会导致
+	//增加sampling信号   会导致内部计数器出问题，这样就会读入错误
+	inputkey(a,ntimes,0);
+	clockntimes(ntimes2);top->nextdata_n = 0b0;//top->ps2_clk = 0b1; //clockntimes(2);
+	clockntimes(ntimes2);top->nextdata_n = 0b1;//top->ps2_clk = 0b0; //clockntimes(2);
+
+	inputkey(back,ntimes,2*ntimes2);//
+	clockntimes(ntimes2);top->nextdata_n = 0b0;//top->ps2_clk = 0b1;
+	clockntimes(ntimes2);top->nextdata_n = 0b1;//top->ps2_clk = 0b0;
+
+	inputkey(a,ntimes,2*ntimes2);//
+	clockntimes(ntimes2);top->nextdata_n = 0b0;//top->ps2_clk = 0b1;
+	clockntimes(ntimes2);top->nextdata_n = 0b1;//top->ps2_clk = 0b0;
+	inputkey(a,ntimes,2*ntimes2);//
+	clockntimes(ntimes2);top->nextdata_n = 0b0;//top->ps2_clk = 0b1; //clockntimes(2);
+	clockntimes(ntimes2);top->nextdata_n = 0b1;//top->ps2_clk = 0b0; //clockntimes(2);
+	inputkey(a,ntimes,2*ntimes2);//
+	clockntimes(ntimes2);top->nextdata_n = 0b0;//top->ps2_clk = 0b1;
+	clockntimes(ntimes2);top->nextdata_n = 0b1;//top->ps2_clk = 0b0;
+	inputkey(a,ntimes,2*ntimes2);//
+	clockntimes(ntimes2);top->nextdata_n = 0b0;//top->ps2_clk = 0b1; //clockntimes(2);
+	clockntimes(ntimes2);top->nextdata_n = 0b1;//top->ps2_clk = 0b0; //clockntimes(2);
+
+	inputkey(a,ntimes,2*ntimes2);//
+	clockntimes(ntimes2);top->nextdata_n = 0b0;//top->ps2_clk = 0b1;
+	clockntimes(ntimes2);top->nextdata_n = 0b1;//top->ps2_clk = 0b0;
+
+	inputkey(a,ntimes,2*ntimes2);//
+	clockntimes(ntimes2);top->nextdata_n = 0b0;//top->ps2_clk = 0b1;
+	clockntimes(ntimes2);top->nextdata_n = 0b1;//top->ps2_clk = 0b0;
+
+	inputkey(a,ntimes,2*ntimes2);//
+	clockntimes(ntimes2);top->nextdata_n = 0b0;//top->ps2_clk = 0b1; //clockntimes(2);
+	clockntimes(ntimes2);top->nextdata_n = 0b1;//top->ps2_clk = 0b0; //clockntimes(2);
+
+	inputkey(back,ntimes,2*ntimes2);//
+	clockntimes(ntimes2);top->nextdata_n = 0b0;//top->ps2_clk = 0b1;
+	clockntimes(ntimes2);top->nextdata_n = 0b1;//top->ps2_clk = 0b0;
+
+	inputkey(back,ntimes,2*ntimes2);//
+	clockntimes(ntimes2);top->nextdata_n = 0b0;//top->ps2_clk = 0b1;
+	clockntimes(ntimes2);top->nextdata_n = 0b1;//top->ps2_clk = 0b0;
+
+#else
+	int n = 0
+	while (n <= 2000)
+	{
+		
+	}
 	
+#endif
+	//
 	sim_exit();
 	return 0;
 }

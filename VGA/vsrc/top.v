@@ -78,7 +78,10 @@ module top (
         .nexth_addr(nexth_addr),
         .nextv_addr(nextv_addr)
     );
-    
+    wire    [$clog2(hsize)-1:0] nexth_addr1;
+    wire    [$clog2(hsize)-1:0] nextv_addr1;
+    assign nexth_addr1 = picx;
+    assign nextv_addr1 = picy;
     reg [$clog2(pichsize)+$clog2(picvsize)-1:0] rom_addr;
     always @(posedge VGA_CLK) begin
         if (rst) rom_addr <= 0;
