@@ -409,7 +409,8 @@ int eval (int p , int q) {
     case '/' : 
       if (val2 == 0)
       {
-          assert("Invalid expression for 0 as mother");
+          printf("Invalid expression for div by 0");
+          assert("Invalid expression for div by 0");
       }
       else {
         /*printf("tempval/: %d %d %d\n",val1,val2,val1/val2);*/
