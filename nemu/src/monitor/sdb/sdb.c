@@ -119,6 +119,7 @@ static int cmd_x(char *args){
   return 0;
 }
 // 表达式求值
+//p exp
 static int cmd_p(char *args){
   if (args == NULL)
   {
