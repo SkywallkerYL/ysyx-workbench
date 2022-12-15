@@ -27,10 +27,10 @@ config ISA64
   default y
 
 config  WATHCPOINT
-  bool "watch point"
-  help watchpoint
+  bool 
   default y
 
+  
 choice
   prompt "NEMU execution engine"
   default ENGINE_INTERPRETER
