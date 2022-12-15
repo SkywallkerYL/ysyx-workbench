@@ -28,7 +28,7 @@ config ISA64
 
 config  WATHCPOINT
   bool
-  default "1"
+  default y
 
 choice
   prompt "NEMU execution engine"
