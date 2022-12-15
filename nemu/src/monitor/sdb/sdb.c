@@ -167,10 +167,13 @@ static int cmd_pt(char* args){
     {
       //printf("result : %d ",a[i]);
     }
-    if(fscanf(fp,"%s",str[i])==1)
+
+    
+    if(fscanf(fp,"%[^\n]",str[i])==1)
     {
       //printf("expr : %s \n",str[i]);
     }
+    
     i++;  
   }
   for (size_t j = 0; j < len&&j<i-1; j++)
