@@ -5238,9 +5238,13 @@ void device_update();
 static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 
 
-
-
-
+    
+# 39 "src/cpu/cpu-exec.c" 3 4
+   _Bool 
+# 39 "src/cpu/cpu-exec.c"
+        change = test_change();
+    printf("aaaaa\n");
+    if(change) nemu_state.state = NEMU_STOP;
 
 
   if (
