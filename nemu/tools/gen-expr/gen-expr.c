@@ -40,6 +40,12 @@ static void gen(char a){
   buf[addpos] = a;
   buf[addpos+1] = '\0';
   addpos++;
+  if (choose(10) == 0)
+  {
+    buf[addpos] = ' ';
+    buf[addpos+1] = '\0';
+    addpos++;
+  }
 }
 static void gen_num(){
   int num = rand()%10;
