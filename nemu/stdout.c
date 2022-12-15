@@ -4678,7 +4678,7 @@ static int cmd_pt(char* args){
       cal_result = expr(str[j],&success);
       if (success)
       {
-        printf("realresult = %d, result = %d\n",a[j],cal_result);
+        printf("index: %ld realresult = %d, result = %d\n",j,a[j],cal_result);
       }
       else
       {
