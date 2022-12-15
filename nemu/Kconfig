@@ -28,7 +28,7 @@ config ISA64
 
 config  WATHCPOINT
   bool 
-  default n
+  default y
 
 
 choice
