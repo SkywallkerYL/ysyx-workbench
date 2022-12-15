@@ -4583,11 +4583,14 @@ static int cmd_x(char *args){
 }
 
 
+
+
+
 static int cmd_p(char *args){
   if (args == 
-# 124 "src/monitor/sdb/sdb.c" 3 4
+# 127 "src/monitor/sdb/sdb.c" 3 4
              ((void *)0)
-# 124 "src/monitor/sdb/sdb.c"
+# 127 "src/monitor/sdb/sdb.c"
                  )
   {
     printf("Please input the expression to calculate!");
@@ -4596,13 +4599,13 @@ static int cmd_p(char *args){
   {
     init_regex();
     
-# 131 "src/monitor/sdb/sdb.c" 3 4
+# 134 "src/monitor/sdb/sdb.c" 3 4
    _Bool 
-# 131 "src/monitor/sdb/sdb.c"
+# 134 "src/monitor/sdb/sdb.c"
         success = 
-# 131 "src/monitor/sdb/sdb.c" 3 4
+# 134 "src/monitor/sdb/sdb.c" 3 4
                   1
-# 131 "src/monitor/sdb/sdb.c"
+# 134 "src/monitor/sdb/sdb.c"
                       ;
     int result = expr(args,&success);
     if (success)
@@ -4619,9 +4622,9 @@ static int cmd_p(char *args){
 static int cmd_pt(char* args){
   int len;
   if (args == 
-# 146 "src/monitor/sdb/sdb.c" 3 4
+# 149 "src/monitor/sdb/sdb.c" 3 4
              ((void *)0)
-# 146 "src/monitor/sdb/sdb.c"
+# 149 "src/monitor/sdb/sdb.c"
                  )
   {
     len = 100;
@@ -4632,9 +4635,9 @@ static int cmd_pt(char* args){
   printf("%d\n",len);
   FILE *fp = fopen("/home/yangli/ysyx-workbench/nemu/tools/gen-expr/input.txt","r");
   if (fp == 
-# 155 "src/monitor/sdb/sdb.c" 3 4
+# 158 "src/monitor/sdb/sdb.c" 3 4
            ((void *)0)
-# 155 "src/monitor/sdb/sdb.c"
+# 158 "src/monitor/sdb/sdb.c"
                )
   {
     printf("No testfile input!!\n");
@@ -4667,13 +4670,13 @@ static int cmd_pt(char* args){
       int cal_result;
       init_regex();
       
-# 186 "src/monitor/sdb/sdb.c" 3 4
+# 189 "src/monitor/sdb/sdb.c" 3 4
      _Bool 
-# 186 "src/monitor/sdb/sdb.c"
+# 189 "src/monitor/sdb/sdb.c"
           success = 
-# 186 "src/monitor/sdb/sdb.c" 3 4
+# 189 "src/monitor/sdb/sdb.c" 3 4
                     1
-# 186 "src/monitor/sdb/sdb.c"
+# 189 "src/monitor/sdb/sdb.c"
                         ;
       cal_result = expr(str[j],&success);
       if (success)
@@ -4698,22 +4701,22 @@ static int cmd_w (char *args){
   return 0;
 }
 
-# 209 "src/monitor/sdb/sdb.c" 3 4
+# 212 "src/monitor/sdb/sdb.c" 3 4
 _Bool 
-# 209 "src/monitor/sdb/sdb.c"
+# 212 "src/monitor/sdb/sdb.c"
     delete_wp(int NO);
 static int cmd_d (char *args){
   char *arg = strtok(
-# 211 "src/monitor/sdb/sdb.c" 3 4
+# 214 "src/monitor/sdb/sdb.c" 3 4
                     ((void *)0)
-# 211 "src/monitor/sdb/sdb.c"
+# 214 "src/monitor/sdb/sdb.c"
                         ," ");
   int NO = 0;
   sscanf(arg,"%d",&NO);
   
-# 214 "src/monitor/sdb/sdb.c" 3 4
+# 217 "src/monitor/sdb/sdb.c" 3 4
  _Bool 
-# 214 "src/monitor/sdb/sdb.c"
+# 217 "src/monitor/sdb/sdb.c"
       dele = delete_wp(NO);
   if (dele)
   {
@@ -4750,16 +4753,16 @@ static struct {
 static int cmd_help(char *args) {
 
   char *arg = strtok(
-# 249 "src/monitor/sdb/sdb.c" 3 4
+# 252 "src/monitor/sdb/sdb.c" 3 4
                     ((void *)0)
-# 249 "src/monitor/sdb/sdb.c"
+# 252 "src/monitor/sdb/sdb.c"
                         , " ");
   int i;
 
   if (arg == 
-# 252 "src/monitor/sdb/sdb.c" 3 4
+# 255 "src/monitor/sdb/sdb.c" 3 4
             ((void *)0)
-# 252 "src/monitor/sdb/sdb.c"
+# 255 "src/monitor/sdb/sdb.c"
                 ) {
 
     for (i = 0; i < (int)(sizeof(cmd_table) / sizeof(cmd_table[0])); i ++) {
@@ -4780,35 +4783,35 @@ static int cmd_help(char *args) {
 
 void sdb_set_batch_mode() {
   is_batch_mode = 
-# 271 "src/monitor/sdb/sdb.c" 3 4
+# 274 "src/monitor/sdb/sdb.c" 3 4
                  1
-# 271 "src/monitor/sdb/sdb.c"
+# 274 "src/monitor/sdb/sdb.c"
                      ;
 }
 
 void sdb_mainloop() {
   if (is_batch_mode) {
     cmd_c(
-# 276 "src/monitor/sdb/sdb.c" 3 4
+# 279 "src/monitor/sdb/sdb.c" 3 4
          ((void *)0)
-# 276 "src/monitor/sdb/sdb.c"
+# 279 "src/monitor/sdb/sdb.c"
              );
     return;
   }
 
   for (char *str; (str = rl_gets()) != 
-# 280 "src/monitor/sdb/sdb.c" 3 4
+# 283 "src/monitor/sdb/sdb.c" 3 4
                                       ((void *)0)
-# 280 "src/monitor/sdb/sdb.c"
+# 283 "src/monitor/sdb/sdb.c"
                                           ; ) {
     char *str_end = str + strlen(str);
 
 
     char *cmd = strtok(str, " ");
     if (cmd == 
-# 285 "src/monitor/sdb/sdb.c" 3 4
+# 288 "src/monitor/sdb/sdb.c" 3 4
               ((void *)0)
-# 285 "src/monitor/sdb/sdb.c"
+# 288 "src/monitor/sdb/sdb.c"
                   ) { continue; }
 
 
@@ -4817,9 +4820,9 @@ void sdb_mainloop() {
     char *args = cmd + strlen(cmd) + 1;
     if (args >= str_end) {
       args = 
-# 292 "src/monitor/sdb/sdb.c" 3 4
+# 295 "src/monitor/sdb/sdb.c" 3 4
             ((void *)0)
-# 292 "src/monitor/sdb/sdb.c"
+# 295 "src/monitor/sdb/sdb.c"
                 ;
     }
 
