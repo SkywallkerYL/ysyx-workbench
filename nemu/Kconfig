@@ -27,7 +27,7 @@ config ISA64
   default y
 
 config  WATHCPOINT
-  bool
+  bool "watch point"
   help watchpoint
   default y
 
