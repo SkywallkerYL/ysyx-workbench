@@ -3621,24 +3621,8 @@ int eval (int p , int q) {
     case '/' :
       if (val2 == 0)
       {
-          printf("Invalid expression for div by 0");
-          
-# 413 "src/monitor/sdb/expr.c" 3 4
-         ((void) sizeof ((
-# 413 "src/monitor/sdb/expr.c"
-         "Invalid expression for div by 0"
-# 413 "src/monitor/sdb/expr.c" 3 4
-         ) ? 1 : 0), __extension__ ({ if (
-# 413 "src/monitor/sdb/expr.c"
-         "Invalid expression for div by 0"
-# 413 "src/monitor/sdb/expr.c" 3 4
-         ) ; else __assert_fail (
-# 413 "src/monitor/sdb/expr.c"
-         "\"Invalid expression for div by 0\""
-# 413 "src/monitor/sdb/expr.c" 3 4
-         , "src/monitor/sdb/expr.c", 413, __extension__ __PRETTY_FUNCTION__); }))
-# 413 "src/monitor/sdb/expr.c"
-                                                  ;
+          printf("Invalid expression for div by 0\n");
+
       }
       else {
 
