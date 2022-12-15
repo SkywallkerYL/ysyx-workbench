@@ -37,7 +37,7 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 //检查监视点
 #ifdef CONFIG_WATHCPOINT
     bool change = test_change();
-    //printf("aaaaa\n");
+    printf("aaaaa\n");
     if(change) nemu_state.state = NEMU_STOP;
 #endif 
 #ifdef CONFIG_ITRACE_COND
