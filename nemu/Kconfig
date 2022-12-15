@@ -27,9 +27,9 @@ config ISA64
   default y
 
 config  WATHCPOINT
-  string
+  bool
   help watchpoint
-  default "#define CONFIG_WATHCPOINT 1"
+  default y
 
 choice
   prompt "NEMU execution engine"
