@@ -109,8 +109,8 @@ static bool make_token(char *e) {
         int substr_len = pmatch.rm_eo;
         //strncpy(tokens[nr_token].str,substr_start,substr_len);
         //tokens[nr_token].str[substr_len] = '\0';
-        Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
-            i, rules[i].regex, position, substr_len, substr_len, substr_start);
+        //Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
+            //i, rules[i].regex, position, substr_len, substr_len, substr_start);
 
         position += substr_len;
 
@@ -409,7 +409,8 @@ int eval (int p , int q) {
     case '/' : 
       if (val2 == 0)
       {
-          assert("Invalid expression for 0 as mother");
+          printf("Invalid expression for div by 0\n");
+          //assert("Invalid expression for div by 0");
       }
       else {
         /*printf("tempval/: %d %d %d\n",val1,val2,val1/val2);*/
