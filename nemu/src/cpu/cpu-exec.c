@@ -32,10 +32,10 @@ static bool g_print_step = false;
 
 bool test_change();
 void device_update();
-//#define CONFIG_WATHCPOINT 1
+#define CONFIG_WATHCPOINT
 static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 //检查监视点
-#if CONFIG_WATHCPOINT
+#ifdef CONFIG_WATHCPOINT
     bool change = test_change();
     //printf("aaaaa\n");
     if(change) nemu_state.state = NEMU_STOP;

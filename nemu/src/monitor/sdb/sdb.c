@@ -60,7 +60,7 @@ static int cmd_si(char *args){
   //如果要增加執行的次數 ，修改img 的大小
   //並且img最後一個不要定義爲nemu_trap
   //printf("single excutaion step!!!\n");
-  char *time = strtok(NULL," ");
+  char *time = strtok(args," ");
   if (time == NULL) {
     cpu_exec(1);
     return 0;
@@ -119,10 +119,6 @@ static int cmd_x(char *args){
   return 0;
 }
 // 表达式求值
-//p exp
-//(6+((7+(9)*(4)-(8))+8)+((8)-3*(9/8))+((9/3+1+6))*(9/((((6+(((0)*8))-(6)/9+1))))*(7)/(9/8/((((6*3))/7))))*(1))
-//int bbb =(6+((((7))+(9)*(4)-(8))+8)+((8)-3*(9/8))+((9/3+1+6))*(9/((((6+(((0)*8))-(6)/9+1))))*(7)/(9/8/((((6*3))/7))))*(1));
-
 static int cmd_p(char *args){
   if (args == NULL)
   {
@@ -170,13 +166,10 @@ static int cmd_pt(char* args){
     {
       //printf("result : %d ",a[i]);
     }
-
-    
-    if(fscanf(fp,"%[^\n]",str[i])==1)
+    if(fscanf(fp,"%s",str[i])==1)
     {
       //printf("expr : %s \n",str[i]);
     }
-    
     i++;  
   }
   for (size_t j = 0; j < len&&j<i-1; j++)
@@ -190,7 +183,7 @@ static int cmd_pt(char* args){
       cal_result = expr(str[j],&success);
       if (success)
       {
-        printf("index: %ld realresult = %d, result = %d\n",j,a[j],cal_result);
+        printf("realresult = %d, result = %d\n",a[j],cal_result);
       }
       else
       {
