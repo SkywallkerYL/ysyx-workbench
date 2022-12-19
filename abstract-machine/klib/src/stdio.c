@@ -294,7 +294,7 @@ int sprintf(char *out, const char *fmt, ...) {
         strval = va_arg(ap,char*);
         int lentemp = strlen(strval);
         resnum += (unsigned int) lentemp;
-        printf ("%d\n",lentemp);
+        //printf ("%d\n",lentemp);
         for (char *p = strval; *p; p++) {*out = *p;out++;}
         pstr++;
         continue;
