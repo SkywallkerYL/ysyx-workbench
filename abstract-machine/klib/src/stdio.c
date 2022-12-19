@@ -293,7 +293,7 @@ int sprintf(char *out, const char *fmt, ...) {
       case 's':
         strval = va_arg(ap,char*);
         resnum += (unsigned int) strlen(strval);
-        for (const char *p = strval; *p; p++) {*out = *strval;out++;}
+        for (char *p = strval; *p; p++) {*out = *p;out++;}
         pstr++;
         continue;
       default:
