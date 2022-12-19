@@ -43,6 +43,7 @@ int printf(const char *fmt, ...) {
   va_start(ap,fmt);//初始化ap指针，其指向第一个可变参数
   while (*pstr!='\0')
   {
+    assert(resnum<=2);
     //switch里的break是跳出switch continue 是进入下一轮循环
     switch (*pstr)
     {
