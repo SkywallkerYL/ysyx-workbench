@@ -293,6 +293,7 @@ int sprintf(char *out, const char *fmt, ...) {
       case 's':
         strval = va_arg(ap,char*);
         resnum += (unsigned int) strlen(strval);
+        printf("%d\n",strlen(strval));
         for (char *p = strval; *p; p++) {*out = *p;out++;}
         pstr++;
         continue;
