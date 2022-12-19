@@ -91,7 +91,7 @@ int printf(const char *fmt, ...) {
           myputch((char)tempval+'0');
           lencnt--;
         }
-        *pstr++;
+        pstr++;
         continue;
       case 'x':
         system_ = 16;
@@ -260,7 +260,7 @@ int sprintf(char *out, const char *fmt, ...) {
           out++;
           lencnt--;
         }
-        *pstr++;
+        pstr++;
         continue;
       case 'x':
         system_ = 16;
