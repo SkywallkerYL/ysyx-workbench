@@ -290,7 +290,7 @@ int sprintf(char *out, const char *fmt, ...) {
         }
         pstr++;
         continue;
-      case 'a':
+      case 's':
         strval = va_arg(ap,char*);
         int lentemp = strlen(strval);
         resnum += (unsigned int) lentemp;
