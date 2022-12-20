@@ -43,7 +43,7 @@ static struct rule {
   {"\\*", TK_POINT},    //指针
   {"/", '/'},            //div
   {"-",'-'},             //minus
-  {"-",TK_SUB},          // 复数
+  {"-",TK_SUB},          // 负数
   {"0x[0-9,a-f,A-F]+", TK_HEX}, // HEX 十六进制在十进制之前
   {"[0-9]+", TK_DEX},   //DEX
   //{"\\$[a-z]{2,3}",TK_REGNAME},
@@ -201,6 +201,7 @@ word_t expr(char *e, bool *success) {
       tokens[i-1].type != TK_REGNAME ))
       */
       {
+        if (i!=0) printf("i-1:%ld %d\n",i-1,tokens[i-1].type);
         tokens[i].type = TK_SUB;
       }
       
