@@ -3190,11 +3190,11 @@ _Bool
   }
 
 
-  while (wp->next!=
+  while (wp!=
 # 142 "src/monitor/sdb/watchpoint.c" 3 4
-                  ((void *)0)
+            ((void *)0)
 # 142 "src/monitor/sdb/watchpoint.c"
-                      )
+                )
   {
 
 

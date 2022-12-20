@@ -139,7 +139,7 @@ bool test_change(){
   }
    //printf("%d\n",change);
    //printf("%d\n",change);
-  while (wp->next!=NULL)
+  while (wp!=NULL)
   {
     //printf("%d\n",change);
     //printf("jhjj\n");
