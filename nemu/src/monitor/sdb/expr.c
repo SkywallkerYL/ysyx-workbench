@@ -132,8 +132,8 @@ static bool make_token(char *e)
         int substr_len = pmatch.rm_eo;
         // strncpy(tokens[nr_token].str,substr_start,substr_len);
         // tokens[nr_token].str[substr_len] = '\0';
-        Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
-            i, rules[i].regex, position, substr_len, substr_len, substr_start);
+        //Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
+            //i, rules[i].regex, position, substr_len, substr_len, substr_start);
 
         position += substr_len;
 
@@ -323,10 +323,10 @@ word_t expr(char *e, bool *success)
        */
       {
         if (i != 0)
-          printf("i-1:%ld %d\n", i - 1, tokens[i - 1].type);
-        printf("before i:%ld %d\n", i, tokens[i].type);
+          //printf("i-1:%ld %d\n", i - 1, tokens[i - 1].type);
+        //printf("before i:%ld %d\n", i, tokens[i].type);
         tokens[i].type = TK_SUB;
-        printf("after i:%ld %d\n", i, tokens[i].type);
+        //printf("after i:%ld %d\n", i, tokens[i].type);
       }
     }
     if (tokens[i].type == '*')
@@ -530,7 +530,7 @@ int dominant_operator(int p, int q)
       else continue;
     }
   }
-  printf("op:%d dominop:%d\n",dompos,tokens[dompos].type);
+  //printf("op:%d dominop:%d\n",dompos,tokens[dompos].type);
   return dompos;
 }
 // 表达式求值函数
@@ -581,12 +581,12 @@ int eval(int p, int q)
   }
   else
   {
-    printf("p:%d,q:%d\n",p,q);
+    //printf("p:%d,q:%d\n",p,q);
     int op = dominant_operator(p, q);
     // printf("start: %d end: %d dominator : %d \n",p,q,op);
     int val1 = eval(p, op - 1);
     int val2 = eval(op + 1, q);
-    printf("op_pos: %d\n",op);
+    //printf("op_pos: %d\n",op);
     switch (tokens[op].type)
     {
     case '+': /*printf("tempval+: %d %d %d\n",val1,val2,val1+val2);*/
@@ -611,7 +611,7 @@ int eval(int p, int q)
         break;
       }
     case TK_SUB: /*printf("tempval: %d %d %d\n",val1,val2,-val2);*/
-      printf("op:%d %d\n", op, val2);
+      //printf("op:%d %d\n", op, val2);
       return -val2;
       break;
     case TK_AND:
