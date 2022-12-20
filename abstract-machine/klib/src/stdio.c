@@ -47,137 +47,137 @@ int printf(const char *fmt, ...) {
     //switch里的break是跳出switch continue 是进入下一轮循环
     switch (*pstr)
     {
-    case ' ':
-      myputch(*pstr);resnum++;break;
-    case '\t':
-      myputch(*pstr);resnum=resnum+4;break;
-    case '\n':
-      myputch(*pstr);resnum++;break;
-    case '\r':
-      myputch(*pstr);resnum++;break;
-    case '\%': // 进行格式解析
-      pstr++;
-      switch (*pstr)
-      {
-      case 'c':
-        intval = va_arg(ap,int); //返回当前变量值，ap指向下一个变参     
-        myputch((char)(intval));
-        resnum++;
+      case ' ':
+        myputch(*pstr);resnum++;break;
+      case '\t':
+        myputch(*pstr);resnum=resnum+4;break;
+      case '\n':
+        myputch(*pstr);resnum++;break;
+      case '\r':
+        myputch(*pstr);resnum++;break;
+      case '\%': // 进行格式解析
         pstr++;
-        continue;
-      case 'd':
-        system_ = 10;
-        intval = va_arg(ap,int);
-        if (intval < 0)
+        switch (*pstr)
         {
-          intval = -intval;
-          myputch('-');
-          resnum++;
+          case 'c':
+            intval = va_arg(ap,int); //返回当前变量值，ap指向下一个变参     
+            myputch((char)(intval));
+            resnum++;
+            pstr++;
+            continue;
+          case 'd':
+            system_ = 10;
+            intval = va_arg(ap,int);
+            if (intval < 0)
+            {
+              intval = -intval;
+              myputch('-');
+              resnum++;
+            }
+            tempval = intval;
+            //因为得按顺序打印，因此要先计算长度
+            if (intval)
+            {
+              while (tempval){
+                lencnt++;
+                tempval = tempval/system_;
+              }
+            }
+            else lencnt = 1; 
+            resnum += lencnt;
+            while (lencnt)
+            {
+              tempval = intval/(mpown(system_,lencnt-1));
+              intval = intval%(mpown(system_,lencnt-1));
+              myputch((char)tempval+'0');
+              lencnt--;
+            }
+            pstr++;
+            continue;
+          case 'x':
+            system_ = 16;
+            hexval = va_arg(ap,unsigned long);
+            tempval = hexval;
+            //因为得按顺序打印，因此要先计算长度
+            if (hexval)
+            {
+              while (tempval){
+                lencnt++;
+                tempval = tempval/system_;
+              }
+            }
+            else lencnt = 1; 
+            resnum += lencnt;
+            while (lencnt)
+            {
+              tempval = hexval/(mpown(system_,lencnt-1));
+              hexval = hexval%(mpown(system_,lencnt-1));
+              if (tempval<=9)
+              {
+                myputch((char)tempval+'0');
+              }
+              else myputch((char)tempval-10+'A');
+              lencnt--;
+            }
+            pstr++;
+            continue;
+          case 's':
+            strval = va_arg(ap,char*);
+            resnum += (unsigned int) strlen(strval);
+            putstr(strval);
+            pstr++;
+            continue;
+          case 'f':
+            floatval = va_arg(ap,double);
+            if (floatval<0.0)
+            {
+              myputch('-');
+              resnum++;
+              floatval = -floatval;
+            }
+            int valseg = (unsigned long) floatval;
+            tempval = valseg;
+            floatval = floatval - valseg;
+            if (valseg)
+            {
+              while (valseg)
+              {
+                lencnt++;
+                valseg = valseg/10;
+              }
+            }
+            else lencnt = 1;
+            resnum += lencnt;
+            while (lencnt)
+            {
+              valseg = tempval/mpown(10,lencnt-1);
+              tempval = tempval%mpown(10,lencnt-1);
+              myputch((char)valseg+'0');
+              lencnt--;
+            }
+            myputch('.');
+            resnum++;
+            //输出小数部分，保留6位，不四舍五入
+            lencnt = 6;
+            resnum+=lencnt;
+            floatval = floatval*mpown(10,lencnt);
+            tempval = (int) floatval;
+            while (lencnt)
+            {
+              valseg = tempval/mpown(10,lencnt-1);
+              tempval = tempval%mpown(10,lencnt-1);
+              myputch((char)valseg+'0');
+              lencnt--;
+            }
+            pstr++;
+            continue;
+            default:
+            myputch(' ');resnum++;
+            continue;
         }
-        tempval = intval;
-        //因为得按顺序打印，因此要先计算长度
-        if (intval)
-        {
-          while (tempval){
-            lencnt++;
-            tempval = tempval/system_;
-          }
-        }
-        else lencnt = 1; 
-        resnum += lencnt;
-        while (lencnt)
-        {
-          tempval = intval/(mpown(system_,lencnt-1));
-          intval = intval%(mpown(system_,lencnt-1));
-          myputch((char)tempval+'0');
-          lencnt--;
-        }
-        pstr++;
-        continue;
-      case 'x':
-        system_ = 16;
-        hexval = va_arg(ap,unsigned long);
-        tempval = hexval;
-        //因为得按顺序打印，因此要先计算长度
-        if (hexval)
-        {
-          while (tempval){
-            lencnt++;
-            tempval = tempval/system_;
-          }
-        }
-        else lencnt = 1; 
-        resnum += lencnt;
-        while (lencnt)
-        {
-          tempval = hexval/(mpown(system_,lencnt-1));
-          hexval = hexval%(mpown(system_,lencnt-1));
-          if (tempval<=9)
-          {
-            myputch((char)tempval+'0');
-          }
-          else myputch((char)tempval-10+'A');
-          lencnt--;
-        }
-        pstr++;
-        continue;
-      case 's':
-        strval = va_arg(ap,char*);
-        resnum += (unsigned int) strlen(strval);
-        putstr(strval);
-        pstr++;
-        continue;
-      case 'f':
-        floatval = va_arg(ap,double);
-        if (floatval<0.0)
-        {
-          myputch('-');
-          resnum++;
-          floatval = -floatval;
-        }
-        int valseg = (unsigned long) floatval;
-        tempval = valseg;
-        floatval = floatval - valseg;
-        if (valseg)
-        {
-          while (valseg)
-          {
-            lencnt++;
-            valseg = valseg/10;
-          }
-        }
-        else lencnt = 1;
-        resnum += lencnt;
-        while (lencnt)
-        {
-          valseg = tempval/mpown(10,lencnt-1);
-          tempval = tempval%mpown(10,lencnt-1);
-          myputch((char)valseg+'0');
-          lencnt--;
-        }
-        myputch('.');
-        resnum++;
-        //输出小数部分，保留6位，不四舍五入
-        lencnt = 6;
-        resnum+=lencnt;
-        floatval = floatval*mpown(10,lencnt);
-        tempval = (int) floatval;
-        while (lencnt)
-        {
-          valseg = tempval/mpown(10,lencnt-1);
-          tempval = tempval%mpown(10,lencnt-1);
-          myputch((char)valseg+'0');
-          lencnt--;
-        }
-        pstr++;
-        continue;
-        default:
-        myputch(' ');resnum++;
-        continue;
-      }
-    default:
-      myputch(*pstr);resnum++;
-      break;
+      default:
+        myputch(*pstr);resnum++;
+        break;
     }
     pstr++;
   }
