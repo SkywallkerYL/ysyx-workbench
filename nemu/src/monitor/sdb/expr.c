@@ -566,6 +566,7 @@ int eval(int p, int q)
   }
   else
   {
+    printf("p:%d,q:%d\n",p,q);
     int op = dominant_operator(p, q);
     // printf("start: %d end: %d dominator : %d \n",p,q,op);
     int val1 = eval(p, op - 1);

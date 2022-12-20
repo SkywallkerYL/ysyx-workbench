@@ -3782,6 +3782,7 @@ int eval(int p, int q)
   }
   else
   {
+    printf("p:%d,q:%d\n",p,q);
     int op = dominant_operator(p, q);
 
     int val1 = eval(p, op - 1);
@@ -3851,21 +3852,21 @@ int eval(int p, int q)
       break;
     default:
       
-# 637 "src/monitor/sdb/expr.c" 3 4
+# 638 "src/monitor/sdb/expr.c" 3 4
      ((void) sizeof ((
-# 637 "src/monitor/sdb/expr.c"
+# 638 "src/monitor/sdb/expr.c"
      0
-# 637 "src/monitor/sdb/expr.c" 3 4
+# 638 "src/monitor/sdb/expr.c" 3 4
      ) ? 1 : 0), __extension__ ({ if (
-# 637 "src/monitor/sdb/expr.c"
+# 638 "src/monitor/sdb/expr.c"
      0
-# 637 "src/monitor/sdb/expr.c" 3 4
+# 638 "src/monitor/sdb/expr.c" 3 4
      ) ; else __assert_fail (
-# 637 "src/monitor/sdb/expr.c"
+# 638 "src/monitor/sdb/expr.c"
      "0"
-# 637 "src/monitor/sdb/expr.c" 3 4
-     , "src/monitor/sdb/expr.c", 637, __extension__ __PRETTY_FUNCTION__); }))
-# 637 "src/monitor/sdb/expr.c"
+# 638 "src/monitor/sdb/expr.c" 3 4
+     , "src/monitor/sdb/expr.c", 638, __extension__ __PRETTY_FUNCTION__); }))
+# 638 "src/monitor/sdb/expr.c"
               ;
       break;
     }
