@@ -1,14 +1,12 @@
-# 0 "src/monitor/sdb/expr.c"
+# 0 "src/monitor/sdb/watchpoint.c"
 # 0 "<built-in>"
 # 0 "<command-line>"
 # 1 "/usr/include/stdc-predef.h" 1 3 4
 # 0 "<command-line>" 2
-# 1 "src/monitor/sdb/expr.c"
-# 16 "src/monitor/sdb/expr.c"
-# 1 "/home/yangli/ysyx-workbench/nemu/include/isa.h" 1
-# 20 "/home/yangli/ysyx-workbench/nemu/include/isa.h"
-# 1 "/home/yangli/ysyx-workbench/nemu/src/isa/riscv64/include/isa-def.h" 1
-# 19 "/home/yangli/ysyx-workbench/nemu/src/isa/riscv64/include/isa-def.h"
+# 1 "src/monitor/sdb/watchpoint.c"
+# 16 "src/monitor/sdb/watchpoint.c"
+# 1 "src/monitor/sdb/sdb.h" 1
+# 19 "src/monitor/sdb/sdb.h"
 # 1 "/home/yangli/ysyx-workbench/nemu/include/common.h" 1
 # 19 "/home/yangli/ysyx-workbench/nemu/include/common.h"
 # 1 "/usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h" 1 3 4
@@ -2945,934 +2943,280 @@ extern NEMUState nemu_state;
 uint64_t get_time();
 # 22 "/home/yangli/ysyx-workbench/nemu/include/debug.h" 2
 # 48 "/home/yangli/ysyx-workbench/nemu/include/common.h" 2
-# 20 "/home/yangli/ysyx-workbench/nemu/src/isa/riscv64/include/isa-def.h" 2
+# 20 "src/monitor/sdb/sdb.h" 2
 
-typedef struct {
-  word_t gpr[32];
-  vaddr_t pc;
-} riscv64_CPU_state;
-
-
-typedef struct {
-  union {
-    uint32_t val;
-  } inst;
-} riscv64_ISADecodeInfo;
-# 21 "/home/yangli/ysyx-workbench/nemu/include/isa.h" 2
-
-
-
-typedef riscv64_CPU_state CPU_state;
-typedef riscv64_ISADecodeInfo ISADecodeInfo;
-
-
-extern char isa_logo[];
-void init_isa();
-
-
-extern CPU_state cpu;
-void isa_reg_display();
-word_t isa_reg_str2val(const char *name, 
-# 34 "/home/yangli/ysyx-workbench/nemu/include/isa.h" 3 4
-                                        _Bool 
-# 34 "/home/yangli/ysyx-workbench/nemu/include/isa.h"
-                                             *success);
-
-
-struct Decode;
-int isa_exec_once(struct Decode *s);
-
-
-enum { MMU_DIRECT, MMU_TRANSLATE, MMU_FAIL };
-enum { MEM_TYPE_IFETCH, MEM_TYPE_READ, MEM_TYPE_WRITE };
-enum { MEM_RET_OK, MEM_RET_FAIL, MEM_RET_CROSS_PAGE };
-
-
-
-paddr_t isa_mmu_translate(vaddr_t vaddr, int len, int type);
-
-
-vaddr_t isa_raise_intr(word_t NO, vaddr_t epc);
-
-word_t isa_query_intr();
-
-
-
-# 55 "/home/yangli/ysyx-workbench/nemu/include/isa.h" 3 4
-_Bool 
-# 55 "/home/yangli/ysyx-workbench/nemu/include/isa.h"
-    isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc);
-void isa_difftest_attach();
-# 17 "src/monitor/sdb/expr.c" 2
-
-
-
-
-# 1 "/usr/include/regex.h" 1 3 4
-# 55 "/usr/include/regex.h" 3 4
-
-# 55 "/usr/include/regex.h" 3 4
-typedef unsigned int __re_size_t;
-typedef unsigned long int __re_long_size_t;
-
-
-
-
-
-
-
-typedef long int s_reg_t;
-typedef unsigned long int active_reg_t;
-
-
-
-
-
-
-typedef unsigned long int reg_syntax_t;
-# 211 "/usr/include/regex.h" 3 4
-extern reg_syntax_t re_syntax_options;
-# 346 "/usr/include/regex.h" 3 4
-typedef enum
-{
-  _REG_ENOSYS = -1,
-  _REG_NOERROR = 0,
-  _REG_NOMATCH,
-
-
-
-  _REG_BADPAT,
-  _REG_ECOLLATE,
-  _REG_ECTYPE,
-  _REG_EESCAPE,
-  _REG_ESUBREG,
-  _REG_EBRACK,
-  _REG_EPAREN,
-  _REG_EBRACE,
-  _REG_BADBR,
-  _REG_ERANGE,
-  _REG_ESPACE,
-  _REG_BADRPT,
-
-
-  _REG_EEND,
-  _REG_ESIZE,
-  _REG_ERPAREN
-} reg_errcode_t;
-# 413 "/usr/include/regex.h" 3 4
-struct re_pattern_buffer
-{
-
-
-  struct re_dfa_t *__buffer;
-
-
-  __re_long_size_t __allocated;
-
-
-  __re_long_size_t __used;
-
-
-  reg_syntax_t __syntax;
-
-
-
-
-  char *__fastmap;
-
-
-
-
-
-  unsigned char * __translate;
-
-
-  size_t re_nsub;
-
-
-
-
-
-  unsigned __can_be_null : 1;
-# 457 "/usr/include/regex.h" 3 4
-  unsigned __regs_allocated : 2;
-
-
-
-  unsigned __fastmap_accurate : 1;
-
-
-
-  unsigned __no_sub : 1;
-
-
-
-  unsigned __not_bol : 1;
-
-
-  unsigned __not_eol : 1;
-
-
-  unsigned __newline_anchor : 1;
-};
-
-typedef struct re_pattern_buffer regex_t;
-# 490 "/usr/include/regex.h" 3 4
-typedef int regoff_t;
-# 517 "/usr/include/regex.h" 3 4
-typedef struct
-{
-  regoff_t rm_so;
-  regoff_t rm_eo;
-} regmatch_t;
-# 535 "/usr/include/regex.h" 3 4
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wvla"
-# 675 "/usr/include/regex.h" 3 4
-extern int regcomp (regex_t *__restrict __preg,
-      const char *__restrict __pattern,
-      int __cflags);
-
-extern int regexec (const regex_t *__restrict __preg,
-      const char *__restrict __String, size_t __nmatch,
-      regmatch_t __pmatch[__restrict
-     __nmatch],
-      int __eflags);
-
-extern size_t regerror (int __errcode, const regex_t *__restrict __preg,
-   char *__restrict __errbuf, size_t __errbuf_size)
-    __attribute__ ((__access__ (__write_only__, 3, 4)));
-
-extern void regfree (regex_t *__preg);
-
-
-#pragma GCC diagnostic pop
-# 22 "src/monitor/sdb/expr.c" 2
-
-
-# 23 "src/monitor/sdb/expr.c"
-enum
-{
-  TK_NOTYPE = 256,
-  TK_EQ,
-  TK_HEX,
-  TK_DEX,
-  TK_REGNAME,
-  TK_UNEQ,
-  TK_AND,
-  TK_OR,
-  TK_BEQ,
-  TK_LEQ,
-  TK_LSHIFT,
-  TK_RSHIFT,
-  TK_POINT,
-  TK_SUB,
-  TK_BITAND,
-  TK_BITOR
-
-
-};
-
-static struct rule
-{
-  const char *regex;
-  int token_type;
-} rules[] = {
-
-
-
-
-
-    {" +", TK_NOTYPE},
-    {"\\+", '+'},
-    {"==", TK_EQ},
-    {"\\*", '*'},
-    {"\\*", TK_POINT},
-    {"/", '/'},
-    {"-", '-'},
-    {"-", TK_SUB},
-    {"0x[0-9,a-f,A-F]+", TK_HEX},
-    {"[0-9]+", TK_DEX},
-
-
-    {"[\\$,0-9,a-z]{2}", TK_REGNAME},
-    {"!=", TK_UNEQ},
-    {"&&", TK_AND},
-    {"\\|\\|", TK_OR},
-    {"!", '!'},
-    {"\\(", '('},
-    {"\\)", ')'},
-    {">=", TK_BEQ},
-    {"<=", TK_LEQ},
-    {"<<", TK_LSHIFT},
-    {">>", TK_RSHIFT},
-    {">", '>'},
-    {"<", '<'},
-    {"&", TK_BITAND},
-    {"\\|", TK_BITOR}};
-
-
-
-static regex_t re[(int)(sizeof(rules) / sizeof(rules[0]))] = {};
-
-
-
-
-void init_regex()
-{
-  int i;
-  char error_msg[128];
-  int ret;
-
-  for (i = 0; i < (int)(sizeof(rules) / sizeof(rules[0])); i++)
-  {
-    ret = regcomp(&re[i], rules[i].regex, 
-# 98 "src/monitor/sdb/expr.c" 3 4
-                                         1
-# 98 "src/monitor/sdb/expr.c"
-                                                     );
-    if (ret != 0)
-    {
-      regerror(ret, &re[i], error_msg, 128);
-      do { if (!(0)) { (fflush(
-# 102 "src/monitor/sdb/expr.c" 3 4
-     stdout
-# 102 "src/monitor/sdb/expr.c"
-     ), fprintf(
-# 102 "src/monitor/sdb/expr.c" 3 4
-     stderr
-# 102 "src/monitor/sdb/expr.c"
-     , "\33[1;31m" "regex compilation failed: %s\n%s" "\33[0m" "\n", error_msg, rules[i].regex)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
-# 102 "src/monitor/sdb/expr.c" 3 4
-     ((void) sizeof ((
-# 102 "src/monitor/sdb/expr.c"
-     0
-# 102 "src/monitor/sdb/expr.c" 3 4
-     ) ? 1 : 0), __extension__ ({ if (
-# 102 "src/monitor/sdb/expr.c"
-     0
-# 102 "src/monitor/sdb/expr.c" 3 4
-     ) ; else __assert_fail (
-# 102 "src/monitor/sdb/expr.c"
-     "0"
-# 102 "src/monitor/sdb/expr.c" 3 4
-     , "src/monitor/sdb/expr.c", 102, __extension__ __PRETTY_FUNCTION__); }))
-# 102 "src/monitor/sdb/expr.c"
-     ; } } while (0);
-    }
-  }
-}
-
-typedef struct token
-{
-  int type;
-  char str[256];
-} Token;
-
-static Token tokens[256] __attribute__((used)) = {};
-static int nr_token __attribute__((used)) = 0;
-
-static 
-# 116 "src/monitor/sdb/expr.c" 3 4
-      _Bool 
-# 116 "src/monitor/sdb/expr.c"
-           make_token(char *e)
-{
-  int position = 0;
-  int i;
-  regmatch_t pmatch;
-
-  nr_token = 0;
-
-  while (e[position] != '\0')
-  {
-
-    for (i = 0; i < (int)(sizeof(rules) / sizeof(rules[0])); i++)
-    {
-      if (regexec(&re[i], e + position, 1, &pmatch, 0) == 0 && pmatch.rm_so == 0)
-      {
-        char *substr_start = e + position;
-        int substr_len = pmatch.rm_eo;
-
-
-
-
-
-        position += substr_len;
-
-
-
-
-
-        tokens[nr_token].type = rules[i].token_type;
-
-        switch (rules[i].token_type)
-        {
-
-        case TK_NOTYPE:
-          break;
-        case '+':
-          strncpy(tokens[nr_token].str, substr_start, substr_len);
-          tokens[nr_token].str[substr_len] = '\0';
-          nr_token++;
-          break;
-        case TK_EQ:
-          strncpy(tokens[nr_token].str, substr_start, substr_len);
-          tokens[nr_token].str[substr_len] = '\0';
-          nr_token++;
-          break;
-        case '*':
-          strncpy(tokens[nr_token].str, substr_start, substr_len);
-          tokens[nr_token].str[substr_len] = '\0';
-          nr_token++;
-          break;
-        case '/':
-          strncpy(tokens[nr_token].str, substr_start, substr_len);
-          tokens[nr_token].str[substr_len] = '\0';
-          nr_token++;
-          break;
-        case '-':
-          strncpy(tokens[nr_token].str, substr_start, substr_len);
-          tokens[nr_token].str[substr_len] = '\0';
-          nr_token++;
-          break;
-        case TK_SUB:
-          strncpy(tokens[nr_token].str, substr_start, substr_len);
-          tokens[nr_token].str[substr_len] = '\0';
-          nr_token++;
-          break;
-        case TK_HEX:
-          strncpy(tokens[nr_token].str, substr_start, substr_len);
-          tokens[nr_token].str[substr_len] = '\0';
-          nr_token++;
-          break;
-        case TK_DEX:
-          strncpy(tokens[nr_token].str, substr_start, substr_len);
-          tokens[nr_token].str[substr_len] = '\0';
-          nr_token++;
-          break;
-        case TK_UNEQ:
-          strncpy(tokens[nr_token].str, substr_start, substr_len);
-          tokens[nr_token].str[substr_len] = '\0';
-          nr_token++;
-          break;
-        case TK_AND:
-          strncpy(tokens[nr_token].str, substr_start, substr_len);
-          tokens[nr_token].str[substr_len] = '\0';
-          nr_token++;
-          break;
-        case TK_OR:
-          strncpy(tokens[nr_token].str, substr_start, substr_len);
-          tokens[nr_token].str[substr_len] = '\0';
-          nr_token++;
-          break;
-        case '!':
-          strncpy(tokens[nr_token].str, substr_start, substr_len);
-          tokens[nr_token].str[substr_len] = '\0';
-          nr_token++;
-          break;
-        case '(':
-          strncpy(tokens[nr_token].str, substr_start, substr_len);
-          tokens[nr_token].str[substr_len] = '\0';
-          nr_token++;
-          break;
-        case ')':
-          strncpy(tokens[nr_token].str, substr_start, substr_len);
-          tokens[nr_token].str[substr_len] = '\0';
-          nr_token++;
-          break;
-        case TK_BEQ:
-          strncpy(tokens[nr_token].str, substr_start, substr_len);
-          tokens[nr_token].str[substr_len] = '\0';
-          nr_token++;
-          break;
-        case TK_LEQ:
-          strncpy(tokens[nr_token].str, substr_start, substr_len);
-          tokens[nr_token].str[substr_len] = '\0';
-          nr_token++;
-          break;
-        case TK_LSHIFT:
-          strncpy(tokens[nr_token].str, substr_start, substr_len);
-          tokens[nr_token].str[substr_len] = '\0';
-          nr_token++;
-          break;
-        case TK_RSHIFT:
-          strncpy(tokens[nr_token].str, substr_start, substr_len);
-          tokens[nr_token].str[substr_len] = '\0';
-          nr_token++;
-          break;
-        case '>':
-          strncpy(tokens[nr_token].str, substr_start, substr_len);
-          tokens[nr_token].str[substr_len] = '\0';
-          nr_token++;
-          break;
-        case '<':
-          strncpy(tokens[nr_token].str, substr_start, substr_len);
-          tokens[nr_token].str[substr_len] = '\0';
-          nr_token++;
-          break;
-        case TK_REGNAME:
-          strncpy(tokens[nr_token].str, substr_start, substr_len);
-          tokens[nr_token].str[substr_len] = '\0';
-          nr_token++;
-          break;
-        case TK_BITAND:
-          strncpy(tokens[nr_token].str, substr_start, substr_len);
-          tokens[nr_token].str[substr_len] = '\0';
-          nr_token++;
-          break;
-        case TK_BITOR:
-          strncpy(tokens[nr_token].str, substr_start, substr_len);
-          tokens[nr_token].str[substr_len] = '\0';
-          nr_token++;
-          break;
-        default:
-          break;
-        }
-
-        break;
-      }
-    }
-
-    if (i == (int)(sizeof(rules) / sizeof(rules[0])))
-    {
-      printf("no match at position %d\n%s\n%*.s^\n", position, e, position, "");
-      return 
-# 277 "src/monitor/sdb/expr.c" 3 4
-            0
-# 277 "src/monitor/sdb/expr.c"
-                 ;
-    }
-  }
-
-  return 
-# 281 "src/monitor/sdb/expr.c" 3 4
-        1
-# 281 "src/monitor/sdb/expr.c"
-            ;
-}
-word_t vaddr_read(vaddr_t addr, int len);
-int eval(int p, int q);
 word_t expr(char *e, 
-# 285 "src/monitor/sdb/expr.c" 3 4
+# 21 "src/monitor/sdb/sdb.h" 3 4
                     _Bool 
-# 285 "src/monitor/sdb/expr.c"
-                         *success)
-{
-  if (!make_token(e))
-  {
-    *success = 
-# 289 "src/monitor/sdb/expr.c" 3 4
-              0
-# 289 "src/monitor/sdb/expr.c"
-                   ;
-    return 0;
+# 21 "src/monitor/sdb/sdb.h"
+                         *success);
+
+typedef struct watchpoint {
+  int NO;
+  struct watchpoint *next;
+  char expre[256];
+  word_t value;
+
+} WP;
+# 17 "src/monitor/sdb/watchpoint.c" 2
+# 28 "src/monitor/sdb/watchpoint.c"
+static WP wp_pool[32] = {};
+static WP *head = 
+# 29 "src/monitor/sdb/watchpoint.c" 3 4
+                 ((void *)0)
+# 29 "src/monitor/sdb/watchpoint.c"
+                     , *free_ = 
+# 29 "src/monitor/sdb/watchpoint.c" 3 4
+                                ((void *)0)
+# 29 "src/monitor/sdb/watchpoint.c"
+                                    ;
+
+
+void init_wp_pool() {
+  int i;
+  for (i = 0; i < 32; i ++) {
+    wp_pool[i].NO = i;
+    wp_pool[i].next = (i == 32 - 1 ? 
+# 36 "src/monitor/sdb/watchpoint.c" 3 4
+                                       ((void *)0) 
+# 36 "src/monitor/sdb/watchpoint.c"
+                                            : &wp_pool[i + 1]);
   }
 
-
-
-
-  for (size_t i = 0; i < nr_token; i++)
-  {
-
-    if (tokens[i].type == '-')
-    {
-
-      if (i == 0 || tokens[i - 1].type == '+' ||
-          tokens[i - 1].type == '-' ||
-          tokens[i - 1].type == '*' ||
-          tokens[i - 1].type == '/' ||
-          tokens[i - 1].type == TK_SUB ||
-          tokens[i - 1].type == '(' ||
-          tokens[i - 1].type == TK_BEQ ||
-          tokens[i - 1].type == TK_LEQ ||
-          tokens[i - 1].type == TK_UNEQ ||
-          tokens[i - 1].type == '>' ||
-          tokens[i - 1].type == '<' ||
-          tokens[i - 1].type == TK_AND ||
-          tokens[i - 1].type == TK_OR ||
-          tokens[i - 1].type == '!' ||
-          tokens[i - 1].type == TK_LSHIFT ||
-          tokens[i - 1].type == TK_RSHIFT)
-
-
-
-
-
-
-      {
-        if (i != 0)
-
-
-        tokens[i].type = TK_SUB;
-
-      }
-    }
-    if (tokens[i].type == '*')
-    {
-      if (i == 0 || tokens[i - 1].type == '+' ||
-          tokens[i - 1].type == '-' ||
-          tokens[i - 1].type == '*' ||
-          tokens[i - 1].type == '/' ||
-          tokens[i - 1].type == TK_SUB ||
-          tokens[i - 1].type == '(' ||
-          tokens[i - 1].type == TK_BEQ ||
-          tokens[i - 1].type == TK_LEQ ||
-          tokens[i - 1].type == TK_UNEQ ||
-          tokens[i - 1].type == '>' ||
-          tokens[i - 1].type == '<' ||
-          tokens[i - 1].type == TK_AND ||
-          tokens[i - 1].type == TK_OR ||
-          tokens[i - 1].type == '!' ||
-          tokens[i - 1].type == TK_LSHIFT ||
-          tokens[i - 1].type == TK_RSHIFT)
-      {
-        tokens[i].type = TK_POINT;
-      }
-    }
-  }
-
-  return eval(0, nr_token - 1);
-
-  return 0;
-}
-
-
-
-# 362 "src/monitor/sdb/expr.c" 3 4
-_Bool 
-# 362 "src/monitor/sdb/expr.c"
-    check_parentheses(int p, int q)
-{
-  int i = 0;
-  int flag = 0;
-  if (tokens[p].type != '(' || tokens[q].type != ')')
-    return 
-# 367 "src/monitor/sdb/expr.c" 3 4
-          0
-# 367 "src/monitor/sdb/expr.c"
-               ;
-  for (i = p; i <= q; i++)
-  {
-    if (tokens[i].type == '(')
-    {
-      flag++;
-    }
-    else if (tokens[i].type == ')')
-    {
-      flag--;
-    }
-    if (flag == 0 && i < q)
-    {
-      return 
-# 380 "src/monitor/sdb/expr.c" 3 4
-            0
-# 380 "src/monitor/sdb/expr.c"
-                 ;
-    }
-
-  }
-  if (flag != 0)
-  {
-    return 
-# 386 "src/monitor/sdb/expr.c" 3 4
-          0
-# 386 "src/monitor/sdb/expr.c"
-               ;
-  }
-
-  return 
-# 389 "src/monitor/sdb/expr.c" 3 4
-        1
-# 389 "src/monitor/sdb/expr.c"
+  head = 
+# 39 "src/monitor/sdb/watchpoint.c" 3 4
+        ((void *)0)
+# 39 "src/monitor/sdb/watchpoint.c"
             ;
+  free_ = wp_pool;
 }
 
 
 
-int prior(int type)
-{
-  int pir = -1;
-  switch (type)
+WP* new_wp(char *expre){
+  
+# 46 "src/monitor/sdb/watchpoint.c" 3 4
+ ((void) sizeof ((
+# 46 "src/monitor/sdb/watchpoint.c"
+ free_!= 
+# 46 "src/monitor/sdb/watchpoint.c" 3 4
+ ((void *)0)) ? 1 : 0), __extension__ ({ if (
+# 46 "src/monitor/sdb/watchpoint.c"
+ free_!= 
+# 46 "src/monitor/sdb/watchpoint.c" 3 4
+ ((void *)0)) ; else __assert_fail (
+# 46 "src/monitor/sdb/watchpoint.c"
+ "free_!= NULL"
+# 46 "src/monitor/sdb/watchpoint.c" 3 4
+ , "src/monitor/sdb/watchpoint.c", 46, __extension__ __PRETTY_FUNCTION__); }))
+# 46 "src/monitor/sdb/watchpoint.c"
+                      ;
+  WP *temp = free_;
+  free_ = free_->next;
+  temp-> next = 
+# 49 "src/monitor/sdb/watchpoint.c" 3 4
+               ((void *)0)
+# 49 "src/monitor/sdb/watchpoint.c"
+                   ;
+
+  
+# 51 "src/monitor/sdb/watchpoint.c" 3 4
+ _Bool 
+# 51 "src/monitor/sdb/watchpoint.c"
+      success = 
+# 51 "src/monitor/sdb/watchpoint.c" 3 4
+                1 
+# 51 "src/monitor/sdb/watchpoint.c"
+                     ;
+  strcpy(temp->expre,expre);
+  temp->value = expr(expre,&success);
+  
+# 54 "src/monitor/sdb/watchpoint.c" 3 4
+ ((void) sizeof ((
+# 54 "src/monitor/sdb/watchpoint.c"
+ success
+# 54 "src/monitor/sdb/watchpoint.c" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 54 "src/monitor/sdb/watchpoint.c"
+ success
+# 54 "src/monitor/sdb/watchpoint.c" 3 4
+ ) ; else __assert_fail (
+# 54 "src/monitor/sdb/watchpoint.c"
+ "success"
+# 54 "src/monitor/sdb/watchpoint.c" 3 4
+ , "src/monitor/sdb/watchpoint.c", 54, __extension__ __PRETTY_FUNCTION__); }))
+# 54 "src/monitor/sdb/watchpoint.c"
+                ;
+
+  if (head == 
+# 56 "src/monitor/sdb/watchpoint.c" 3 4
+             ((void *)0)
+# 56 "src/monitor/sdb/watchpoint.c"
+                 )
   {
-  case TK_NOTYPE:
-    break;
-  case '+':
-    pir = 4;
-    break;
-  case TK_EQ:
-    pir = 2;
-    break;
-  case '*':
-    pir = 3;
-    break;
-  case '/':
-    pir = 3;
-    break;
-  case '-':
-    pir = 4;
-    break;
-  case TK_SUB:
-    pir = -1;
-    break;
-  case TK_HEX:
-    pir = -2;
-    break;
-  case TK_DEX:
-    pir = -2;
-    break;
-  case TK_UNEQ:
-    pir = 2;
-    break;
-  case TK_AND:
-    pir = 2;
-    break;
-  case TK_OR:
-    pir = 2;
-    break;
-  case '!':
-    pir = -1;
-    break;
-  case '(':
-    break;
-  case ')':
-    break;
-  case TK_BEQ:
-    pir = 2;
-    break;
-  case TK_LEQ:
-    pir = 2;
-    break;
-  case TK_LSHIFT:
-    pir = 0;
-    break;
-  case TK_RSHIFT:
-    pir = 0;
-    break;
-  case '>':
-    pir = 2;
-    break;
-  case '<':
-    pir = 2;
-    break;
-
-  default:
-    break;
-  }
-  return pir;
-}
-
-
-
-
-
-int dominant_operator(int p, int q)
-{
-  int dompos = p, pair = 0;
-  int pr = -2;
-  for (size_t i = p; i <= q; i++)
-  {
-
-    if (tokens[i].type == '(')
-    {
-      pair++;
-
-      while (1)
-      {
-        i++;
-        if (tokens[i].type == '(')
-          pair++;
-        else if (tokens[i].type == ')')
-          pair--;
-
-        if (pair == 0)
-        {
-          break;
-        }
-      }
-      if (i > q)
-      {
-        break;
-      }
-    }
-
-    else if (tokens[i].type == TK_DEX || tokens[i].type == TK_HEX || tokens[i].type == TK_REGNAME)
-    {
-
-      continue;
-    }
-# 514 "src/monitor/sdb/expr.c"
-    else if (prior(tokens[i].type) > pr)
-    {
-
-      pr = prior(tokens[i].type);
-
-      dompos = i;
-    }
-    else if (prior(tokens[i].type) == pr)
-    {
-
-      if (pr >= 2)
-      {
-        pr = prior(tokens[i].type);
-
-        dompos = i;
-      }
-      else continue;
-    }
-  }
-
-  return dompos;
-}
-
-int eval(int p, int q)
-{
-  if (p > q)
-  {
-    
-# 541 "src/monitor/sdb/expr.c" 3 4
-   ((void) sizeof ((
-# 541 "src/monitor/sdb/expr.c"
-   "Bad expression"
-# 541 "src/monitor/sdb/expr.c" 3 4
-   ) ? 1 : 0), __extension__ ({ if (
-# 541 "src/monitor/sdb/expr.c"
-   "Bad expression"
-# 541 "src/monitor/sdb/expr.c" 3 4
-   ) ; else __assert_fail (
-# 541 "src/monitor/sdb/expr.c"
-   "\"Bad expression\""
-# 541 "src/monitor/sdb/expr.c" 3 4
-   , "src/monitor/sdb/expr.c", 541, __extension__ __PRETTY_FUNCTION__); }))
-# 541 "src/monitor/sdb/expr.c"
-                           ;
-  }
-  else if (p == q)
-  {
-    int number = 0;
-    if (tokens[p].type == TK_HEX)
-    {
-      sscanf(tokens[p].str, "%x", &number);
-    }
-    else if (tokens[p].type == TK_DEX)
-    {
-      sscanf(tokens[p].str, "%d", &number);
-
-    }
-    else if (tokens[p].type == TK_REGNAME)
-    {
-# 573 "src/monitor/sdb/expr.c"
-      
-# 573 "src/monitor/sdb/expr.c" 3 4
-     _Bool 
-# 573 "src/monitor/sdb/expr.c"
-          success1 = 
-# 573 "src/monitor/sdb/expr.c" 3 4
-                     1
-# 573 "src/monitor/sdb/expr.c"
-                         ;
-      number = isa_reg_str2val(tokens[p].str, &success1);
-    }
-    return number;
-  }
-  else if (check_parentheses(p, q) == 
-# 578 "src/monitor/sdb/expr.c" 3 4
-                                     1
-# 578 "src/monitor/sdb/expr.c"
-                                         )
-  {
-    return eval(p + 1, q - 1);
+    head = temp;
   }
   else
   {
-
-    int op = dominant_operator(p, q);
-
-    int val1 = eval(p, op - 1);
-    int val2 = eval(op + 1, q);
-
-    switch (tokens[op].type)
+    WP *p = head;
+    while (p->next)
     {
-    case '+':
-      return val1 + val2;
-      break;
-    case '-':
-      return val1 - val2;
-      break;
-    case '*':
-      return val1 * val2;
-      break;
-    case '/':
-      if (val2 == 0)
-      {
-        printf("Invalid expression for div by 0\n");
+      p = p->next;
+    }
+    p->next = temp;
 
-      }
-      else
-      {
+  }
+  return temp;
 
-        return val1 / val2;
-        break;
-      }
-    case TK_SUB:
+}
 
-      return -val2;
-      break;
-    case TK_AND:
-      return val1 && val2;
-      break;
-    case TK_OR:
-      return val1 || val2;
-      break;
-    case TK_EQ:
-      return val1 == val2;
-      break;
-    case TK_UNEQ:
-      return val1 != val2;
-      break;
-    case '!':
-      return !val2;
-      break;
-    case '<':
-      return val1 < val2;
-      break;
-    case '>':
-      return val1 > val2;
-      break;
-    case TK_LSHIFT:
-      return val1 << val2;
-      break;
-    case TK_RSHIFT:
-      return val1 >> val2;
-      break;
-    case TK_POINT:
-      return vaddr_read(val2, 4);
-    case TK_BITAND:
-      return val1 & val2;
-      break;
-    case TK_BITOR:
-      return val1 | val2;
-      break;
-    default:
-      
-# 653 "src/monitor/sdb/expr.c" 3 4
-     ((void) sizeof ((
-# 653 "src/monitor/sdb/expr.c"
-     0
-# 653 "src/monitor/sdb/expr.c" 3 4
-     ) ? 1 : 0), __extension__ ({ if (
-# 653 "src/monitor/sdb/expr.c"
-     0
-# 653 "src/monitor/sdb/expr.c" 3 4
-     ) ; else __assert_fail (
-# 653 "src/monitor/sdb/expr.c"
-     "0"
-# 653 "src/monitor/sdb/expr.c" 3 4
-     , "src/monitor/sdb/expr.c", 653, __extension__ __PRETTY_FUNCTION__); }))
-# 653 "src/monitor/sdb/expr.c"
-              ;
+
+# 74 "src/monitor/sdb/watchpoint.c" 3 4
+_Bool 
+# 74 "src/monitor/sdb/watchpoint.c"
+    free_wp(WP *wp){
+  if (wp == 
+# 75 "src/monitor/sdb/watchpoint.c" 3 4
+           ((void *)0)
+# 75 "src/monitor/sdb/watchpoint.c"
+               )
+  {
+    printf("wrong input\n");
+    return 
+# 78 "src/monitor/sdb/watchpoint.c" 3 4
+          0
+# 78 "src/monitor/sdb/watchpoint.c"
+               ;
+  }
+  if (wp == head)
+  {
+    head = head->next;
+  }
+  else{
+    WP *temp = head;
+
+    while (temp->next!=wp)
+    {
+      temp = temp->next;
+    }
+    temp->next = temp->next->next;
+
+  }
+
+
+  wp -> next = free_;
+  free_ = wp;
+  return 
+# 98 "src/monitor/sdb/watchpoint.c" 3 4
+        1
+# 98 "src/monitor/sdb/watchpoint.c"
+            ;
+}
+
+
+# 101 "src/monitor/sdb/watchpoint.c" 3 4
+_Bool 
+# 101 "src/monitor/sdb/watchpoint.c"
+    delete_wp(int NO){
+  WP* wp;
+  if (head == 
+# 103 "src/monitor/sdb/watchpoint.c" 3 4
+             ((void *)0)
+# 103 "src/monitor/sdb/watchpoint.c"
+                 )
+  {
+    printf("NO watch point\n");
+    return 
+# 106 "src/monitor/sdb/watchpoint.c" 3 4
+          0
+# 106 "src/monitor/sdb/watchpoint.c"
+               ;
+  }
+  wp = head;
+  while (wp->NO != NO)
+  {
+    wp = wp->next;
+  }
+  if (wp != 
+# 113 "src/monitor/sdb/watchpoint.c" 3 4
+           ((void *)0)
+# 113 "src/monitor/sdb/watchpoint.c"
+               )
+  {
+    return free_wp(wp);
+  }
+  else return 
+# 117 "src/monitor/sdb/watchpoint.c" 3 4
+             0
+# 117 "src/monitor/sdb/watchpoint.c"
+                  ;
+}
+void print_wp()
+{
+  WP *wp = head;
+  while (wp!=
+# 122 "src/monitor/sdb/watchpoint.c" 3 4
+            ((void *)0)
+# 122 "src/monitor/sdb/watchpoint.c"
+                )
+  {
+    printf("Watchpoint number: %d, exp: %s, value : %ld \n",wp->NO,wp->expre,wp->value);
+    wp = wp->next;
+  }
+  return;
+}
+
+
+# 130 "src/monitor/sdb/watchpoint.c" 3 4
+_Bool 
+# 130 "src/monitor/sdb/watchpoint.c"
+    test_change(){
+  
+# 131 "src/monitor/sdb/watchpoint.c" 3 4
+ _Bool 
+# 131 "src/monitor/sdb/watchpoint.c"
+      change = 0;
+  WP *wp = head;
+
+  if (wp == 
+# 134 "src/monitor/sdb/watchpoint.c" 3 4
+           ((void *)0)
+# 134 "src/monitor/sdb/watchpoint.c"
+               )
+  {
+
+    change = 0;
+    return change;
+  }
+
+
+  while (wp->next!=
+# 142 "src/monitor/sdb/watchpoint.c" 3 4
+                  ((void *)0)
+# 142 "src/monitor/sdb/watchpoint.c"
+                      )
+  {
+
+
+    
+# 146 "src/monitor/sdb/watchpoint.c" 3 4
+   _Bool 
+# 146 "src/monitor/sdb/watchpoint.c"
+        success = 
+# 146 "src/monitor/sdb/watchpoint.c" 3 4
+                  1
+# 146 "src/monitor/sdb/watchpoint.c"
+                      ;
+    word_t newvalue = expr(wp->expre,&success);
+    if (newvalue!=wp->value)
+    {
+      printf("old:%ld new:%ld\n",newvalue,wp->value);
+      change = 1;
       break;
     }
+    wp = wp->next;
   }
-  return 0;
+
+  return change;
+
 }

@@ -147,6 +147,7 @@ bool test_change(){
     word_t newvalue = expr(wp->expre,&success);
     if (newvalue!=wp->value)
     {
+      printf("old:%ld new:%ld\n",newvalue,wp->value);
       change = 1;
       break;
     }
