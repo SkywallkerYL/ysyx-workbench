@@ -3151,14 +3151,30 @@ extern void regfree (regex_t *__preg);
 
 
 # 23 "src/monitor/sdb/expr.c"
-enum {
-  TK_NOTYPE = 256, TK_EQ,TK_HEX,TK_DEX,TK_REGNAME,TK_UNEQ,TK_AND,TK_OR
-  ,TK_BEQ,TK_LEQ,TK_LSHIFT,TK_RSHIFT,TK_POINT,TK_SUB,TK_BITAND,TK_BITOR
+enum
+{
+  TK_NOTYPE = 256,
+  TK_EQ,
+  TK_HEX,
+  TK_DEX,
+  TK_REGNAME,
+  TK_UNEQ,
+  TK_AND,
+  TK_OR,
+  TK_BEQ,
+  TK_LEQ,
+  TK_LSHIFT,
+  TK_RSHIFT,
+  TK_POINT,
+  TK_SUB,
+  TK_BITAND,
+  TK_BITOR
 
 
 };
 
-static struct rule {
+static struct rule
+{
   const char *regex;
   int token_type;
 } rules[] = {
@@ -3167,34 +3183,33 @@ static struct rule {
 
 
 
-  {" +", TK_NOTYPE},
-  {"\\+", '+'},
-  {"==", TK_EQ},
-  {"\\*", '*'},
-  {"\\*", TK_POINT},
-  {"/", '/'},
-  {"-",'-'},
-  {"-",TK_SUB},
-  {"0x[0-9,a-f,A-F]+", TK_HEX},
-  {"[0-9]+", TK_DEX},
+    {" +", TK_NOTYPE},
+    {"\\+", '+'},
+    {"==", TK_EQ},
+    {"\\*", '*'},
+    {"\\*", TK_POINT},
+    {"/", '/'},
+    {"-", '-'},
+    {"-", TK_SUB},
+    {"0x[0-9,a-f,A-F]+", TK_HEX},
+    {"[0-9]+", TK_DEX},
 
 
-  {"[\\$,0-9,a-z]{2}",TK_REGNAME},
-  {"!=", TK_UNEQ},
-  {"&&",TK_AND},
-  {"\\|\\|",TK_OR},
-  {"!",'!'},
-  {"\\(",'('},
-  {"\\)",')'},
-  {">=",TK_BEQ},
-  {"<=",TK_LEQ},
-  {"<<",TK_LSHIFT},
-  {">>",TK_RSHIFT},
-  {">",'>'},
-  {"<",'<'},
-  {"&",TK_BITAND},
-  {"\\|",TK_BITOR}
-};
+    {"[\\$,0-9,a-z]{2}", TK_REGNAME},
+    {"!=", TK_UNEQ},
+    {"&&", TK_AND},
+    {"\\|\\|", TK_OR},
+    {"!", '!'},
+    {"\\(", '('},
+    {"\\)", ')'},
+    {">=", TK_BEQ},
+    {"<=", TK_LEQ},
+    {"<<", TK_LSHIFT},
+    {">>", TK_RSHIFT},
+    {">", '>'},
+    {"<", '<'},
+    {"&", TK_BITAND},
+    {"\\|", TK_BITOR}};
 
 
 
@@ -3203,49 +3218,53 @@ static regex_t re[(int)(sizeof(rules) / sizeof(rules[0]))] = {};
 
 
 
-void init_regex() {
+void init_regex()
+{
   int i;
   char error_msg[128];
   int ret;
 
-  for (i = 0; i < (int)(sizeof(rules) / sizeof(rules[0])); i ++) {
+  for (i = 0; i < (int)(sizeof(rules) / sizeof(rules[0])); i++)
+  {
     ret = regcomp(&re[i], rules[i].regex, 
-# 81 "src/monitor/sdb/expr.c" 3 4
+# 98 "src/monitor/sdb/expr.c" 3 4
                                          1
-# 81 "src/monitor/sdb/expr.c"
+# 98 "src/monitor/sdb/expr.c"
                                                      );
-    if (ret != 0) {
+    if (ret != 0)
+    {
       regerror(ret, &re[i], error_msg, 128);
       do { if (!(0)) { (fflush(
-# 84 "src/monitor/sdb/expr.c" 3 4
+# 102 "src/monitor/sdb/expr.c" 3 4
      stdout
-# 84 "src/monitor/sdb/expr.c"
+# 102 "src/monitor/sdb/expr.c"
      ), fprintf(
-# 84 "src/monitor/sdb/expr.c" 3 4
+# 102 "src/monitor/sdb/expr.c" 3 4
      stderr
-# 84 "src/monitor/sdb/expr.c"
+# 102 "src/monitor/sdb/expr.c"
      , "\33[1;31m" "regex compilation failed: %s\n%s" "\33[0m" "\n", error_msg, rules[i].regex)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
-# 84 "src/monitor/sdb/expr.c" 3 4
+# 102 "src/monitor/sdb/expr.c" 3 4
      ((void) sizeof ((
-# 84 "src/monitor/sdb/expr.c"
+# 102 "src/monitor/sdb/expr.c"
      0
-# 84 "src/monitor/sdb/expr.c" 3 4
+# 102 "src/monitor/sdb/expr.c" 3 4
      ) ? 1 : 0), __extension__ ({ if (
-# 84 "src/monitor/sdb/expr.c"
+# 102 "src/monitor/sdb/expr.c"
      0
-# 84 "src/monitor/sdb/expr.c" 3 4
+# 102 "src/monitor/sdb/expr.c" 3 4
      ) ; else __assert_fail (
-# 84 "src/monitor/sdb/expr.c"
+# 102 "src/monitor/sdb/expr.c"
      "0"
-# 84 "src/monitor/sdb/expr.c" 3 4
-     , "src/monitor/sdb/expr.c", 84, __extension__ __PRETTY_FUNCTION__); }))
-# 84 "src/monitor/sdb/expr.c"
+# 102 "src/monitor/sdb/expr.c" 3 4
+     , "src/monitor/sdb/expr.c", 102, __extension__ __PRETTY_FUNCTION__); }))
+# 102 "src/monitor/sdb/expr.c"
      ; } } while (0);
     }
   }
 }
 
-typedef struct token {
+typedef struct token
+{
   int type;
   char str[256];
 } Token;
@@ -3254,29 +3273,33 @@ static Token tokens[256] __attribute__((used)) = {};
 static int nr_token __attribute__((used)) = 0;
 
 static 
-# 97 "src/monitor/sdb/expr.c" 3 4
+# 116 "src/monitor/sdb/expr.c" 3 4
       _Bool 
-# 97 "src/monitor/sdb/expr.c"
-           make_token(char *e) {
+# 116 "src/monitor/sdb/expr.c"
+           make_token(char *e)
+{
   int position = 0;
   int i;
   regmatch_t pmatch;
 
   nr_token = 0;
 
-  while (e[position] != '\0') {
+  while (e[position] != '\0')
+  {
 
-    for (i = 0; i < (int)(sizeof(rules) / sizeof(rules[0])); i ++) {
-      if (regexec(&re[i], e + position, 1, &pmatch, 0) == 0 && pmatch.rm_so == 0) {
+    for (i = 0; i < (int)(sizeof(rules) / sizeof(rules[0])); i++)
+    {
+      if (regexec(&re[i], e + position, 1, &pmatch, 0) == 0 && pmatch.rm_so == 0)
+      {
         char *substr_start = e + position;
         int substr_len = pmatch.rm_eo;
 
 
-        do { printf("\33[1;34m" "[%s:%d %s] " "match rules[%d] = \"%s\" at position %d with len %d: %.*s" "\33[0m" "\n", "src/monitor/sdb/expr.c", 112, __func__, i, rules[i].regex, position, substr_len, substr_len, substr_start); do { extern FILE* log_fp; extern 
-# 112 "src/monitor/sdb/expr.c" 3 4
+        do { printf("\33[1;34m" "[%s:%d %s] " "match rules[%d] = \"%s\" at position %d with len %d: %.*s" "\33[0m" "\n", "src/monitor/sdb/expr.c", 135, __func__, i, rules[i].regex, position, substr_len, substr_len, substr_start); do { extern FILE* log_fp; extern 
+# 135 "src/monitor/sdb/expr.c" 3 4
        _Bool 
-# 112 "src/monitor/sdb/expr.c"
-       log_enable(); if (log_enable()) { fprintf(log_fp, "\33[1;34m" "[%s:%d %s] " "match rules[%d] = \"%s\" at position %d with len %d: %.*s" "\33[0m" "\n", "src/monitor/sdb/expr.c", 112, __func__, i, rules[i].regex, position, substr_len, substr_len, substr_start); fflush(log_fp); } } while (0); } while (0)
+# 135 "src/monitor/sdb/expr.c"
+       log_enable(); if (log_enable()) { fprintf(log_fp, "\33[1;34m" "[%s:%d %s] " "match rules[%d] = \"%s\" at position %d with len %d: %.*s" "\33[0m" "\n", "src/monitor/sdb/expr.c", 135, __func__, i, rules[i].regex, position, substr_len, substr_len, substr_start); fflush(log_fp); } } while (0); } while (0)
                                                                               ;
 
         position += substr_len;
@@ -3287,67 +3310,165 @@ static
 
         tokens[nr_token].type = rules[i].token_type;
 
-        switch (rules[i].token_type) {
+        switch (rules[i].token_type)
+        {
 
-          case TK_NOTYPE : break;
-          case '+' : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
-          case TK_EQ: strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
-          case '*' : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
-          case '/' : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
-          case '-' : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
-          case TK_SUB : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
-          case TK_HEX : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
-          case TK_DEX : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
-          case TK_UNEQ : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
-          case TK_AND : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
-          case TK_OR : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
-          case '!' : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
-          case '(' : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
-          case ')' : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
-          case TK_BEQ : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
-          case TK_LEQ : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
-          case TK_LSHIFT : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
-          case TK_RSHIFT : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
-          case '>' : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
-          case '<' : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
-          case TK_REGNAME : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
-          case TK_BITAND : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
-          case TK_BITOR : strncpy(tokens[nr_token].str,substr_start,substr_len);tokens[nr_token].str[substr_len] = '\0'; nr_token++;break;
-          default: break;
+        case TK_NOTYPE:
+          break;
+        case '+':
+          strncpy(tokens[nr_token].str, substr_start, substr_len);
+          tokens[nr_token].str[substr_len] = '\0';
+          nr_token++;
+          break;
+        case TK_EQ:
+          strncpy(tokens[nr_token].str, substr_start, substr_len);
+          tokens[nr_token].str[substr_len] = '\0';
+          nr_token++;
+          break;
+        case '*':
+          strncpy(tokens[nr_token].str, substr_start, substr_len);
+          tokens[nr_token].str[substr_len] = '\0';
+          nr_token++;
+          break;
+        case '/':
+          strncpy(tokens[nr_token].str, substr_start, substr_len);
+          tokens[nr_token].str[substr_len] = '\0';
+          nr_token++;
+          break;
+        case '-':
+          strncpy(tokens[nr_token].str, substr_start, substr_len);
+          tokens[nr_token].str[substr_len] = '\0';
+          nr_token++;
+          break;
+        case TK_SUB:
+          strncpy(tokens[nr_token].str, substr_start, substr_len);
+          tokens[nr_token].str[substr_len] = '\0';
+          nr_token++;
+          break;
+        case TK_HEX:
+          strncpy(tokens[nr_token].str, substr_start, substr_len);
+          tokens[nr_token].str[substr_len] = '\0';
+          nr_token++;
+          break;
+        case TK_DEX:
+          strncpy(tokens[nr_token].str, substr_start, substr_len);
+          tokens[nr_token].str[substr_len] = '\0';
+          nr_token++;
+          break;
+        case TK_UNEQ:
+          strncpy(tokens[nr_token].str, substr_start, substr_len);
+          tokens[nr_token].str[substr_len] = '\0';
+          nr_token++;
+          break;
+        case TK_AND:
+          strncpy(tokens[nr_token].str, substr_start, substr_len);
+          tokens[nr_token].str[substr_len] = '\0';
+          nr_token++;
+          break;
+        case TK_OR:
+          strncpy(tokens[nr_token].str, substr_start, substr_len);
+          tokens[nr_token].str[substr_len] = '\0';
+          nr_token++;
+          break;
+        case '!':
+          strncpy(tokens[nr_token].str, substr_start, substr_len);
+          tokens[nr_token].str[substr_len] = '\0';
+          nr_token++;
+          break;
+        case '(':
+          strncpy(tokens[nr_token].str, substr_start, substr_len);
+          tokens[nr_token].str[substr_len] = '\0';
+          nr_token++;
+          break;
+        case ')':
+          strncpy(tokens[nr_token].str, substr_start, substr_len);
+          tokens[nr_token].str[substr_len] = '\0';
+          nr_token++;
+          break;
+        case TK_BEQ:
+          strncpy(tokens[nr_token].str, substr_start, substr_len);
+          tokens[nr_token].str[substr_len] = '\0';
+          nr_token++;
+          break;
+        case TK_LEQ:
+          strncpy(tokens[nr_token].str, substr_start, substr_len);
+          tokens[nr_token].str[substr_len] = '\0';
+          nr_token++;
+          break;
+        case TK_LSHIFT:
+          strncpy(tokens[nr_token].str, substr_start, substr_len);
+          tokens[nr_token].str[substr_len] = '\0';
+          nr_token++;
+          break;
+        case TK_RSHIFT:
+          strncpy(tokens[nr_token].str, substr_start, substr_len);
+          tokens[nr_token].str[substr_len] = '\0';
+          nr_token++;
+          break;
+        case '>':
+          strncpy(tokens[nr_token].str, substr_start, substr_len);
+          tokens[nr_token].str[substr_len] = '\0';
+          nr_token++;
+          break;
+        case '<':
+          strncpy(tokens[nr_token].str, substr_start, substr_len);
+          tokens[nr_token].str[substr_len] = '\0';
+          nr_token++;
+          break;
+        case TK_REGNAME:
+          strncpy(tokens[nr_token].str, substr_start, substr_len);
+          tokens[nr_token].str[substr_len] = '\0';
+          nr_token++;
+          break;
+        case TK_BITAND:
+          strncpy(tokens[nr_token].str, substr_start, substr_len);
+          tokens[nr_token].str[substr_len] = '\0';
+          nr_token++;
+          break;
+        case TK_BITOR:
+          strncpy(tokens[nr_token].str, substr_start, substr_len);
+          tokens[nr_token].str[substr_len] = '\0';
+          nr_token++;
+          break;
+        default:
+          break;
         }
 
         break;
       }
     }
 
-    if (i == (int)(sizeof(rules) / sizeof(rules[0]))) {
+    if (i == (int)(sizeof(rules) / sizeof(rules[0])))
+    {
       printf("no match at position %d\n%s\n%*.s^\n", position, e, position, "");
       return 
-# 158 "src/monitor/sdb/expr.c" 3 4
+# 277 "src/monitor/sdb/expr.c" 3 4
             0
-# 158 "src/monitor/sdb/expr.c"
+# 277 "src/monitor/sdb/expr.c"
                  ;
     }
   }
 
   return 
-# 162 "src/monitor/sdb/expr.c" 3 4
+# 281 "src/monitor/sdb/expr.c" 3 4
         1
-# 162 "src/monitor/sdb/expr.c"
+# 281 "src/monitor/sdb/expr.c"
             ;
 }
 word_t vaddr_read(vaddr_t addr, int len);
-int eval(int p,int q);
+int eval(int p, int q);
 word_t expr(char *e, 
-# 166 "src/monitor/sdb/expr.c" 3 4
+# 285 "src/monitor/sdb/expr.c" 3 4
                     _Bool 
-# 166 "src/monitor/sdb/expr.c"
-                         *success) {
-  if (!make_token(e)) {
+# 285 "src/monitor/sdb/expr.c"
+                         *success)
+{
+  if (!make_token(e))
+  {
     *success = 
-# 168 "src/monitor/sdb/expr.c" 3 4
+# 289 "src/monitor/sdb/expr.c" 3 4
               0
-# 168 "src/monitor/sdb/expr.c"
+# 289 "src/monitor/sdb/expr.c"
                    ;
     return 0;
   }
@@ -3361,22 +3482,22 @@ word_t expr(char *e,
     if (tokens[i].type == '-')
     {
 
-      if (i==0||tokens[i-1].type == '+' ||
-            tokens[i-1].type == '-' ||
-            tokens[i-1].type == '*' ||
-            tokens[i-1].type == '/' ||
-            tokens[i-1].type == TK_SUB ||
-            tokens[i-1].type == '('||
-            tokens[i-1].type == TK_BEQ ||
-            tokens[i-1].type == TK_LEQ ||
-            tokens[i-1].type == TK_UNEQ||
-            tokens[i-1].type == '>' ||
-            tokens[i-1].type == '<' ||
-            tokens[i-1].type == TK_AND||
-            tokens[i-1].type == TK_OR ||
-            tokens[i-1].type == '!' ||
-            tokens[i-1].type == TK_LSHIFT ||
-            tokens[i-1].type == TK_RSHIFT )
+      if (i == 0 || tokens[i - 1].type == '+' ||
+          tokens[i - 1].type == '-' ||
+          tokens[i - 1].type == '*' ||
+          tokens[i - 1].type == '/' ||
+          tokens[i - 1].type == TK_SUB ||
+          tokens[i - 1].type == '(' ||
+          tokens[i - 1].type == TK_BEQ ||
+          tokens[i - 1].type == TK_LEQ ||
+          tokens[i - 1].type == TK_UNEQ ||
+          tokens[i - 1].type == '>' ||
+          tokens[i - 1].type == '<' ||
+          tokens[i - 1].type == TK_AND ||
+          tokens[i - 1].type == TK_OR ||
+          tokens[i - 1].type == '!' ||
+          tokens[i - 1].type == TK_LSHIFT ||
+          tokens[i - 1].type == TK_RSHIFT)
 
 
 
@@ -3384,57 +3505,57 @@ word_t expr(char *e,
 
 
       {
-        if (i!=0) printf("i-1:%ld %d\n",i-1,tokens[i-1].type);
-        printf("before i:%ld %d\n",i,tokens[i].type);
+        if (i != 0)
+          printf("i-1:%ld %d\n", i - 1, tokens[i - 1].type);
+        printf("before i:%ld %d\n", i, tokens[i].type);
         tokens[i].type = TK_SUB;
-        printf("after i:%ld %d\n",i,tokens[i].type);
+        printf("after i:%ld %d\n", i, tokens[i].type);
       }
-
     }
     if (tokens[i].type == '*')
     {
-       if (i==0||tokens[i-1].type == '+' ||
-            tokens[i-1].type == '-' ||
-            tokens[i-1].type == '*' ||
-            tokens[i-1].type == '/' ||
-            tokens[i-1].type == TK_SUB ||
-            tokens[i-1].type == '('||
-            tokens[i-1].type == TK_BEQ ||
-            tokens[i-1].type == TK_LEQ ||
-            tokens[i-1].type == TK_UNEQ||
-            tokens[i-1].type == '>' ||
-            tokens[i-1].type == '<' ||
-            tokens[i-1].type == TK_AND||
-            tokens[i-1].type == TK_OR ||
-            tokens[i-1].type == '!' ||
-            tokens[i-1].type == TK_LSHIFT ||
-            tokens[i-1].type == TK_RSHIFT )
+      if (i == 0 || tokens[i - 1].type == '+' ||
+          tokens[i - 1].type == '-' ||
+          tokens[i - 1].type == '*' ||
+          tokens[i - 1].type == '/' ||
+          tokens[i - 1].type == TK_SUB ||
+          tokens[i - 1].type == '(' ||
+          tokens[i - 1].type == TK_BEQ ||
+          tokens[i - 1].type == TK_LEQ ||
+          tokens[i - 1].type == TK_UNEQ ||
+          tokens[i - 1].type == '>' ||
+          tokens[i - 1].type == '<' ||
+          tokens[i - 1].type == TK_AND ||
+          tokens[i - 1].type == TK_OR ||
+          tokens[i - 1].type == '!' ||
+          tokens[i - 1].type == TK_LSHIFT ||
+          tokens[i - 1].type == TK_RSHIFT)
       {
         tokens[i].type = TK_POINT;
       }
-
     }
-
   }
 
-  return eval(0,nr_token-1);
+  return eval(0, nr_token - 1);
 
   return 0;
 }
 
 
 
-# 243 "src/monitor/sdb/expr.c" 3 4
+# 362 "src/monitor/sdb/expr.c" 3 4
 _Bool 
-# 243 "src/monitor/sdb/expr.c"
-    check_parentheses(int p , int q ){
+# 362 "src/monitor/sdb/expr.c"
+    check_parentheses(int p, int q)
+{
   int i = 0;
   int flag = 0;
-  if (tokens[p].type!='('|| tokens[q].type!=')') return 
-# 246 "src/monitor/sdb/expr.c" 3 4
-                                                       0
-# 246 "src/monitor/sdb/expr.c"
-                                                            ;
+  if (tokens[p].type != '(' || tokens[q].type != ')')
+    return 
+# 367 "src/monitor/sdb/expr.c" 3 4
+          0
+# 367 "src/monitor/sdb/expr.c"
+               ;
   for (i = p; i <= q; i++)
   {
     if (tokens[i].type == '(')
@@ -3448,59 +3569,99 @@ _Bool
     if (flag == 0 && i < q)
     {
       return 
-# 259 "src/monitor/sdb/expr.c" 3 4
-            0 
-# 259 "src/monitor/sdb/expr.c"
-                  ;
+# 380 "src/monitor/sdb/expr.c" 3 4
+            0
+# 380 "src/monitor/sdb/expr.c"
+                 ;
     }
 
   }
   if (flag != 0)
   {
     return 
-# 265 "src/monitor/sdb/expr.c" 3 4
+# 386 "src/monitor/sdb/expr.c" 3 4
           0
-# 265 "src/monitor/sdb/expr.c"
+# 386 "src/monitor/sdb/expr.c"
                ;
   }
 
   return 
-# 268 "src/monitor/sdb/expr.c" 3 4
+# 389 "src/monitor/sdb/expr.c" 3 4
         1
-# 268 "src/monitor/sdb/expr.c"
+# 389 "src/monitor/sdb/expr.c"
             ;
 }
 
 
 
-int prior (int type)
+int prior(int type)
 {
   int pir = -1;
   switch (type)
   {
-    case TK_NOTYPE : break;
-    case '+' : pir = 4; break;
-    case TK_EQ : pir = 2; break;
-    case '*' : pir = 3; break;
-    case '/' : pir = 3; break;
-    case '-' : pir = 4; break;
-    case TK_SUB : pir =-1; break;
-    case TK_HEX : pir =-2; break;
-    case TK_DEX : pir =-2; break;
-    case TK_UNEQ : pir = 2; break;
-    case TK_AND : pir = 1; break;
-    case TK_OR : pir = 1; break;
-    case '!' : pir = 0; break;
-    case '(' : break;
-    case ')' : break;
-    case TK_BEQ : pir = 2; break;
-    case TK_LEQ : pir = 2; break;
-    case TK_LSHIFT : pir = 0; break;
-    case TK_RSHIFT : pir = 0; break;
-    case '>' : pir = 2; break;
-    case '<' : pir = 2; break;
+  case TK_NOTYPE:
+    break;
+  case '+':
+    pir = 4;
+    break;
+  case TK_EQ:
+    pir = 2;
+    break;
+  case '*':
+    pir = 3;
+    break;
+  case '/':
+    pir = 3;
+    break;
+  case '-':
+    pir = 4;
+    break;
+  case TK_SUB:
+    pir = -1;
+    break;
+  case TK_HEX:
+    pir = -2;
+    break;
+  case TK_DEX:
+    pir = -2;
+    break;
+  case TK_UNEQ:
+    pir = 2;
+    break;
+  case TK_AND:
+    pir = 1;
+    break;
+  case TK_OR:
+    pir = 1;
+    break;
+  case '!':
+    pir = 0;
+    break;
+  case '(':
+    break;
+  case ')':
+    break;
+  case TK_BEQ:
+    pir = 2;
+    break;
+  case TK_LEQ:
+    pir = 2;
+    break;
+  case TK_LSHIFT:
+    pir = 0;
+    break;
+  case TK_RSHIFT:
+    pir = 0;
+    break;
+  case '>':
+    pir = 2;
+    break;
+  case '<':
+    pir = 2;
+    break;
 
-  default: break;
+  default:
+    break;
   }
   return pir;
 }
@@ -3509,7 +3670,8 @@ int prior (int type)
 
 
 
-int dominant_operator(int p , int q){
+int dominant_operator(int p, int q)
+{
   int dompos = p, pair = 0;
   int pr = -2;
   for (size_t i = p; i <= q; i++)
@@ -3517,26 +3679,28 @@ int dominant_operator(int p , int q){
 
     if (tokens[i].type == '(')
     {
-      pair ++;
+      pair++;
 
       while (1)
       {
         i++;
-        if (tokens[i].type == '(') pair++;
-        else if (tokens[i].type == ')') pair--;
+        if (tokens[i].type == '(')
+          pair++;
+        else if (tokens[i].type == ')')
+          pair--;
 
         if (pair == 0)
         {
           break;
         }
       }
-      if (i>q)
+      if (i > q)
       {
         break;
       }
     }
 
-    else if ( tokens[i].type == TK_DEX || tokens[i].type == TK_HEX|| tokens[i].type== TK_REGNAME)
+    else if (tokens[i].type == TK_DEX || tokens[i].type == TK_HEX || tokens[i].type == TK_REGNAME)
     {
 
       continue;
@@ -3554,28 +3718,30 @@ int dominant_operator(int p , int q){
       dompos = i;
     }
   }
+  printf("op:%d dominop:%d\n",dompos,tokens[dompos].type);
   return dompos;
 }
 
-int eval (int p , int q) {
+int eval(int p, int q)
+{
   if (p > q)
   {
     
-# 360 "src/monitor/sdb/expr.c" 3 4
+# 526 "src/monitor/sdb/expr.c" 3 4
    ((void) sizeof ((
-# 360 "src/monitor/sdb/expr.c"
+# 526 "src/monitor/sdb/expr.c"
    "Bad expression"
-# 360 "src/monitor/sdb/expr.c" 3 4
+# 526 "src/monitor/sdb/expr.c" 3 4
    ) ? 1 : 0), __extension__ ({ if (
-# 360 "src/monitor/sdb/expr.c"
+# 526 "src/monitor/sdb/expr.c"
    "Bad expression"
-# 360 "src/monitor/sdb/expr.c" 3 4
+# 526 "src/monitor/sdb/expr.c" 3 4
    ) ; else __assert_fail (
-# 360 "src/monitor/sdb/expr.c"
+# 526 "src/monitor/sdb/expr.c"
    "\"Bad expression\""
-# 360 "src/monitor/sdb/expr.c" 3 4
-   , "src/monitor/sdb/expr.c", 360, __extension__ __PRETTY_FUNCTION__); }))
-# 360 "src/monitor/sdb/expr.c"
+# 526 "src/monitor/sdb/expr.c" 3 4
+   , "src/monitor/sdb/expr.c", 526, __extension__ __PRETTY_FUNCTION__); }))
+# 526 "src/monitor/sdb/expr.c"
                            ;
   }
   else if (p == q)
@@ -3583,88 +3749,125 @@ int eval (int p , int q) {
     int number = 0;
     if (tokens[p].type == TK_HEX)
     {
-      sscanf(tokens[p].str,"%x",&number);
+      sscanf(tokens[p].str, "%x", &number);
     }
     else if (tokens[p].type == TK_DEX)
     {
-      sscanf(tokens[p].str,"%d",&number);
+      sscanf(tokens[p].str, "%d", &number);
 
     }
     else if (tokens[p].type == TK_REGNAME)
     {
-# 392 "src/monitor/sdb/expr.c"
+# 558 "src/monitor/sdb/expr.c"
       
-# 392 "src/monitor/sdb/expr.c" 3 4
+# 558 "src/monitor/sdb/expr.c" 3 4
      _Bool 
-# 392 "src/monitor/sdb/expr.c"
+# 558 "src/monitor/sdb/expr.c"
           success1 = 
-# 392 "src/monitor/sdb/expr.c" 3 4
+# 558 "src/monitor/sdb/expr.c" 3 4
                      1
-# 392 "src/monitor/sdb/expr.c"
+# 558 "src/monitor/sdb/expr.c"
                          ;
-      number = isa_reg_str2val (tokens[p].str,&success1);
+      number = isa_reg_str2val(tokens[p].str, &success1);
     }
     return number;
   }
-  else if (check_parentheses(p,q) == 
-# 397 "src/monitor/sdb/expr.c" 3 4
-                                    1
-# 397 "src/monitor/sdb/expr.c"
-                                        )
+  else if (check_parentheses(p, q) == 
+# 563 "src/monitor/sdb/expr.c" 3 4
+                                     1
+# 563 "src/monitor/sdb/expr.c"
+                                         )
   {
-    return eval(p+1,q-1);
+    return eval(p + 1, q - 1);
   }
-  else {
-    int op = dominant_operator(p,q);
+  else
+  {
+    int op = dominant_operator(p, q);
 
-    int val1 = eval (p,op-1);
-    int val2 = eval (op+1,q);
+    int val1 = eval(p, op - 1);
+    int val2 = eval(op + 1, q);
 
     switch (tokens[op].type)
     {
-    case '+' : return val1+val2; break;
-    case '-' : return val1-val2; break;
-    case '*' : return val1*val2; break;
-    case '/' :
+    case '+':
+      return val1 + val2;
+      break;
+    case '-':
+      return val1 - val2;
+      break;
+    case '*':
+      return val1 * val2;
+      break;
+    case '/':
       if (val2 == 0)
       {
-          printf("Invalid expression for div by 0\n");
+        printf("Invalid expression for div by 0\n");
 
       }
-      else {
+      else
+      {
 
-        return val1/val2;
-      break;}
-    case TK_SUB: printf("op%d %d\n",op,val2);return -val2; break;
-    case TK_AND: return val1&&val2;break;
-    case TK_OR : return val1||val2;break;
-    case TK_EQ : return val1 == val2;break;
-    case TK_UNEQ : return val1!=val2;break;
-    case '!' : return !val2;break;
-    case '<' : return val1<val2;break;
-    case '>' : return val1>val2;break;
-    case TK_LSHIFT: return val1<<val2;break;
-    case TK_RSHIFT: return val1>>val2;break;
-    case TK_POINT: return vaddr_read(val2,4);
-    case TK_BITAND: return val1&val2;break;
-    case TK_BITOR : return val1|val2;break;
-    default: 
-# 435 "src/monitor/sdb/expr.c" 3 4
-            ((void) sizeof ((
-# 435 "src/monitor/sdb/expr.c"
-            0
-# 435 "src/monitor/sdb/expr.c" 3 4
-            ) ? 1 : 0), __extension__ ({ if (
-# 435 "src/monitor/sdb/expr.c"
-            0
-# 435 "src/monitor/sdb/expr.c" 3 4
-            ) ; else __assert_fail (
-# 435 "src/monitor/sdb/expr.c"
-            "0"
-# 435 "src/monitor/sdb/expr.c" 3 4
-            , "src/monitor/sdb/expr.c", 435, __extension__ __PRETTY_FUNCTION__); }))
-# 435 "src/monitor/sdb/expr.c"
-                     ;break;
+        return val1 / val2;
+        break;
+      }
+    case TK_SUB:
+      printf("op:%d %d\n", op, val2);
+      return -val2;
+      break;
+    case TK_AND:
+      return val1 && val2;
+      break;
+    case TK_OR:
+      return val1 || val2;
+      break;
+    case TK_EQ:
+      return val1 == val2;
+      break;
+    case TK_UNEQ:
+      return val1 != val2;
+      break;
+    case '!':
+      return !val2;
+      break;
+    case '<':
+      return val1 < val2;
+      break;
+    case '>':
+      return val1 > val2;
+      break;
+    case TK_LSHIFT:
+      return val1 << val2;
+      break;
+    case TK_RSHIFT:
+      return val1 >> val2;
+      break;
+    case TK_POINT:
+      return vaddr_read(val2, 4);
+    case TK_BITAND:
+      return val1 & val2;
+      break;
+    case TK_BITOR:
+      return val1 | val2;
+      break;
+    default:
+      
+# 637 "src/monitor/sdb/expr.c" 3 4
+     ((void) sizeof ((
+# 637 "src/monitor/sdb/expr.c"
+     0
+# 637 "src/monitor/sdb/expr.c" 3 4
+     ) ? 1 : 0), __extension__ ({ if (
+# 637 "src/monitor/sdb/expr.c"
+     0
+# 637 "src/monitor/sdb/expr.c" 3 4
+     ) ; else __assert_fail (
+# 637 "src/monitor/sdb/expr.c"
+     "0"
+# 637 "src/monitor/sdb/expr.c" 3 4
+     , "src/monitor/sdb/expr.c", 637, __extension__ __PRETTY_FUNCTION__); }))
+# 637 "src/monitor/sdb/expr.c"
+              ;
+      break;
     }
   }
   return 0;
