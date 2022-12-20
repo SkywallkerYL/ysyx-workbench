@@ -2,7 +2,7 @@
 #include <klib.h>
 #include <klib-macros.h>
 #include <stdarg.h>
-#include <stdio.h>
+
 #if !defined(__ISA_NATIVE__) || defined(__NATIVE_USE_KLIB__)
 //find putch in klib-macros.h  maybe it can be use here
 //putch ( char p)
@@ -127,10 +127,6 @@ int printf(const char *fmt, ...) {
         putstr(strval);
         pstr++;
         continue;
-      default:
-        myputch(' ');resnum++;
-        continue;
-      }
       case 'f':
         floatval = va_arg(ap,double);
         if (floatval<0.0)
@@ -174,7 +170,11 @@ int printf(const char *fmt, ...) {
           lencnt--;
         }
         pstr++;
-        continue;  
+        continue;
+        default:
+        myputch(' ');resnum++;
+        continue;
+      }
     default:
       myputch(*pstr);resnum++;
       break;
@@ -299,10 +299,6 @@ int sprintf(char *out, const char *fmt, ...) {
         for (char *p = strval; *p; p++) {*out = *p;out++;}
         pstr++;
         continue;
-      default:
-        *out = ' ';out++;resnum++;
-        continue;
-      }
       case 'f':
         floatval = va_arg(ap,double);
         if (floatval<0.0)
@@ -347,6 +343,10 @@ int sprintf(char *out, const char *fmt, ...) {
         }
         pstr++;
         continue;  
+      default:
+        *out = ' ';out++;resnum++;
+        continue;
+      }
     default:
       *out = *pstr;resnum++;
       break;
