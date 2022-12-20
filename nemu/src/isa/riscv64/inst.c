@@ -123,7 +123,7 @@ static int decode_exec(Decode *s) {
   //或者直接在当前指令上来操作
   //jal 首先对20bits宽的imm*2后，在进行符号扩展，然后将符号扩展的值与pc相加
   //这里是由于J型指令的表示方法造成的，imm[20:1] 默认最低位为0,因此在最地位补上一个0，即左移一位，就是x2
-  INSTPAT("??????? ????? ????? ??? ????? 11011 11", jal   , J, R(dest) = s->pc+0x4;printf("%lx\n",imm);imm = SEXT(imm,20);printf("%lx\n",imm);s->dnpc =imm+s->pc);//x[rd]=pc+4, pc+=sext(offset)
+  INSTPAT("??????? ????? ????? ??? ????? 11011 11", jal   , J, R(dest) = s->pc+0x4;imm = SEXT(imm,20);s->dnpc =imm+s->pc);//x[rd]=pc+4, pc+=sext(offset)
 
 //R
   INSTPAT("0000000 ????? ????? 000 ????? 01110 11", addw  , RI, word_t val = src1+src2;val = SEXT(val,32); R(dest)=val); 
