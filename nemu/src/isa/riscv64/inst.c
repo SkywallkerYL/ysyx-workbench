@@ -144,6 +144,7 @@ static int decode_exec(Decode *s) {
   INSTPAT("0000001 ????? ????? 000 ????? 01110 11", mulw  , RI, word_t val = src1*src2;val = SEXT(val,32);R(dest)= val);//截断为32
   INSTPAT("0000001 ????? ????? 100 ????? 01110 11", divw  , RI, src1 = SEXT(src1,32);src2 = SEXT(src2,32);int32_t rs1 = src1;int32_t rs2 = src2;int32_t val=rs1/rs2;R(dest) = SEXT(val,32));
   INSTPAT("0000001 ????? ????? 101 ????? 01100 11", divu  , RI, src1 = SEXT(src1,32);src2 = SEXT(src2,32);word_t rs1 = src1;word_t rs2 = src2;word_t val=rs1/rs2;R(dest) = val);
+  INSTPAT("0000001 ????? ????? 111 ????? 01100 11", remu  , RI, src1 = SEXT(src1,32);src2 = SEXT(src2,32);word_t rs1 = src1;word_t rs2 = src2;word_t val=rs1%rs2;R(dest) = val);
   INSTPAT("0000001 ????? ????? 110 ????? 01110 11", remw  , RI, src1 = SEXT(src1,32);src2 = SEXT(src2,32);int32_t rs1 = src1;int32_t rs2 = src2;int32_t val=rs1%rs2;R(dest) = SEXT(val,32));
   INSTPAT("1111001 00000 ????? 000 ????? 10100 11", fmv.d.x, RI, src1 = SEXT(src1,32);int rs1 = src1;R(dest) = rs1);
 //B
