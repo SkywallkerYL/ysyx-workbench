@@ -36,8 +36,9 @@ enum {
 #define immI() do { *imm = SEXT(BITS(i, 31, 20), 12); } while(0)
 #define immU() do { *imm = SEXT(BITS(i, 31, 12), 20) << 12; } while(0)
 #define immS() do { *imm = (SEXT(BITS(i, 31, 25), 7) << 5) | BITS(i, 11, 7); } while(0)
+//这一部分的移位还是有点问题
 #define immJ() do { *imm = (SEXTU(BITS(i, 31, 31),1)<<19)|(SEXTU(BITS(i, 19, 12), 8)<<11)|(SEXTU(BITS(i, 20, 20), 1)<< 10)|BITS(i, 30, 21); *imm = *imm << 1;} while(0)
-#define immB() do { *imm = (SEXT(BITS(i, 31, 31),1)<<11)|(SEXT(BITS(i, 7, 7), 1)<<10)|(SEXT(BITS(i, 30, 25), 6)<< 4)|BITS(i, 11, 8); *imm = *imm << 1; } while(0)
+#define immB() do { *imm = (SEXTU(BITS(i, 31, 31),1)<<11)|(SEXT(BITS(i, 7, 7), 1)<<10)|(SEXT(BITS(i, 30, 25), 6)<< 4)|BITS(i, 11, 8); *imm = *imm << 1; } while(0)
 #define CUT(a,bit) (a=(a<<(64-bit)>>(64-bit))) //将64位的a 截断为 bit 位
 //目前感觉是cut操作出了问题，因为截断会导致符号位被截掉，采用移位的操作进行截断，原来的负数会变成正数，再理解以下位域的表示，
 //通过位于操作来进行截断 其实SEXT直接进行了截断操作以及符号位扩展，直接使用即可，不要用CUT,这样自可以过load-store
@@ -142,6 +143,7 @@ static int decode_exec(Decode *s) {
   INSTPAT("0000001 ????? ????? 000 ????? 01100 11", mul   , RI, word_t val = src1*src2;R(dest)= val);
   INSTPAT("0000001 ????? ????? 000 ????? 01110 11", mulw  , RI, word_t val = src1*src2;val = SEXT(val,32);R(dest)= val);//截断为32
   INSTPAT("0000001 ????? ????? 100 ????? 01110 11", divw  , RI, src1 = SEXT(src1,32);src2 = SEXT(src2,32);int32_t rs1 = src1;int32_t rs2 = src2;int32_t val=rs1/rs2;R(dest) = SEXT(val,32));
+  INSTPAT("0000001 ????? ????? 101 ????? 01110 11", divu  , RI, src1 = SEXT(src1,32);src2 = SEXT(src2,32);word_t rs1 = src1;word_t rs2 = src2;word_t val=rs1/rs2;R(dest) = val);
   INSTPAT("0000001 ????? ????? 110 ????? 01110 11", remw  , RI, src1 = SEXT(src1,32);src2 = SEXT(src2,32);int32_t rs1 = src1;int32_t rs2 = src2;int32_t val=rs1%rs2;R(dest) = SEXT(val,32));
   INSTPAT("1111001 00000 ????? 000 ????? 10100 11", fmv.d.x, RI, src1 = SEXT(src1,32);int rs1 = src1;R(dest) = rs1);
 //B
