@@ -109,8 +109,8 @@ static bool make_token(char *e) {
         int substr_len = pmatch.rm_eo;
         //strncpy(tokens[nr_token].str,substr_start,substr_len);
         //tokens[nr_token].str[substr_len] = '\0';
-        //Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
-            //i, rules[i].regex, position, substr_len, substr_len, substr_start);
+        Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
+            i, rules[i].regex, position, substr_len, substr_len, substr_start);
 
         position += substr_len;
 
