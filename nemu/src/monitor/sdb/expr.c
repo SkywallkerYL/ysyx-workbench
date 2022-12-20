@@ -202,7 +202,9 @@ word_t expr(char *e, bool *success) {
       */
       {
         if (i!=0) printf("i-1:%ld %d\n",i-1,tokens[i-1].type);
+        printf("before i:%ld %d\n",i,tokens[i].type);
         tokens[i].type = TK_SUB;
+        printf("after i:%ld %d\n",i,tokens[i].type);
       }
       
     }

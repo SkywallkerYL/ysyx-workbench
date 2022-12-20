@@ -3385,7 +3385,9 @@ word_t expr(char *e,
 
       {
         if (i!=0) printf("i-1:%ld %d\n",i-1,tokens[i-1].type);
+        printf("before i:%ld %d\n",i,tokens[i].type);
         tokens[i].type = TK_SUB;
+        printf("after i:%ld %d\n",i,tokens[i].type);
       }
 
     }
@@ -3422,16 +3424,16 @@ word_t expr(char *e,
 
 
 
-# 241 "src/monitor/sdb/expr.c" 3 4
+# 243 "src/monitor/sdb/expr.c" 3 4
 _Bool 
-# 241 "src/monitor/sdb/expr.c"
+# 243 "src/monitor/sdb/expr.c"
     check_parentheses(int p , int q ){
   int i = 0;
   int flag = 0;
   if (tokens[p].type!='('|| tokens[q].type!=')') return 
-# 244 "src/monitor/sdb/expr.c" 3 4
+# 246 "src/monitor/sdb/expr.c" 3 4
                                                        0
-# 244 "src/monitor/sdb/expr.c"
+# 246 "src/monitor/sdb/expr.c"
                                                             ;
   for (i = p; i <= q; i++)
   {
@@ -3446,9 +3448,9 @@ _Bool
     if (flag == 0 && i < q)
     {
       return 
-# 257 "src/monitor/sdb/expr.c" 3 4
+# 259 "src/monitor/sdb/expr.c" 3 4
             0 
-# 257 "src/monitor/sdb/expr.c"
+# 259 "src/monitor/sdb/expr.c"
                   ;
     }
 
@@ -3456,16 +3458,16 @@ _Bool
   if (flag != 0)
   {
     return 
-# 263 "src/monitor/sdb/expr.c" 3 4
+# 265 "src/monitor/sdb/expr.c" 3 4
           0
-# 263 "src/monitor/sdb/expr.c"
+# 265 "src/monitor/sdb/expr.c"
                ;
   }
 
   return 
-# 266 "src/monitor/sdb/expr.c" 3 4
+# 268 "src/monitor/sdb/expr.c" 3 4
         1
-# 266 "src/monitor/sdb/expr.c"
+# 268 "src/monitor/sdb/expr.c"
             ;
 }
 
@@ -3559,21 +3561,21 @@ int eval (int p , int q) {
   if (p > q)
   {
     
-# 358 "src/monitor/sdb/expr.c" 3 4
+# 360 "src/monitor/sdb/expr.c" 3 4
    ((void) sizeof ((
-# 358 "src/monitor/sdb/expr.c"
+# 360 "src/monitor/sdb/expr.c"
    "Bad expression"
-# 358 "src/monitor/sdb/expr.c" 3 4
+# 360 "src/monitor/sdb/expr.c" 3 4
    ) ? 1 : 0), __extension__ ({ if (
-# 358 "src/monitor/sdb/expr.c"
+# 360 "src/monitor/sdb/expr.c"
    "Bad expression"
-# 358 "src/monitor/sdb/expr.c" 3 4
+# 360 "src/monitor/sdb/expr.c" 3 4
    ) ; else __assert_fail (
-# 358 "src/monitor/sdb/expr.c"
+# 360 "src/monitor/sdb/expr.c"
    "\"Bad expression\""
-# 358 "src/monitor/sdb/expr.c" 3 4
-   , "src/monitor/sdb/expr.c", 358, __extension__ __PRETTY_FUNCTION__); }))
-# 358 "src/monitor/sdb/expr.c"
+# 360 "src/monitor/sdb/expr.c" 3 4
+   , "src/monitor/sdb/expr.c", 360, __extension__ __PRETTY_FUNCTION__); }))
+# 360 "src/monitor/sdb/expr.c"
                            ;
   }
   else if (p == q)
@@ -3590,24 +3592,24 @@ int eval (int p , int q) {
     }
     else if (tokens[p].type == TK_REGNAME)
     {
-# 390 "src/monitor/sdb/expr.c"
+# 392 "src/monitor/sdb/expr.c"
       
-# 390 "src/monitor/sdb/expr.c" 3 4
+# 392 "src/monitor/sdb/expr.c" 3 4
      _Bool 
-# 390 "src/monitor/sdb/expr.c"
+# 392 "src/monitor/sdb/expr.c"
           success1 = 
-# 390 "src/monitor/sdb/expr.c" 3 4
+# 392 "src/monitor/sdb/expr.c" 3 4
                      1
-# 390 "src/monitor/sdb/expr.c"
+# 392 "src/monitor/sdb/expr.c"
                          ;
       number = isa_reg_str2val (tokens[p].str,&success1);
     }
     return number;
   }
   else if (check_parentheses(p,q) == 
-# 395 "src/monitor/sdb/expr.c" 3 4
+# 397 "src/monitor/sdb/expr.c" 3 4
                                     1
-# 395 "src/monitor/sdb/expr.c"
+# 397 "src/monitor/sdb/expr.c"
                                         )
   {
     return eval(p+1,q-1);
@@ -3647,21 +3649,21 @@ int eval (int p , int q) {
     case TK_BITAND: return val1&val2;break;
     case TK_BITOR : return val1|val2;break;
     default: 
-# 433 "src/monitor/sdb/expr.c" 3 4
+# 435 "src/monitor/sdb/expr.c" 3 4
             ((void) sizeof ((
-# 433 "src/monitor/sdb/expr.c"
+# 435 "src/monitor/sdb/expr.c"
             0
-# 433 "src/monitor/sdb/expr.c" 3 4
+# 435 "src/monitor/sdb/expr.c" 3 4
             ) ? 1 : 0), __extension__ ({ if (
-# 433 "src/monitor/sdb/expr.c"
+# 435 "src/monitor/sdb/expr.c"
             0
-# 433 "src/monitor/sdb/expr.c" 3 4
+# 435 "src/monitor/sdb/expr.c" 3 4
             ) ; else __assert_fail (
-# 433 "src/monitor/sdb/expr.c"
+# 435 "src/monitor/sdb/expr.c"
             "0"
-# 433 "src/monitor/sdb/expr.c" 3 4
-            , "src/monitor/sdb/expr.c", 433, __extension__ __PRETTY_FUNCTION__); }))
-# 433 "src/monitor/sdb/expr.c"
+# 435 "src/monitor/sdb/expr.c" 3 4
+            , "src/monitor/sdb/expr.c", 435, __extension__ __PRETTY_FUNCTION__); }))
+# 435 "src/monitor/sdb/expr.c"
                      ;break;
     }
   }
