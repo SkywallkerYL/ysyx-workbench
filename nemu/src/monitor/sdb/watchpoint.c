@@ -145,7 +145,7 @@ bool test_change(){
     //printf("jhjj\n");
     bool success = true;
     word_t newvalue = expr(wp->expre,&success);
-    printf("old:%ld new:%ld\n",newvalue,wp->value);
+    //printf("old:%ld new:%ld\n",newvalue,wp->value);
     if (newvalue!=wp->value)
     {
       //printf("old:%ld new:%ld\n",newvalue,wp->value);
