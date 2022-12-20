@@ -570,7 +570,7 @@ int eval(int p, int q)
     // printf("start: %d end: %d dominator : %d \n",p,q,op);
     int val1 = eval(p, op - 1);
     int val2 = eval(op + 1, q);
-    // printf("op_pos: %d\n",op);
+    printf("op_pos: %d\n",op);
     switch (tokens[op].type)
     {
     case '+': /*printf("tempval+: %d %d %d\n",val1,val2,val1+val2);*/
