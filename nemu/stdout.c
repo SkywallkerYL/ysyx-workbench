@@ -3635,7 +3635,7 @@ int eval (int p , int q) {
 
         return val1/val2;
       break;}
-    case TK_SUB: return -val2; break;
+    case TK_SUB: printf("op%d %d\n",op,val2);return -val2; break;
     case TK_AND: return val1&&val2;break;
     case TK_OR : return val1||val2;break;
     case TK_EQ : return val1 == val2;break;
