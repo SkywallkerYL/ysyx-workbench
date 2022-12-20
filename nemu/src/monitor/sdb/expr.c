@@ -426,13 +426,13 @@ int prior(int type)
     pir = 2;
     break;
   case TK_AND:
-    pir = 1;
+    pir = 2;
     break;
   case TK_OR:
-    pir = 1;
+    pir = 2;
     break;
   case '!':
-    pir = 0;
+    pir = -1;
     break;
   case '(':
     break;
@@ -507,12 +507,27 @@ int dominant_operator(int p, int q)
     // 同一优先级 在前面的 要先计算所以不是主操作符
     // 主操作符应该是最后计算的
     // 这里要写成= 同一优先级后面来的后计算 是主操作符
-    else if (prior(tokens[i].type) >= pr)
+    // 但是对于负号来说，最后计算的其实是最前面的，因此要排除掉符号这个特殊情况
+    //即,对于多个负号来说,最前面的负号最先计算，对于移位操作符来说也是这样
+    //即要区分单目运算符和双目运算符
+    //单目的在前面的最后计算，双目在前面的最先计算。并且双目先于单目
+    else if (prior(tokens[i].type) > pr)
     {
       // printf("gen: tokens[%ld].type: %d",i,tokens[i].type);
       pr = prior(tokens[i].type);
       // printf("pr:%d tokens[%ld].type: %d",pr,i,tokens[i].type);
       dompos = i;
+    }
+    else if (prior(tokens[i].type) == pr)
+    {
+      //>=2 是双目 则选择后面的作为主操作符
+      if (pr >= 2)
+      {
+        pr = prior(tokens[i].type);
+      // printf("pr:%d tokens[%ld].type: %d",pr,i,tokens[i].type);
+        dompos = i;
+      }
+      else continue;
     }
   }
   printf("op:%d dominop:%d\n",dompos,tokens[dompos].type);

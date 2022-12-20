@@ -3629,13 +3629,13 @@ int prior(int type)
     pir = 2;
     break;
   case TK_AND:
-    pir = 1;
+    pir = 2;
     break;
   case TK_OR:
-    pir = 1;
+    pir = 2;
     break;
   case '!':
-    pir = 0;
+    pir = -1;
     break;
   case '(':
     break;
@@ -3705,17 +3705,24 @@ int dominant_operator(int p, int q)
 
       continue;
     }
-
-
-
-
-
-    else if (prior(tokens[i].type) >= pr)
+# 514 "src/monitor/sdb/expr.c"
+    else if (prior(tokens[i].type) > pr)
     {
 
       pr = prior(tokens[i].type);
 
       dompos = i;
+    }
+    else if (prior(tokens[i].type) == pr)
+    {
+
+      if (pr >= 2)
+      {
+        pr = prior(tokens[i].type);
+
+        dompos = i;
+      }
+      else continue;
     }
   }
   printf("op:%d dominop:%d\n",dompos,tokens[dompos].type);
@@ -3727,21 +3734,21 @@ int eval(int p, int q)
   if (p > q)
   {
     
-# 526 "src/monitor/sdb/expr.c" 3 4
+# 541 "src/monitor/sdb/expr.c" 3 4
    ((void) sizeof ((
-# 526 "src/monitor/sdb/expr.c"
+# 541 "src/monitor/sdb/expr.c"
    "Bad expression"
-# 526 "src/monitor/sdb/expr.c" 3 4
+# 541 "src/monitor/sdb/expr.c" 3 4
    ) ? 1 : 0), __extension__ ({ if (
-# 526 "src/monitor/sdb/expr.c"
+# 541 "src/monitor/sdb/expr.c"
    "Bad expression"
-# 526 "src/monitor/sdb/expr.c" 3 4
+# 541 "src/monitor/sdb/expr.c" 3 4
    ) ; else __assert_fail (
-# 526 "src/monitor/sdb/expr.c"
+# 541 "src/monitor/sdb/expr.c"
    "\"Bad expression\""
-# 526 "src/monitor/sdb/expr.c" 3 4
-   , "src/monitor/sdb/expr.c", 526, __extension__ __PRETTY_FUNCTION__); }))
-# 526 "src/monitor/sdb/expr.c"
+# 541 "src/monitor/sdb/expr.c" 3 4
+   , "src/monitor/sdb/expr.c", 541, __extension__ __PRETTY_FUNCTION__); }))
+# 541 "src/monitor/sdb/expr.c"
                            ;
   }
   else if (p == q)
@@ -3758,24 +3765,24 @@ int eval(int p, int q)
     }
     else if (tokens[p].type == TK_REGNAME)
     {
-# 558 "src/monitor/sdb/expr.c"
+# 573 "src/monitor/sdb/expr.c"
       
-# 558 "src/monitor/sdb/expr.c" 3 4
+# 573 "src/monitor/sdb/expr.c" 3 4
      _Bool 
-# 558 "src/monitor/sdb/expr.c"
+# 573 "src/monitor/sdb/expr.c"
           success1 = 
-# 558 "src/monitor/sdb/expr.c" 3 4
+# 573 "src/monitor/sdb/expr.c" 3 4
                      1
-# 558 "src/monitor/sdb/expr.c"
+# 573 "src/monitor/sdb/expr.c"
                          ;
       number = isa_reg_str2val(tokens[p].str, &success1);
     }
     return number;
   }
   else if (check_parentheses(p, q) == 
-# 563 "src/monitor/sdb/expr.c" 3 4
+# 578 "src/monitor/sdb/expr.c" 3 4
                                      1
-# 563 "src/monitor/sdb/expr.c"
+# 578 "src/monitor/sdb/expr.c"
                                          )
   {
     return eval(p + 1, q - 1);
@@ -3852,21 +3859,21 @@ int eval(int p, int q)
       break;
     default:
       
-# 638 "src/monitor/sdb/expr.c" 3 4
+# 653 "src/monitor/sdb/expr.c" 3 4
      ((void) sizeof ((
-# 638 "src/monitor/sdb/expr.c"
+# 653 "src/monitor/sdb/expr.c"
      0
-# 638 "src/monitor/sdb/expr.c" 3 4
+# 653 "src/monitor/sdb/expr.c" 3 4
      ) ? 1 : 0), __extension__ ({ if (
-# 638 "src/monitor/sdb/expr.c"
+# 653 "src/monitor/sdb/expr.c"
      0
-# 638 "src/monitor/sdb/expr.c" 3 4
+# 653 "src/monitor/sdb/expr.c" 3 4
      ) ; else __assert_fail (
-# 638 "src/monitor/sdb/expr.c"
+# 653 "src/monitor/sdb/expr.c"
      "0"
-# 638 "src/monitor/sdb/expr.c" 3 4
-     , "src/monitor/sdb/expr.c", 638, __extension__ __PRETTY_FUNCTION__); }))
-# 638 "src/monitor/sdb/expr.c"
+# 653 "src/monitor/sdb/expr.c" 3 4
+     , "src/monitor/sdb/expr.c", 653, __extension__ __PRETTY_FUNCTION__); }))
+# 653 "src/monitor/sdb/expr.c"
               ;
       break;
     }
