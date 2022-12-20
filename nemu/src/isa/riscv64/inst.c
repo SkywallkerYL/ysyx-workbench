@@ -36,7 +36,7 @@ enum {
 #define immI() do { *imm = SEXT(BITS(i, 31, 20), 12); } while(0)
 #define immU() do { *imm = SEXT(BITS(i, 31, 12), 20) << 12; } while(0)
 #define immS() do { *imm = (SEXT(BITS(i, 31, 25), 7) << 5) | BITS(i, 11, 7); } while(0)
-#define immJ() do { *imm = (SEXT(BITS(i, 31, 31),1)<<19)|(BITS(i, 19, 12)<<11)|(BITS(i, 20, 20)<< 10)|BITS(i, 30, 21); *imm = *imm << 1; } while(0)
+#define immJ() do { *imm = (SEXT(BITS(i, 31, 31),1)<<19)|(SEXTU(BITS(i, 19, 12), 8)<<11)|(SEXTU(BITS(i, 20, 20), 1)<< 10)|BITS(i, 30, 21); *imm = *imm << 1; } while(0)
 #define immB() do { *imm = (SEXT(BITS(i, 31, 31),1)<<11)|(SEXT(BITS(i, 7, 7), 1)<<10)|(SEXT(BITS(i, 30, 25), 6)<< 4)|BITS(i, 11, 8); *imm = *imm << 1; } while(0)
 #define CUT(a,bit) (a=(a<<(64-bit)>>(64-bit))) //将64位的a 截断为 bit 位
 //目前感觉是cut操作出了问题，因为截断会导致符号位被截掉，采用移位的操作进行截断，原来的负数会变成正数，再理解以下位域的表示，
