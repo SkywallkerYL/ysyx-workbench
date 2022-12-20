@@ -3211,6 +3211,7 @@ _Bool
 
     if (newvalue!=wp->value)
     {
+      newvalue = wp->value;
 
       change = 1;
       break;

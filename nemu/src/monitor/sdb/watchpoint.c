@@ -148,6 +148,7 @@ bool test_change(){
     //printf("old:%ld new:%ld\n",newvalue,wp->value);
     if (newvalue!=wp->value)
     {
+      newvalue = wp->value;
       //printf("old:%ld new:%ld\n",newvalue,wp->value);
       change = 1;
       break;
