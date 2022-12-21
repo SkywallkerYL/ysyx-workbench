@@ -3194,7 +3194,23 @@ void init_mtrace()
   file = fopen(filepath,"w");
   char str[] = "mtrace file :\n";
   fwrite(str,sizeof(str),1,file);
-
+  
+# 66 "src/memory/paddr.c" 3 4
+ ((void) sizeof ((
+# 66 "src/memory/paddr.c"
+ file!=
+# 66 "src/memory/paddr.c" 3 4
+ ((void *)0)) ? 1 : 0), __extension__ ({ if (
+# 66 "src/memory/paddr.c"
+ file!=
+# 66 "src/memory/paddr.c" 3 4
+ ((void *)0)) ; else __assert_fail (
+# 66 "src/memory/paddr.c"
+ "file!=NULL"
+# 66 "src/memory/paddr.c" 3 4
+ , "src/memory/paddr.c", 66, __extension__ __PRETTY_FUNCTION__); }))
+# 66 "src/memory/paddr.c"
+                   ;
   return;
 }
 void mtrace(

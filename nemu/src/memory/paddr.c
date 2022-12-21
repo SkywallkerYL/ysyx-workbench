@@ -63,7 +63,7 @@ void init_mtrace()
   file = fopen(filepath,"w");
   char str[] = "mtrace file :\n";
   fwrite(str,sizeof(str),1,file);
-  //assert(file!=NULL);
+  assert(file!=NULL);
   return;
 }
 void mtrace(bool wrrd,paddr_t addr, int len,word_t data)
