@@ -35,7 +35,7 @@ enum {
 #define src2R() do { *src2 = R(rs2); } while (0)
 #define immI() do { *imm = SEXT(BITS(i, 31, 20), 12); } while(0)
 #define immU() do { *imm = SEXT(BITS(i, 31, 12), 20) << 12; } while(0)
-#define immS() do { *imm = (SEXT(BITS(i, 31, 25), 7) << 5) | BITS(i, 11, 7); } while(0)
+#define immS() do { *imm = (SEXT(BITS(i, 31, 25), 7) << 5) | SEXTU(BITS(i, 11, 7),5); } while(0)
 //这一部分的移位还是有点问题
 #define immJ() do { *imm = (SEXT(BITS(i, 31, 31),1)<<19)|(SEXTU(BITS(i, 19, 12), 8)<<11)|(SEXTU(BITS(i, 20, 20), 1)<< 10)|BITS(i, 30, 21); *imm = *imm << 1;} while(0)
 #define immB() do { *imm = (SEXT(BITS(i, 31, 31),1)<<11)|(SEXTU(BITS(i, 7, 7), 1)<<10)|(SEXTU(BITS(i, 30, 25), 6)<< 4)|BITS(i, 11, 8); *imm = *imm << 1; } while(0)
@@ -108,7 +108,7 @@ static int decode_exec(Decode *s) {
   INSTPAT("??????? ????? ????? 100 ????? 00100 11", xori   , I, imm = SEXT(imm,12);R(dest) = src1^imm);
   INSTPAT("??????? ????? ????? 001 ????? 00000 11", lh     , I, imm = SEXT(imm,12);word_t temp = Mr(src1+imm,2);R(dest) =SEXT(temp,16));
   INSTPAT("??????? ????? ????? 101 ????? 00000 11", lhu    , I, imm = SEXT(imm,12);word_t temp = Mr(src1+imm,2);R(dest) =SEXTU(temp,16));
-  INSTPAT("??????? ????? ????? 011 ????? 00001 11", fld    , I, imm = SEXT(imm,12);word_t temp = Mr(src1+imm,8);R(dest) =temp);
+  INSTPAT("??????? ????? ????? 011 ????? 00001 11", fld    , I, imm = SEXT(imm,12);printf("%lx\n",src1+imm);word_t temp = Mr(src1+imm,8);R(dest) =temp);
 //ret 被解释为jalr    I-type pc = (src1+offset)&~1(最低有效位设为0)  原pc+4 写入rd 
 //这里中文的指令集有问题 应该为000
   INSTPAT("??????? ????? ????? 000 ????? 11001 11", jalr    , I, R(dest) = s->pc+0x4;imm=SEXT(imm,12);s->dnpc = ((src1+imm)&~1));
