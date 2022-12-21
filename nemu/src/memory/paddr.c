@@ -17,7 +17,7 @@
 #include <memory/paddr.h>
 #include <device/mmio.h>
 #include <isa.h>
-
+#include "stdio.h"
 #if   defined(CONFIG_PMEM_MALLOC)
 static uint8_t *pmem = NULL;
 #else // CONFIG_PMEM_GARRAY
@@ -55,19 +55,29 @@ void init_mem() {
 #endif
   Log("physical memory area [" FMT_PADDR ", " FMT_PADDR "]", PMEM_LEFT, PMEM_RIGHT);
 }
-
-void mtrace()
+//#ifdef CONFIG_MTRACE
+void init_mtrace()
 {
-
+  FILE *file;
+  file = fopen(mtracelog,"w+");
+  assert(file!=NULL);
+  return;
 }
-void deltrace()
+void mtrace(bool wrrd,paddr_t addr, int len,word_t data)
 {
-  
+  FILE *file;
+  file = fopen(mtracelog,"r+");
+  char wrflag;
+  //1是写 0是读
+  wrflag = wrrd?'w':'r';
+  if (file == NULL) {printf("No mtrace file!!!\n");return;}
+  fprintf(file,"Addr:%d len:%d %c value:%ld",addr,len,wrflag,data);
+  fclose(file); 
 }
-
+//#endif
 word_t paddr_read(paddr_t addr, int len) {
-  if (likely(in_pmem(addr))) return pmem_read(addr, len);
-  IFDEF(CONFIG_DEVICE, return mmio_read(addr, len));
+  if (likely(in_pmem(addr))){word_t value =pmem_read(addr, len); mtrace(0,addr,len,value);return value;}
+  IFDEF(CONFIG_DEVICE, {word_t value =mmio_read(addr, len); mtrace(0,addr,len,value);return value});
   out_of_bound(addr);
   return 0;
 }

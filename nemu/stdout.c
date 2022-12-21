@@ -3019,8 +3019,12 @@ static inline
 }
 
 
-
-
+void init_mtrace();
+void mtrace(
+# 36 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h" 3 4
+           _Bool 
+# 36 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h"
+                wrrd,paddr_t addr, int len,word_t data);
 
 word_t paddr_read(paddr_t addr, int len);
 void paddr_write(paddr_t addr, int len, word_t data);
