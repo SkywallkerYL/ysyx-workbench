@@ -62,6 +62,7 @@ void init_mtrace()
   char filepath[] = mtracelog;
   file = fopen(filepath,"w");
   char str[] = "mtrace file :\n";
+  assert(file!=NULL);
   fwrite(str,sizeof(str),1,file);
   assert(file!=NULL);
   return;

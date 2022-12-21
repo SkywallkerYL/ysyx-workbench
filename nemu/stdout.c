@@ -3193,30 +3193,47 @@ void init_mtrace()
   char filepath[] = "../../build/mtrace-log.txt";
   file = fopen(filepath,"w");
   char str[] = "mtrace file :\n";
+  
+# 65 "src/memory/paddr.c" 3 4
+ ((void) sizeof ((
+# 65 "src/memory/paddr.c"
+ file!=
+# 65 "src/memory/paddr.c" 3 4
+ ((void *)0)) ? 1 : 0), __extension__ ({ if (
+# 65 "src/memory/paddr.c"
+ file!=
+# 65 "src/memory/paddr.c" 3 4
+ ((void *)0)) ; else __assert_fail (
+# 65 "src/memory/paddr.c"
+ "file!=NULL"
+# 65 "src/memory/paddr.c" 3 4
+ , "src/memory/paddr.c", 65, __extension__ __PRETTY_FUNCTION__); }))
+# 65 "src/memory/paddr.c"
+                   ;
   fwrite(str,sizeof(str),1,file);
   
-# 66 "src/memory/paddr.c" 3 4
+# 67 "src/memory/paddr.c" 3 4
  ((void) sizeof ((
-# 66 "src/memory/paddr.c"
+# 67 "src/memory/paddr.c"
  file!=
-# 66 "src/memory/paddr.c" 3 4
+# 67 "src/memory/paddr.c" 3 4
  ((void *)0)) ? 1 : 0), __extension__ ({ if (
-# 66 "src/memory/paddr.c"
+# 67 "src/memory/paddr.c"
  file!=
-# 66 "src/memory/paddr.c" 3 4
+# 67 "src/memory/paddr.c" 3 4
  ((void *)0)) ; else __assert_fail (
-# 66 "src/memory/paddr.c"
+# 67 "src/memory/paddr.c"
  "file!=NULL"
-# 66 "src/memory/paddr.c" 3 4
- , "src/memory/paddr.c", 66, __extension__ __PRETTY_FUNCTION__); }))
-# 66 "src/memory/paddr.c"
+# 67 "src/memory/paddr.c" 3 4
+ , "src/memory/paddr.c", 67, __extension__ __PRETTY_FUNCTION__); }))
+# 67 "src/memory/paddr.c"
                    ;
   return;
 }
 void mtrace(
-# 69 "src/memory/paddr.c" 3 4
+# 70 "src/memory/paddr.c" 3 4
            _Bool 
-# 69 "src/memory/paddr.c"
+# 70 "src/memory/paddr.c"
                 wrrd,paddr_t addr, int len,word_t data)
 {
   FILE *file;
@@ -3225,9 +3242,9 @@ void mtrace(
 
   wrflag = wrrd?'w':'r';
   if (file == 
-# 76 "src/memory/paddr.c" 3 4
+# 77 "src/memory/paddr.c" 3 4
              ((void *)0)
-# 76 "src/memory/paddr.c"
+# 77 "src/memory/paddr.c"
                  ) {file = fopen("../../build/mtrace-log.txt","w+");}
   fprintf(file,"Addr:%d len:%d %c value:%ld\n",addr,len,wrflag,data);
   fclose(file);
