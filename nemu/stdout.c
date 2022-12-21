@@ -1,12 +1,14 @@
-# 0 "src/memory/paddr.c"
+# 0 "src/memory/vaddr.c"
 # 0 "<built-in>"
 # 0 "<command-line>"
 # 1 "/usr/include/stdc-predef.h" 1 3 4
 # 0 "<command-line>" 2
-# 1 "src/memory/paddr.c"
-# 16 "src/memory/paddr.c"
-# 1 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h" 1
-# 19 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h"
+# 1 "src/memory/vaddr.c"
+# 16 "src/memory/vaddr.c"
+# 1 "/home/yangli/ysyx-workbench/nemu/include/isa.h" 1
+# 20 "/home/yangli/ysyx-workbench/nemu/include/isa.h"
+# 1 "/home/yangli/ysyx-workbench/nemu/src/isa/riscv64/include/isa-def.h" 1
+# 19 "/home/yangli/ysyx-workbench/nemu/src/isa/riscv64/include/isa-def.h"
 # 1 "/home/yangli/ysyx-workbench/nemu/include/common.h" 1
 # 19 "/home/yangli/ysyx-workbench/nemu/include/common.h"
 # 1 "/usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h" 1 3 4
@@ -2943,94 +2945,8 @@ extern NEMUState nemu_state;
 uint64_t get_time();
 # 22 "/home/yangli/ysyx-workbench/nemu/include/debug.h" 2
 # 48 "/home/yangli/ysyx-workbench/nemu/include/common.h" 2
-# 20 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h" 2
+# 20 "/home/yangli/ysyx-workbench/nemu/src/isa/riscv64/include/isa-def.h" 2
 
-static inline word_t host_read(void *addr, int len) {
-  switch (len) {
-    case 1: return *(uint8_t *)addr;
-    case 2: return *(uint16_t *)addr;
-    case 4: return *(uint32_t *)addr;
-    case 8: return *(uint64_t *)addr;
-    default: 
-# 27 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h" 3 4
-            ((void) sizeof ((
-# 27 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h"
-            0
-# 27 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h" 3 4
-            ) ? 1 : 0), __extension__ ({ if (
-# 27 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h"
-            0
-# 27 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h" 3 4
-            ) ; else __assert_fail (
-# 27 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h"
-            "0"
-# 27 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h" 3 4
-            , "/home/yangli/ysyx-workbench/nemu/include/memory/host.h", 27, __extension__ __PRETTY_FUNCTION__); }))
-# 27 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h"
-                                                        ;
-  }
-}
-
-static inline void host_write(void *addr, int len, word_t data) {
-  switch (len) {
-    case 1: *(uint8_t *)addr = data; return;
-    case 2: *(uint16_t *)addr = data; return;
-    case 4: *(uint32_t *)addr = data; return;
-    case 8: *(uint64_t *)addr = data; return;
-    default: 
-# 37 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h" 3 4
-   ((void) sizeof ((
-# 37 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h"
-   0
-# 37 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h" 3 4
-   ) ? 1 : 0), __extension__ ({ if (
-# 37 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h"
-   0
-# 37 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h" 3 4
-   ) ; else __assert_fail (
-# 37 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h"
-   "0"
-# 37 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h" 3 4
-   , "/home/yangli/ysyx-workbench/nemu/include/memory/host.h", 37, __extension__ __PRETTY_FUNCTION__); }))
-# 37 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h"
-                                             ;
-  }
-}
-# 17 "src/memory/paddr.c" 2
-# 1 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h" 1
-# 26 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h"
-uint8_t* guest_to_host(paddr_t paddr);
-
-paddr_t host_to_guest(uint8_t *haddr);
-
-static inline 
-# 30 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h" 3 4
-             _Bool 
-# 30 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h"
-                  in_pmem(paddr_t addr) {
-  return addr - 0x80000000 < 0x8000000;
-}
-
-
-void init_mtrace();
-void mtrace(
-# 36 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h" 3 4
-           _Bool 
-# 36 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h"
-                wrrd,paddr_t addr, int len,word_t data);
-
-word_t paddr_read(paddr_t addr, int len);
-void paddr_write(paddr_t addr, int len, word_t data);
-# 18 "src/memory/paddr.c" 2
-# 1 "/home/yangli/ysyx-workbench/nemu/include/device/mmio.h" 1
-# 21 "/home/yangli/ysyx-workbench/nemu/include/device/mmio.h"
-word_t mmio_read(paddr_t addr, int len);
-void mmio_write(paddr_t addr, int len, word_t data);
-# 19 "src/memory/paddr.c" 2
-# 1 "/home/yangli/ysyx-workbench/nemu/include/isa.h" 1
-# 20 "/home/yangli/ysyx-workbench/nemu/include/isa.h"
-# 1 "/home/yangli/ysyx-workbench/nemu/src/isa/riscv64/include/isa-def.h" 1
-# 21 "/home/yangli/ysyx-workbench/nemu/src/isa/riscv64/include/isa-def.h"
 typedef struct {
   word_t gpr[32];
   vaddr_t pc;
@@ -3087,178 +3003,41 @@ _Bool
 # 55 "/home/yangli/ysyx-workbench/nemu/include/isa.h"
     isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc);
 void isa_difftest_attach();
-# 20 "src/memory/paddr.c" 2
+# 17 "src/memory/vaddr.c" 2
+# 1 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h" 1
+# 26 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h"
+uint8_t* guest_to_host(paddr_t paddr);
 
+paddr_t host_to_guest(uint8_t *haddr);
 
-
-
-static uint8_t pmem[0x8000000] __attribute((aligned(4096))) = {};
-
-
-uint8_t* guest_to_host(paddr_t paddr) { return pmem + paddr - 0x80000000; }
-paddr_t host_to_guest(uint8_t *haddr) { return haddr - pmem + 0x80000000; }
-
-static word_t pmem_read(paddr_t addr, int len) {
-  word_t ret = host_read(guest_to_host(addr), len);
-  return ret;
+static inline 
+# 30 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h" 3 4
+             _Bool 
+# 30 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h"
+                  in_pmem(paddr_t addr) {
+  return addr - 0x80000000 < 0x8000000;
 }
 
-static void pmem_write(paddr_t addr, int len, word_t data) {
-  host_write(guest_to_host(addr), len, data);
-}
 
-static void out_of_bound(paddr_t addr) {
-  do { if (!(0)) { (fflush(
-# 40 "src/memory/paddr.c" 3 4
- stdout
-# 40 "src/memory/paddr.c"
- ), fprintf(
-# 40 "src/memory/paddr.c" 3 4
- stderr
-# 40 "src/memory/paddr.c"
- , "\33[1;31m" "address = " "0x%08"
-# 40 "src/memory/paddr.c" 3 4
- "x" 
-# 40 "src/memory/paddr.c"
- " is out of bound of pmem [" "0x%08"
-# 40 "src/memory/paddr.c" 3 4
- "x" 
-# 40 "src/memory/paddr.c"
- ", " "0x%08"
-# 40 "src/memory/paddr.c" 3 4
- "x" 
-# 40 "src/memory/paddr.c"
- "] at pc = " "0x%016"
-# 40 "src/memory/paddr.c" 3 4
- "l" "x" 
-# 40 "src/memory/paddr.c"
- "\33[0m" "\n", addr, ((paddr_t)0x80000000), ((paddr_t)0x80000000 + 0x8000000 - 1), cpu.pc)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
-# 40 "src/memory/paddr.c" 3 4
- ((void) sizeof ((
-# 40 "src/memory/paddr.c"
- 0
-# 40 "src/memory/paddr.c" 3 4
- ) ? 1 : 0), __extension__ ({ if (
-# 40 "src/memory/paddr.c"
- 0
-# 40 "src/memory/paddr.c" 3 4
- ) ; else __assert_fail (
-# 40 "src/memory/paddr.c"
- "0"
-# 40 "src/memory/paddr.c" 3 4
- , "src/memory/paddr.c", 40, __extension__ __PRETTY_FUNCTION__); }))
-# 40 "src/memory/paddr.c"
- ; } } while (0)
-                                          ;
-}
-
-void init_mem() {
-
-
-
-
-
-  uint32_t *p = (uint32_t *)pmem;
-  int i;
-  for (i = 0; i < (int) (0x8000000 / sizeof(p[0])); i ++) {
-    p[i] = rand();
-  }
-
-  do { printf("\33[1;34m" "[%s:%d %s] " "physical memory area [" "0x%08"
-# 56 "src/memory/paddr.c" 3 4
- "x" 
-# 56 "src/memory/paddr.c"
- ", " "0x%08"
-# 56 "src/memory/paddr.c" 3 4
- "x" 
-# 56 "src/memory/paddr.c"
- "]" "\33[0m" "\n", "src/memory/paddr.c", 56, __func__, ((paddr_t)0x80000000), ((paddr_t)0x80000000 + 0x8000000 - 1)); do { extern FILE* log_fp; extern 
-# 56 "src/memory/paddr.c" 3 4
- _Bool 
-# 56 "src/memory/paddr.c"
- log_enable(); if (log_enable()) { fprintf(log_fp, "\33[1;34m" "[%s:%d %s] " "physical memory area [" "0x%08"
-# 56 "src/memory/paddr.c" 3 4
- "x" 
-# 56 "src/memory/paddr.c"
- ", " "0x%08"
-# 56 "src/memory/paddr.c" 3 4
- "x" 
-# 56 "src/memory/paddr.c"
- "]" "\33[0m" "\n", "src/memory/paddr.c", 56, __func__, ((paddr_t)0x80000000), ((paddr_t)0x80000000 + 0x8000000 - 1)); fflush(log_fp); } } while (0); } while (0);
-}
-
-void init_mtrace()
-{
-  FILE *file;
-  char filepath[] = "../../build/mtrace-log.txt";
-  file = fopen(filepath,"w");
-  char str[] = "mtrace file :\n";
-  
-# 65 "src/memory/paddr.c" 3 4
- ((void) sizeof ((
-# 65 "src/memory/paddr.c"
- file!=
-# 65 "src/memory/paddr.c" 3 4
- ((void *)0)) ? 1 : 0), __extension__ ({ if (
-# 65 "src/memory/paddr.c"
- file!=
-# 65 "src/memory/paddr.c" 3 4
- ((void *)0)) ; else __assert_fail (
-# 65 "src/memory/paddr.c"
- "file!=NULL"
-# 65 "src/memory/paddr.c" 3 4
- , "src/memory/paddr.c", 65, __extension__ __PRETTY_FUNCTION__); }))
-# 65 "src/memory/paddr.c"
-                   ;
-  fwrite(str,sizeof(str),1,file);
-  
-# 67 "src/memory/paddr.c" 3 4
- ((void) sizeof ((
-# 67 "src/memory/paddr.c"
- file!=
-# 67 "src/memory/paddr.c" 3 4
- ((void *)0)) ? 1 : 0), __extension__ ({ if (
-# 67 "src/memory/paddr.c"
- file!=
-# 67 "src/memory/paddr.c" 3 4
- ((void *)0)) ; else __assert_fail (
-# 67 "src/memory/paddr.c"
- "file!=NULL"
-# 67 "src/memory/paddr.c" 3 4
- , "src/memory/paddr.c", 67, __extension__ __PRETTY_FUNCTION__); }))
-# 67 "src/memory/paddr.c"
-                   ;
-  return;
-}
+void init_mtrace();
 void mtrace(
-# 70 "src/memory/paddr.c" 3 4
+# 36 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h" 3 4
            _Bool 
-# 70 "src/memory/paddr.c"
-                wrrd,paddr_t addr, int len,word_t data)
-{
-  FILE *file;
-  file = fopen("../../build/mtrace-log.txt","r+");
-  char wrflag;
+# 36 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h"
+                wrrd,paddr_t addr, int len,word_t data);
 
-  wrflag = wrrd?'w':'r';
-  if (file == 
-# 77 "src/memory/paddr.c" 3 4
-             ((void *)0)
-# 77 "src/memory/paddr.c"
-                 ) {file = fopen("../../build/mtrace-log.txt","w+");}
-  fprintf(file,"Addr:%d len:%d %c value:%ld\n",addr,len,wrflag,data);
-  fclose(file);
+word_t paddr_read(paddr_t addr, int len);
+void paddr_write(paddr_t addr, int len, word_t data);
+# 18 "src/memory/vaddr.c" 2
+
+word_t vaddr_ifetch(vaddr_t addr, int len) {
+  return paddr_read(addr, len);
 }
 
-word_t paddr_read(paddr_t addr, int len) {
-  if (__builtin_expect(in_pmem(addr), 1)){word_t value =pmem_read(addr, len); mtrace(0,addr,len,value);return value;}
-  ;
-  out_of_bound(addr);
-  return 0;
+word_t vaddr_read(vaddr_t addr, int len) {
+  return paddr_read(addr, len);
 }
 
-void paddr_write(paddr_t addr, int len, word_t data) {
-  if (__builtin_expect(in_pmem(addr), 1)) { pmem_write(addr, len, data); return; }
-  ;
-  out_of_bound(addr);
+void vaddr_write(vaddr_t addr, int len, word_t data) {
+  paddr_write(addr, len, data);
 }
