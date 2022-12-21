@@ -3187,7 +3187,7 @@ void init_mem() {
  "]" "\33[0m" "\n", "src/memory/paddr.c", 56, __func__, ((paddr_t)0x80000000), ((paddr_t)0x80000000 + 0x8000000 - 1)); fflush(log_fp); } } while (0); } while (0);
 }
 
-char mtracefilepath[] = "/home/yangli/ysyx-workbench/nemu/mtrace-log.txt";
+char mtracefilepath[] = "/home/yangli/ysyx-workbench/nemu/build/mtrace-log.txt";
 void init_mtrace()
 {
   FILE *file;
@@ -3234,7 +3234,7 @@ word_t paddr_read(paddr_t addr, int len) {
 }
 
 void paddr_write(paddr_t addr, int len, word_t data) {
-  if (__builtin_expect(in_pmem(addr), 1)) { pmem_write(addr, len, data); return; }
+  if (__builtin_expect(in_pmem(addr), 1)) { pmem_write(addr, len, data); mtrace(1,addr,len,data);return; }
   ;
   out_of_bound(addr);
 }

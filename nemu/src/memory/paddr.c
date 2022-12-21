@@ -56,7 +56,7 @@ void init_mem() {
   Log("physical memory area [" FMT_PADDR ", " FMT_PADDR "]", PMEM_LEFT, PMEM_RIGHT);
 }
 #ifdef CONFIG_MTRACE
-char mtracefilepath[] = "/home/yangli/ysyx-workbench/nemu/mtrace-log.txt";
+char mtracefilepath[] = "/home/yangli/ysyx-workbench/nemu/build/mtrace-log.txt";
 void init_mtrace()
 {
   FILE *file;
@@ -85,13 +85,13 @@ void mtrace(bool wrrd,paddr_t addr, int len,word_t data)
 #endif
 word_t paddr_read(paddr_t addr, int len) {
   if (likely(in_pmem(addr))){word_t value =pmem_read(addr, len); mtrace(0,addr,len,value);return value;}
-  IFDEF(CONFIG_DEVICE, {word_t value =mmio_read(addr, len); mtrace(0,addr,len,value);return value});
+  IFDEF(CONFIG_DEVICE, word_t value =mmio_read(addr, len); mtrace(0,addr,len,value);return value);
   out_of_bound(addr);
   return 0;
 }
 
 void paddr_write(paddr_t addr, int len, word_t data) {
-  if (likely(in_pmem(addr))) { pmem_write(addr, len, data); return; }
-  IFDEF(CONFIG_DEVICE, mmio_write(addr, len, data); return);
+  if (likely(in_pmem(addr))) { pmem_write(addr, len, data); mtrace(1,addr,len,data);return; }
+  IFDEF(CONFIG_DEVICE, mmio_write(addr, len, data);mtrace(1,addr,len,data); return);
   out_of_bound(addr);
 }
