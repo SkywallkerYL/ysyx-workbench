@@ -5394,6 +5394,7 @@ static void statistic() {
 }
 
 void assert_fail_msg() {
+  printiringbuf((iringbufind+16 -1)%16);
   isa_reg_display();
   statistic();
 }
@@ -5421,18 +5422,18 @@ void cpu_exec(uint64_t n) {
 
     case NEMU_END: case NEMU_ABORT:
       do { printf("\33[1;34m" "[%s:%d %s] " "nemu: %s at pc = " "0x%016"
-# 157 "src/cpu/cpu-exec.c" 3 4
+# 158 "src/cpu/cpu-exec.c" 3 4
      "l" "x" 
-# 157 "src/cpu/cpu-exec.c"
-     "\33[0m" "\n", "src/cpu/cpu-exec.c", 157, __func__, (nemu_state.state == NEMU_ABORT ? "\33[1;31m" "ABORT" "\33[0m" : (nemu_state.halt_ret == 0 ? "\33[1;32m" "HIT GOOD TRAP" "\33[0m" : "\33[1;31m" "HIT BAD TRAP" "\33[0m")), nemu_state.halt_pc); do { extern FILE* log_fp; extern 
-# 157 "src/cpu/cpu-exec.c" 3 4
+# 158 "src/cpu/cpu-exec.c"
+     "\33[0m" "\n", "src/cpu/cpu-exec.c", 158, __func__, (nemu_state.state == NEMU_ABORT ? "\33[1;31m" "ABORT" "\33[0m" : (nemu_state.halt_ret == 0 ? "\33[1;32m" "HIT GOOD TRAP" "\33[0m" : "\33[1;31m" "HIT BAD TRAP" "\33[0m")), nemu_state.halt_pc); do { extern FILE* log_fp; extern 
+# 158 "src/cpu/cpu-exec.c" 3 4
      _Bool 
-# 157 "src/cpu/cpu-exec.c"
+# 158 "src/cpu/cpu-exec.c"
      log_enable(); if (log_enable()) { fprintf(log_fp, "\33[1;34m" "[%s:%d %s] " "nemu: %s at pc = " "0x%016"
-# 157 "src/cpu/cpu-exec.c" 3 4
+# 158 "src/cpu/cpu-exec.c" 3 4
      "l" "x" 
-# 157 "src/cpu/cpu-exec.c"
-     "\33[0m" "\n", "src/cpu/cpu-exec.c", 157, __func__, (nemu_state.state == NEMU_ABORT ? "\33[1;31m" "ABORT" "\33[0m" : (nemu_state.halt_ret == 0 ? "\33[1;32m" "HIT GOOD TRAP" "\33[0m" : "\33[1;31m" "HIT BAD TRAP" "\33[0m")), nemu_state.halt_pc); fflush(log_fp); } } while (0); } while (0)
+# 158 "src/cpu/cpu-exec.c"
+     "\33[0m" "\n", "src/cpu/cpu-exec.c", 158, __func__, (nemu_state.state == NEMU_ABORT ? "\33[1;31m" "ABORT" "\33[0m" : (nemu_state.halt_ret == 0 ? "\33[1;32m" "HIT GOOD TRAP" "\33[0m" : "\33[1;31m" "HIT BAD TRAP" "\33[0m")), nemu_state.halt_pc); fflush(log_fp); } } while (0); } while (0)
 
 
 

@@ -128,6 +128,7 @@ static void statistic() {
 }
 
 void assert_fail_msg() {
+  printiringbuf((iringbufind+iringbufsize-1)%iringbufsize);
   isa_reg_display();
   statistic();
 }
