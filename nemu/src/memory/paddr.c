@@ -80,7 +80,7 @@ void mtrace(bool wrrd,paddr_t addr, int len,word_t data)
   wrflag = wrrd?'w':'r';
   if (file == NULL) {printf("No file!!!!\n");}
   fprintf(file,"Addr:%x len:%x %c value:%lx\n",addr,len,wrflag,data);
-  printf("Addr:%x len:%x %c value:%lx\n",addr,len,wrflag,data);
+  printf("pc:%lx Addr:%x len:%x %c value:%lx\n",cpu.pc,addr,len,wrflag,data);
   fclose(file); 
 }
 #endif
