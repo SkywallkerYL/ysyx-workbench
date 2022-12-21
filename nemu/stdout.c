@@ -5334,7 +5334,7 @@ static void execute(uint64_t n) {
 
 
 
-    if (nemu_state.state != NEMU_RUNNING) {printiringbuf(iringbufind);break;}
+    if (nemu_state.state != NEMU_RUNNING) {break;}
     ;
   }
 
