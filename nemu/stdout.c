@@ -5270,7 +5270,7 @@ static void exec_once(Decode *s, vaddr_t pc) {
   cpu.pc = s->dnpc;
 
   char *p = s->logbuf;
-  printf("p :%s logbuf:%s\n",p,s->logbuf);
+
 
   p += snprintf(p, sizeof(s->logbuf), "0x%016"
 # 61 "src/cpu/cpu-exec.c" 3 4
@@ -5315,7 +5315,7 @@ static void execute(uint64_t n) {
 
 
     g_nr_guest_inst ++;
-
+    printf("before trace_and_difftest: n: %ld  nemu_state :%d\n ",n,nemu_state.state);
     trace_and_difftest(&s, cpu.pc);
 
 

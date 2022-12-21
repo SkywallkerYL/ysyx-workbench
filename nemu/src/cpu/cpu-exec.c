@@ -56,7 +56,7 @@ static void exec_once(Decode *s, vaddr_t pc) {
   cpu.pc = s->dnpc;
 #ifdef CONFIG_ITRACE
   char *p = s->logbuf;
-  printf("p :%s logbuf:%s\n",p,s->logbuf);
+  //printf("p :%s logbuf:%s\n",p,s->logbuf);
   //printf("inside exec_once:p :%s, s->snpc: %ld, s->pc: %ld\n",p,s->snpc,s->pc);
   p += snprintf(p, sizeof(s->logbuf), FMT_WORD ":", s->pc);
   printf("p :%s\n",p);
@@ -93,7 +93,7 @@ static void execute(uint64_t n) {
 
     //printf("before g_nr_guest_inst: n: %ld  nemu_state :%d\n ",n,nemu_state.state);
     g_nr_guest_inst ++;
-    //printf("before trace_and_difftest: n: %ld  nemu_state :%d\n ",n,nemu_state.state);
+    printf("before trace_and_difftest: n: %ld  nemu_state :%d\n ",n,nemu_state.state);
     trace_and_difftest(&s, cpu.pc);
     //printf("aaaaa\n");
     //printf("n: %ld  nemu_state :%d\n ",n,nemu_state.state);
