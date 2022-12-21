@@ -3190,16 +3190,17 @@ void init_mem() {
 void init_mtrace()
 {
   FILE *file;
-  file = fopen("../../build/mtrace-log.txt","w");
+  char filepath[] = "../../build/mtrace-log.txt";
+  file = fopen(filepath,"w");
   char str[] = "mtrace file :\n";
   fwrite(str,sizeof(str),1,file);
 
   return;
 }
 void mtrace(
-# 68 "src/memory/paddr.c" 3 4
+# 69 "src/memory/paddr.c" 3 4
            _Bool 
-# 68 "src/memory/paddr.c"
+# 69 "src/memory/paddr.c"
                 wrrd,paddr_t addr, int len,word_t data)
 {
   FILE *file;
@@ -3208,9 +3209,9 @@ void mtrace(
 
   wrflag = wrrd?'w':'r';
   if (file == 
-# 75 "src/memory/paddr.c" 3 4
+# 76 "src/memory/paddr.c" 3 4
              ((void *)0)
-# 75 "src/memory/paddr.c"
+# 76 "src/memory/paddr.c"
                  ) {file = fopen("../../build/mtrace-log.txt","w+");}
   fprintf(file,"Addr:%d len:%d %c value:%ld\n",addr,len,wrflag,data);
   fclose(file);

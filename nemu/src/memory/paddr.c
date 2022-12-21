@@ -59,7 +59,8 @@ void init_mem() {
 void init_mtrace()
 {
   FILE *file;
-  file = fopen(mtracelog,"w");
+  char filepath[] = mtracelog;
+  file = fopen(filepath,"w");
   char str[] = "mtrace file :\n";
   fwrite(str,sizeof(str),1,file);
   //assert(file!=NULL);
