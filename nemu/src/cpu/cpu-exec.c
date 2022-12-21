@@ -29,17 +29,6 @@ CPU_state cpu = {};
 uint64_t g_nr_guest_inst = 0;
 static uint64_t g_timer = 0; // unit: us
 static bool g_print_step = false;
-#define iringbufsize 16
-char iringbuf[iringbufsize][128];
-int iringbufind = 0;
-void printiringbuf(int finalinst)
-{
-  for (size_t i = 0; i < iringbufsize; i++)
-  {
-    if (i == finalinst) printf("-->");
-    printf("%s\n",iringbuf[i]);
-  }
-}
 
 bool test_change();
 void device_update();
@@ -67,20 +56,15 @@ static void exec_once(Decode *s, vaddr_t pc) {
   cpu.pc = s->dnpc;
 #ifdef CONFIG_ITRACE
   char *p = s->logbuf;
-  //printf("p :%s logbuf:%s\n",p,s->logbuf);
   //printf("inside exec_once:p :%s, s->snpc: %ld, s->pc: %ld\n",p,s->snpc,s->pc);
   p += snprintf(p, sizeof(s->logbuf), FMT_WORD ":", s->pc);
-  //printf("p :%s\n",s->logbuf);
   int ilen = s->snpc - s->pc;
   int i;
   uint8_t *inst = (uint8_t *)&s->isa.inst.val;
   for (i = ilen - 1; i >= 0; i --) {
     //printf("inside exec_once:%s\n",p);
     p += snprintf(p, 4, " %02x", inst[i]);
-    //printf("i:%d inst:%02x\n",i,inst[i]);
   }
-  //写进去的同时 p作为指针也+了
-  //printf("p :%s\n",s->logbuf);
   //printf("inside exec_once:%s\n",p);
   int ilen_max = MUXDEF(CONFIG_ISA_x86, 8, 4);
   int space_len = ilen_max - ilen;
@@ -92,9 +76,6 @@ static void exec_once(Decode *s, vaddr_t pc) {
   void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
   disassemble(p, s->logbuf + sizeof(s->logbuf) - p,
       MUXDEF(CONFIG_ISA_x86, s->snpc, s->pc), (uint8_t *)&s->isa.inst.val, ilen);
-  //printf("p :%s\n",s->logbuf);
-  strcpy(iringbuf[iringbufind],s->logbuf);
-  iringbufind=(iringbufind+1)%iringbufsize;
 #endif
 }
 bool test_change();
@@ -112,7 +93,7 @@ static void execute(uint64_t n) {
     //printf("aaaaa\n");
     //printf("n: %ld  nemu_state :%d\n ",n,nemu_state.state);
     
-    if (nemu_state.state != NEMU_RUNNING) {break;}
+    if (nemu_state.state != NEMU_RUNNING) break;
     IFDEF(CONFIG_DEVICE, device_update());
   }
   
@@ -128,7 +109,6 @@ static void statistic() {
 }
 
 void assert_fail_msg() {
-  printiringbuf((iringbufind+iringbufsize-1)%iringbufsize);
   isa_reg_display();
   statistic();
 }
