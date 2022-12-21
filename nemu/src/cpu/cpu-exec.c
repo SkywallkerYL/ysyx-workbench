@@ -29,6 +29,17 @@ CPU_state cpu = {};
 uint64_t g_nr_guest_inst = 0;
 static uint64_t g_timer = 0; // unit: us
 static bool g_print_step = false;
+#define iringbufsize 16
+char iringbuf[iringbufsize][128];
+int iringbufind = 0;
+void printiringbuf(int finalinst)
+{
+  for (size_t i = 0; i < iringbufsize; i++)
+  {
+    if (i == finalinst) printf("-->");
+    printf("%s\n",iringbuf[i]);
+  }
+}
 
 bool test_change();
 void device_update();
@@ -69,7 +80,7 @@ static void exec_once(Decode *s, vaddr_t pc) {
     //printf("i:%d inst:%02x\n",i,inst[i]);
   }
   //写进去的同时 p作为指针也+了
-  printf("p :%s\n",s->logbuf);
+  //printf("p :%s\n",s->logbuf);
   //printf("inside exec_once:%s\n",p);
   int ilen_max = MUXDEF(CONFIG_ISA_x86, 8, 4);
   int space_len = ilen_max - ilen;
@@ -81,7 +92,9 @@ static void exec_once(Decode *s, vaddr_t pc) {
   void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
   disassemble(p, s->logbuf + sizeof(s->logbuf) - p,
       MUXDEF(CONFIG_ISA_x86, s->snpc, s->pc), (uint8_t *)&s->isa.inst.val, ilen);
-  printf("p :%s\n",s->logbuf);
+  //printf("p :%s\n",s->logbuf);
+  strcpy(iringbuf[iringbufind],s->logbuf);
+  iringbufind=(iringbufind+1)%iringbufsize;
 #endif
 }
 bool test_change();
