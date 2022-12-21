@@ -56,13 +56,17 @@ void init_mem() {
   Log("physical memory area [" FMT_PADDR ", " FMT_PADDR "]", PMEM_LEFT, PMEM_RIGHT);
 }
 #ifdef CONFIG_MTRACE
-char mtracefilepath[] = "../../../mtrace-log.txt";
+char mtracefilepath[] = "/home/yangli/ysyx-workbench/nemu/mtrace-log.txt";
 void init_mtrace()
 {
   FILE *file;
-  file = fopen(mtracefilepath,"w");
+  file = fopen(mtracefilepath,"w+");
   //char str[] = "mtrace file ";
-  assert(file==NULL);
+  if (file == NULL)
+  {
+    printf("Fail to creat mtracefile!\n");
+  }
+  
   //fwrite(str,sizeof(str),1,file);
   //assert(file!=NULL);
   return;
