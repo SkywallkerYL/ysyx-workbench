@@ -56,9 +56,10 @@ static void exec_once(Decode *s, vaddr_t pc) {
   cpu.pc = s->dnpc;
 #ifdef CONFIG_ITRACE
   char *p = s->logbuf;
-  printf("inside exec_once:p :%s, s->snpc: %ld, s->pc: %ld\n",p,s->snpc,s->pc);
+  printf("p :%s\n",p);
   //printf("inside exec_once:p :%s, s->snpc: %ld, s->pc: %ld\n",p,s->snpc,s->pc);
   p += snprintf(p, sizeof(s->logbuf), FMT_WORD ":", s->pc);
+  printf("p :%s\n",p);
   int ilen = s->snpc - s->pc;
   int i;
   uint8_t *inst = (uint8_t *)&s->isa.inst.val;
@@ -67,6 +68,7 @@ static void exec_once(Decode *s, vaddr_t pc) {
     p += snprintf(p, 4, " %02x", inst[i]);
     //printf("i:%d inst:%02x\n",i,inst[i]);
   }
+  printf("p :%s\n",p);
   //printf("inside exec_once:%s\n",p);
   int ilen_max = MUXDEF(CONFIG_ISA_x86, 8, 4);
   int space_len = ilen_max - ilen;
@@ -78,6 +80,7 @@ static void exec_once(Decode *s, vaddr_t pc) {
   void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
   disassemble(p, s->logbuf + sizeof(s->logbuf) - p,
       MUXDEF(CONFIG_ISA_x86, s->snpc, s->pc), (uint8_t *)&s->isa.inst.val, ilen);
+  printf("p :%s\n",p);
 #endif
 }
 bool test_change();
