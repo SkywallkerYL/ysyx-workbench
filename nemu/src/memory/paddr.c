@@ -61,9 +61,9 @@ void init_mtrace()
   FILE *file;
   char filepath[] = mtracelog;
   file = fopen(filepath,"w");
-  char str[] = "mtrace file ";
-  //assert(file!=NULL);
-  fwrite(str,sizeof(str),1,file);
+  //char str[] = "mtrace file ";
+  assert(file==NULL);
+  //fwrite(str,sizeof(str),1,file);
   //assert(file!=NULL);
   return;
 }

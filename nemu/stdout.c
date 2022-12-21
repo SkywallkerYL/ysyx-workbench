@@ -3192,9 +3192,25 @@ void init_mtrace()
   FILE *file;
   char filepath[] = "../../../mtrace-log.txt";
   file = fopen(filepath,"w");
-  char str[] = "mtrace file ";
 
-  fwrite(str,sizeof(str),1,file);
+  
+# 65 "src/memory/paddr.c" 3 4
+ ((void) sizeof ((
+# 65 "src/memory/paddr.c"
+ file==
+# 65 "src/memory/paddr.c" 3 4
+ ((void *)0)) ? 1 : 0), __extension__ ({ if (
+# 65 "src/memory/paddr.c"
+ file==
+# 65 "src/memory/paddr.c" 3 4
+ ((void *)0)) ; else __assert_fail (
+# 65 "src/memory/paddr.c"
+ "file==NULL"
+# 65 "src/memory/paddr.c" 3 4
+ , "src/memory/paddr.c", 65, __extension__ __PRETTY_FUNCTION__); }))
+# 65 "src/memory/paddr.c"
+                   ;
+
 
   return;
 }
