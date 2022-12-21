@@ -59,8 +59,7 @@ void init_mem() {
 void init_mtrace()
 {
   FILE *file;
-  char filepath[] = mtracelog;
-  file = fopen(filepath,"w");
+  file = fopen(mtracefilepath,"w");
   //char str[] = "mtrace file ";
   assert(file==NULL);
   //fwrite(str,sizeof(str),1,file);
@@ -70,7 +69,7 @@ void init_mtrace()
 void mtrace(bool wrrd,paddr_t addr, int len,word_t data)
 {
   FILE *file;
-  file = fopen(mtracelog,"r+");
+  file = fopen(mtracefilepath,"r+");
   char wrflag;
   //1是写 0是读
   wrflag = wrrd?'w':'r';
