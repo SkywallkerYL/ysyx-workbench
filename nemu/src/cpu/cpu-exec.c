@@ -64,6 +64,7 @@ static void exec_once(Decode *s, vaddr_t pc) {
   for (i = ilen - 1; i >= 0; i --) {
     //printf("inside exec_once:%s\n",p);
     p += snprintf(p, 4, " %02x", inst[i]);
+    printf("i:%d inst:%02x\n",i,inst[i]);
   }
   //printf("inside exec_once:%s\n",p);
   int ilen_max = MUXDEF(CONFIG_ISA_x86, 8, 4);
