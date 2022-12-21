@@ -31,8 +31,7 @@ static inline bool in_pmem(paddr_t addr) {
   return addr - CONFIG_MBASE < CONFIG_MSIZE;
 }
 #ifdef CONFIG_MTRACE
-#define mtracelog "../../../mtrace-log.txt"
-char mtracefilepath[] = mtracelog;
+
 void init_mtrace();
 void mtrace(bool wrrd,paddr_t addr, int len,word_t data);
 #endif

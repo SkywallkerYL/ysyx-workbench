@@ -56,6 +56,7 @@ void init_mem() {
   Log("physical memory area [" FMT_PADDR ", " FMT_PADDR "]", PMEM_LEFT, PMEM_RIGHT);
 }
 #ifdef CONFIG_MTRACE
+char mtracefilepath[] = "../../../mtrace-log.txt";
 void init_mtrace()
 {
   FILE *file;

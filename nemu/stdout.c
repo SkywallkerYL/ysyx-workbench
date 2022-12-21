@@ -3019,12 +3019,11 @@ static inline
 }
 
 
-char mtracefilepath[] = "../../../mtrace-log.txt";
 void init_mtrace();
 void mtrace(
-# 37 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h" 3 4
+# 36 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h" 3 4
            _Bool 
-# 37 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h"
+# 36 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h"
                 wrrd,paddr_t addr, int len,word_t data);
 
 word_t paddr_read(paddr_t addr, int len);
