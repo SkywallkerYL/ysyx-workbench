@@ -61,8 +61,8 @@ void init_mtrace()
   FILE *file;
   char filepath[] = mtracelog;
   file = fopen(filepath,"w");
-  char str[] = "mtrace file :\n";
-  assert(file!=NULL);
+  char str[] = "mtrace file ";
+  //assert(file!=NULL);
   fwrite(str,sizeof(str),1,file);
   //assert(file!=NULL);
   return;
@@ -74,7 +74,7 @@ void mtrace(bool wrrd,paddr_t addr, int len,word_t data)
   char wrflag;
   //1是写 0是读
   wrflag = wrrd?'w':'r';
-  if (file == NULL) {file = fopen(mtracelog,"w+");}
+  if (file == NULL) {printf("No file!!!!\n");}
   fprintf(file,"Addr:%d len:%d %c value:%ld\n",addr,len,wrflag,data);
   fclose(file); 
 }
