@@ -74,7 +74,7 @@ void init_mtrace()
 void mtrace(bool wrrd,paddr_t addr, int len,word_t data)
 {
   FILE *file;
-  file = fopen(mtracefilepath,"r+");
+  file = fopen(mtracefilepath,"a");
   char wrflag;
   //1是写 0是读
   wrflag = wrrd?'w':'r';

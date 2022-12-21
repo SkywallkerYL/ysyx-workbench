@@ -3213,7 +3213,7 @@ void mtrace(
                 wrrd,paddr_t addr, int len,word_t data)
 {
   FILE *file;
-  file = fopen(mtracefilepath,"r+");
+  file = fopen(mtracefilepath,"a");
   char wrflag;
 
   wrflag = wrrd?'w':'r';
