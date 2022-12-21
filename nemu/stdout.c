@@ -5288,7 +5288,7 @@ static void exec_once(Decode *s, vaddr_t pc) {
                                      "l" "x" 
 # 72 "src/cpu/cpu-exec.c"
                                               ":", s->pc);
-  printf("p :%s\n",s->logbuf);
+
   int ilen = s->snpc - s->pc;
   int i;
   uint8_t *inst = (uint8_t *)&s->isa.inst.val;

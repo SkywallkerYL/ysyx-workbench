@@ -70,7 +70,7 @@ static void exec_once(Decode *s, vaddr_t pc) {
   //printf("p :%s logbuf:%s\n",p,s->logbuf);
   //printf("inside exec_once:p :%s, s->snpc: %ld, s->pc: %ld\n",p,s->snpc,s->pc);
   p += snprintf(p, sizeof(s->logbuf), FMT_WORD ":", s->pc);
-  printf("p :%s\n",s->logbuf);
+  //printf("p :%s\n",s->logbuf);
   int ilen = s->snpc - s->pc;
   int i;
   uint8_t *inst = (uint8_t *)&s->isa.inst.val;
