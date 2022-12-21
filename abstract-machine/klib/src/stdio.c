@@ -28,7 +28,7 @@ int printf(const char *fmt, ...) {
   char *pstr = (char*) fmt;
   int intval = 0;
   unsigned long hexval = 0;
-  double floatval = 0.0;
+  //double floatval = 0.0;
   int lencnt = 0;
   int tempval ;//对于整数等需要计算每一位打印，这个变量用来临时赋值
   int system_;
@@ -127,7 +127,7 @@ int printf(const char *fmt, ...) {
             putstr(strval);
             pstr++;
             continue;
-          
+          /*
           case 'f':
             floatval = va_arg(ap,double);
             if (floatval<0.0)
@@ -172,7 +172,7 @@ int printf(const char *fmt, ...) {
             }
             pstr++;
             continue;
-          
+          */
           default:
             myputch(' ');resnum++;
             continue;
@@ -198,7 +198,7 @@ int sprintf(char *out, const char *fmt, ...) {
   char *pstr = (char*) fmt;
   int intval = 0;
   unsigned long hexval = 0;
-  double floatval = 0.0;
+  //double floatval = 0.0;
   int lencnt = 0;
   int tempval ;//对于整数等需要计算每一位打印，这个变量用来临时赋值
   int system_;
@@ -302,7 +302,7 @@ int sprintf(char *out, const char *fmt, ...) {
         for (char *p = strval; *p; p++) {*out = *p;out++;}
         pstr++;
         continue;
-      
+      /*
       case 'f':
         floatval = va_arg(ap,double);
         if (floatval<0.0)
@@ -347,7 +347,7 @@ int sprintf(char *out, const char *fmt, ...) {
         }
         pstr++;
         continue;
-       
+      */ 
       default:
         *out = ' ';out++;resnum++;
         continue;
