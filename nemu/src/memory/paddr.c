@@ -17,7 +17,7 @@
 #include <memory/paddr.h>
 #include <device/mmio.h>
 #include <isa.h>
-#include "stdio.h"
+
 #if   defined(CONFIG_PMEM_MALLOC)
 static uint8_t *pmem = NULL;
 #else // CONFIG_PMEM_GARRAY
@@ -55,44 +55,16 @@ void init_mem() {
 #endif
   Log("physical memory area [" FMT_PADDR ", " FMT_PADDR "]", PMEM_LEFT, PMEM_RIGHT);
 }
-#ifdef CONFIG_MTRACE
-char mtracefilepath[] = "/home/yangli/ysyx-workbench/nemu/build/mtrace-log.txt";
-void init_mtrace()
-{
-  FILE *file;
-  file = fopen(mtracefilepath,"w+");
-  //char str[] = "mtrace file ";
-  if (file == NULL)
-  {
-    printf("Fail to creat mtracefile!\n");
-  }
-  
-  //fwrite(str,sizeof(str),1,file);
-  //assert(file!=NULL);
-  return;
-}
-void mtrace(bool wrrd,paddr_t addr, int len,word_t data)
-{
-  FILE *file;
-  file = fopen(mtracefilepath,"a");
-  char wrflag;
-  //1是写 0是读
-  wrflag = wrrd?'w':'r';
-  if (file == NULL) {printf("No file!!!!\n");}
-  fprintf(file,"pc:%lx: Addr:%x len:%x %c value:%lx\n",cpu.pc,addr,len,wrflag,data);
-  //printf("pc:%lx Addr:%x len:%x %c value:%lx\n",cpu.pc,addr,len,wrflag,data);
-  fclose(file); 
-}
-#endif
+
 word_t paddr_read(paddr_t addr, int len) {
-  if (likely(in_pmem(addr))){word_t value =pmem_read(addr, len); mtrace(0,addr,len,value);return value;}
-  IFDEF(CONFIG_DEVICE, word_t value =mmio_read(addr, len); mtrace(0,addr,len,value);return value);
+  if (likely(in_pmem(addr))) return pmem_read(addr, len);
+  IFDEF(CONFIG_DEVICE, return mmio_read(addr, len));
   out_of_bound(addr);
   return 0;
 }
 
 void paddr_write(paddr_t addr, int len, word_t data) {
-  if (likely(in_pmem(addr))) { pmem_write(addr, len, data); mtrace(1,addr,len,data);return; }
-  IFDEF(CONFIG_DEVICE, mmio_write(addr, len, data);mtrace(1,addr,len,data); return);
+  if (likely(in_pmem(addr))) { pmem_write(addr, len, data); return; }
+  IFDEF(CONFIG_DEVICE, mmio_write(addr, len, data); return);
   out_of_bound(addr);
 }

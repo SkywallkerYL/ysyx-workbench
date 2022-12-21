@@ -126,9 +126,7 @@ void init_monitor(int argc, char *argv[])
 
   /* Open the log file. */
   init_log(log_file);
-#ifdef CONFIG_MTRACE
-  init_mtrace();
-#endif
+
   /* Initialize memory. */
   init_mem();
 

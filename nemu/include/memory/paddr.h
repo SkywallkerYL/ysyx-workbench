@@ -30,11 +30,7 @@ paddr_t host_to_guest(uint8_t *haddr);
 static inline bool in_pmem(paddr_t addr) {
   return addr - CONFIG_MBASE < CONFIG_MSIZE;
 }
-#ifdef CONFIG_MTRACE
 
-void init_mtrace();
-void mtrace(bool wrrd,paddr_t addr, int len,word_t data);
-#endif
 word_t paddr_read(paddr_t addr, int len);
 void paddr_write(paddr_t addr, int len, word_t data);
 
