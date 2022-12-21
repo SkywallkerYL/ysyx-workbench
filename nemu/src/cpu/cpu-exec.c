@@ -112,7 +112,7 @@ static void execute(uint64_t n) {
     //printf("aaaaa\n");
     //printf("n: %ld  nemu_state :%d\n ",n,nemu_state.state);
     
-    if (nemu_state.state != NEMU_RUNNING) break;
+    if (nemu_state.state != NEMU_RUNNING) {printiringbuf(iringbufind);break;}
     IFDEF(CONFIG_DEVICE, device_update());
   }
   
