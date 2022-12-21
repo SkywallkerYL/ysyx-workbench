@@ -79,8 +79,8 @@ void mtrace(bool wrrd,paddr_t addr, int len,word_t data)
   //1是写 0是读
   wrflag = wrrd?'w':'r';
   if (file == NULL) {printf("No file!!!!\n");}
-  fprintf(file,"Addr:%d len:%d %c value:%ld\n",addr,len,wrflag,data);
-  printf("Addr:%d len:%d %c value:%ld\n",addr,len,wrflag,data);
+  fprintf(file,"Addr:%x len:%x %c value:%lx\n",addr,len,wrflag,data);
+  printf("Addr:%x len:%x %c value:%lx\n",addr,len,wrflag,data);
   fclose(file); 
 }
 #endif
