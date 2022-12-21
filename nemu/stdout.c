@@ -3223,6 +3223,7 @@ void mtrace(
 # 81 "src/memory/paddr.c"
                  ) {printf("No file!!!!\n");}
   fprintf(file,"Addr:%d len:%d %c value:%ld\n",addr,len,wrflag,data);
+  printf("Addr:%d len:%d %c value:%ld\n",addr,len,wrflag,data);
   fclose(file);
 }
 
