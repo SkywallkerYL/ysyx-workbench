@@ -55,7 +55,7 @@ void init_mem() {
 #endif
   Log("physical memory area [" FMT_PADDR ", " FMT_PADDR "]", PMEM_LEFT, PMEM_RIGHT);
 }
-//#ifdef CONFIG_MTRACE
+#ifdef CONFIG_MTRACE
 void init_mtrace()
 {
   FILE *file;
@@ -70,11 +70,11 @@ void mtrace(bool wrrd,paddr_t addr, int len,word_t data)
   char wrflag;
   //1是写 0是读
   wrflag = wrrd?'w':'r';
-  if (file == NULL) {printf("No mtrace file!!!\n");return;}
-  fprintf(file,"Addr:%d len:%d %c value:%ld",addr,len,wrflag,data);
+  if (file == NULL) {file = fopen(mtracelog,"w+");}
+  fprintf(file,"Addr:%d len:%d %c value:%ld\n",addr,len,wrflag,data);
   fclose(file); 
 }
-//#endif
+#endif
 word_t paddr_read(paddr_t addr, int len) {
   if (likely(in_pmem(addr))){word_t value =pmem_read(addr, len); mtrace(0,addr,len,value);return value;}
   IFDEF(CONFIG_DEVICE, {word_t value =mmio_read(addr, len); mtrace(0,addr,len,value);return value});
