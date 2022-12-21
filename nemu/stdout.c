@@ -5257,7 +5257,7 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 # 44 "src/cpu/cpu-exec.c"
                     log_enable(); if (log_enable()) { fprintf(log_fp, "%s\n", _this->logbuf); fflush(log_fp); } } while (0); }
 
-
+  if (g_print_step) { puts(_this->logbuf); }
   ;
 }
 
@@ -5277,7 +5277,7 @@ static void exec_once(Decode *s, vaddr_t pc) {
                                      "l" "x" 
 # 61 "src/cpu/cpu-exec.c"
                                               ":", s->pc);
-  printf("p :%s\n",p);
+  printf("p :%s\n",s->logbuf);
   int ilen = s->snpc - s->pc;
   int i;
   uint8_t *inst = (uint8_t *)&s->isa.inst.val;
@@ -5286,7 +5286,8 @@ static void exec_once(Decode *s, vaddr_t pc) {
     p += snprintf(p, 4, " %02x", inst[i]);
 
   }
-  printf("p :%s\n",p);
+
+  printf("p :%s\n",s->logbuf);
 
   int ilen_max = 4;
   int space_len = ilen_max - ilen;
@@ -5298,13 +5299,13 @@ static void exec_once(Decode *s, vaddr_t pc) {
   void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
   disassemble(p, s->logbuf + sizeof(s->logbuf) - p,
       s->pc, (uint8_t *)&s->isa.inst.val, ilen);
-  printf("p :%s\n",p);
+  printf("p :%s\n",s->logbuf);
 
 }
 
-# 86 "src/cpu/cpu-exec.c" 3 4
+# 87 "src/cpu/cpu-exec.c" 3 4
 _Bool 
-# 86 "src/cpu/cpu-exec.c"
+# 87 "src/cpu/cpu-exec.c"
     test_change();
 static void execute(uint64_t n) {
 
@@ -5328,55 +5329,55 @@ static void execute(uint64_t n) {
 
 static void statistic() {
   setlocale(
-# 108 "src/cpu/cpu-exec.c" 3 4
+# 109 "src/cpu/cpu-exec.c" 3 4
  1
-# 108 "src/cpu/cpu-exec.c"
+# 109 "src/cpu/cpu-exec.c"
  , "");
 
   do { printf("\33[1;34m" "[%s:%d %s] " "host time spent = " "%'" 
-# 110 "src/cpu/cpu-exec.c" 3 4
+# 111 "src/cpu/cpu-exec.c" 3 4
  "l" "u" 
-# 110 "src/cpu/cpu-exec.c"
- " us" "\33[0m" "\n", "src/cpu/cpu-exec.c", 110, __func__, g_timer); do { extern FILE* log_fp; extern 
-# 110 "src/cpu/cpu-exec.c" 3 4
+# 111 "src/cpu/cpu-exec.c"
+ " us" "\33[0m" "\n", "src/cpu/cpu-exec.c", 111, __func__, g_timer); do { extern FILE* log_fp; extern 
+# 111 "src/cpu/cpu-exec.c" 3 4
  _Bool 
-# 110 "src/cpu/cpu-exec.c"
+# 111 "src/cpu/cpu-exec.c"
  log_enable(); if (log_enable()) { fprintf(log_fp, "\33[1;34m" "[%s:%d %s] " "host time spent = " "%'" 
-# 110 "src/cpu/cpu-exec.c" 3 4
+# 111 "src/cpu/cpu-exec.c" 3 4
  "l" "u" 
-# 110 "src/cpu/cpu-exec.c"
- " us" "\33[0m" "\n", "src/cpu/cpu-exec.c", 110, __func__, g_timer); fflush(log_fp); } } while (0); } while (0);
+# 111 "src/cpu/cpu-exec.c"
+ " us" "\33[0m" "\n", "src/cpu/cpu-exec.c", 111, __func__, g_timer); fflush(log_fp); } } while (0); } while (0);
   do { printf("\33[1;34m" "[%s:%d %s] " "total guest instructions = " "%'" 
-# 111 "src/cpu/cpu-exec.c" 3 4
+# 112 "src/cpu/cpu-exec.c" 3 4
  "l" "u" 
-# 111 "src/cpu/cpu-exec.c"
- "\33[0m" "\n", "src/cpu/cpu-exec.c", 111, __func__, g_nr_guest_inst); do { extern FILE* log_fp; extern 
-# 111 "src/cpu/cpu-exec.c" 3 4
+# 112 "src/cpu/cpu-exec.c"
+ "\33[0m" "\n", "src/cpu/cpu-exec.c", 112, __func__, g_nr_guest_inst); do { extern FILE* log_fp; extern 
+# 112 "src/cpu/cpu-exec.c" 3 4
  _Bool 
-# 111 "src/cpu/cpu-exec.c"
+# 112 "src/cpu/cpu-exec.c"
  log_enable(); if (log_enable()) { fprintf(log_fp, "\33[1;34m" "[%s:%d %s] " "total guest instructions = " "%'" 
-# 111 "src/cpu/cpu-exec.c" 3 4
+# 112 "src/cpu/cpu-exec.c" 3 4
  "l" "u" 
-# 111 "src/cpu/cpu-exec.c"
- "\33[0m" "\n", "src/cpu/cpu-exec.c", 111, __func__, g_nr_guest_inst); fflush(log_fp); } } while (0); } while (0);
+# 112 "src/cpu/cpu-exec.c"
+ "\33[0m" "\n", "src/cpu/cpu-exec.c", 112, __func__, g_nr_guest_inst); fflush(log_fp); } } while (0); } while (0);
   if (g_timer > 0) do { printf("\33[1;34m" "[%s:%d %s] " "simulation frequency = " "%'" 
-# 112 "src/cpu/cpu-exec.c" 3 4
-                  "l" "u" 
-# 112 "src/cpu/cpu-exec.c"
-                  " inst/s" "\33[0m" "\n", "src/cpu/cpu-exec.c", 112, __func__, g_nr_guest_inst * 1000000 / g_timer); do { extern FILE* log_fp; extern 
-# 112 "src/cpu/cpu-exec.c" 3 4
-                  _Bool 
-# 112 "src/cpu/cpu-exec.c"
-                  log_enable(); if (log_enable()) { fprintf(log_fp, "\33[1;34m" "[%s:%d %s] " "simulation frequency = " "%'" 
-# 112 "src/cpu/cpu-exec.c" 3 4
-                  "l" "u" 
-# 112 "src/cpu/cpu-exec.c"
-                  " inst/s" "\33[0m" "\n", "src/cpu/cpu-exec.c", 112, __func__, g_nr_guest_inst * 1000000 / g_timer); fflush(log_fp); } } while (0); } while (0);
-  else do { printf("\33[1;34m" "[%s:%d %s] " "Finish running in less than 1 us and can not calculate the simulation frequency" "\33[0m" "\n", "src/cpu/cpu-exec.c", 113, __func__); do { extern FILE* log_fp; extern 
 # 113 "src/cpu/cpu-exec.c" 3 4
-      _Bool 
+                  "l" "u" 
 # 113 "src/cpu/cpu-exec.c"
-      log_enable(); if (log_enable()) { fprintf(log_fp, "\33[1;34m" "[%s:%d %s] " "Finish running in less than 1 us and can not calculate the simulation frequency" "\33[0m" "\n", "src/cpu/cpu-exec.c", 113, __func__); fflush(log_fp); } } while (0); } while (0);
+                  " inst/s" "\33[0m" "\n", "src/cpu/cpu-exec.c", 113, __func__, g_nr_guest_inst * 1000000 / g_timer); do { extern FILE* log_fp; extern 
+# 113 "src/cpu/cpu-exec.c" 3 4
+                  _Bool 
+# 113 "src/cpu/cpu-exec.c"
+                  log_enable(); if (log_enable()) { fprintf(log_fp, "\33[1;34m" "[%s:%d %s] " "simulation frequency = " "%'" 
+# 113 "src/cpu/cpu-exec.c" 3 4
+                  "l" "u" 
+# 113 "src/cpu/cpu-exec.c"
+                  " inst/s" "\33[0m" "\n", "src/cpu/cpu-exec.c", 113, __func__, g_nr_guest_inst * 1000000 / g_timer); fflush(log_fp); } } while (0); } while (0);
+  else do { printf("\33[1;34m" "[%s:%d %s] " "Finish running in less than 1 us and can not calculate the simulation frequency" "\33[0m" "\n", "src/cpu/cpu-exec.c", 114, __func__); do { extern FILE* log_fp; extern 
+# 114 "src/cpu/cpu-exec.c" 3 4
+      _Bool 
+# 114 "src/cpu/cpu-exec.c"
+      log_enable(); if (log_enable()) { fprintf(log_fp, "\33[1;34m" "[%s:%d %s] " "Finish running in less than 1 us and can not calculate the simulation frequency" "\33[0m" "\n", "src/cpu/cpu-exec.c", 114, __func__); fflush(log_fp); } } while (0); } while (0);
 }
 
 void assert_fail_msg() {
@@ -5407,18 +5408,18 @@ void cpu_exec(uint64_t n) {
 
     case NEMU_END: case NEMU_ABORT:
       do { printf("\33[1;34m" "[%s:%d %s] " "nemu: %s at pc = " "0x%016"
-# 143 "src/cpu/cpu-exec.c" 3 4
+# 144 "src/cpu/cpu-exec.c" 3 4
      "l" "x" 
-# 143 "src/cpu/cpu-exec.c"
-     "\33[0m" "\n", "src/cpu/cpu-exec.c", 143, __func__, (nemu_state.state == NEMU_ABORT ? "\33[1;31m" "ABORT" "\33[0m" : (nemu_state.halt_ret == 0 ? "\33[1;32m" "HIT GOOD TRAP" "\33[0m" : "\33[1;31m" "HIT BAD TRAP" "\33[0m")), nemu_state.halt_pc); do { extern FILE* log_fp; extern 
-# 143 "src/cpu/cpu-exec.c" 3 4
+# 144 "src/cpu/cpu-exec.c"
+     "\33[0m" "\n", "src/cpu/cpu-exec.c", 144, __func__, (nemu_state.state == NEMU_ABORT ? "\33[1;31m" "ABORT" "\33[0m" : (nemu_state.halt_ret == 0 ? "\33[1;32m" "HIT GOOD TRAP" "\33[0m" : "\33[1;31m" "HIT BAD TRAP" "\33[0m")), nemu_state.halt_pc); do { extern FILE* log_fp; extern 
+# 144 "src/cpu/cpu-exec.c" 3 4
      _Bool 
-# 143 "src/cpu/cpu-exec.c"
+# 144 "src/cpu/cpu-exec.c"
      log_enable(); if (log_enable()) { fprintf(log_fp, "\33[1;34m" "[%s:%d %s] " "nemu: %s at pc = " "0x%016"
-# 143 "src/cpu/cpu-exec.c" 3 4
+# 144 "src/cpu/cpu-exec.c" 3 4
      "l" "x" 
-# 143 "src/cpu/cpu-exec.c"
-     "\33[0m" "\n", "src/cpu/cpu-exec.c", 143, __func__, (nemu_state.state == NEMU_ABORT ? "\33[1;31m" "ABORT" "\33[0m" : (nemu_state.halt_ret == 0 ? "\33[1;32m" "HIT GOOD TRAP" "\33[0m" : "\33[1;31m" "HIT BAD TRAP" "\33[0m")), nemu_state.halt_pc); fflush(log_fp); } } while (0); } while (0)
+# 144 "src/cpu/cpu-exec.c"
+     "\33[0m" "\n", "src/cpu/cpu-exec.c", 144, __func__, (nemu_state.state == NEMU_ABORT ? "\33[1;31m" "ABORT" "\33[0m" : (nemu_state.halt_ret == 0 ? "\33[1;32m" "HIT GOOD TRAP" "\33[0m" : "\33[1;31m" "HIT BAD TRAP" "\33[0m")), nemu_state.halt_pc); fflush(log_fp); } } while (0); } while (0)
 
 
 
