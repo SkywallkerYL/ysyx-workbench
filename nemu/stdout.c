@@ -5257,7 +5257,7 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 # 44 "src/cpu/cpu-exec.c"
                     log_enable(); if (log_enable()) { fprintf(log_fp, "%s\n", _this->logbuf); fflush(log_fp); } } while (0); }
 
-  if (g_print_step) { puts(_this->logbuf); }
+
   ;
 }
 
@@ -5317,7 +5317,7 @@ static void execute(uint64_t n) {
     g_nr_guest_inst ++;
 
     trace_and_difftest(&s, cpu.pc);
-    printf("aaaaa\n");
+
 
 
     if (nemu_state.state != NEMU_RUNNING) break;
