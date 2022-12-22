@@ -4009,8 +4009,10 @@ void log_ftrace(paddr_t addr)
       char *p;
       for (p=start+ind; *p!='\0'; p++)
       {
+        printf("%c",*p);
         len++;
       }
+      printf("\n");
       char funcname [len+1];
       char* newp = (char*)(start);
       strncpy(funcname,newp,len);
