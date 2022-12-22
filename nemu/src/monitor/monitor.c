@@ -133,6 +133,7 @@ void init_monitor(int argc, char *argv[])
 #ifdef CONFIG_MTRACE
   init_mtrace();
   if (elf_filein!=NULL) init_ftrace(elf_filein);
+  else printf("No elf file\n");
 #endif
   //if (elf_filein!=NULL) init_ftrace(elf_filein);
   /* Initialize memory. */
