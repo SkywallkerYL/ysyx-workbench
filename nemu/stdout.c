@@ -3028,6 +3028,34 @@ void mtrace(
 
 word_t paddr_read(paddr_t addr, int len);
 void paddr_write(paddr_t addr, int len, word_t data);
+
+
+union var8
+{
+    char p[8];
+    int64_t i;
+};
+union var4
+{
+    char p[4];
+    int32_t i;
+};
+union var2
+{
+    char p[2];
+    int16_t i;
+};
+union var1
+{
+    char p;
+    int8_t i;
+};
+
+
+
+void init_ftrace(char * elf_file);
+
+void log_ftrace(paddr_t addr);
 # 18 "src/memory/vaddr.c" 2
 
 word_t vaddr_ifetch(vaddr_t addr, int len) {
