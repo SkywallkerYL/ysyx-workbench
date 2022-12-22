@@ -364,13 +364,13 @@ word_t paddr_read(paddr_t addr, int len) {
   if (likely(in_pmem(addr))){word_t value =pmem_read(addr, len);
 #ifdef CONFIG_MTRACE 
 mtrace(0,addr,len,value);
-log_ftrace(addr);
+log_ftrace(value);
 #endif
 return value;}
   IFDEF(CONFIG_DEVICE, word_t value =mmio_read(addr, len); 
 #ifdef CONFIG_MTRACE 
 mtrace(0,addr,len,value);
-log_ftrace(addr);
+log_ftrace(value);
 #endif
   return value);
   out_of_bound(addr);
