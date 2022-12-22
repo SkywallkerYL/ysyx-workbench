@@ -348,7 +348,7 @@ void log_ftrace(paddr_t addr)
       char *p;
       for (p=start+ind; *p!='\0'; p++)
       {
-        printf("%c",*p);
+        //printf("%c",*p);
         len++;
       }
       //printf("\n");
@@ -356,7 +356,7 @@ void log_ftrace(paddr_t addr)
       char* newp = (char*)(start)+ind;
       strncpy(funcname,newp,len);
       funcname[len] = '\0';
-      printf(" %s",funcname); printf("\n");
+      //printf(" %s",funcname); printf("\n");
       fprintf(file,"pc:%lx: Addr:%x call [%s]\n",cpu.pc,addr,funcname);
     }
   }  
