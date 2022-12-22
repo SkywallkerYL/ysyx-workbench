@@ -4014,7 +4014,7 @@ void log_ftrace(paddr_t addr)
       }
 
       char funcname [len+1];
-      char* newp = (char*)(start);
+      char* newp = (char*)(start)+ind;
       strncpy(funcname,newp,len);
       funcname[len] = '\0';
       printf(" %s",funcname); printf("\n");
