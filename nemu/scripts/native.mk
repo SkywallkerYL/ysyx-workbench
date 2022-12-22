@@ -35,9 +35,9 @@ run-env: $(BINARY) $(DIFF_REF_SO)
 # if you want to run the nemu in batch mode , add -b at the end of run-env
 run: run-env
 	$(call git_commit, "run NEMU")
-	$(NEMU_EXEC) -f /home/yangli/ysyx-workbench/am-kernels/tests/cpu-tests/build/recursion-riscv64-nemu.elf
-#-f /home/yangli/ysyx-workbench/am-kernels/tests/cpu-tests/
-
+	$(NEMU_EXEC) -b
+#-f /home/yangli/ysyx-workbench/am-kernels/tests/cpu-tests/build/recursion-riscv64-nemu.elf
+#-b
 gdb: run-env
 	$(call git_commit, "gdb NEMU")
 	gdb -s $(BINARY) --args $(NEMU_EXEC)
