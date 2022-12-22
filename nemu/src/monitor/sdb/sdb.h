@@ -49,7 +49,7 @@ union var1
     char p;
     int8_t i;
 };
-char elf_logfile[] = "/home/yangli/ysyx-workbench/nemu/build/ftrace-log.txt";
+
 
 
 void init_ftrace(char * elf_file);

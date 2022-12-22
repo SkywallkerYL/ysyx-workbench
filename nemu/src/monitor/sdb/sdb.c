@@ -22,6 +22,7 @@
 static int symblenumber ;//记录符号的表的符号个数
 //static int maxsymbolnumber = 4096;
 static Elf64_Sym allsymble[4096];//最多4096个
+char elf_logfile[] = "/home/yangli/ysyx-workbench/nemu/build/ftrace-log.txt";
 void init_ftrace(char* elf_file)
 {
   //创建ftrace写入文件

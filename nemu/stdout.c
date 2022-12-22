@@ -4946,7 +4946,7 @@ union var1
     char p;
     int8_t i;
 };
-char elf_logfile[] = "/home/yangli/ysyx-workbench/nemu/build/ftrace-log.txt";
+
 
 
 void init_ftrace(char * elf_file);
@@ -4957,6 +4957,7 @@ void log_ftrace(paddr_t addr,char* elf_file);
 static int symblenumber ;
 
 static Elf64_Sym allsymble[4096];
+char elf_logfile[] = "/home/yangli/ysyx-workbench/nemu/build/ftrace-log.txt";
 void init_ftrace(char* elf_file)
 {
 
@@ -4964,9 +4965,9 @@ void init_ftrace(char* elf_file)
   file = fopen(elf_logfile,"w+");
 
   if (file == 
-# 31 "src/monitor/sdb/sdb.c" 3 4
+# 32 "src/monitor/sdb/sdb.c" 3 4
              ((void *)0)
-# 31 "src/monitor/sdb/sdb.c"
+# 32 "src/monitor/sdb/sdb.c"
                  )
   {
     printf("Fail to creat mtracefile!\n");
@@ -4976,9 +4977,9 @@ void init_ftrace(char* elf_file)
  FILE *fp;
  fp = fopen(elf_file, "r");
  if (
-# 39 "src/monitor/sdb/sdb.c" 3 4
+# 40 "src/monitor/sdb/sdb.c" 3 4
     ((void *)0) 
-# 39 "src/monitor/sdb/sdb.c"
+# 40 "src/monitor/sdb/sdb.c"
          == fp)
  {
   printf("fail to open the file");
@@ -5010,9 +5011,9 @@ void init_ftrace(char* elf_file)
 
  Elf64_Shdr *shdr = (Elf64_Shdr*)malloc(sizeof(Elf64_Shdr) * elf_head.e_shnum);
  if (
-# 69 "src/monitor/sdb/sdb.c" 3 4
+# 70 "src/monitor/sdb/sdb.c" 3 4
     ((void *)0) 
-# 69 "src/monitor/sdb/sdb.c"
+# 70 "src/monitor/sdb/sdb.c"
          == shdr)
  {
   printf("shdr malloc failed\n");
@@ -5021,9 +5022,9 @@ void init_ftrace(char* elf_file)
 
 
  a = fseek(fp, elf_head.e_shoff, 
-# 76 "src/monitor/sdb/sdb.c" 3 4
+# 77 "src/monitor/sdb/sdb.c" 3 4
                                 0
-# 76 "src/monitor/sdb/sdb.c"
+# 77 "src/monitor/sdb/sdb.c"
                                         );
  if (0 != a)
  {
@@ -5044,9 +5045,9 @@ void init_ftrace(char* elf_file)
 
 
  fseek(fp, shdr[elf_head.e_shstrndx].sh_offset, 
-# 95 "src/monitor/sdb/sdb.c" 3 4
+# 96 "src/monitor/sdb/sdb.c" 3 4
                                                0
-# 95 "src/monitor/sdb/sdb.c"
+# 96 "src/monitor/sdb/sdb.c"
                                                        );
 
 
@@ -5061,7 +5062,7 @@ void init_ftrace(char* elf_file)
  }
     Elf64_Sym symble_entry;
     int symble_size = sizeof(symble_entry);
-# 121 "src/monitor/sdb/sdb.c"
+# 122 "src/monitor/sdb/sdb.c"
   for (int i = 0; i < elf_head.e_shnum; i++)
  {
   temp = shstrtab;
@@ -5084,9 +5085,9 @@ void init_ftrace(char* elf_file)
     uint8_t *sign_data=(uint8_t*)malloc(sizeof(uint8_t)*shdr[i].sh_size);
 
   fseek(fp, shdr[i].sh_offset, 
-# 142 "src/monitor/sdb/sdb.c" 3 4
+# 143 "src/monitor/sdb/sdb.c" 3 4
                               0
-# 142 "src/monitor/sdb/sdb.c"
+# 143 "src/monitor/sdb/sdb.c"
                                       );
   if(fread(sign_data, sizeof(uint8_t)*shdr[i].sh_size, 1, fp)==1);
 
@@ -5170,16 +5171,16 @@ void log_ftrace(paddr_t addr,char* elf_file)
   FILE *file;
   file = fopen(elf_logfile,"a");
   if (file == 
-# 224 "src/monitor/sdb/sdb.c" 3 4
+# 225 "src/monitor/sdb/sdb.c" 3 4
              ((void *)0)
-# 224 "src/monitor/sdb/sdb.c"
+# 225 "src/monitor/sdb/sdb.c"
                  ) {printf("No file!!!!\n");}
   FILE *fp;
  fp = fopen(elf_file, "r");
  if (
-# 227 "src/monitor/sdb/sdb.c" 3 4
+# 228 "src/monitor/sdb/sdb.c" 3 4
     ((void *)0) 
-# 227 "src/monitor/sdb/sdb.c"
+# 228 "src/monitor/sdb/sdb.c"
          == fp)
  {
   printf("fail to open the file");
@@ -5204,18 +5205,18 @@ void log_ftrace(paddr_t addr,char* elf_file)
  }
  Elf64_Shdr *shdr = (Elf64_Shdr*)malloc(sizeof(Elf64_Shdr) * elf_head.e_shnum);
  if (
-# 250 "src/monitor/sdb/sdb.c" 3 4
+# 251 "src/monitor/sdb/sdb.c" 3 4
     ((void *)0) 
-# 250 "src/monitor/sdb/sdb.c"
+# 251 "src/monitor/sdb/sdb.c"
          == shdr)
  {
   printf("shdr malloc failed\n");
   exit(0);
  }
  a = fseek(fp, elf_head.e_shoff, 
-# 255 "src/monitor/sdb/sdb.c" 3 4
+# 256 "src/monitor/sdb/sdb.c" 3 4
                                 0
-# 255 "src/monitor/sdb/sdb.c"
+# 256 "src/monitor/sdb/sdb.c"
                                         );
  if (0 != a)
  {
@@ -5230,9 +5231,9 @@ void log_ftrace(paddr_t addr,char* elf_file)
  }
  rewind(fp);
  fseek(fp, shdr[elf_head.e_shstrndx].sh_offset, 
-# 268 "src/monitor/sdb/sdb.c" 3 4
+# 269 "src/monitor/sdb/sdb.c" 3 4
                                                0
-# 268 "src/monitor/sdb/sdb.c"
+# 269 "src/monitor/sdb/sdb.c"
                                                        );
  char shstrtab[shdr[elf_head.e_shstrndx].sh_size];
  char *temp = shstrtab;
@@ -5251,9 +5252,9 @@ void log_ftrace(paddr_t addr,char* elf_file)
     uint8_t *sign_data=(uint8_t*)malloc(sizeof(uint8_t)*shdr[i].sh_size);
 
   fseek(fp, shdr[i].sh_offset, 
-# 285 "src/monitor/sdb/sdb.c" 3 4
+# 286 "src/monitor/sdb/sdb.c" 3 4
                               0
-# 285 "src/monitor/sdb/sdb.c"
+# 286 "src/monitor/sdb/sdb.c"
                                       );
   if(fread(sign_data, sizeof(uint8_t)*shdr[i].sh_size, 1, fp)==1);
 
@@ -5265,9 +5266,9 @@ void log_ftrace(paddr_t addr,char* elf_file)
 
 
       if((allsymble[j].st_info&0x0f) == 
-# 295 "src/monitor/sdb/sdb.c" 3 4
+# 296 "src/monitor/sdb/sdb.c" 3 4
                                        2
-# 295 "src/monitor/sdb/sdb.c"
+# 296 "src/monitor/sdb/sdb.c"
                                                )
       {
         int ind = allsymble[j].st_name;
@@ -5290,9 +5291,9 @@ void log_ftrace(paddr_t addr,char* elf_file)
 
 
 static int is_batch_mode = 
-# 316 "src/monitor/sdb/sdb.c" 3 4
+# 317 "src/monitor/sdb/sdb.c" 3 4
                           0
-# 316 "src/monitor/sdb/sdb.c"
+# 317 "src/monitor/sdb/sdb.c"
                                ;
 
 void init_regex();
@@ -5301,17 +5302,17 @@ void init_wp_pool();
 
 static char* rl_gets() {
   static char *line_read = 
-# 323 "src/monitor/sdb/sdb.c" 3 4
+# 324 "src/monitor/sdb/sdb.c" 3 4
                           ((void *)0)
-# 323 "src/monitor/sdb/sdb.c"
+# 324 "src/monitor/sdb/sdb.c"
                               ;
 
   if (line_read) {
     free(line_read);
     line_read = 
-# 327 "src/monitor/sdb/sdb.c" 3 4
+# 328 "src/monitor/sdb/sdb.c" 3 4
                ((void *)0)
-# 327 "src/monitor/sdb/sdb.c"
+# 328 "src/monitor/sdb/sdb.c"
                    ;
   }
 
@@ -5343,14 +5344,14 @@ static int cmd_si(char *args){
 
 
   char *time = strtok(
-# 357 "src/monitor/sdb/sdb.c" 3 4
+# 358 "src/monitor/sdb/sdb.c" 3 4
                      ((void *)0)
-# 357 "src/monitor/sdb/sdb.c"
+# 358 "src/monitor/sdb/sdb.c"
                          ," ");
   if (time == 
-# 358 "src/monitor/sdb/sdb.c" 3 4
+# 359 "src/monitor/sdb/sdb.c" 3 4
              ((void *)0)
-# 358 "src/monitor/sdb/sdb.c"
+# 359 "src/monitor/sdb/sdb.c"
                  ) {
     cpu_exec(1);
     return 0;
@@ -5368,9 +5369,9 @@ static int cmd_si(char *args){
 void print_wp();
 static int cmd_info(char *args){
   char *arg = strtok(
-# 374 "src/monitor/sdb/sdb.c" 3 4
+# 375 "src/monitor/sdb/sdb.c" 3 4
                     ((void *)0)
-# 374 "src/monitor/sdb/sdb.c"
+# 375 "src/monitor/sdb/sdb.c"
                         ," ");
   if (strcmp(arg,"r")==0)
   {
@@ -5398,14 +5399,14 @@ word_t paddr_read(paddr_t addr, int len) ;
 
 static int cmd_x(char *args){
   char *N = strtok(
-# 400 "src/monitor/sdb/sdb.c" 3 4
+# 401 "src/monitor/sdb/sdb.c" 3 4
                   ((void *)0)
-# 400 "src/monitor/sdb/sdb.c"
+# 401 "src/monitor/sdb/sdb.c"
                       ," ");
   char *EXPR = strtok(
-# 401 "src/monitor/sdb/sdb.c" 3 4
+# 402 "src/monitor/sdb/sdb.c" 3 4
                      ((void *)0)
-# 401 "src/monitor/sdb/sdb.c"
+# 402 "src/monitor/sdb/sdb.c"
                          ," ");
   int addrn ;
   sscanf(N,"%d",&addrn);
@@ -5427,9 +5428,9 @@ static int cmd_x(char *args){
 
 static int cmd_p(char *args){
   if (args == 
-# 421 "src/monitor/sdb/sdb.c" 3 4
+# 422 "src/monitor/sdb/sdb.c" 3 4
              ((void *)0)
-# 421 "src/monitor/sdb/sdb.c"
+# 422 "src/monitor/sdb/sdb.c"
                  )
   {
     printf("Please input the expression to calculate!");
@@ -5438,13 +5439,13 @@ static int cmd_p(char *args){
   {
     init_regex();
     
-# 428 "src/monitor/sdb/sdb.c" 3 4
+# 429 "src/monitor/sdb/sdb.c" 3 4
    _Bool 
-# 428 "src/monitor/sdb/sdb.c"
+# 429 "src/monitor/sdb/sdb.c"
         success = 
-# 428 "src/monitor/sdb/sdb.c" 3 4
+# 429 "src/monitor/sdb/sdb.c" 3 4
                   1
-# 428 "src/monitor/sdb/sdb.c"
+# 429 "src/monitor/sdb/sdb.c"
                       ;
     int result = expr(args,&success);
     if (success)
@@ -5461,9 +5462,9 @@ static int cmd_p(char *args){
 static int cmd_pt(char* args){
   int len;
   if (args == 
-# 443 "src/monitor/sdb/sdb.c" 3 4
+# 444 "src/monitor/sdb/sdb.c" 3 4
              ((void *)0)
-# 443 "src/monitor/sdb/sdb.c"
+# 444 "src/monitor/sdb/sdb.c"
                  )
   {
     len = 100;
@@ -5474,9 +5475,9 @@ static int cmd_pt(char* args){
   printf("%d\n",len);
   FILE *fp = fopen("/home/yangli/ysyx-workbench/nemu/tools/gen-expr/input.txt","r");
   if (fp == 
-# 452 "src/monitor/sdb/sdb.c" 3 4
+# 453 "src/monitor/sdb/sdb.c" 3 4
            ((void *)0)
-# 452 "src/monitor/sdb/sdb.c"
+# 453 "src/monitor/sdb/sdb.c"
                )
   {
     printf("No testfile input!!\n");
@@ -5509,13 +5510,13 @@ static int cmd_pt(char* args){
       int cal_result;
       init_regex();
       
-# 483 "src/monitor/sdb/sdb.c" 3 4
+# 484 "src/monitor/sdb/sdb.c" 3 4
      _Bool 
-# 483 "src/monitor/sdb/sdb.c"
+# 484 "src/monitor/sdb/sdb.c"
           success = 
-# 483 "src/monitor/sdb/sdb.c" 3 4
+# 484 "src/monitor/sdb/sdb.c" 3 4
                     1
-# 483 "src/monitor/sdb/sdb.c"
+# 484 "src/monitor/sdb/sdb.c"
                         ;
       cal_result = expr(str[j],&success);
       if (success)
@@ -5540,22 +5541,22 @@ static int cmd_w (char *args){
   return 0;
 }
 
-# 506 "src/monitor/sdb/sdb.c" 3 4
+# 507 "src/monitor/sdb/sdb.c" 3 4
 _Bool 
-# 506 "src/monitor/sdb/sdb.c"
+# 507 "src/monitor/sdb/sdb.c"
     delete_wp(int NO);
 static int cmd_d (char *args){
   char *arg = strtok(
-# 508 "src/monitor/sdb/sdb.c" 3 4
+# 509 "src/monitor/sdb/sdb.c" 3 4
                     ((void *)0)
-# 508 "src/monitor/sdb/sdb.c"
+# 509 "src/monitor/sdb/sdb.c"
                         ," ");
   int NO = 0;
   sscanf(arg,"%d",&NO);
   
-# 511 "src/monitor/sdb/sdb.c" 3 4
+# 512 "src/monitor/sdb/sdb.c" 3 4
  _Bool 
-# 511 "src/monitor/sdb/sdb.c"
+# 512 "src/monitor/sdb/sdb.c"
       dele = delete_wp(NO);
   if (dele)
   {
@@ -5592,16 +5593,16 @@ static struct {
 static int cmd_help(char *args) {
 
   char *arg = strtok(
-# 546 "src/monitor/sdb/sdb.c" 3 4
+# 547 "src/monitor/sdb/sdb.c" 3 4
                     ((void *)0)
-# 546 "src/monitor/sdb/sdb.c"
+# 547 "src/monitor/sdb/sdb.c"
                         , " ");
   int i;
 
   if (arg == 
-# 549 "src/monitor/sdb/sdb.c" 3 4
+# 550 "src/monitor/sdb/sdb.c" 3 4
             ((void *)0)
-# 549 "src/monitor/sdb/sdb.c"
+# 550 "src/monitor/sdb/sdb.c"
                 ) {
 
     for (i = 0; i < (int)(sizeof(cmd_table) / sizeof(cmd_table[0])); i ++) {
@@ -5622,35 +5623,35 @@ static int cmd_help(char *args) {
 
 void sdb_set_batch_mode() {
   is_batch_mode = 
-# 568 "src/monitor/sdb/sdb.c" 3 4
+# 569 "src/monitor/sdb/sdb.c" 3 4
                  1
-# 568 "src/monitor/sdb/sdb.c"
+# 569 "src/monitor/sdb/sdb.c"
                      ;
 }
 
 void sdb_mainloop() {
   if (is_batch_mode) {
     cmd_c(
-# 573 "src/monitor/sdb/sdb.c" 3 4
+# 574 "src/monitor/sdb/sdb.c" 3 4
          ((void *)0)
-# 573 "src/monitor/sdb/sdb.c"
+# 574 "src/monitor/sdb/sdb.c"
              );
     return;
   }
 
   for (char *str; (str = rl_gets()) != 
-# 577 "src/monitor/sdb/sdb.c" 3 4
+# 578 "src/monitor/sdb/sdb.c" 3 4
                                       ((void *)0)
-# 577 "src/monitor/sdb/sdb.c"
+# 578 "src/monitor/sdb/sdb.c"
                                           ; ) {
     char *str_end = str + strlen(str);
 
 
     char *cmd = strtok(str, " ");
     if (cmd == 
-# 582 "src/monitor/sdb/sdb.c" 3 4
+# 583 "src/monitor/sdb/sdb.c" 3 4
               ((void *)0)
-# 582 "src/monitor/sdb/sdb.c"
+# 583 "src/monitor/sdb/sdb.c"
                   ) { continue; }
 
 
@@ -5659,9 +5660,9 @@ void sdb_mainloop() {
     char *args = cmd + strlen(cmd) + 1;
     if (args >= str_end) {
       args = 
-# 589 "src/monitor/sdb/sdb.c" 3 4
+# 590 "src/monitor/sdb/sdb.c" 3 4
             ((void *)0)
-# 589 "src/monitor/sdb/sdb.c"
+# 590 "src/monitor/sdb/sdb.c"
                 ;
     }
 
