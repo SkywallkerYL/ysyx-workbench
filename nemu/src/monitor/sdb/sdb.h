@@ -50,9 +50,7 @@ union var1
     int8_t i;
 };
 char elf_logfile[] = "/home/yangli/ysyx-workbench/nemu/build/ftrace-log.txt";
-int symblenumber ;//记录符号的表的符号个数
-//static int maxsymbolnumber = 4096;
-Elf64_Sym allsymble[4096];//最多4096个
+
 
 void init_ftrace(char * elf_file);
 //接受地址，判断其是否属于函数

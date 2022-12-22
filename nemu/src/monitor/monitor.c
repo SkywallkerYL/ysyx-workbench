@@ -46,7 +46,7 @@ static char *log_file = NULL;
 static char *diff_so_file = NULL;
 static char *img_file = NULL;
 static int difftest_port = 1234;
-static char *elf_file = NULL;
+static char *elf_filein = NULL;
 static long load_img()
 {
   if (img_file == NULL)
@@ -102,7 +102,7 @@ static int parse_args(int argc, char *argv[])
       img_file = optarg;
       return 0;
     case 'f':
-      elf_file = optarg;
+      elf_filein = optarg;
       break;
     default:
       printf("Usage: %s [OPTION...] IMAGE [args]\n\n", argv[0]);
