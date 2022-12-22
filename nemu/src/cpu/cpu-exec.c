@@ -93,6 +93,9 @@ static void exec_once(Decode *s, vaddr_t pc) {
   //printf("p :%s\n",s->logbuf);
   strcpy(iringbuf[iringbufind],s->logbuf);
   iringbufind=(iringbufind+1)%iringbufsize;
+#ifdef CONFIG_MTRACE
+  //if (elf_filein!=NULL) log_ftrace(addr,elf_filein);
+#endif
 #endif
 }
 bool test_change();

@@ -41,7 +41,7 @@ static void welcome()
 #include <getopt.h>
 
 void sdb_set_batch_mode();
-
+void init_ftrace(char * elf_file);
 static char *log_file = NULL;
 static char *diff_so_file = NULL;
 static char *img_file = NULL;
@@ -132,7 +132,9 @@ void init_monitor(int argc, char *argv[])
   init_log(log_file);
 #ifdef CONFIG_MTRACE
   init_mtrace();
+  if (elf_filein!=NULL) init_ftrace(elf_filein);
 #endif
+  //if (elf_filein!=NULL) init_ftrace(elf_filein);
   /* Initialize memory. */
   init_mem();
 

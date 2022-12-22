@@ -85,14 +85,30 @@ void mtrace(bool wrrd,paddr_t addr, int len,word_t data)
 }
 #endif
 word_t paddr_read(paddr_t addr, int len) {
-  if (likely(in_pmem(addr))){word_t value =pmem_read(addr, len); mtrace(0,addr,len,value);return value;}
-  IFDEF(CONFIG_DEVICE, word_t value =mmio_read(addr, len); mtrace(0,addr,len,value);return value);
+  if (likely(in_pmem(addr))){word_t value =pmem_read(addr, len);
+#ifdef CONFIG_MTRACE 
+mtrace(0,addr,len,value);
+#endif
+return value;}
+  IFDEF(CONFIG_DEVICE, word_t value =mmio_read(addr, len); 
+#ifdef CONFIG_MTRACE 
+mtrace(0,addr,len,value);
+#endif
+  return value);
   out_of_bound(addr);
   return 0;
 }
 
 void paddr_write(paddr_t addr, int len, word_t data) {
-  if (likely(in_pmem(addr))) { pmem_write(addr, len, data); mtrace(1,addr,len,data);return; }
-  IFDEF(CONFIG_DEVICE, mmio_write(addr, len, data);mtrace(1,addr,len,data); return);
+  if (likely(in_pmem(addr))) { pmem_write(addr, len, data); 
+#ifdef CONFIG_MTRACE 
+  mtrace(1,addr,len,data);
+#endif
+  return; }
+  IFDEF(CONFIG_DEVICE, mmio_write(addr, len, data);
+#ifdef CONFIG_MTRACE
+  mtrace(1,addr,len,data); 
+#endif
+  return);
   out_of_bound(addr);
 }
