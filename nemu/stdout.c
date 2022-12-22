@@ -3755,19 +3755,21 @@ void init_ftrace(char* elf_file)
   {
     printf("Fail to creat mtracefile!\n");
   }
+  else printf("ftrace log file initial\n");
 
 
  FILE *fp;
  fp = fopen(elf_file, "r");
  if (
-# 108 "src/memory/paddr.c" 3 4
+# 109 "src/memory/paddr.c" 3 4
     ((void *)0) 
-# 108 "src/memory/paddr.c"
+# 109 "src/memory/paddr.c"
          == fp)
  {
   printf("fail to open the file");
   exit(0);
  }
+  else printf("elf file opened\n");
 
 
  Elf64_Ehdr elf_head;
@@ -3794,9 +3796,9 @@ void init_ftrace(char* elf_file)
 
  Elf64_Shdr *shdr = (Elf64_Shdr*)malloc(sizeof(Elf64_Shdr) * elf_head.e_shnum);
  if (
-# 138 "src/memory/paddr.c" 3 4
+# 140 "src/memory/paddr.c" 3 4
     ((void *)0) 
-# 138 "src/memory/paddr.c"
+# 140 "src/memory/paddr.c"
          == shdr)
  {
   printf("shdr malloc failed\n");
@@ -3805,9 +3807,9 @@ void init_ftrace(char* elf_file)
 
 
  a = fseek(fp, elf_head.e_shoff, 
-# 145 "src/memory/paddr.c" 3 4
+# 147 "src/memory/paddr.c" 3 4
                                 0
-# 145 "src/memory/paddr.c"
+# 147 "src/memory/paddr.c"
                                         );
  if (0 != a)
  {
@@ -3828,9 +3830,9 @@ void init_ftrace(char* elf_file)
 
 
  fseek(fp, shdr[elf_head.e_shstrndx].sh_offset, 
-# 164 "src/memory/paddr.c" 3 4
+# 166 "src/memory/paddr.c" 3 4
                                                0
-# 164 "src/memory/paddr.c"
+# 166 "src/memory/paddr.c"
                                                        );
 
 
@@ -3845,7 +3847,7 @@ void init_ftrace(char* elf_file)
  }
     Elf64_Sym symble_entry;
     int symble_size = sizeof(symble_entry);
-# 190 "src/memory/paddr.c"
+# 192 "src/memory/paddr.c"
   for (int i = 0; i < elf_head.e_shnum; i++)
  {
   temp = shstrtab;
@@ -3868,9 +3870,9 @@ void init_ftrace(char* elf_file)
     uint8_t *sign_data=(uint8_t*)malloc(sizeof(uint8_t)*shdr[i].sh_size);
 
   fseek(fp, shdr[i].sh_offset, 
-# 211 "src/memory/paddr.c" 3 4
+# 213 "src/memory/paddr.c" 3 4
                               0
-# 211 "src/memory/paddr.c"
+# 213 "src/memory/paddr.c"
                                       );
   if(fread(sign_data, sizeof(uint8_t)*shdr[i].sh_size, 1, fp)==1);
 
@@ -3955,9 +3957,9 @@ void init_ftrace(char* elf_file)
     strtab = (char*)malloc(sizeof(char)*shdr[i].sh_size);
 
   fseek(fp, shdr[i].sh_offset, 
-# 294 "src/memory/paddr.c" 3 4
+# 296 "src/memory/paddr.c" 3 4
                               0
-# 294 "src/memory/paddr.c"
+# 296 "src/memory/paddr.c"
                                       );
   if(fread(sign_data, sizeof(uint8_t)*shdr[i].sh_size, 1, fp)==1);
 
@@ -3971,7 +3973,7 @@ void init_ftrace(char* elf_file)
       pstr++;
       p++;
     }
-# 322 "src/memory/paddr.c"
+# 324 "src/memory/paddr.c"
  }
   return;
 }
@@ -3981,9 +3983,9 @@ void log_ftrace(paddr_t addr)
   FILE *file;
   file = fopen(elf_logfile,"a");
   if (file == 
-# 330 "src/memory/paddr.c" 3 4
+# 332 "src/memory/paddr.c" 3 4
              ((void *)0)
-# 330 "src/memory/paddr.c"
+# 332 "src/memory/paddr.c"
                  ) {printf("No file!!!!\n");}
 
 
@@ -3995,9 +3997,9 @@ void log_ftrace(paddr_t addr)
 
 
     if((allsymble[j].st_info&0x0f) == 
-# 340 "src/memory/paddr.c" 3 4
+# 342 "src/memory/paddr.c" 3 4
                                      2
-# 340 "src/memory/paddr.c"
+# 342 "src/memory/paddr.c"
                                              )
     {
       int len = 0;

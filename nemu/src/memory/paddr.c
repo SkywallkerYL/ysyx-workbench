@@ -101,6 +101,7 @@ void init_ftrace(char* elf_file)
   {
     printf("Fail to creat mtracefile!\n");
   }
+  else printf("ftrace log file initial\n");
 
 	// 打开文件
 	FILE *fp;
@@ -110,6 +111,7 @@ void init_ftrace(char* elf_file)
 		printf("fail to open the file");
 		exit(0);
 	}
+  else printf("elf file opened\n");
 
 	// 解析head
 	Elf64_Ehdr elf_head;
