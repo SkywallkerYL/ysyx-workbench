@@ -1,10 +1,10 @@
-# 0 "src/memory/vaddr.c"
+# 0 "src/monitor/sdb/sdb.c"
 # 0 "<built-in>"
 # 0 "<command-line>"
 # 1 "/usr/include/stdc-predef.h" 1 3 4
 # 0 "<command-line>" 2
-# 1 "src/memory/vaddr.c"
-# 16 "src/memory/vaddr.c"
+# 1 "src/monitor/sdb/sdb.c"
+# 16 "src/monitor/sdb/sdb.c"
 # 1 "/home/yangli/ysyx-workbench/nemu/include/isa.h" 1
 # 20 "/home/yangli/ysyx-workbench/nemu/include/isa.h"
 # 1 "/home/yangli/ysyx-workbench/nemu/src/isa/riscv64/include/isa-def.h" 1
@@ -3003,41 +3003,2689 @@ _Bool
 # 55 "/home/yangli/ysyx-workbench/nemu/include/isa.h"
     isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc);
 void isa_difftest_attach();
-# 17 "src/memory/vaddr.c" 2
-# 1 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h" 1
-# 26 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h"
-uint8_t* guest_to_host(paddr_t paddr);
+# 17 "src/monitor/sdb/sdb.c" 2
+# 1 "/home/yangli/ysyx-workbench/nemu/include/cpu/cpu.h" 1
+# 21 "/home/yangli/ysyx-workbench/nemu/include/cpu/cpu.h"
+void cpu_exec(uint64_t n);
 
-paddr_t host_to_guest(uint8_t *haddr);
+void set_nemu_state(int state, vaddr_t pc, int halt_ret);
+void invalid_inst(vaddr_t thispc);
+# 18 "src/monitor/sdb/sdb.c" 2
+# 1 "/usr/include/readline/readline.h" 1 3 4
+# 36 "/usr/include/readline/readline.h" 3 4
+# 1 "/usr/include/readline/rlstdc.h" 1 3 4
+# 37 "/usr/include/readline/readline.h" 2 3 4
+# 1 "/usr/include/readline/rltypedefs.h" 1 3 4
+# 35 "/usr/include/readline/rltypedefs.h" 3 4
 
-static inline 
-# 30 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h" 3 4
-             _Bool 
-# 30 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h"
-                  in_pmem(paddr_t addr) {
-  return addr - 0x80000000 < 0x8000000;
+# 35 "/usr/include/readline/rltypedefs.h" 3 4
+typedef int Function () __attribute__ ((deprecated));
+typedef void VFunction () __attribute__ ((deprecated));
+typedef char *CPFunction () __attribute__ ((deprecated));
+typedef char **CPPFunction () __attribute__ ((deprecated));
+# 54 "/usr/include/readline/rltypedefs.h" 3 4
+typedef int rl_command_func_t (int, int);
+
+
+typedef char *rl_compentry_func_t (const char *, int);
+typedef char **rl_completion_func_t (const char *, int, int);
+
+typedef char *rl_quote_func_t (char *, int, char *);
+typedef char *rl_dequote_func_t (char *, int);
+
+typedef int rl_compignore_func_t (char **);
+
+typedef void rl_compdisp_func_t (char **, int, int);
+
+
+typedef int rl_hook_func_t (void);
+
+
+typedef int rl_getc_func_t (FILE *);
+
+
+
+
+typedef int rl_linebuf_func_t (char *, int);
+
+
+typedef int rl_intfunc_t (int);
+
+typedef int rl_icpfunc_t (char *);
+typedef int rl_icppfunc_t (char **);
+
+typedef void rl_voidfunc_t (void);
+typedef void rl_vintfunc_t (int);
+typedef void rl_vcpfunc_t (char *);
+typedef void rl_vcppfunc_t (char **);
+
+typedef char *rl_cpvfunc_t (void);
+typedef char *rl_cpifunc_t (int);
+typedef char *rl_cpcpfunc_t (char *);
+typedef char *rl_cpcppfunc_t (char **);
+# 38 "/usr/include/readline/readline.h" 2 3 4
+# 1 "/usr/include/readline/keymaps.h" 1 3 4
+# 35 "/usr/include/readline/keymaps.h" 3 4
+# 1 "/usr/include/readline/chardefs.h" 1 3 4
+# 25 "/usr/include/readline/chardefs.h" 3 4
+# 1 "/usr/include/ctype.h" 1 3 4
+# 28 "/usr/include/ctype.h" 3 4
+
+# 46 "/usr/include/ctype.h" 3 4
+enum
+{
+  _ISupper = ((0) < 8 ? ((1 << (0)) << 8) : ((1 << (0)) >> 8)),
+  _ISlower = ((1) < 8 ? ((1 << (1)) << 8) : ((1 << (1)) >> 8)),
+  _ISalpha = ((2) < 8 ? ((1 << (2)) << 8) : ((1 << (2)) >> 8)),
+  _ISdigit = ((3) < 8 ? ((1 << (3)) << 8) : ((1 << (3)) >> 8)),
+  _ISxdigit = ((4) < 8 ? ((1 << (4)) << 8) : ((1 << (4)) >> 8)),
+  _ISspace = ((5) < 8 ? ((1 << (5)) << 8) : ((1 << (5)) >> 8)),
+  _ISprint = ((6) < 8 ? ((1 << (6)) << 8) : ((1 << (6)) >> 8)),
+  _ISgraph = ((7) < 8 ? ((1 << (7)) << 8) : ((1 << (7)) >> 8)),
+  _ISblank = ((8) < 8 ? ((1 << (8)) << 8) : ((1 << (8)) >> 8)),
+  _IScntrl = ((9) < 8 ? ((1 << (9)) << 8) : ((1 << (9)) >> 8)),
+  _ISpunct = ((10) < 8 ? ((1 << (10)) << 8) : ((1 << (10)) >> 8)),
+  _ISalnum = ((11) < 8 ? ((1 << (11)) << 8) : ((1 << (11)) >> 8))
+};
+# 79 "/usr/include/ctype.h" 3 4
+extern const unsigned short int **__ctype_b_loc (void)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+extern const __int32_t **__ctype_tolower_loc (void)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+extern const __int32_t **__ctype_toupper_loc (void)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+# 108 "/usr/include/ctype.h" 3 4
+extern int isalnum (int) __attribute__ ((__nothrow__ , __leaf__));
+extern int isalpha (int) __attribute__ ((__nothrow__ , __leaf__));
+extern int iscntrl (int) __attribute__ ((__nothrow__ , __leaf__));
+extern int isdigit (int) __attribute__ ((__nothrow__ , __leaf__));
+extern int islower (int) __attribute__ ((__nothrow__ , __leaf__));
+extern int isgraph (int) __attribute__ ((__nothrow__ , __leaf__));
+extern int isprint (int) __attribute__ ((__nothrow__ , __leaf__));
+extern int ispunct (int) __attribute__ ((__nothrow__ , __leaf__));
+extern int isspace (int) __attribute__ ((__nothrow__ , __leaf__));
+extern int isupper (int) __attribute__ ((__nothrow__ , __leaf__));
+extern int isxdigit (int) __attribute__ ((__nothrow__ , __leaf__));
+
+
+
+extern int tolower (int __c) __attribute__ ((__nothrow__ , __leaf__));
+
+
+extern int toupper (int __c) __attribute__ ((__nothrow__ , __leaf__));
+
+
+
+
+extern int isblank (int) __attribute__ ((__nothrow__ , __leaf__));
+# 142 "/usr/include/ctype.h" 3 4
+extern int isascii (int __c) __attribute__ ((__nothrow__ , __leaf__));
+
+
+
+extern int toascii (int __c) __attribute__ ((__nothrow__ , __leaf__));
+
+
+
+extern int _toupper (int) __attribute__ ((__nothrow__ , __leaf__));
+extern int _tolower (int) __attribute__ ((__nothrow__ , __leaf__));
+# 206 "/usr/include/ctype.h" 3 4
+extern __inline __attribute__ ((__gnu_inline__)) int
+__attribute__ ((__nothrow__ , __leaf__)) tolower (int __c)
+{
+  return __c >= -128 && __c < 256 ? (*__ctype_tolower_loc ())[__c] : __c;
+}
+
+extern __inline __attribute__ ((__gnu_inline__)) int
+__attribute__ ((__nothrow__ , __leaf__)) toupper (int __c)
+{
+  return __c >= -128 && __c < 256 ? (*__ctype_toupper_loc ())[__c] : __c;
+}
+# 251 "/usr/include/ctype.h" 3 4
+extern int isalnum_l (int, locale_t) __attribute__ ((__nothrow__ , __leaf__));
+extern int isalpha_l (int, locale_t) __attribute__ ((__nothrow__ , __leaf__));
+extern int iscntrl_l (int, locale_t) __attribute__ ((__nothrow__ , __leaf__));
+extern int isdigit_l (int, locale_t) __attribute__ ((__nothrow__ , __leaf__));
+extern int islower_l (int, locale_t) __attribute__ ((__nothrow__ , __leaf__));
+extern int isgraph_l (int, locale_t) __attribute__ ((__nothrow__ , __leaf__));
+extern int isprint_l (int, locale_t) __attribute__ ((__nothrow__ , __leaf__));
+extern int ispunct_l (int, locale_t) __attribute__ ((__nothrow__ , __leaf__));
+extern int isspace_l (int, locale_t) __attribute__ ((__nothrow__ , __leaf__));
+extern int isupper_l (int, locale_t) __attribute__ ((__nothrow__ , __leaf__));
+extern int isxdigit_l (int, locale_t) __attribute__ ((__nothrow__ , __leaf__));
+
+extern int isblank_l (int, locale_t) __attribute__ ((__nothrow__ , __leaf__));
+
+
+
+extern int __tolower_l (int __c, locale_t __l) __attribute__ ((__nothrow__ , __leaf__));
+extern int tolower_l (int __c, locale_t __l) __attribute__ ((__nothrow__ , __leaf__));
+
+
+extern int __toupper_l (int __c, locale_t __l) __attribute__ ((__nothrow__ , __leaf__));
+extern int toupper_l (int __c, locale_t __l) __attribute__ ((__nothrow__ , __leaf__));
+# 327 "/usr/include/ctype.h" 3 4
+
+# 26 "/usr/include/readline/chardefs.h" 2 3 4
+# 36 "/usr/include/readline/keymaps.h" 2 3 4
+# 44 "/usr/include/readline/keymaps.h" 3 4
+typedef struct _keymap_entry {
+  char type;
+  rl_command_func_t *function;
+} KEYMAP_ENTRY;
+
+
+
+
+
+
+
+typedef KEYMAP_ENTRY KEYMAP_ENTRY_ARRAY[257];
+typedef KEYMAP_ENTRY *Keymap;
+
+
+
+
+
+
+extern KEYMAP_ENTRY_ARRAY emacs_standard_keymap, emacs_meta_keymap, emacs_ctlx_keymap;
+extern KEYMAP_ENTRY_ARRAY vi_insertion_keymap, vi_movement_keymap;
+
+
+
+extern Keymap rl_make_bare_keymap (void);
+
+
+extern Keymap rl_copy_keymap (Keymap);
+
+
+
+
+extern Keymap rl_make_keymap (void);
+
+
+extern void rl_discard_keymap (Keymap);
+
+
+
+
+
+extern Keymap rl_get_keymap_by_name (const char *);
+
+
+extern Keymap rl_get_keymap (void);
+
+
+extern void rl_set_keymap (Keymap);
+
+
+extern int rl_set_keymap_name (const char *, Keymap);
+# 39 "/usr/include/readline/readline.h" 2 3 4
+# 1 "/usr/include/readline/tilde.h" 1 3 4
+# 42 "/usr/include/readline/tilde.h" 3 4
+typedef char *tilde_hook_func_t (char *);
+
+
+
+
+
+extern tilde_hook_func_t *tilde_expansion_preexpansion_hook;
+
+
+
+
+
+extern tilde_hook_func_t *tilde_expansion_failure_hook;
+
+
+
+
+extern char **tilde_additional_prefixes;
+
+
+
+
+extern char **tilde_additional_suffixes;
+
+
+extern char *tilde_expand (const char *);
+
+
+
+extern char *tilde_expand_word (const char *);
+
+
+extern char *tilde_find_word (const char *, int, int *);
+# 40 "/usr/include/readline/readline.h" 2 3 4
+# 55 "/usr/include/readline/readline.h" 3 4
+enum undo_code { UNDO_DELETE, UNDO_INSERT, UNDO_BEGIN, UNDO_END };
+
+
+typedef struct undo_list {
+  struct undo_list *next;
+  int start, end;
+  char *text;
+  enum undo_code what;
+} UNDO_LIST;
+
+
+extern UNDO_LIST *rl_undo_list;
+
+
+typedef struct _funmap {
+  const char *name;
+  rl_command_func_t *function;
+} FUNMAP;
+
+extern FUNMAP **funmap;
+# 83 "/usr/include/readline/readline.h" 3 4
+extern int rl_digit_argument (int, int);
+extern int rl_universal_argument (int, int);
+
+
+extern int rl_forward_byte (int, int);
+extern int rl_forward_char (int, int);
+extern int rl_forward (int, int);
+extern int rl_backward_byte (int, int);
+extern int rl_backward_char (int, int);
+extern int rl_backward (int, int);
+extern int rl_beg_of_line (int, int);
+extern int rl_end_of_line (int, int);
+extern int rl_forward_word (int, int);
+extern int rl_backward_word (int, int);
+extern int rl_refresh_line (int, int);
+extern int rl_clear_screen (int, int);
+extern int rl_clear_display (int, int);
+extern int rl_skip_csi_sequence (int, int);
+extern int rl_arrow_keys (int, int);
+
+extern int rl_previous_screen_line (int, int);
+extern int rl_next_screen_line (int, int);
+
+
+extern int rl_insert (int, int);
+extern int rl_quoted_insert (int, int);
+extern int rl_tab_insert (int, int);
+extern int rl_newline (int, int);
+extern int rl_do_lowercase_version (int, int);
+extern int rl_rubout (int, int);
+extern int rl_delete (int, int);
+extern int rl_rubout_or_delete (int, int);
+extern int rl_delete_horizontal_space (int, int);
+extern int rl_delete_or_show_completions (int, int);
+extern int rl_insert_comment (int, int);
+
+
+extern int rl_upcase_word (int, int);
+extern int rl_downcase_word (int, int);
+extern int rl_capitalize_word (int, int);
+
+
+extern int rl_transpose_words (int, int);
+extern int rl_transpose_chars (int, int);
+
+
+extern int rl_char_search (int, int);
+extern int rl_backward_char_search (int, int);
+
+
+extern int rl_beginning_of_history (int, int);
+extern int rl_end_of_history (int, int);
+extern int rl_get_next_history (int, int);
+extern int rl_get_previous_history (int, int);
+extern int rl_operate_and_get_next (int, int);
+
+
+extern int rl_set_mark (int, int);
+extern int rl_exchange_point_and_mark (int, int);
+
+
+extern int rl_vi_editing_mode (int, int);
+extern int rl_emacs_editing_mode (int, int);
+
+
+extern int rl_overwrite_mode (int, int);
+
+
+extern int rl_re_read_init_file (int, int);
+extern int rl_dump_functions (int, int);
+extern int rl_dump_macros (int, int);
+extern int rl_dump_variables (int, int);
+
+
+extern int rl_complete (int, int);
+extern int rl_possible_completions (int, int);
+extern int rl_insert_completions (int, int);
+extern int rl_old_menu_complete (int, int);
+extern int rl_menu_complete (int, int);
+extern int rl_backward_menu_complete (int, int);
+
+
+extern int rl_kill_word (int, int);
+extern int rl_backward_kill_word (int, int);
+extern int rl_kill_line (int, int);
+extern int rl_backward_kill_line (int, int);
+extern int rl_kill_full_line (int, int);
+extern int rl_unix_word_rubout (int, int);
+extern int rl_unix_filename_rubout (int, int);
+extern int rl_unix_line_discard (int, int);
+extern int rl_copy_region_to_kill (int, int);
+extern int rl_kill_region (int, int);
+extern int rl_copy_forward_word (int, int);
+extern int rl_copy_backward_word (int, int);
+extern int rl_yank (int, int);
+extern int rl_yank_pop (int, int);
+extern int rl_yank_nth_arg (int, int);
+extern int rl_yank_last_arg (int, int);
+extern int rl_bracketed_paste_begin (int, int);
+
+
+
+
+
+
+extern int rl_reverse_search_history (int, int);
+extern int rl_forward_search_history (int, int);
+
+
+extern int rl_start_kbd_macro (int, int);
+extern int rl_end_kbd_macro (int, int);
+extern int rl_call_last_kbd_macro (int, int);
+extern int rl_print_last_kbd_macro (int, int);
+
+
+extern int rl_revert_line (int, int);
+extern int rl_undo_command (int, int);
+
+
+extern int rl_tilde_expand (int, int);
+
+
+extern int rl_restart_output (int, int);
+extern int rl_stop_output (int, int);
+
+
+extern int rl_abort (int, int);
+extern int rl_tty_status (int, int);
+
+
+extern int rl_history_search_forward (int, int);
+extern int rl_history_search_backward (int, int);
+extern int rl_history_substr_search_forward (int, int);
+extern int rl_history_substr_search_backward (int, int);
+extern int rl_noninc_forward_search (int, int);
+extern int rl_noninc_reverse_search (int, int);
+extern int rl_noninc_forward_search_again (int, int);
+extern int rl_noninc_reverse_search_again (int, int);
+
+
+extern int rl_insert_close (int, int);
+
+
+extern void rl_callback_handler_install (const char *, rl_vcpfunc_t *);
+extern void rl_callback_read_char (void);
+extern void rl_callback_handler_remove (void);
+extern void rl_callback_sigcleanup (void);
+
+
+
+extern int rl_vi_redo (int, int);
+extern int rl_vi_undo (int, int);
+extern int rl_vi_yank_arg (int, int);
+extern int rl_vi_fetch_history (int, int);
+extern int rl_vi_search_again (int, int);
+extern int rl_vi_search (int, int);
+extern int rl_vi_complete (int, int);
+extern int rl_vi_tilde_expand (int, int);
+extern int rl_vi_prev_word (int, int);
+extern int rl_vi_next_word (int, int);
+extern int rl_vi_end_word (int, int);
+extern int rl_vi_insert_beg (int, int);
+extern int rl_vi_append_mode (int, int);
+extern int rl_vi_append_eol (int, int);
+extern int rl_vi_eof_maybe (int, int);
+extern int rl_vi_insertion_mode (int, int);
+extern int rl_vi_insert_mode (int, int);
+extern int rl_vi_movement_mode (int, int);
+extern int rl_vi_arg_digit (int, int);
+extern int rl_vi_change_case (int, int);
+extern int rl_vi_put (int, int);
+extern int rl_vi_column (int, int);
+extern int rl_vi_delete_to (int, int);
+extern int rl_vi_change_to (int, int);
+extern int rl_vi_yank_to (int, int);
+extern int rl_vi_yank_pop (int, int);
+extern int rl_vi_rubout (int, int);
+extern int rl_vi_delete (int, int);
+extern int rl_vi_back_to_indent (int, int);
+extern int rl_vi_unix_word_rubout (int, int);
+extern int rl_vi_first_print (int, int);
+extern int rl_vi_char_search (int, int);
+extern int rl_vi_match (int, int);
+extern int rl_vi_change_char (int, int);
+extern int rl_vi_subst (int, int);
+extern int rl_vi_overstrike (int, int);
+extern int rl_vi_overstrike_delete (int, int);
+extern int rl_vi_replace (int, int);
+extern int rl_vi_set_mark (int, int);
+extern int rl_vi_goto_mark (int, int);
+
+
+extern int rl_vi_check (void);
+extern int rl_vi_domove (int, int *);
+extern int rl_vi_bracktype (int);
+
+extern void rl_vi_start_inserting (int, int, int);
+
+
+extern int rl_vi_fWord (int, int);
+extern int rl_vi_bWord (int, int);
+extern int rl_vi_eWord (int, int);
+extern int rl_vi_fword (int, int);
+extern int rl_vi_bword (int, int);
+extern int rl_vi_eword (int, int);
+# 297 "/usr/include/readline/readline.h" 3 4
+extern char *readline (const char *);
+
+extern int rl_set_prompt (const char *);
+extern int rl_expand_prompt (char *);
+
+extern int rl_initialize (void);
+
+
+extern int rl_discard_argument (void);
+
+
+extern int rl_add_defun (const char *, rl_command_func_t *, int);
+extern int rl_bind_key (int, rl_command_func_t *);
+extern int rl_bind_key_in_map (int, rl_command_func_t *, Keymap);
+extern int rl_unbind_key (int);
+extern int rl_unbind_key_in_map (int, Keymap);
+extern int rl_bind_key_if_unbound (int, rl_command_func_t *);
+extern int rl_bind_key_if_unbound_in_map (int, rl_command_func_t *, Keymap);
+extern int rl_unbind_function_in_map (rl_command_func_t *, Keymap);
+extern int rl_unbind_command_in_map (const char *, Keymap);
+extern int rl_bind_keyseq (const char *, rl_command_func_t *);
+extern int rl_bind_keyseq_in_map (const char *, rl_command_func_t *, Keymap);
+extern int rl_bind_keyseq_if_unbound (const char *, rl_command_func_t *);
+extern int rl_bind_keyseq_if_unbound_in_map (const char *, rl_command_func_t *, Keymap);
+extern int rl_generic_bind (int, const char *, char *, Keymap);
+
+extern char *rl_variable_value (const char *);
+extern int rl_variable_bind (const char *, const char *);
+
+
+extern int rl_set_key (const char *, rl_command_func_t *, Keymap);
+
+
+extern int rl_macro_bind (const char *, const char *, Keymap);
+
+
+extern int rl_translate_keyseq (const char *, char *, int *);
+extern char *rl_untranslate_keyseq (int);
+
+extern rl_command_func_t *rl_named_function (const char *);
+extern rl_command_func_t *rl_function_of_keyseq (const char *, Keymap, int *);
+extern rl_command_func_t *rl_function_of_keyseq_len (const char *, size_t, Keymap, int *);
+
+extern void rl_list_funmap_names (void);
+extern char **rl_invoking_keyseqs_in_map (rl_command_func_t *, Keymap);
+extern char **rl_invoking_keyseqs (rl_command_func_t *);
+
+extern void rl_function_dumper (int);
+extern void rl_macro_dumper (int);
+extern void rl_variable_dumper (int);
+
+extern int rl_read_init_file (const char *);
+extern int rl_parse_and_bind (char *);
+
+
+extern Keymap rl_make_bare_keymap (void);
+extern int rl_empty_keymap (Keymap);
+extern Keymap rl_copy_keymap (Keymap);
+extern Keymap rl_make_keymap (void);
+extern void rl_discard_keymap (Keymap);
+extern void rl_free_keymap (Keymap);
+
+extern Keymap rl_get_keymap_by_name (const char *);
+extern char *rl_get_keymap_name (Keymap);
+extern void rl_set_keymap (Keymap);
+extern Keymap rl_get_keymap (void);
+
+extern int rl_set_keymap_name (const char *, Keymap);
+
+
+extern void rl_set_keymap_from_edit_mode (void);
+extern char *rl_get_keymap_name_from_edit_mode (void);
+
+
+extern int rl_add_funmap_entry (const char *, rl_command_func_t *);
+extern const char **rl_funmap_names (void);
+
+
+extern void rl_initialize_funmap (void);
+
+
+extern void rl_push_macro_input (char *);
+
+
+extern void rl_add_undo (enum undo_code, int, int, char *);
+extern void rl_free_undo_list (void);
+extern int rl_do_undo (void);
+extern int rl_begin_undo_group (void);
+extern int rl_end_undo_group (void);
+extern int rl_modifying (int, int);
+
+
+extern void rl_redisplay (void);
+extern int rl_on_new_line (void);
+extern int rl_on_new_line_with_prompt (void);
+extern int rl_forced_update_display (void);
+extern int rl_clear_visible_line (void);
+extern int rl_clear_message (void);
+extern int rl_reset_line_state (void);
+extern int rl_crlf (void);
+
+
+
+extern void rl_keep_mark_active (void);
+
+extern void rl_activate_mark (void);
+extern void rl_deactivate_mark (void);
+extern int rl_mark_active_p (void);
+
+
+
+
+extern int rl_message ();
+
+
+extern int rl_show_char (int);
+
+
+extern int rl_character_len (int, int);
+extern void rl_redraw_prompt_last_line (void);
+
+
+extern void rl_save_prompt (void);
+extern void rl_restore_prompt (void);
+
+
+extern void rl_replace_line (const char *, int);
+extern int rl_insert_text (const char *);
+extern int rl_delete_text (int, int);
+extern int rl_kill_text (int, int);
+extern char *rl_copy_text (int, int);
+
+
+extern void rl_prep_terminal (int);
+extern void rl_deprep_terminal (void);
+extern void rl_tty_set_default_bindings (Keymap);
+extern void rl_tty_unset_default_bindings (Keymap);
+
+extern int rl_tty_set_echoing (int);
+extern int rl_reset_terminal (const char *);
+extern void rl_resize_terminal (void);
+extern void rl_set_screen_size (int, int);
+extern void rl_get_screen_size (int *, int *);
+extern void rl_reset_screen_size (void);
+
+extern char *rl_get_termcap (const char *);
+
+
+extern int rl_stuff_char (int);
+extern int rl_execute_next (int);
+extern int rl_clear_pending_input (void);
+extern int rl_read_key (void);
+extern int rl_getc (FILE *);
+extern int rl_set_keyboard_input_timeout (int);
+
+
+extern void rl_extend_line_buffer (int);
+extern int rl_ding (void);
+extern int rl_alphabetic (int);
+extern void rl_free (void *);
+
+
+extern int rl_set_signals (void);
+extern int rl_clear_signals (void);
+extern void rl_cleanup_after_signal (void);
+extern void rl_reset_after_signal (void);
+extern void rl_free_line_state (void);
+
+extern int rl_pending_signal (void);
+extern void rl_check_signals (void);
+
+extern void rl_echo_signal_char (int);
+
+extern int rl_set_paren_blink_timeout (int);
+
+
+
+extern void rl_clear_history (void);
+
+
+extern int rl_maybe_save_line (void);
+extern int rl_maybe_unsave_line (void);
+extern int rl_maybe_replace_line (void);
+
+
+extern int rl_complete_internal (int);
+extern void rl_display_match_list (char **, int, int);
+
+extern char **rl_completion_matches (const char *, rl_compentry_func_t *);
+extern char *rl_username_completion_function (const char *, int);
+extern char *rl_filename_completion_function (const char *, int);
+
+extern int rl_completion_mode (rl_command_func_t *);
+# 514 "/usr/include/readline/readline.h" 3 4
+extern const char *rl_library_version;
+extern int rl_readline_version;
+
+
+extern int rl_gnu_readline_p;
+
+
+extern unsigned long rl_readline_state;
+
+
+
+extern int rl_editing_mode;
+
+
+
+extern int rl_insert_mode;
+
+
+
+extern const char *rl_readline_name;
+
+
+
+extern char *rl_prompt;
+
+
+
+extern char *rl_display_prompt;
+
+
+extern char *rl_line_buffer;
+
+
+extern int rl_point;
+extern int rl_end;
+
+
+extern int rl_mark;
+
+
+
+extern int rl_done;
+
+
+extern int rl_pending_input;
+
+
+
+
+extern int rl_dispatching;
+
+
+
+extern int rl_explicit_arg;
+
+
+extern int rl_numeric_arg;
+
+
+extern rl_command_func_t *rl_last_func;
+
+
+extern const char *rl_terminal_name;
+
+
+extern FILE *rl_instream;
+extern FILE *rl_outstream;
+
+
+
+
+extern int rl_prefer_env_winsize;
+
+
+
+extern rl_hook_func_t *rl_startup_hook;
+
+
+
+
+extern rl_hook_func_t *rl_pre_input_hook;
+
+
+
+extern rl_hook_func_t *rl_event_hook;
+
+
+extern rl_hook_func_t *rl_signal_event_hook;
+
+
+
+extern rl_hook_func_t *rl_input_available_hook;
+
+
+
+extern rl_getc_func_t *rl_getc_function;
+
+extern rl_voidfunc_t *rl_redisplay_function;
+
+extern rl_vintfunc_t *rl_prep_term_function;
+extern rl_voidfunc_t *rl_deprep_term_function;
+
+
+extern Keymap rl_executing_keymap;
+extern Keymap rl_binding_keymap;
+
+extern int rl_executing_key;
+extern char *rl_executing_keyseq;
+extern int rl_key_sequence_length;
+
+
+
+
+
+extern int rl_erase_empty_line;
+
+
+
+
+extern int rl_already_prompted;
+
+
+
+extern int rl_num_chars_to_read;
+
+
+extern char *rl_executing_macro;
+
+
+
+
+extern int rl_catch_signals;
+
+
+
+
+
+
+extern int rl_catch_sigwinch;
+
+
+
+extern int rl_change_environment;
+
+
+
+
+
+extern rl_compentry_func_t *rl_completion_entry_function;
+
+
+
+extern rl_compentry_func_t *rl_menu_completion_entry_function;
+
+
+
+
+
+
+
+extern rl_compignore_func_t *rl_ignore_some_completions_function;
+# 683 "/usr/include/readline/readline.h" 3 4
+extern rl_completion_func_t *rl_attempted_completion_function;
+
+
+
+
+extern const char *rl_basic_word_break_characters;
+
+
+
+
+extern char *rl_completer_word_break_characters;
+
+
+
+
+extern rl_cpvfunc_t *rl_completion_word_break_hook;
+
+
+
+
+
+extern const char *rl_completer_quote_characters;
+
+
+extern const char *rl_basic_quote_characters;
+
+
+extern const char *rl_filename_quote_characters;
+
+
+
+
+extern const char *rl_special_prefixes;
+# 726 "/usr/include/readline/readline.h" 3 4
+extern rl_icppfunc_t *rl_directory_completion_hook;
+# 739 "/usr/include/readline/readline.h" 3 4
+extern rl_icppfunc_t *rl_directory_rewrite_hook;
+
+
+
+
+
+
+extern rl_icppfunc_t *rl_filename_stat_hook;
+# 757 "/usr/include/readline/readline.h" 3 4
+extern rl_dequote_func_t *rl_filename_rewrite_hook;
+# 769 "/usr/include/readline/readline.h" 3 4
+extern rl_compdisp_func_t *rl_completion_display_matches_hook;
+
+
+
+
+extern int rl_filename_completion_desired;
+
+
+
+
+
+
+extern int rl_filename_quoting_desired;
+
+
+
+
+
+extern rl_quote_func_t *rl_filename_quoting_function;
+
+
+
+
+extern rl_dequote_func_t *rl_filename_dequoting_function;
+
+
+
+
+extern rl_linebuf_func_t *rl_char_is_quoted_p;
+
+
+
+extern int rl_attempted_completion_over;
+
+
+
+
+extern int rl_completion_type;
+
+
+extern int rl_completion_invoking_key;
+
+
+
+
+extern int rl_completion_query_items;
+
+
+
+extern int rl_completion_append_character;
+
+
+
+extern int rl_completion_suppress_append;
+
+
+
+extern int rl_completion_quote_character;
+
+
+
+extern int rl_completion_found_quote;
+
+
+
+
+extern int rl_completion_suppress_quote;
+
+
+extern int rl_sort_completion_matches;
+# 849 "/usr/include/readline/readline.h" 3 4
+extern int rl_completion_mark_symlink_dirs;
+
+
+extern int rl_ignore_completion_duplicates;
+
+
+
+extern int rl_inhibit_completion;
+
+
+
+
+
+
+
+extern int rl_persistent_signal_handlers;
+# 915 "/usr/include/readline/readline.h" 3 4
+struct readline_state {
+
+  int point;
+  int end;
+  int mark;
+  int buflen;
+  char *buffer;
+  UNDO_LIST *ul;
+  char *prompt;
+
+
+  int rlstate;
+  int done;
+  Keymap kmap;
+
+
+  rl_command_func_t *lastfunc;
+  int insmode;
+  int edmode;
+  char *kseq;
+  int kseqlen;
+
+  int pendingin;
+  FILE *inf;
+  FILE *outf;
+  char *macro;
+
+
+  int catchsigs;
+  int catchsigwinch;
+
+
+
+
+  rl_compentry_func_t *entryfunc;
+  rl_compentry_func_t *menuentryfunc;
+  rl_compignore_func_t *ignorefunc;
+  rl_completion_func_t *attemptfunc;
+  char *wordbreakchars;
+
+
+
+
+
+
+  char reserved[64];
+};
+
+extern int rl_save_state (struct readline_state *);
+extern int rl_restore_state (struct readline_state *);
+# 19 "src/monitor/sdb/sdb.c" 2
+# 1 "/usr/include/readline/history.h" 1 3 4
+# 29 "/usr/include/readline/history.h" 3 4
+# 1 "/usr/include/time.h" 1 3 4
+# 29 "/usr/include/time.h" 3 4
+# 1 "/usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h" 1 3 4
+# 30 "/usr/include/time.h" 2 3 4
+
+
+
+# 1 "/usr/include/x86_64-linux-gnu/bits/time.h" 1 3 4
+# 34 "/usr/include/time.h" 2 3 4
+
+
+
+
+
+# 1 "/usr/include/x86_64-linux-gnu/bits/types/struct_tm.h" 1 3 4
+
+
+
+
+
+
+struct tm
+{
+  int tm_sec;
+  int tm_min;
+  int tm_hour;
+  int tm_mday;
+  int tm_mon;
+  int tm_year;
+  int tm_wday;
+  int tm_yday;
+  int tm_isdst;
+
+
+  long int tm_gmtoff;
+  const char *tm_zone;
+
+
+
+
+};
+# 40 "/usr/include/time.h" 2 3 4
+# 48 "/usr/include/time.h" 3 4
+# 1 "/usr/include/x86_64-linux-gnu/bits/types/struct_itimerspec.h" 1 3 4
+
+
+
+
+
+
+
+struct itimerspec
+  {
+    struct timespec it_interval;
+    struct timespec it_value;
+  };
+# 49 "/usr/include/time.h" 2 3 4
+struct sigevent;
+# 68 "/usr/include/time.h" 3 4
+
+
+
+
+extern clock_t clock (void) __attribute__ ((__nothrow__ , __leaf__));
+
+
+
+extern time_t time (time_t *__timer) __attribute__ ((__nothrow__ , __leaf__));
+
+
+extern double difftime (time_t __time1, time_t __time0)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+
+
+extern time_t mktime (struct tm *__tp) __attribute__ ((__nothrow__ , __leaf__));
+# 100 "/usr/include/time.h" 3 4
+extern size_t strftime (char *__restrict __s, size_t __maxsize,
+   const char *__restrict __format,
+   const struct tm *__restrict __tp) __attribute__ ((__nothrow__ , __leaf__));
+# 116 "/usr/include/time.h" 3 4
+extern size_t strftime_l (char *__restrict __s, size_t __maxsize,
+     const char *__restrict __format,
+     const struct tm *__restrict __tp,
+     locale_t __loc) __attribute__ ((__nothrow__ , __leaf__));
+# 132 "/usr/include/time.h" 3 4
+extern struct tm *gmtime (const time_t *__timer) __attribute__ ((__nothrow__ , __leaf__));
+
+
+
+extern struct tm *localtime (const time_t *__timer) __attribute__ ((__nothrow__ , __leaf__));
+# 154 "/usr/include/time.h" 3 4
+extern struct tm *gmtime_r (const time_t *__restrict __timer,
+       struct tm *__restrict __tp) __attribute__ ((__nothrow__ , __leaf__));
+
+
+
+extern struct tm *localtime_r (const time_t *__restrict __timer,
+          struct tm *__restrict __tp) __attribute__ ((__nothrow__ , __leaf__));
+# 179 "/usr/include/time.h" 3 4
+extern char *asctime (const struct tm *__tp) __attribute__ ((__nothrow__ , __leaf__));
+
+
+
+extern char *ctime (const time_t *__timer) __attribute__ ((__nothrow__ , __leaf__));
+# 197 "/usr/include/time.h" 3 4
+extern char *asctime_r (const struct tm *__restrict __tp,
+   char *__restrict __buf) __attribute__ ((__nothrow__ , __leaf__));
+
+
+
+extern char *ctime_r (const time_t *__restrict __timer,
+        char *__restrict __buf) __attribute__ ((__nothrow__ , __leaf__));
+# 217 "/usr/include/time.h" 3 4
+extern char *__tzname[2];
+extern int __daylight;
+extern long int __timezone;
+
+
+
+
+extern char *tzname[2];
+
+
+
+extern void tzset (void) __attribute__ ((__nothrow__ , __leaf__));
+
+
+
+extern int daylight;
+extern long int timezone;
+# 249 "/usr/include/time.h" 3 4
+extern time_t timegm (struct tm *__tp) __attribute__ ((__nothrow__ , __leaf__));
+
+extern time_t timelocal (struct tm *__tp) __attribute__ ((__nothrow__ , __leaf__));
+# 262 "/usr/include/time.h" 3 4
+extern int dysize (int __year) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__));
+# 272 "/usr/include/time.h" 3 4
+extern int nanosleep (const struct timespec *__requested_time,
+        struct timespec *__remaining);
+
+
+extern int clock_getres (clockid_t __clock_id, struct timespec *__res) __attribute__ ((__nothrow__ , __leaf__));
+
+
+extern int clock_gettime (clockid_t __clock_id, struct timespec *__tp) __attribute__ ((__nothrow__ , __leaf__));
+
+
+extern int clock_settime (clockid_t __clock_id, const struct timespec *__tp)
+     __attribute__ ((__nothrow__ , __leaf__));
+# 311 "/usr/include/time.h" 3 4
+extern int clock_nanosleep (clockid_t __clock_id, int __flags,
+       const struct timespec *__req,
+       struct timespec *__rem);
+# 326 "/usr/include/time.h" 3 4
+extern int clock_getcpuclockid (pid_t __pid, clockid_t *__clock_id) __attribute__ ((__nothrow__ , __leaf__));
+
+
+
+
+extern int timer_create (clockid_t __clock_id,
+    struct sigevent *__restrict __evp,
+    timer_t *__restrict __timerid) __attribute__ ((__nothrow__ , __leaf__));
+
+
+extern int timer_delete (timer_t __timerid) __attribute__ ((__nothrow__ , __leaf__));
+
+
+
+extern int timer_settime (timer_t __timerid, int __flags,
+     const struct itimerspec *__restrict __value,
+     struct itimerspec *__restrict __ovalue) __attribute__ ((__nothrow__ , __leaf__));
+
+
+extern int timer_gettime (timer_t __timerid, struct itimerspec *__value)
+     __attribute__ ((__nothrow__ , __leaf__));
+# 364 "/usr/include/time.h" 3 4
+extern int timer_getoverrun (timer_t __timerid) __attribute__ ((__nothrow__ , __leaf__));
+
+
+
+
+
+
+extern int timespec_get (struct timespec *__ts, int __base)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (1)));
+# 440 "/usr/include/time.h" 3 4
+
+# 30 "/usr/include/readline/history.h" 2 3 4
+# 41 "/usr/include/readline/history.h" 3 4
+typedef void *histdata_t;
+
+
+
+
+
+typedef struct _hist_entry {
+  char *line;
+  char *timestamp;
+  histdata_t data;
+} HIST_ENTRY;
+
+
+
+
+
+typedef struct _hist_state {
+  HIST_ENTRY **entries;
+  int offset;
+  int length;
+  int size;
+  int flags;
+} HISTORY_STATE;
+# 72 "/usr/include/readline/history.h" 3 4
+extern void using_history (void);
+
+
+extern HISTORY_STATE *history_get_history_state (void);
+
+
+extern void history_set_history_state (HISTORY_STATE *);
+
+
+
+
+
+extern void add_history (const char *);
+
+
+
+extern void add_history_time (const char *);
+
+
+
+extern HIST_ENTRY *remove_history (int);
+
+
+extern HIST_ENTRY **remove_history_range (int, int);
+
+
+
+extern HIST_ENTRY *alloc_history_entry (char *, char *);
+
+
+extern HIST_ENTRY *copy_history_entry (HIST_ENTRY *);
+
+
+
+extern histdata_t free_history_entry (HIST_ENTRY *);
+
+
+
+
+extern HIST_ENTRY *replace_history_entry (int, const char *, histdata_t);
+
+
+extern void clear_history (void);
+
+
+extern void stifle_history (int);
+
+
+
+
+extern int unstifle_history (void);
+
+
+extern int history_is_stifled (void);
+
+
+
+
+
+
+extern HIST_ENTRY **history_list (void);
+
+
+
+extern int where_history (void);
+
+
+
+extern HIST_ENTRY *current_history (void);
+
+
+
+extern HIST_ENTRY *history_get (int);
+
+
+
+extern time_t history_get_time (HIST_ENTRY *);
+
+
+
+extern int history_total_bytes (void);
+
+
+
+
+extern int history_set_pos (int);
+
+
+
+
+extern HIST_ENTRY *previous_history (void);
+
+
+
+
+extern HIST_ENTRY *next_history (void);
+# 177 "/usr/include/readline/history.h" 3 4
+extern int history_search (const char *, int);
+
+
+
+
+extern int history_search_prefix (const char *, int);
+
+
+
+
+
+
+extern int history_search_pos (const char *, int, int);
+
+
+
+
+
+
+extern int read_history (const char *);
+
+
+
+
+
+
+extern int read_history_range (const char *, int, int);
+
+
+
+
+extern int write_history (const char *);
+
+
+
+extern int append_history (int, const char *);
+
+
+extern int history_truncate_file (const char *, int);
+# 231 "/usr/include/readline/history.h" 3 4
+extern int history_expand (char *, char **);
+
+
+
+
+extern char *history_arg_extract (int, int, const char *);
+
+
+
+
+
+
+
+extern char *get_history_event (const char *, int *, int);
+
+
+
+extern char **history_tokenize (const char *);
+
+
+extern int history_base;
+extern int history_length;
+extern int history_max_entries;
+extern int history_offset;
+
+extern int history_lines_read_from_file;
+extern int history_lines_written_to_file;
+
+extern char history_expansion_char;
+extern char history_subst_char;
+extern char *history_word_delimiters;
+extern char history_comment_char;
+extern char *history_no_expand_chars;
+extern char *history_search_delimiter_chars;
+
+extern int history_quotes_inhibit_expansion;
+extern int history_quoting_state;
+
+extern int history_write_timestamps;
+
+
+extern int history_multiline_entries;
+extern int history_file_version;
+
+
+extern int max_input_history;
+
+
+
+
+extern rl_linebuf_func_t *history_inhibit_expansion_function;
+# 20 "src/monitor/sdb/sdb.c" 2
+# 1 "src/monitor/sdb/sdb.h" 1
+# 20 "src/monitor/sdb/sdb.h"
+# 1 "/usr/include/elf.h" 1 3 4
+# 27 "/usr/include/elf.h" 3 4
+typedef uint16_t Elf32_Half;
+typedef uint16_t Elf64_Half;
+
+
+typedef uint32_t Elf32_Word;
+typedef int32_t Elf32_Sword;
+typedef uint32_t Elf64_Word;
+typedef int32_t Elf64_Sword;
+
+
+typedef uint64_t Elf32_Xword;
+typedef int64_t Elf32_Sxword;
+typedef uint64_t Elf64_Xword;
+typedef int64_t Elf64_Sxword;
+
+
+typedef uint32_t Elf32_Addr;
+typedef uint64_t Elf64_Addr;
+
+
+typedef uint32_t Elf32_Off;
+typedef uint64_t Elf64_Off;
+
+
+typedef uint16_t Elf32_Section;
+typedef uint16_t Elf64_Section;
+
+
+typedef Elf32_Half Elf32_Versym;
+typedef Elf64_Half Elf64_Versym;
+
+
+
+
+
+
+typedef struct
+{
+  unsigned char e_ident[(16)];
+  Elf32_Half e_type;
+  Elf32_Half e_machine;
+  Elf32_Word e_version;
+  Elf32_Addr e_entry;
+  Elf32_Off e_phoff;
+  Elf32_Off e_shoff;
+  Elf32_Word e_flags;
+  Elf32_Half e_ehsize;
+  Elf32_Half e_phentsize;
+  Elf32_Half e_phnum;
+  Elf32_Half e_shentsize;
+  Elf32_Half e_shnum;
+  Elf32_Half e_shstrndx;
+} Elf32_Ehdr;
+
+typedef struct
+{
+  unsigned char e_ident[(16)];
+  Elf64_Half e_type;
+  Elf64_Half e_machine;
+  Elf64_Word e_version;
+  Elf64_Addr e_entry;
+  Elf64_Off e_phoff;
+  Elf64_Off e_shoff;
+  Elf64_Word e_flags;
+  Elf64_Half e_ehsize;
+  Elf64_Half e_phentsize;
+  Elf64_Half e_phnum;
+  Elf64_Half e_shentsize;
+  Elf64_Half e_shnum;
+  Elf64_Half e_shstrndx;
+} Elf64_Ehdr;
+# 382 "/usr/include/elf.h" 3 4
+typedef struct
+{
+  Elf32_Word sh_name;
+  Elf32_Word sh_type;
+  Elf32_Word sh_flags;
+  Elf32_Addr sh_addr;
+  Elf32_Off sh_offset;
+  Elf32_Word sh_size;
+  Elf32_Word sh_link;
+  Elf32_Word sh_info;
+  Elf32_Word sh_addralign;
+  Elf32_Word sh_entsize;
+} Elf32_Shdr;
+
+typedef struct
+{
+  Elf64_Word sh_name;
+  Elf64_Word sh_type;
+  Elf64_Xword sh_flags;
+  Elf64_Addr sh_addr;
+  Elf64_Off sh_offset;
+  Elf64_Xword sh_size;
+  Elf64_Word sh_link;
+  Elf64_Word sh_info;
+  Elf64_Xword sh_addralign;
+  Elf64_Xword sh_entsize;
+} Elf64_Shdr;
+# 490 "/usr/include/elf.h" 3 4
+typedef struct
+{
+  Elf32_Word ch_type;
+  Elf32_Word ch_size;
+  Elf32_Word ch_addralign;
+} Elf32_Chdr;
+
+typedef struct
+{
+  Elf64_Word ch_type;
+  Elf64_Word ch_reserved;
+  Elf64_Xword ch_size;
+  Elf64_Xword ch_addralign;
+} Elf64_Chdr;
+# 517 "/usr/include/elf.h" 3 4
+typedef struct
+{
+  Elf32_Word st_name;
+  Elf32_Addr st_value;
+  Elf32_Word st_size;
+  unsigned char st_info;
+  unsigned char st_other;
+  Elf32_Section st_shndx;
+} Elf32_Sym;
+
+typedef struct
+{
+  Elf64_Word st_name;
+  unsigned char st_info;
+  unsigned char st_other;
+  Elf64_Section st_shndx;
+  Elf64_Addr st_value;
+  Elf64_Xword st_size;
+} Elf64_Sym;
+
+
+
+
+typedef struct
+{
+  Elf32_Half si_boundto;
+  Elf32_Half si_flags;
+} Elf32_Syminfo;
+
+typedef struct
+{
+  Elf64_Half si_boundto;
+  Elf64_Half si_flags;
+} Elf64_Syminfo;
+# 632 "/usr/include/elf.h" 3 4
+typedef struct
+{
+  Elf32_Addr r_offset;
+  Elf32_Word r_info;
+} Elf32_Rel;
+
+
+
+
+
+
+typedef struct
+{
+  Elf64_Addr r_offset;
+  Elf64_Xword r_info;
+} Elf64_Rel;
+
+
+
+typedef struct
+{
+  Elf32_Addr r_offset;
+  Elf32_Word r_info;
+  Elf32_Sword r_addend;
+} Elf32_Rela;
+
+typedef struct
+{
+  Elf64_Addr r_offset;
+  Elf64_Xword r_info;
+  Elf64_Sxword r_addend;
+} Elf64_Rela;
+# 677 "/usr/include/elf.h" 3 4
+typedef struct
+{
+  Elf32_Word p_type;
+  Elf32_Off p_offset;
+  Elf32_Addr p_vaddr;
+  Elf32_Addr p_paddr;
+  Elf32_Word p_filesz;
+  Elf32_Word p_memsz;
+  Elf32_Word p_flags;
+  Elf32_Word p_align;
+} Elf32_Phdr;
+
+typedef struct
+{
+  Elf64_Word p_type;
+  Elf64_Word p_flags;
+  Elf64_Off p_offset;
+  Elf64_Addr p_vaddr;
+  Elf64_Addr p_paddr;
+  Elf64_Xword p_filesz;
+  Elf64_Xword p_memsz;
+  Elf64_Xword p_align;
+} Elf64_Phdr;
+# 833 "/usr/include/elf.h" 3 4
+typedef struct
+{
+  Elf32_Sword d_tag;
+  union
+    {
+      Elf32_Word d_val;
+      Elf32_Addr d_ptr;
+    } d_un;
+} Elf32_Dyn;
+
+typedef struct
+{
+  Elf64_Sxword d_tag;
+  union
+    {
+      Elf64_Xword d_val;
+      Elf64_Addr d_ptr;
+    } d_un;
+} Elf64_Dyn;
+# 1015 "/usr/include/elf.h" 3 4
+typedef struct
+{
+  Elf32_Half vd_version;
+  Elf32_Half vd_flags;
+  Elf32_Half vd_ndx;
+  Elf32_Half vd_cnt;
+  Elf32_Word vd_hash;
+  Elf32_Word vd_aux;
+  Elf32_Word vd_next;
+
+} Elf32_Verdef;
+
+typedef struct
+{
+  Elf64_Half vd_version;
+  Elf64_Half vd_flags;
+  Elf64_Half vd_ndx;
+  Elf64_Half vd_cnt;
+  Elf64_Word vd_hash;
+  Elf64_Word vd_aux;
+  Elf64_Word vd_next;
+
+} Elf64_Verdef;
+# 1057 "/usr/include/elf.h" 3 4
+typedef struct
+{
+  Elf32_Word vda_name;
+  Elf32_Word vda_next;
+
+} Elf32_Verdaux;
+
+typedef struct
+{
+  Elf64_Word vda_name;
+  Elf64_Word vda_next;
+
+} Elf64_Verdaux;
+
+
+
+
+typedef struct
+{
+  Elf32_Half vn_version;
+  Elf32_Half vn_cnt;
+  Elf32_Word vn_file;
+
+  Elf32_Word vn_aux;
+  Elf32_Word vn_next;
+
+} Elf32_Verneed;
+
+typedef struct
+{
+  Elf64_Half vn_version;
+  Elf64_Half vn_cnt;
+  Elf64_Word vn_file;
+
+  Elf64_Word vn_aux;
+  Elf64_Word vn_next;
+
+} Elf64_Verneed;
+# 1104 "/usr/include/elf.h" 3 4
+typedef struct
+{
+  Elf32_Word vna_hash;
+  Elf32_Half vna_flags;
+  Elf32_Half vna_other;
+  Elf32_Word vna_name;
+  Elf32_Word vna_next;
+
+} Elf32_Vernaux;
+
+typedef struct
+{
+  Elf64_Word vna_hash;
+  Elf64_Half vna_flags;
+  Elf64_Half vna_other;
+  Elf64_Word vna_name;
+  Elf64_Word vna_next;
+
+} Elf64_Vernaux;
+# 1138 "/usr/include/elf.h" 3 4
+typedef struct
+{
+  uint32_t a_type;
+  union
+    {
+      uint32_t a_val;
+
+
+
+    } a_un;
+} Elf32_auxv_t;
+
+typedef struct
+{
+  uint64_t a_type;
+  union
+    {
+      uint64_t a_val;
+
+
+
+    } a_un;
+} Elf64_auxv_t;
+# 1239 "/usr/include/elf.h" 3 4
+typedef struct
+{
+  Elf32_Word n_namesz;
+  Elf32_Word n_descsz;
+  Elf32_Word n_type;
+} Elf32_Nhdr;
+
+typedef struct
+{
+  Elf64_Word n_namesz;
+  Elf64_Word n_descsz;
+  Elf64_Word n_type;
+} Elf64_Nhdr;
+# 1383 "/usr/include/elf.h" 3 4
+typedef struct
+{
+  Elf32_Xword m_value;
+  Elf32_Word m_info;
+  Elf32_Word m_poffset;
+  Elf32_Half m_repeat;
+  Elf32_Half m_stride;
+} Elf32_Move;
+
+typedef struct
+{
+  Elf64_Xword m_value;
+  Elf64_Xword m_info;
+  Elf64_Xword m_poffset;
+  Elf64_Half m_repeat;
+  Elf64_Half m_stride;
+} Elf64_Move;
+# 1773 "/usr/include/elf.h" 3 4
+typedef union
+{
+  struct
+    {
+      Elf32_Word gt_current_g_value;
+      Elf32_Word gt_unused;
+    } gt_header;
+  struct
+    {
+      Elf32_Word gt_g_value;
+      Elf32_Word gt_bytes;
+    } gt_entry;
+} Elf32_gptab;
+
+
+
+typedef struct
+{
+  Elf32_Word ri_gprmask;
+  Elf32_Word ri_cprmask[4];
+  Elf32_Sword ri_gp_value;
+} Elf32_RegInfo;
+
+
+
+typedef struct
+{
+  unsigned char kind;
+
+  unsigned char size;
+  Elf32_Section section;
+
+  Elf32_Word info;
+} Elf_Options;
+# 1849 "/usr/include/elf.h" 3 4
+typedef struct
+{
+  Elf32_Word hwp_flags1;
+  Elf32_Word hwp_flags2;
+} Elf_Options_Hw;
+# 2017 "/usr/include/elf.h" 3 4
+typedef struct
+{
+  Elf32_Word l_name;
+  Elf32_Word l_time_stamp;
+  Elf32_Word l_checksum;
+  Elf32_Word l_version;
+  Elf32_Word l_flags;
+} Elf32_Lib;
+
+typedef struct
+{
+  Elf64_Word l_name;
+  Elf64_Word l_time_stamp;
+  Elf64_Word l_checksum;
+  Elf64_Word l_version;
+  Elf64_Word l_flags;
+} Elf64_Lib;
+# 2048 "/usr/include/elf.h" 3 4
+typedef Elf32_Addr Elf32_Conflict;
+
+typedef struct
+{
+
+  Elf32_Half version;
+
+  unsigned char isa_level;
+
+  unsigned char isa_rev;
+
+  unsigned char gpr_size;
+
+  unsigned char cpr1_size;
+
+  unsigned char cpr2_size;
+
+  unsigned char fp_abi;
+
+  Elf32_Word isa_ext;
+
+  Elf32_Word ases;
+
+  Elf32_Word flags1;
+  Elf32_Word flags2;
+} Elf_MIPS_ABIFlags_v0;
+# 2124 "/usr/include/elf.h" 3 4
+enum
+{
+
+  Val_GNU_MIPS_ABI_FP_ANY = 0,
+
+  Val_GNU_MIPS_ABI_FP_DOUBLE = 1,
+
+  Val_GNU_MIPS_ABI_FP_SINGLE = 2,
+
+  Val_GNU_MIPS_ABI_FP_SOFT = 3,
+
+  Val_GNU_MIPS_ABI_FP_OLD_64 = 4,
+
+  Val_GNU_MIPS_ABI_FP_XX = 5,
+
+  Val_GNU_MIPS_ABI_FP_64 = 6,
+
+  Val_GNU_MIPS_ABI_FP_64A = 7,
+
+  Val_GNU_MIPS_ABI_FP_MAX = 7
+};
+# 21 "src/monitor/sdb/sdb.h" 2
+
+# 21 "src/monitor/sdb/sdb.h"
+word_t expr(char *e, 
+# 21 "src/monitor/sdb/sdb.h" 3 4
+                    _Bool 
+# 21 "src/monitor/sdb/sdb.h"
+                         *success);
+
+typedef struct watchpoint {
+  int NO;
+  struct watchpoint *next;
+  char expre[256];
+  word_t value;
+
+} WP;
+
+
+union var8
+{
+    char p[8];
+    int64_t i;
+};
+union var4
+{
+    char p[4];
+    int32_t i;
+};
+union var2
+{
+    char p[2];
+    int16_t i;
+};
+union var1
+{
+    char p;
+    int8_t i;
+};
+char elf_logfile[] = "/home/yangli/ysyx-workbench/nemu/build/ftrace-log.txt";
+int symblenumber ;
+
+Elf64_Sym allsymble[4096];
+
+void init_ftrace(char * elf_file);
+
+void log_ftrace(paddr_t addr,char* elf_file);
+# 21 "src/monitor/sdb/sdb.c" 2
+
+
+void init_ftrace(char* elf_file)
+{
+
+  FILE *file;
+  file = fopen(elf_logfile,"w+");
+
+  if (file == 
+# 29 "src/monitor/sdb/sdb.c" 3 4
+             ((void *)0)
+# 29 "src/monitor/sdb/sdb.c"
+                 )
+  {
+    printf("Fail to creat mtracefile!\n");
+  }
+
+
+ FILE *fp;
+ fp = fopen(elf_file, "r");
+ if (
+# 37 "src/monitor/sdb/sdb.c" 3 4
+    ((void *)0) 
+# 37 "src/monitor/sdb/sdb.c"
+         == fp)
+ {
+  printf("fail to open the file");
+  exit(0);
+ }
+
+
+ Elf64_Ehdr elf_head;
+ int a;
+
+
+ a = fread(&elf_head, sizeof(Elf64_Ehdr), 1, fp);
+ if (0 == a)
+ {
+  printf("fail to read head\n");
+  exit(0);
+ }
+
+
+ if (elf_head.e_ident[0] != 0x7F ||
+  elf_head.e_ident[1] != 'E' ||
+  elf_head.e_ident[2] != 'L' ||
+  elf_head.e_ident[3] != 'F')
+ {
+  printf("Not a ELF file\n");
+  exit(0);
+ }
+
+
+ Elf64_Shdr *shdr = (Elf64_Shdr*)malloc(sizeof(Elf64_Shdr) * elf_head.e_shnum);
+ if (
+# 67 "src/monitor/sdb/sdb.c" 3 4
+    ((void *)0) 
+# 67 "src/monitor/sdb/sdb.c"
+         == shdr)
+ {
+  printf("shdr malloc failed\n");
+  exit(0);
+ }
+
+
+ a = fseek(fp, elf_head.e_shoff, 
+# 74 "src/monitor/sdb/sdb.c" 3 4
+                                0
+# 74 "src/monitor/sdb/sdb.c"
+                                        );
+ if (0 != a)
+ {
+  printf("\nfaile to fseek\n");
+  exit(0);
+ }
+
+
+ a = fread(shdr, sizeof(Elf64_Shdr) * elf_head.e_shnum, 1, fp);
+ if (0 == a)
+ {
+  printf("\nfail to read section\n");
+  exit(0);
+ }
+
+
+ rewind(fp);
+
+
+ fseek(fp, shdr[elf_head.e_shstrndx].sh_offset, 
+# 93 "src/monitor/sdb/sdb.c" 3 4
+                                               0
+# 93 "src/monitor/sdb/sdb.c"
+                                                       );
+
+
+ char shstrtab[shdr[elf_head.e_shstrndx].sh_size];
+ char *temp = shstrtab;
+
+
+ a = fread(shstrtab, shdr[elf_head.e_shstrndx].sh_size, 1, fp);
+ if (0 == a)
+ {
+  printf("\nfaile to read\n");
+ }
+    Elf64_Sym symble_entry;
+    int symble_size = sizeof(symble_entry);
+# 119 "src/monitor/sdb/sdb.c"
+  for (int i = 0; i < elf_head.e_shnum; i++)
+ {
+  temp = shstrtab;
+  temp = temp + shdr[i].sh_name;
+    if (strcmp(temp, ".symtab") == 0) {
+
+
+
+      symblenumber = shdr[i].sh_size/symble_size;
+    }
+ }
+
+
+
+ for (int i = 0; i < elf_head.e_shnum; i++)
+ {
+  temp = shstrtab;
+  temp = temp + shdr[i].sh_name;
+    if (strcmp(temp, ".symtab") != 0) continue;
+    uint8_t *sign_data=(uint8_t*)malloc(sizeof(uint8_t)*shdr[i].sh_size);
+
+  fseek(fp, shdr[i].sh_offset, 
+# 140 "src/monitor/sdb/sdb.c" 3 4
+                              0
+# 140 "src/monitor/sdb/sdb.c"
+                                      );
+  if(fread(sign_data, sizeof(uint8_t)*shdr[i].sh_size, 1, fp)==1);
+
+  uint8_t *p = sign_data;
+  int j = 0;
+  for (j=0; j<shdr[i].sh_size; j = j+symble_size)
+  {
+      int symbolind = j/symble_size;
+
+      int k = 0;
+
+
+      union var4 stname;
+      while (k<4)
+      {
+          stname.p[k] = *p;
+          k++;
+          p++;
+      }
+
+
+      allsymble[symbolind].st_name = stname.i;
+
+      union var1 stinfo;
+      while (k<4+1)
+      {
+          stinfo.p = *p;
+          k++;
+          p++;
+      }
+
+      allsymble[symbolind].st_info = stinfo.i;
+
+      union var1 stother;
+      while (k<5+1)
+      {
+          stother.p = *p;
+          k++;
+          p++;
+      }
+
+      allsymble[symbolind].st_other = stother.i;
+
+      union var2 stshndx;
+      while (k<6+2)
+      {
+          stshndx.p[k-6] = *p;
+          k++;
+          p++;
+      }
+
+      allsymble[symbolind].st_shndx = stshndx.i;
+
+      union var8 stvalue;
+      while (k<8+8)
+      {
+          stvalue.p[k-8] = *p;
+          k++;
+          p++;
+      }
+
+      allsymble[symbolind].st_value = stvalue.i;
+
+      union var8 stsize;
+      while (k<symble_size)
+      {
+          stsize.p[k-16] = *p;
+          k++;
+          p++;
+      }
+
+      allsymble[symbolind].st_size = stsize.i;
+
+  }
+ }
+  return;
+}
+
+void log_ftrace(paddr_t addr,char* elf_file)
+{
+  FILE *file;
+  file = fopen(elf_logfile,"a");
+  if (file == 
+# 222 "src/monitor/sdb/sdb.c" 3 4
+             ((void *)0)
+# 222 "src/monitor/sdb/sdb.c"
+                 ) {printf("No file!!!!\n");}
+  FILE *fp;
+ fp = fopen(elf_file, "r");
+ if (
+# 225 "src/monitor/sdb/sdb.c" 3 4
+    ((void *)0) 
+# 225 "src/monitor/sdb/sdb.c"
+         == fp)
+ {
+  printf("fail to open the file");
+  exit(0);
+ }
+
+ Elf64_Ehdr elf_head;
+ int a;
+ a = fread(&elf_head, sizeof(Elf64_Ehdr), 1, fp);
+ if (0 == a)
+ {
+  printf("fail to read head\n");
+  exit(0);
+ }
+ if (elf_head.e_ident[0] != 0x7F ||
+  elf_head.e_ident[1] != 'E' ||
+  elf_head.e_ident[2] != 'L' ||
+  elf_head.e_ident[3] != 'F')
+ {
+  printf("Not a ELF file\n");
+  exit(0);
+ }
+ Elf64_Shdr *shdr = (Elf64_Shdr*)malloc(sizeof(Elf64_Shdr) * elf_head.e_shnum);
+ if (
+# 248 "src/monitor/sdb/sdb.c" 3 4
+    ((void *)0) 
+# 248 "src/monitor/sdb/sdb.c"
+         == shdr)
+ {
+  printf("shdr malloc failed\n");
+  exit(0);
+ }
+ a = fseek(fp, elf_head.e_shoff, 
+# 253 "src/monitor/sdb/sdb.c" 3 4
+                                0
+# 253 "src/monitor/sdb/sdb.c"
+                                        );
+ if (0 != a)
+ {
+  printf("\nfaile to fseek\n");
+  exit(0);
+ }
+ a = fread(shdr, sizeof(Elf64_Shdr) * elf_head.e_shnum, 1, fp);
+ if (0 == a)
+ {
+  printf("\nfail to read section\n");
+  exit(0);
+ }
+ rewind(fp);
+ fseek(fp, shdr[elf_head.e_shstrndx].sh_offset, 
+# 266 "src/monitor/sdb/sdb.c" 3 4
+                                               0
+# 266 "src/monitor/sdb/sdb.c"
+                                                       );
+ char shstrtab[shdr[elf_head.e_shstrndx].sh_size];
+ char *temp = shstrtab;
+ a = fread(shstrtab, shdr[elf_head.e_shstrndx].sh_size, 1, fp);
+ if (0 == a)
+ {
+  printf("\nfaile to read\n");
+ }
+
+
+  for (int i = 0; i < elf_head.e_shnum; i++)
+ {
+  temp = shstrtab;
+  temp = temp + shdr[i].sh_name;
+    if (strcmp(temp, ".strtab") != 0) continue;
+    uint8_t *sign_data=(uint8_t*)malloc(sizeof(uint8_t)*shdr[i].sh_size);
+
+  fseek(fp, shdr[i].sh_offset, 
+# 283 "src/monitor/sdb/sdb.c" 3 4
+                              0
+# 283 "src/monitor/sdb/sdb.c"
+                                      );
+  if(fread(sign_data, sizeof(uint8_t)*shdr[i].sh_size, 1, fp)==1);
+
+    for (size_t j = 0; j < symblenumber; j++)
+    {
+      if (allsymble[j].st_value!=addr) continue;
+      uint8_t *p = sign_data;
+      int len = 0;
+
+
+      if((allsymble[j].st_info&0x0f) == 
+# 293 "src/monitor/sdb/sdb.c" 3 4
+                                       2
+# 293 "src/monitor/sdb/sdb.c"
+                                               )
+      {
+        int ind = allsymble[j].st_name;
+
+        for (p = p + ind; *p!='\0'; p++)
+        {
+          len++;
+        }
+        char funcname [len+1];
+        char* newp = (char*)(sign_data)+(char)(ind);
+        strncpy(funcname,newp,len);
+        funcname[len] = '\0';
+        fprintf(file,"pc:%lx: Addr:%x call [%s]\n",cpu.pc,addr,funcname);
+      }
+    }
+ }
+  fclose(file);
 }
 
 
-void init_mtrace();
-void mtrace(
-# 36 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h" 3 4
-           _Bool 
-# 36 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h"
-                wrrd,paddr_t addr, int len,word_t data);
 
-word_t paddr_read(paddr_t addr, int len);
-void paddr_write(paddr_t addr, int len, word_t data);
-# 18 "src/memory/vaddr.c" 2
+static int is_batch_mode = 
+# 314 "src/monitor/sdb/sdb.c" 3 4
+                          0
+# 314 "src/monitor/sdb/sdb.c"
+                               ;
 
-word_t vaddr_ifetch(vaddr_t addr, int len) {
-  return paddr_read(addr, len);
+void init_regex();
+void init_wp_pool();
+
+
+static char* rl_gets() {
+  static char *line_read = 
+# 321 "src/monitor/sdb/sdb.c" 3 4
+                          ((void *)0)
+# 321 "src/monitor/sdb/sdb.c"
+                              ;
+
+  if (line_read) {
+    free(line_read);
+    line_read = 
+# 325 "src/monitor/sdb/sdb.c" 3 4
+               ((void *)0)
+# 325 "src/monitor/sdb/sdb.c"
+                   ;
+  }
+
+  line_read = readline("(nemu) ");
+
+  if (line_read && *line_read) {
+    add_history(line_read);
+  }
+
+  return line_read;
 }
 
-word_t vaddr_read(vaddr_t addr, int len) {
-  return paddr_read(addr, len);
+static int cmd_c(char *args) {
+  cpu_exec(-1);
+  return 0;
 }
 
-void vaddr_write(vaddr_t addr, int len, word_t data) {
-  paddr_write(addr, len, data);
+
+static int cmd_q(char *args) {
+  exit(0);
+  return 0;
+}
+
+static int cmd_help(char *args);
+
+static int cmd_si(char *args){
+
+
+
+
+  char *time = strtok(
+# 355 "src/monitor/sdb/sdb.c" 3 4
+                     ((void *)0)
+# 355 "src/monitor/sdb/sdb.c"
+                         ," ");
+  if (time == 
+# 356 "src/monitor/sdb/sdb.c" 3 4
+             ((void *)0)
+# 356 "src/monitor/sdb/sdb.c"
+                 ) {
+    cpu_exec(1);
+    return 0;
+  }
+  else
+  {
+    int num ;
+    sscanf(args,"%d",&num);
+    cpu_exec(num);
+  }
+  return 0;
+}
+
+
+void print_wp();
+static int cmd_info(char *args){
+  char *arg = strtok(
+# 372 "src/monitor/sdb/sdb.c" 3 4
+                    ((void *)0)
+# 372 "src/monitor/sdb/sdb.c"
+                        ," ");
+  if (strcmp(arg,"r")==0)
+  {
+    isa_reg_display();
+
+
+
+
+
+
+  }
+  else if (strcmp(arg,"w")==0)
+  {
+    print_wp();
+  }
+
+  else printf("Invalid SUBCMD!\n");
+  return 0;
+}
+
+
+
+word_t paddr_read(paddr_t addr, int len) ;
+
+
+static int cmd_x(char *args){
+  char *N = strtok(
+# 398 "src/monitor/sdb/sdb.c" 3 4
+                  ((void *)0)
+# 398 "src/monitor/sdb/sdb.c"
+                      ," ");
+  char *EXPR = strtok(
+# 399 "src/monitor/sdb/sdb.c" 3 4
+                     ((void *)0)
+# 399 "src/monitor/sdb/sdb.c"
+                         ," ");
+  int addrn ;
+  sscanf(N,"%d",&addrn);
+  paddr_t addexpr;
+  sscanf(EXPR,"%x",&addexpr);
+
+  for (size_t i = 0; i < addrn; i++)
+  {
+    printf("0x%08x\t 0x%08lx\n",addexpr,paddr_read(addexpr,4));
+    addexpr+=4;
+  }
+  printf("\n");
+  return 0;
+}
+
+
+
+
+
+static int cmd_p(char *args){
+  if (args == 
+# 419 "src/monitor/sdb/sdb.c" 3 4
+             ((void *)0)
+# 419 "src/monitor/sdb/sdb.c"
+                 )
+  {
+    printf("Please input the expression to calculate!");
+  }
+  else
+  {
+    init_regex();
+    
+# 426 "src/monitor/sdb/sdb.c" 3 4
+   _Bool 
+# 426 "src/monitor/sdb/sdb.c"
+        success = 
+# 426 "src/monitor/sdb/sdb.c" 3 4
+                  1
+# 426 "src/monitor/sdb/sdb.c"
+                      ;
+    int result = expr(args,&success);
+    if (success)
+    {
+      printf("result = %d\n",result);
+    }
+    else
+    {
+      printf("Invalid expression!\n");
+    }
+  }
+  return 0;
+}
+static int cmd_pt(char* args){
+  int len;
+  if (args == 
+# 441 "src/monitor/sdb/sdb.c" 3 4
+             ((void *)0)
+# 441 "src/monitor/sdb/sdb.c"
+                 )
+  {
+    len = 100;
+  }
+  else {
+    sscanf(args,"%d",&len);
+  }
+  printf("%d\n",len);
+  FILE *fp = fopen("/home/yangli/ysyx-workbench/nemu/tools/gen-expr/input.txt","r");
+  if (fp == 
+# 450 "src/monitor/sdb/sdb.c" 3 4
+           ((void *)0)
+# 450 "src/monitor/sdb/sdb.c"
+               )
+  {
+    printf("No testfile input!!\n");
+    return 0;
+  }
+  int a [len];
+  char str [len][65536];
+  int i = 0;
+  while (!feof(fp)&&i<len)
+  {
+
+    if(fscanf(fp,"%d",&a[i])==1)
+    {
+
+    }
+
+
+    if(fscanf(fp,"%[^\n]",str[i])==1)
+    {
+
+    }
+
+    i++;
+  }
+  for (size_t j = 0; j < len&&j<i-1; j++)
+  {
+    int strl = strlen(str[j]);
+    if (strl<=256)
+    {
+      int cal_result;
+      init_regex();
+      
+# 481 "src/monitor/sdb/sdb.c" 3 4
+     _Bool 
+# 481 "src/monitor/sdb/sdb.c"
+          success = 
+# 481 "src/monitor/sdb/sdb.c" 3 4
+                    1
+# 481 "src/monitor/sdb/sdb.c"
+                        ;
+      cal_result = expr(str[j],&success);
+      if (success)
+      {
+        printf("index: %ld realresult = %d, result = %d\n",j,a[j],cal_result);
+      }
+      else
+      {
+        printf("Invalid expression!\n");
+      }
+    }
+  }
+
+
+  return 0;
+}
+
+WP* new_wp(char *expre);
+static int cmd_w (char *args){
+  WP *wp = new_wp(args);
+  printf("Watchpoint %d : %s has been set\n",wp->NO,wp->expre);
+  return 0;
+}
+
+# 504 "src/monitor/sdb/sdb.c" 3 4
+_Bool 
+# 504 "src/monitor/sdb/sdb.c"
+    delete_wp(int NO);
+static int cmd_d (char *args){
+  char *arg = strtok(
+# 506 "src/monitor/sdb/sdb.c" 3 4
+                    ((void *)0)
+# 506 "src/monitor/sdb/sdb.c"
+                        ," ");
+  int NO = 0;
+  sscanf(arg,"%d",&NO);
+  
+# 509 "src/monitor/sdb/sdb.c" 3 4
+ _Bool 
+# 509 "src/monitor/sdb/sdb.c"
+      dele = delete_wp(NO);
+  if (dele)
+  {
+    printf("Watchpoint %d has been delete\n",NO);
+  }
+  else printf("NO Watchpoint %d \n",NO);
+  return 0;
+}
+
+
+
+
+static struct {
+  const char *name;
+  const char *description;
+  int (*handler) (char *);
+} cmd_table [] = {
+  { "help", "Display information about all supported commands", cmd_help },
+  { "c", "Continue the execution of the program", cmd_c },
+  { "q", "Exit NEMU", cmd_q },
+  { "si", "Single excutaion", cmd_si},
+  {"info","info SUBCMD",cmd_info},
+  {"x","EXPR SCAN",cmd_x},
+  {"p","Expression calculation",cmd_p},
+  {"pt","Expression calculation test",cmd_pt},
+  {"w","Watchpoint add",cmd_w},
+  {"d","Watchpoint delete",cmd_d}
+
+
+};
+
+
+
+static int cmd_help(char *args) {
+
+  char *arg = strtok(
+# 544 "src/monitor/sdb/sdb.c" 3 4
+                    ((void *)0)
+# 544 "src/monitor/sdb/sdb.c"
+                        , " ");
+  int i;
+
+  if (arg == 
+# 547 "src/monitor/sdb/sdb.c" 3 4
+            ((void *)0)
+# 547 "src/monitor/sdb/sdb.c"
+                ) {
+
+    for (i = 0; i < (int)(sizeof(cmd_table) / sizeof(cmd_table[0])); i ++) {
+      printf("%s - %s\n", cmd_table[i].name, cmd_table[i].description);
+    }
+  }
+  else {
+    for (i = 0; i < (int)(sizeof(cmd_table) / sizeof(cmd_table[0])); i ++) {
+      if (strcmp(arg, cmd_table[i].name) == 0) {
+        printf("%s - %s\n", cmd_table[i].name, cmd_table[i].description);
+        return 0;
+      }
+    }
+    printf("Unknown command '%s'\n", arg);
+  }
+  return 0;
+}
+
+void sdb_set_batch_mode() {
+  is_batch_mode = 
+# 566 "src/monitor/sdb/sdb.c" 3 4
+                 1
+# 566 "src/monitor/sdb/sdb.c"
+                     ;
+}
+
+void sdb_mainloop() {
+  if (is_batch_mode) {
+    cmd_c(
+# 571 "src/monitor/sdb/sdb.c" 3 4
+         ((void *)0)
+# 571 "src/monitor/sdb/sdb.c"
+             );
+    return;
+  }
+
+  for (char *str; (str = rl_gets()) != 
+# 575 "src/monitor/sdb/sdb.c" 3 4
+                                      ((void *)0)
+# 575 "src/monitor/sdb/sdb.c"
+                                          ; ) {
+    char *str_end = str + strlen(str);
+
+
+    char *cmd = strtok(str, " ");
+    if (cmd == 
+# 580 "src/monitor/sdb/sdb.c" 3 4
+              ((void *)0)
+# 580 "src/monitor/sdb/sdb.c"
+                  ) { continue; }
+
+
+
+
+    char *args = cmd + strlen(cmd) + 1;
+    if (args >= str_end) {
+      args = 
+# 587 "src/monitor/sdb/sdb.c" 3 4
+            ((void *)0)
+# 587 "src/monitor/sdb/sdb.c"
+                ;
+    }
+
+
+
+
+
+
+    int i;
+    for (i = 0; i < (int)(sizeof(cmd_table) / sizeof(cmd_table[0])); i ++) {
+      if (strcmp(cmd, cmd_table[i].name) == 0) {
+        if (cmd_table[i].handler(args) < 0) { return; }
+        break;
+      }
+    }
+
+    if (i == (int)(sizeof(cmd_table) / sizeof(cmd_table[0]))) { printf("Unknown command '%s'\n", cmd); }
+  }
+}
+
+void init_sdb() {
+
+  init_regex();
+
+
+  init_wp_pool();
 }

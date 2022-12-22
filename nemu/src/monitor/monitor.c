@@ -46,7 +46,7 @@ static char *log_file = NULL;
 static char *diff_so_file = NULL;
 static char *img_file = NULL;
 static int difftest_port = 1234;
-
+static char *elf_file = NULL;
 static long load_img()
 {
   if (img_file == NULL)
@@ -82,7 +82,7 @@ static int parse_args(int argc, char *argv[])
       {0, 0, NULL, 0},
   };
   int o;
-  while ((o = getopt_long(argc, argv, "-bhl:d:p:", table, NULL)) != -1)
+  while ((o = getopt_long(argc, argv, "-f:bhl:d:p:", table, NULL)) != -1)
   {
     switch (o)
     {
@@ -101,12 +101,16 @@ static int parse_args(int argc, char *argv[])
     case 1:
       img_file = optarg;
       return 0;
+    case 'f':
+      elf_file = optarg;
+      break;
     default:
       printf("Usage: %s [OPTION...] IMAGE [args]\n\n", argv[0]);
       printf("\t-b,--batch              run with batch mode\n");
       printf("\t-l,--log=FILE           output log to FILE\n");
       printf("\t-d,--diff=REF_SO        run DiffTest with reference REF_SO\n");
       printf("\t-p,--port=PORT          run DiffTest with port PORT\n");
+      printf("\t-f,--port=FILE          run with ftrace");
       printf("\n");
       exit(0);
     }
