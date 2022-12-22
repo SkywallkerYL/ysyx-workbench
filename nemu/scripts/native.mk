@@ -35,7 +35,7 @@ run-env: $(BINARY) $(DIFF_REF_SO)
 # if you want to run the nemu in batch mode , add -b at the end of run-env
 run: run-env
 	$(call git_commit, "run NEMU")
-	$(NEMU_EXEC) 
+	$(NEMU_EXEC) -b
 
 gdb: run-env
 	$(call git_commit, "gdb NEMU")
