@@ -369,13 +369,13 @@ word_t paddr_read(paddr_t addr, int len) {
   if (likely(in_pmem(addr))){word_t value =pmem_read(addr, len);
 #ifdef CONFIG_MTRACE 
 mtrace(0,addr,len,value);
-log_ftrace(addr);
+log_ftrace(value);
 #endif
 return value;}
   IFDEF(CONFIG_DEVICE, word_t value =mmio_read(addr, len); 
 #ifdef CONFIG_MTRACE 
 mtrace(0,addr,len,value);
-log_ftrace(addr);
+log_ftrace(value);
 #endif
   return value);
   out_of_bound(addr);
@@ -386,13 +386,13 @@ void paddr_write(paddr_t addr, int len, word_t data) {
   if (likely(in_pmem(addr))) { pmem_write(addr, len, data); 
 #ifdef CONFIG_MTRACE 
   mtrace(1,addr,len,data);
-  log_ftrace(addr);
+  log_ftrace(data);
 #endif
   return; }
   IFDEF(CONFIG_DEVICE, mmio_write(addr, len, data);
 #ifdef CONFIG_MTRACE
   mtrace(1,addr,len,data); 
-  log_ftrace(addr);
+  log_ftrace(data);
 #endif
   return);
   out_of_bound(addr);

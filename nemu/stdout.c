@@ -4030,7 +4030,7 @@ word_t paddr_read(paddr_t addr, int len) {
   if (__builtin_expect(in_pmem(addr), 1)){word_t value =pmem_read(addr, len);
 
 mtrace(0,addr,len,value);
-log_ftrace(addr);
+log_ftrace(value);
 
 return value;}
  
@@ -4047,7 +4047,7 @@ void paddr_write(paddr_t addr, int len, word_t data) {
   if (__builtin_expect(in_pmem(addr), 1)) { pmem_write(addr, len, data);
 
   mtrace(1,addr,len,data);
-  log_ftrace(addr);
+  log_ftrace(data);
 
   return; }
  
