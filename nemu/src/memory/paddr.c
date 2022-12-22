@@ -351,11 +351,12 @@ void log_ftrace(paddr_t addr)
         printf("%c",*p);
         len++;
       }
-      printf("\n");
+      //printf("\n");
       char funcname [len+1];
       char* newp = (char*)(start);
       strncpy(funcname,newp,len);
       funcname[len] = '\0';
+      printf(" %s",funcname); printf("\n");
       fprintf(file,"pc:%lx: Addr:%x call [%s]\n",cpu.pc,addr,funcname);
     }
   }  
