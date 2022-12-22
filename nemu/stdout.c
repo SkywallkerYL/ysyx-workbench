@@ -3080,11 +3080,11 @@ static void welcome()
  log_enable(); if (log_enable()) { fprintf(log_fp, "\33[1;34m" "[%s:%d %s] " "If trace is enabled, a log file will be generated " "to record the trace. This may lead to a large log file. " "If it is not necessary, you can disable it in menuconfig" "\33[0m" "\n", "src/monitor/monitor.c", 30, __func__); fflush(log_fp); } } while (0); } while (0)
 
                                                                                       ;
-  do { printf("\33[1;34m" "[%s:%d %s] " "Build time: %s, %s" "\33[0m" "\n", "src/monitor/monitor.c", 33, __func__, "22:49:36", "Dec 22 2022"); do { extern FILE* log_fp; extern 
+  do { printf("\33[1;34m" "[%s:%d %s] " "Build time: %s, %s" "\33[0m" "\n", "src/monitor/monitor.c", 33, __func__, "22:51:26", "Dec 22 2022"); do { extern FILE* log_fp; extern 
 # 33 "src/monitor/monitor.c" 3 4
  _Bool 
 # 33 "src/monitor/monitor.c"
- log_enable(); if (log_enable()) { fprintf(log_fp, "\33[1;34m" "[%s:%d %s] " "Build time: %s, %s" "\33[0m" "\n", "src/monitor/monitor.c", 33, __func__, "22:49:36", "Dec 22 2022"); fflush(log_fp); } } while (0); } while (0);
+ log_enable(); if (log_enable()) { fprintf(log_fp, "\33[1;34m" "[%s:%d %s] " "Build time: %s, %s" "\33[0m" "\n", "src/monitor/monitor.c", 33, __func__, "22:51:26", "Dec 22 2022"); fflush(log_fp); } } while (0); } while (0);
   printf("Welcome to %s-NEMU!\n", "\33[1;33m" "\33[1;41m" "riscv64" "\33[0m");
   printf("For help, type \"help\"\n");
 
@@ -3314,17 +3314,26 @@ static int parse_args(int argc, char *argv[])
                            ((void *)0)
 # 81 "src/monitor/monitor.c"
                                , 'h'},
-      {0, 0, 
+      {"ftrace",
 # 82 "src/monitor/monitor.c" 3 4
-            ((void *)0)
+               1
 # 82 "src/monitor/monitor.c"
+                                , 
+# 82 "src/monitor/monitor.c" 3 4
+                                  ((void *)0)
+# 82 "src/monitor/monitor.c"
+                                      ,'f'},
+      {0, 0, 
+# 83 "src/monitor/monitor.c" 3 4
+            ((void *)0)
+# 83 "src/monitor/monitor.c"
                 , 0},
   };
   int o;
   while ((o = getopt_long(argc, argv, "-f:bhl:d:p:", table, 
-# 85 "src/monitor/monitor.c" 3 4
+# 86 "src/monitor/monitor.c" 3 4
                                                            ((void *)0)
-# 85 "src/monitor/monitor.c"
+# 86 "src/monitor/monitor.c"
                                                                )) != -1)
   {
     switch (o)
@@ -3376,9 +3385,9 @@ void init_monitor(int argc, char *argv[])
 
   init_mtrace();
   if (elf_filein!=
-# 135 "src/monitor/monitor.c" 3 4
+# 136 "src/monitor/monitor.c" 3 4
                  ((void *)0)
-# 135 "src/monitor/monitor.c"
+# 136 "src/monitor/monitor.c"
                      ) init_ftrace(elf_filein);
   else printf("No elf file\n");
 
