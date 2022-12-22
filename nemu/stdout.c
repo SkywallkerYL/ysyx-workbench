@@ -1,14 +1,12 @@
-# 0 "src/monitor/monitor.c"
+# 0 "src/memory/paddr.c"
 # 0 "<built-in>"
 # 0 "<command-line>"
 # 1 "/usr/include/stdc-predef.h" 1 3 4
 # 0 "<command-line>" 2
-# 1 "src/monitor/monitor.c"
-# 16 "src/monitor/monitor.c"
-# 1 "/home/yangli/ysyx-workbench/nemu/include/isa.h" 1
-# 20 "/home/yangli/ysyx-workbench/nemu/include/isa.h"
-# 1 "/home/yangli/ysyx-workbench/nemu/src/isa/riscv64/include/isa-def.h" 1
-# 19 "/home/yangli/ysyx-workbench/nemu/src/isa/riscv64/include/isa-def.h"
+# 1 "src/memory/paddr.c"
+# 16 "src/memory/paddr.c"
+# 1 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h" 1
+# 19 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h"
 # 1 "/home/yangli/ysyx-workbench/nemu/include/common.h" 1
 # 19 "/home/yangli/ysyx-workbench/nemu/include/common.h"
 # 1 "/usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h" 1 3 4
@@ -2945,8 +2943,122 @@ extern NEMUState nemu_state;
 uint64_t get_time();
 # 22 "/home/yangli/ysyx-workbench/nemu/include/debug.h" 2
 # 48 "/home/yangli/ysyx-workbench/nemu/include/common.h" 2
-# 20 "/home/yangli/ysyx-workbench/nemu/src/isa/riscv64/include/isa-def.h" 2
+# 20 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h" 2
 
+static inline word_t host_read(void *addr, int len) {
+  switch (len) {
+    case 1: return *(uint8_t *)addr;
+    case 2: return *(uint16_t *)addr;
+    case 4: return *(uint32_t *)addr;
+    case 8: return *(uint64_t *)addr;
+    default: 
+# 27 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h" 3 4
+            ((void) sizeof ((
+# 27 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h"
+            0
+# 27 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h" 3 4
+            ) ? 1 : 0), __extension__ ({ if (
+# 27 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h"
+            0
+# 27 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h" 3 4
+            ) ; else __assert_fail (
+# 27 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h"
+            "0"
+# 27 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h" 3 4
+            , "/home/yangli/ysyx-workbench/nemu/include/memory/host.h", 27, __extension__ __PRETTY_FUNCTION__); }))
+# 27 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h"
+                                                        ;
+  }
+}
+
+static inline void host_write(void *addr, int len, word_t data) {
+  switch (len) {
+    case 1: *(uint8_t *)addr = data; return;
+    case 2: *(uint16_t *)addr = data; return;
+    case 4: *(uint32_t *)addr = data; return;
+    case 8: *(uint64_t *)addr = data; return;
+    default: 
+# 37 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h" 3 4
+   ((void) sizeof ((
+# 37 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h"
+   0
+# 37 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h" 3 4
+   ) ? 1 : 0), __extension__ ({ if (
+# 37 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h"
+   0
+# 37 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h" 3 4
+   ) ; else __assert_fail (
+# 37 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h"
+   "0"
+# 37 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h" 3 4
+   , "/home/yangli/ysyx-workbench/nemu/include/memory/host.h", 37, __extension__ __PRETTY_FUNCTION__); }))
+# 37 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h"
+                                             ;
+  }
+}
+# 17 "src/memory/paddr.c" 2
+# 1 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h" 1
+# 26 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h"
+uint8_t* guest_to_host(paddr_t paddr);
+
+paddr_t host_to_guest(uint8_t *haddr);
+
+static inline 
+# 30 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h" 3 4
+             _Bool 
+# 30 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h"
+                  in_pmem(paddr_t addr) {
+  return addr - 0x80000000 < 0x8000000;
+}
+
+
+void init_mtrace();
+void mtrace(
+# 36 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h" 3 4
+           _Bool 
+# 36 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h"
+                wrrd,paddr_t addr, int len,word_t data);
+
+word_t paddr_read(paddr_t addr, int len);
+void paddr_write(paddr_t addr, int len, word_t data);
+
+
+union var8
+{
+    char p[8];
+    int64_t i;
+};
+union var4
+{
+    char p[4];
+    int32_t i;
+};
+union var2
+{
+    char p[2];
+    int16_t i;
+};
+union var1
+{
+    char p;
+    int8_t i;
+};
+
+
+
+void init_ftrace(char * elf_file);
+
+void log_ftrace(paddr_t addr);
+# 18 "src/memory/paddr.c" 2
+# 1 "/home/yangli/ysyx-workbench/nemu/include/device/mmio.h" 1
+# 21 "/home/yangli/ysyx-workbench/nemu/include/device/mmio.h"
+word_t mmio_read(paddr_t addr, int len);
+void mmio_write(paddr_t addr, int len, word_t data);
+# 19 "src/memory/paddr.c" 2
+# 1 "/home/yangli/ysyx-workbench/nemu/include/isa.h" 1
+# 20 "/home/yangli/ysyx-workbench/nemu/include/isa.h"
+# 1 "/home/yangli/ysyx-workbench/nemu/src/isa/riscv64/include/isa-def.h" 1
+# 21 "/home/yangli/ysyx-workbench/nemu/src/isa/riscv64/include/isa-def.h"
 typedef struct {
   word_t gpr[32];
   vaddr_t pc;
@@ -3003,421 +3115,943 @@ _Bool
 # 55 "/home/yangli/ysyx-workbench/nemu/include/isa.h"
     isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc);
 void isa_difftest_attach();
-# 17 "src/monitor/monitor.c" 2
-# 1 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h" 1
-# 26 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h"
-uint8_t* guest_to_host(paddr_t paddr);
+# 20 "src/memory/paddr.c" 2
 
-paddr_t host_to_guest(uint8_t *haddr);
+# 1 "/usr/include/elf.h" 1 3 4
+# 27 "/usr/include/elf.h" 3 4
 
-static inline 
-# 30 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h" 3 4
-             _Bool 
-# 30 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h"
-                  in_pmem(paddr_t addr) {
-  return addr - 0x80000000 < 0x8000000;
+# 27 "/usr/include/elf.h" 3 4
+typedef uint16_t Elf32_Half;
+typedef uint16_t Elf64_Half;
+
+
+typedef uint32_t Elf32_Word;
+typedef int32_t Elf32_Sword;
+typedef uint32_t Elf64_Word;
+typedef int32_t Elf64_Sword;
+
+
+typedef uint64_t Elf32_Xword;
+typedef int64_t Elf32_Sxword;
+typedef uint64_t Elf64_Xword;
+typedef int64_t Elf64_Sxword;
+
+
+typedef uint32_t Elf32_Addr;
+typedef uint64_t Elf64_Addr;
+
+
+typedef uint32_t Elf32_Off;
+typedef uint64_t Elf64_Off;
+
+
+typedef uint16_t Elf32_Section;
+typedef uint16_t Elf64_Section;
+
+
+typedef Elf32_Half Elf32_Versym;
+typedef Elf64_Half Elf64_Versym;
+
+
+
+
+
+
+typedef struct
+{
+  unsigned char e_ident[(16)];
+  Elf32_Half e_type;
+  Elf32_Half e_machine;
+  Elf32_Word e_version;
+  Elf32_Addr e_entry;
+  Elf32_Off e_phoff;
+  Elf32_Off e_shoff;
+  Elf32_Word e_flags;
+  Elf32_Half e_ehsize;
+  Elf32_Half e_phentsize;
+  Elf32_Half e_phnum;
+  Elf32_Half e_shentsize;
+  Elf32_Half e_shnum;
+  Elf32_Half e_shstrndx;
+} Elf32_Ehdr;
+
+typedef struct
+{
+  unsigned char e_ident[(16)];
+  Elf64_Half e_type;
+  Elf64_Half e_machine;
+  Elf64_Word e_version;
+  Elf64_Addr e_entry;
+  Elf64_Off e_phoff;
+  Elf64_Off e_shoff;
+  Elf64_Word e_flags;
+  Elf64_Half e_ehsize;
+  Elf64_Half e_phentsize;
+  Elf64_Half e_phnum;
+  Elf64_Half e_shentsize;
+  Elf64_Half e_shnum;
+  Elf64_Half e_shstrndx;
+} Elf64_Ehdr;
+# 382 "/usr/include/elf.h" 3 4
+typedef struct
+{
+  Elf32_Word sh_name;
+  Elf32_Word sh_type;
+  Elf32_Word sh_flags;
+  Elf32_Addr sh_addr;
+  Elf32_Off sh_offset;
+  Elf32_Word sh_size;
+  Elf32_Word sh_link;
+  Elf32_Word sh_info;
+  Elf32_Word sh_addralign;
+  Elf32_Word sh_entsize;
+} Elf32_Shdr;
+
+typedef struct
+{
+  Elf64_Word sh_name;
+  Elf64_Word sh_type;
+  Elf64_Xword sh_flags;
+  Elf64_Addr sh_addr;
+  Elf64_Off sh_offset;
+  Elf64_Xword sh_size;
+  Elf64_Word sh_link;
+  Elf64_Word sh_info;
+  Elf64_Xword sh_addralign;
+  Elf64_Xword sh_entsize;
+} Elf64_Shdr;
+# 490 "/usr/include/elf.h" 3 4
+typedef struct
+{
+  Elf32_Word ch_type;
+  Elf32_Word ch_size;
+  Elf32_Word ch_addralign;
+} Elf32_Chdr;
+
+typedef struct
+{
+  Elf64_Word ch_type;
+  Elf64_Word ch_reserved;
+  Elf64_Xword ch_size;
+  Elf64_Xword ch_addralign;
+} Elf64_Chdr;
+# 517 "/usr/include/elf.h" 3 4
+typedef struct
+{
+  Elf32_Word st_name;
+  Elf32_Addr st_value;
+  Elf32_Word st_size;
+  unsigned char st_info;
+  unsigned char st_other;
+  Elf32_Section st_shndx;
+} Elf32_Sym;
+
+typedef struct
+{
+  Elf64_Word st_name;
+  unsigned char st_info;
+  unsigned char st_other;
+  Elf64_Section st_shndx;
+  Elf64_Addr st_value;
+  Elf64_Xword st_size;
+} Elf64_Sym;
+
+
+
+
+typedef struct
+{
+  Elf32_Half si_boundto;
+  Elf32_Half si_flags;
+} Elf32_Syminfo;
+
+typedef struct
+{
+  Elf64_Half si_boundto;
+  Elf64_Half si_flags;
+} Elf64_Syminfo;
+# 632 "/usr/include/elf.h" 3 4
+typedef struct
+{
+  Elf32_Addr r_offset;
+  Elf32_Word r_info;
+} Elf32_Rel;
+
+
+
+
+
+
+typedef struct
+{
+  Elf64_Addr r_offset;
+  Elf64_Xword r_info;
+} Elf64_Rel;
+
+
+
+typedef struct
+{
+  Elf32_Addr r_offset;
+  Elf32_Word r_info;
+  Elf32_Sword r_addend;
+} Elf32_Rela;
+
+typedef struct
+{
+  Elf64_Addr r_offset;
+  Elf64_Xword r_info;
+  Elf64_Sxword r_addend;
+} Elf64_Rela;
+# 677 "/usr/include/elf.h" 3 4
+typedef struct
+{
+  Elf32_Word p_type;
+  Elf32_Off p_offset;
+  Elf32_Addr p_vaddr;
+  Elf32_Addr p_paddr;
+  Elf32_Word p_filesz;
+  Elf32_Word p_memsz;
+  Elf32_Word p_flags;
+  Elf32_Word p_align;
+} Elf32_Phdr;
+
+typedef struct
+{
+  Elf64_Word p_type;
+  Elf64_Word p_flags;
+  Elf64_Off p_offset;
+  Elf64_Addr p_vaddr;
+  Elf64_Addr p_paddr;
+  Elf64_Xword p_filesz;
+  Elf64_Xword p_memsz;
+  Elf64_Xword p_align;
+} Elf64_Phdr;
+# 833 "/usr/include/elf.h" 3 4
+typedef struct
+{
+  Elf32_Sword d_tag;
+  union
+    {
+      Elf32_Word d_val;
+      Elf32_Addr d_ptr;
+    } d_un;
+} Elf32_Dyn;
+
+typedef struct
+{
+  Elf64_Sxword d_tag;
+  union
+    {
+      Elf64_Xword d_val;
+      Elf64_Addr d_ptr;
+    } d_un;
+} Elf64_Dyn;
+# 1015 "/usr/include/elf.h" 3 4
+typedef struct
+{
+  Elf32_Half vd_version;
+  Elf32_Half vd_flags;
+  Elf32_Half vd_ndx;
+  Elf32_Half vd_cnt;
+  Elf32_Word vd_hash;
+  Elf32_Word vd_aux;
+  Elf32_Word vd_next;
+
+} Elf32_Verdef;
+
+typedef struct
+{
+  Elf64_Half vd_version;
+  Elf64_Half vd_flags;
+  Elf64_Half vd_ndx;
+  Elf64_Half vd_cnt;
+  Elf64_Word vd_hash;
+  Elf64_Word vd_aux;
+  Elf64_Word vd_next;
+
+} Elf64_Verdef;
+# 1057 "/usr/include/elf.h" 3 4
+typedef struct
+{
+  Elf32_Word vda_name;
+  Elf32_Word vda_next;
+
+} Elf32_Verdaux;
+
+typedef struct
+{
+  Elf64_Word vda_name;
+  Elf64_Word vda_next;
+
+} Elf64_Verdaux;
+
+
+
+
+typedef struct
+{
+  Elf32_Half vn_version;
+  Elf32_Half vn_cnt;
+  Elf32_Word vn_file;
+
+  Elf32_Word vn_aux;
+  Elf32_Word vn_next;
+
+} Elf32_Verneed;
+
+typedef struct
+{
+  Elf64_Half vn_version;
+  Elf64_Half vn_cnt;
+  Elf64_Word vn_file;
+
+  Elf64_Word vn_aux;
+  Elf64_Word vn_next;
+
+} Elf64_Verneed;
+# 1104 "/usr/include/elf.h" 3 4
+typedef struct
+{
+  Elf32_Word vna_hash;
+  Elf32_Half vna_flags;
+  Elf32_Half vna_other;
+  Elf32_Word vna_name;
+  Elf32_Word vna_next;
+
+} Elf32_Vernaux;
+
+typedef struct
+{
+  Elf64_Word vna_hash;
+  Elf64_Half vna_flags;
+  Elf64_Half vna_other;
+  Elf64_Word vna_name;
+  Elf64_Word vna_next;
+
+} Elf64_Vernaux;
+# 1138 "/usr/include/elf.h" 3 4
+typedef struct
+{
+  uint32_t a_type;
+  union
+    {
+      uint32_t a_val;
+
+
+
+    } a_un;
+} Elf32_auxv_t;
+
+typedef struct
+{
+  uint64_t a_type;
+  union
+    {
+      uint64_t a_val;
+
+
+
+    } a_un;
+} Elf64_auxv_t;
+# 1239 "/usr/include/elf.h" 3 4
+typedef struct
+{
+  Elf32_Word n_namesz;
+  Elf32_Word n_descsz;
+  Elf32_Word n_type;
+} Elf32_Nhdr;
+
+typedef struct
+{
+  Elf64_Word n_namesz;
+  Elf64_Word n_descsz;
+  Elf64_Word n_type;
+} Elf64_Nhdr;
+# 1383 "/usr/include/elf.h" 3 4
+typedef struct
+{
+  Elf32_Xword m_value;
+  Elf32_Word m_info;
+  Elf32_Word m_poffset;
+  Elf32_Half m_repeat;
+  Elf32_Half m_stride;
+} Elf32_Move;
+
+typedef struct
+{
+  Elf64_Xword m_value;
+  Elf64_Xword m_info;
+  Elf64_Xword m_poffset;
+  Elf64_Half m_repeat;
+  Elf64_Half m_stride;
+} Elf64_Move;
+# 1773 "/usr/include/elf.h" 3 4
+typedef union
+{
+  struct
+    {
+      Elf32_Word gt_current_g_value;
+      Elf32_Word gt_unused;
+    } gt_header;
+  struct
+    {
+      Elf32_Word gt_g_value;
+      Elf32_Word gt_bytes;
+    } gt_entry;
+} Elf32_gptab;
+
+
+
+typedef struct
+{
+  Elf32_Word ri_gprmask;
+  Elf32_Word ri_cprmask[4];
+  Elf32_Sword ri_gp_value;
+} Elf32_RegInfo;
+
+
+
+typedef struct
+{
+  unsigned char kind;
+
+  unsigned char size;
+  Elf32_Section section;
+
+  Elf32_Word info;
+} Elf_Options;
+# 1849 "/usr/include/elf.h" 3 4
+typedef struct
+{
+  Elf32_Word hwp_flags1;
+  Elf32_Word hwp_flags2;
+} Elf_Options_Hw;
+# 2017 "/usr/include/elf.h" 3 4
+typedef struct
+{
+  Elf32_Word l_name;
+  Elf32_Word l_time_stamp;
+  Elf32_Word l_checksum;
+  Elf32_Word l_version;
+  Elf32_Word l_flags;
+} Elf32_Lib;
+
+typedef struct
+{
+  Elf64_Word l_name;
+  Elf64_Word l_time_stamp;
+  Elf64_Word l_checksum;
+  Elf64_Word l_version;
+  Elf64_Word l_flags;
+} Elf64_Lib;
+# 2048 "/usr/include/elf.h" 3 4
+typedef Elf32_Addr Elf32_Conflict;
+
+typedef struct
+{
+
+  Elf32_Half version;
+
+  unsigned char isa_level;
+
+  unsigned char isa_rev;
+
+  unsigned char gpr_size;
+
+  unsigned char cpr1_size;
+
+  unsigned char cpr2_size;
+
+  unsigned char fp_abi;
+
+  Elf32_Word isa_ext;
+
+  Elf32_Word ases;
+
+  Elf32_Word flags1;
+  Elf32_Word flags2;
+} Elf_MIPS_ABIFlags_v0;
+# 2124 "/usr/include/elf.h" 3 4
+enum
+{
+
+  Val_GNU_MIPS_ABI_FP_ANY = 0,
+
+  Val_GNU_MIPS_ABI_FP_DOUBLE = 1,
+
+  Val_GNU_MIPS_ABI_FP_SINGLE = 2,
+
+  Val_GNU_MIPS_ABI_FP_SOFT = 3,
+
+  Val_GNU_MIPS_ABI_FP_OLD_64 = 4,
+
+  Val_GNU_MIPS_ABI_FP_XX = 5,
+
+  Val_GNU_MIPS_ABI_FP_64 = 6,
+
+  Val_GNU_MIPS_ABI_FP_64A = 7,
+
+  Val_GNU_MIPS_ABI_FP_MAX = 7
+};
+# 22 "src/memory/paddr.c" 2
+
+
+
+
+# 25 "src/memory/paddr.c"
+static uint8_t pmem[0x8000000] __attribute((aligned(4096))) = {};
+
+
+uint8_t* guest_to_host(paddr_t paddr) { return pmem + paddr - 0x80000000; }
+paddr_t host_to_guest(uint8_t *haddr) { return haddr - pmem + 0x80000000; }
+
+static word_t pmem_read(paddr_t addr, int len) {
+  word_t ret = host_read(guest_to_host(addr), len);
+  return ret;
 }
 
-
-void init_mtrace();
-void mtrace(
-# 36 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h" 3 4
-           _Bool 
-# 36 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h"
-                wrrd,paddr_t addr, int len,word_t data);
-
-word_t paddr_read(paddr_t addr, int len);
-void paddr_write(paddr_t addr, int len, word_t data);
-
-
-union var8
-{
-    char p[8];
-    int64_t i;
-};
-union var4
-{
-    char p[4];
-    int32_t i;
-};
-union var2
-{
-    char p[2];
-    int16_t i;
-};
-union var1
-{
-    char p;
-    int8_t i;
-};
-
-
-
-void init_ftrace(char * elf_file);
-
-void log_ftrace(paddr_t addr);
-# 18 "src/monitor/monitor.c" 2
-
-void init_rand();
-void init_log(const char *log_file);
-void init_mem();
-void init_difftest(char *ref_so_file, long img_size, int port);
-void init_device();
-void init_sdb();
-void init_disasm(const char *triple);
-
-static void welcome()
-{
-  do { printf("\33[1;34m" "[%s:%d %s] " "Trace: %s" "\33[0m" "\n", "src/monitor/monitor.c", 29, __func__, "\33[1;32m" "ON" "\33[0m"); do { extern FILE* log_fp; extern 
-# 29 "src/monitor/monitor.c" 3 4
- _Bool 
-# 29 "src/monitor/monitor.c"
- log_enable(); if (log_enable()) { fprintf(log_fp, "\33[1;34m" "[%s:%d %s] " "Trace: %s" "\33[0m" "\n", "src/monitor/monitor.c", 29, __func__, "\33[1;32m" "ON" "\33[0m"); fflush(log_fp); } } while (0); } while (0);
-  do { printf("\33[1;34m" "[%s:%d %s] " "If trace is enabled, a log file will be generated " "to record the trace. This may lead to a large log file. " "If it is not necessary, you can disable it in menuconfig" "\33[0m" "\n", "src/monitor/monitor.c", 30, __func__); do { extern FILE* log_fp; extern 
-# 30 "src/monitor/monitor.c" 3 4
- _Bool 
-# 30 "src/monitor/monitor.c"
- log_enable(); if (log_enable()) { fprintf(log_fp, "\33[1;34m" "[%s:%d %s] " "If trace is enabled, a log file will be generated " "to record the trace. This may lead to a large log file. " "If it is not necessary, you can disable it in menuconfig" "\33[0m" "\n", "src/monitor/monitor.c", 30, __func__); fflush(log_fp); } } while (0); } while (0)
-
-                                                                                      ;
-  do { printf("\33[1;34m" "[%s:%d %s] " "Build time: %s, %s" "\33[0m" "\n", "src/monitor/monitor.c", 33, __func__, "22:58:18", "Dec 22 2022"); do { extern FILE* log_fp; extern 
-# 33 "src/monitor/monitor.c" 3 4
- _Bool 
-# 33 "src/monitor/monitor.c"
- log_enable(); if (log_enable()) { fprintf(log_fp, "\33[1;34m" "[%s:%d %s] " "Build time: %s, %s" "\33[0m" "\n", "src/monitor/monitor.c", 33, __func__, "22:58:18", "Dec 22 2022"); fflush(log_fp); } } while (0); } while (0);
-  printf("Welcome to %s-NEMU!\n", "\33[1;33m" "\33[1;41m" "riscv64" "\33[0m");
-  printf("For help, type \"help\"\n");
-
-
+static void pmem_write(paddr_t addr, int len, word_t data) {
+  host_write(guest_to_host(addr), len, data);
 }
 
+static void out_of_bound(paddr_t addr) {
+  do { if (!(0)) { (fflush(
+# 41 "src/memory/paddr.c" 3 4
+ stdout
+# 41 "src/memory/paddr.c"
+ ), fprintf(
+# 41 "src/memory/paddr.c" 3 4
+ stderr
+# 41 "src/memory/paddr.c"
+ , "\33[1;31m" "address = " "0x%08"
+# 41 "src/memory/paddr.c" 3 4
+ "x" 
+# 41 "src/memory/paddr.c"
+ " is out of bound of pmem [" "0x%08"
+# 41 "src/memory/paddr.c" 3 4
+ "x" 
+# 41 "src/memory/paddr.c"
+ ", " "0x%08"
+# 41 "src/memory/paddr.c" 3 4
+ "x" 
+# 41 "src/memory/paddr.c"
+ "] at pc = " "0x%016"
+# 41 "src/memory/paddr.c" 3 4
+ "l" "x" 
+# 41 "src/memory/paddr.c"
+ "\33[0m" "\n", addr, ((paddr_t)0x80000000), ((paddr_t)0x80000000 + 0x8000000 - 1), cpu.pc)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
+# 41 "src/memory/paddr.c" 3 4
+ ((void) sizeof ((
+# 41 "src/memory/paddr.c"
+ 0
+# 41 "src/memory/paddr.c" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 41 "src/memory/paddr.c"
+ 0
+# 41 "src/memory/paddr.c" 3 4
+ ) ; else __assert_fail (
+# 41 "src/memory/paddr.c"
+ "0"
+# 41 "src/memory/paddr.c" 3 4
+ , "src/memory/paddr.c", 41, __extension__ __PRETTY_FUNCTION__); }))
+# 41 "src/memory/paddr.c"
+ ; } } while (0)
+                                          ;
+}
 
-# 1 "/usr/include/getopt.h" 1 3 4
-# 35 "/usr/include/getopt.h" 3 4
-# 1 "/usr/include/x86_64-linux-gnu/bits/getopt_core.h" 1 3 4
-# 28 "/usr/include/x86_64-linux-gnu/bits/getopt_core.h" 3 4
-
-
-
-
-
-
-
-
-
-# 36 "/usr/include/x86_64-linux-gnu/bits/getopt_core.h" 3 4
-extern char *optarg;
-# 50 "/usr/include/x86_64-linux-gnu/bits/getopt_core.h" 3 4
-extern int optind;
-
-
-
-
-extern int opterr;
-
-
-
-extern int optopt;
-# 91 "/usr/include/x86_64-linux-gnu/bits/getopt_core.h" 3 4
-extern int getopt (int ___argc, char *const *___argv, const char *__shortopts)
-       __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (2, 3)));
-
-
-# 36 "/usr/include/getopt.h" 2 3 4
-# 1 "/usr/include/x86_64-linux-gnu/bits/getopt_ext.h" 1 3 4
-# 27 "/usr/include/x86_64-linux-gnu/bits/getopt_ext.h" 3 4
-
-# 50 "/usr/include/x86_64-linux-gnu/bits/getopt_ext.h" 3 4
-struct option
-{
-  const char *name;
-
-
-  int has_arg;
-  int *flag;
-  int val;
-};
-
-
+void init_mem() {
 
 
 
 
 
-extern int getopt_long (int ___argc, char *const *___argv,
-   const char *__shortopts,
-          const struct option *__longopts, int *__longind)
-       __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (2, 3)));
-extern int getopt_long_only (int ___argc, char *const *___argv,
-        const char *__shortopts,
-               const struct option *__longopts, int *__longind)
-       __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (2, 3)));
-
-
-# 37 "/usr/include/getopt.h" 2 3 4
-# 42 "src/monitor/monitor.c" 2
-
-
-# 43 "src/monitor/monitor.c"
-void sdb_set_batch_mode();
-void init_ftrace(char * elf_file);
-static char *log_file = 
-# 45 "src/monitor/monitor.c" 3 4
-                       ((void *)0)
-# 45 "src/monitor/monitor.c"
-                           ;
-static char *diff_so_file = 
-# 46 "src/monitor/monitor.c" 3 4
-                           ((void *)0)
-# 46 "src/monitor/monitor.c"
-                               ;
-static char *img_file = 
-# 47 "src/monitor/monitor.c" 3 4
-                       ((void *)0)
-# 47 "src/monitor/monitor.c"
-                           ;
-static int difftest_port = 1234;
-static char *elf_filein = 
-# 49 "src/monitor/monitor.c" 3 4
-                         ((void *)0)
-# 49 "src/monitor/monitor.c"
-                             ;
-static long load_img()
-{
-  if (img_file == 
-# 52 "src/monitor/monitor.c" 3 4
-                 ((void *)0)
-# 52 "src/monitor/monitor.c"
-                     )
-  {
-    do { printf("\33[1;34m" "[%s:%d %s] " "No image is given. Use the default build-in image." "\33[0m" "\n", "src/monitor/monitor.c", 54, __func__); do { extern FILE* log_fp; extern 
-# 54 "src/monitor/monitor.c" 3 4
-   _Bool 
-# 54 "src/monitor/monitor.c"
-   log_enable(); if (log_enable()) { fprintf(log_fp, "\33[1;34m" "[%s:%d %s] " "No image is given. Use the default build-in image." "\33[0m" "\n", "src/monitor/monitor.c", 54, __func__); fflush(log_fp); } } while (0); } while (0);
-    return 4096;
+  uint32_t *p = (uint32_t *)pmem;
+  int i;
+  for (i = 0; i < (int) (0x8000000 / sizeof(p[0])); i ++) {
+    p[i] = rand();
   }
 
-  FILE *fp = fopen(img_file, "rb");
-  do { if (!(fp)) { (fflush(
-# 59 "src/monitor/monitor.c" 3 4
- stdout
-# 59 "src/monitor/monitor.c"
- ), fprintf(
-# 59 "src/monitor/monitor.c" 3 4
- stderr
-# 59 "src/monitor/monitor.c"
- , "\33[1;31m" "Can not open '%s'" "\33[0m" "\n", img_file)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
-# 59 "src/monitor/monitor.c" 3 4
- ((void) sizeof ((
-# 59 "src/monitor/monitor.c"
- fp
-# 59 "src/monitor/monitor.c" 3 4
- ) ? 1 : 0), __extension__ ({ if (
-# 59 "src/monitor/monitor.c"
- fp
-# 59 "src/monitor/monitor.c" 3 4
- ) ; else __assert_fail (
-# 59 "src/monitor/monitor.c"
- "fp"
-# 59 "src/monitor/monitor.c" 3 4
- , "src/monitor/monitor.c", 59, __extension__ __PRETTY_FUNCTION__); }))
-# 59 "src/monitor/monitor.c"
- ; } } while (0);
-
-  fseek(fp, 0, 
-# 61 "src/monitor/monitor.c" 3 4
-              2
-# 61 "src/monitor/monitor.c"
-                      );
-  long size = ftell(fp);
-
-  do { printf("\33[1;34m" "[%s:%d %s] " "The image is %s, size = %ld" "\33[0m" "\n", "src/monitor/monitor.c", 64, __func__, img_file, size); do { extern FILE* log_fp; extern 
-# 64 "src/monitor/monitor.c" 3 4
+  do { printf("\33[1;34m" "[%s:%d %s] " "physical memory area [" "0x%08"
+# 57 "src/memory/paddr.c" 3 4
+ "x" 
+# 57 "src/memory/paddr.c"
+ ", " "0x%08"
+# 57 "src/memory/paddr.c" 3 4
+ "x" 
+# 57 "src/memory/paddr.c"
+ "]" "\33[0m" "\n", "src/memory/paddr.c", 57, __func__, ((paddr_t)0x80000000), ((paddr_t)0x80000000 + 0x8000000 - 1)); do { extern FILE* log_fp; extern 
+# 57 "src/memory/paddr.c" 3 4
  _Bool 
-# 64 "src/monitor/monitor.c"
- log_enable(); if (log_enable()) { fprintf(log_fp, "\33[1;34m" "[%s:%d %s] " "The image is %s, size = %ld" "\33[0m" "\n", "src/monitor/monitor.c", 64, __func__, img_file, size); fflush(log_fp); } } while (0); } while (0);
-
-  fseek(fp, 0, 
-# 66 "src/monitor/monitor.c" 3 4
-              0
-# 66 "src/monitor/monitor.c"
-                      );
-  int ret = fread(guest_to_host((((paddr_t)0x80000000) + 0x0)), size, 1, fp);
-  
-# 68 "src/monitor/monitor.c" 3 4
- ((void) sizeof ((
-# 68 "src/monitor/monitor.c"
- ret == 1
-# 68 "src/monitor/monitor.c" 3 4
- ) ? 1 : 0), __extension__ ({ if (
-# 68 "src/monitor/monitor.c"
- ret == 1
-# 68 "src/monitor/monitor.c" 3 4
- ) ; else __assert_fail (
-# 68 "src/monitor/monitor.c"
- "ret == 1"
-# 68 "src/monitor/monitor.c" 3 4
- , "src/monitor/monitor.c", 68, __extension__ __PRETTY_FUNCTION__); }))
-# 68 "src/monitor/monitor.c"
-                 ;
-
-  fclose(fp);
-  return size;
+# 57 "src/memory/paddr.c"
+ log_enable(); if (log_enable()) { fprintf(log_fp, "\33[1;34m" "[%s:%d %s] " "physical memory area [" "0x%08"
+# 57 "src/memory/paddr.c" 3 4
+ "x" 
+# 57 "src/memory/paddr.c"
+ ", " "0x%08"
+# 57 "src/memory/paddr.c" 3 4
+ "x" 
+# 57 "src/memory/paddr.c"
+ "]" "\33[0m" "\n", "src/memory/paddr.c", 57, __func__, ((paddr_t)0x80000000), ((paddr_t)0x80000000 + 0x8000000 - 1)); fflush(log_fp); } } while (0); } while (0);
 }
 
-static int parse_args(int argc, char *argv[])
+char mtracefilepath[] = "/home/yangli/ysyx-workbench/nemu/build/mtrace-log.txt";
+void init_mtrace()
 {
-  const struct option table[] = {
-      {"batch", 
-# 77 "src/monitor/monitor.c" 3 4
-               0
-# 77 "src/monitor/monitor.c"
-                          , 
-# 77 "src/monitor/monitor.c" 3 4
-                            ((void *)0)
-# 77 "src/monitor/monitor.c"
-                                , 'b'},
-      {"log", 
-# 78 "src/monitor/monitor.c" 3 4
-             1
-# 78 "src/monitor/monitor.c"
-                              , 
-# 78 "src/monitor/monitor.c" 3 4
-                                ((void *)0)
-# 78 "src/monitor/monitor.c"
-                                    , 'l'},
-      {"diff", 
-# 79 "src/monitor/monitor.c" 3 4
-              1
-# 79 "src/monitor/monitor.c"
-                               , 
-# 79 "src/monitor/monitor.c" 3 4
-                                 ((void *)0)
-# 79 "src/monitor/monitor.c"
-                                     , 'd'},
-      {"port", 
-# 80 "src/monitor/monitor.c" 3 4
-              1
-# 80 "src/monitor/monitor.c"
-                               , 
-# 80 "src/monitor/monitor.c" 3 4
-                                 ((void *)0)
-# 80 "src/monitor/monitor.c"
-                                     , 'p'},
-      {"help", 
-# 81 "src/monitor/monitor.c" 3 4
-              0
-# 81 "src/monitor/monitor.c"
-                         , 
-# 81 "src/monitor/monitor.c" 3 4
-                           ((void *)0)
-# 81 "src/monitor/monitor.c"
-                               , 'h'},
-      {"ftrace",
-# 82 "src/monitor/monitor.c" 3 4
-               1
-# 82 "src/monitor/monitor.c"
-                                , 
-# 82 "src/monitor/monitor.c" 3 4
-                                  ((void *)0)
-# 82 "src/monitor/monitor.c"
-                                      ,'f'},
-      {0, 0, 
-# 83 "src/monitor/monitor.c" 3 4
-            ((void *)0)
-# 83 "src/monitor/monitor.c"
-                , 0},
-  };
-  int o;
-  while ((o = getopt_long(argc, argv, "-f:bhl:d:p:", table, 
-# 86 "src/monitor/monitor.c" 3 4
-                                                           ((void *)0)
-# 86 "src/monitor/monitor.c"
-                                                               )) != -1)
+  FILE *file;
+  file = fopen(mtracefilepath,"w+");
+
+  if (file == 
+# 66 "src/memory/paddr.c" 3 4
+             ((void *)0)
+# 66 "src/memory/paddr.c"
+                 )
   {
-    switch (o)
+    printf("Fail to creat mtracefile!\n");
+  }
+
+
+
+  return;
+}
+void mtrace(
+# 75 "src/memory/paddr.c" 3 4
+           _Bool 
+# 75 "src/memory/paddr.c"
+                wrrd,paddr_t addr, int len,word_t data)
+{
+  FILE *file;
+  file = fopen(mtracefilepath,"a");
+  char wrflag;
+
+  wrflag = wrrd?'w':'r';
+  if (file == 
+# 82 "src/memory/paddr.c" 3 4
+             ((void *)0)
+# 82 "src/memory/paddr.c"
+                 ) {printf("No file!!!!\n");}
+  fprintf(file,"pc:%lx: Addr:%x len:%x %c value:%lx\n",cpu.pc,addr,len,wrflag,data);
+
+  fclose(file);
+}
+
+static int symblenumber ;
+
+static Elf64_Sym allsymble[4096];
+char elf_logfile[] = "/home/yangli/ysyx-workbench/nemu/build/ftrace-log.txt";
+char* strtab;
+int strstart;
+void init_ftrace(char* elf_file)
+{
+
+  FILE *file;
+  file = fopen(elf_logfile,"w+");
+
+  if (file == 
+# 100 "src/memory/paddr.c" 3 4
+             ((void *)0)
+# 100 "src/memory/paddr.c"
+                 )
+  {
+    printf("Fail to creat mtracefile!\n");
+  }
+  else printf("ftrace log file initial\n");
+
+
+ FILE *fp;
+ fp = fopen(elf_file, "r");
+ if (
+# 109 "src/memory/paddr.c" 3 4
+    ((void *)0) 
+# 109 "src/memory/paddr.c"
+         == fp)
+ {
+  printf("fail to open the file");
+  exit(0);
+ }
+  else printf("elf file opened\n");
+
+
+ Elf64_Ehdr elf_head;
+ int a;
+
+
+ a = fread(&elf_head, sizeof(Elf64_Ehdr), 1, fp);
+ if (0 == a)
+ {
+  printf("fail to read head\n");
+  exit(0);
+ }
+
+
+ if (elf_head.e_ident[0] != 0x7F ||
+  elf_head.e_ident[1] != 'E' ||
+  elf_head.e_ident[2] != 'L' ||
+  elf_head.e_ident[3] != 'F')
+ {
+  printf("Not a ELF file\n");
+  exit(0);
+ }
+
+
+ Elf64_Shdr *shdr = (Elf64_Shdr*)malloc(sizeof(Elf64_Shdr) * elf_head.e_shnum);
+ if (
+# 140 "src/memory/paddr.c" 3 4
+    ((void *)0) 
+# 140 "src/memory/paddr.c"
+         == shdr)
+ {
+  printf("shdr malloc failed\n");
+  exit(0);
+ }
+
+
+ a = fseek(fp, elf_head.e_shoff, 
+# 147 "src/memory/paddr.c" 3 4
+                                0
+# 147 "src/memory/paddr.c"
+                                        );
+ if (0 != a)
+ {
+  printf("\nfaile to fseek\n");
+  exit(0);
+ }
+
+
+ a = fread(shdr, sizeof(Elf64_Shdr) * elf_head.e_shnum, 1, fp);
+ if (0 == a)
+ {
+  printf("\nfail to read section\n");
+  exit(0);
+ }
+
+
+ rewind(fp);
+
+
+ fseek(fp, shdr[elf_head.e_shstrndx].sh_offset, 
+# 166 "src/memory/paddr.c" 3 4
+                                               0
+# 166 "src/memory/paddr.c"
+                                                       );
+
+
+ char shstrtab[shdr[elf_head.e_shstrndx].sh_size];
+ char *temp = shstrtab;
+
+
+ a = fread(shstrtab, shdr[elf_head.e_shstrndx].sh_size, 1, fp);
+ if (0 == a)
+ {
+  printf("\nfaile to read\n");
+ }
+    Elf64_Sym symble_entry;
+    int symble_size = sizeof(symble_entry);
+# 192 "src/memory/paddr.c"
+  for (int i = 0; i < elf_head.e_shnum; i++)
+ {
+  temp = shstrtab;
+  temp = temp + shdr[i].sh_name;
+    if (strcmp(temp, ".symtab") == 0) {
+
+
+
+      symblenumber = shdr[i].sh_size/symble_size;
+    }
+ }
+
+
+
+ for (int i = 0; i < elf_head.e_shnum; i++)
+ {
+  temp = shstrtab;
+  temp = temp + shdr[i].sh_name;
+    if (strcmp(temp, ".symtab") != 0) continue;
+    uint8_t *sign_data=(uint8_t*)malloc(sizeof(uint8_t)*shdr[i].sh_size);
+
+  fseek(fp, shdr[i].sh_offset, 
+# 213 "src/memory/paddr.c" 3 4
+                              0
+# 213 "src/memory/paddr.c"
+                                      );
+  if(fread(sign_data, sizeof(uint8_t)*shdr[i].sh_size, 1, fp)==1);
+
+  uint8_t *p = sign_data;
+  int j = 0;
+  for (j=0; j<shdr[i].sh_size; j = j+symble_size)
+  {
+      int symbolind = j/symble_size;
+
+      int k = 0;
+
+
+      union var4 stname;
+      while (k<4)
+      {
+          stname.p[k] = *p;
+          k++;
+          p++;
+      }
+
+
+      allsymble[symbolind].st_name = stname.i;
+
+      union var1 stinfo;
+      while (k<4+1)
+      {
+          stinfo.p = *p;
+          k++;
+          p++;
+      }
+
+      allsymble[symbolind].st_info = stinfo.i;
+
+      union var1 stother;
+      while (k<5+1)
+      {
+          stother.p = *p;
+          k++;
+          p++;
+      }
+
+      allsymble[symbolind].st_other = stother.i;
+
+      union var2 stshndx;
+      while (k<6+2)
+      {
+          stshndx.p[k-6] = *p;
+          k++;
+          p++;
+      }
+
+      allsymble[symbolind].st_shndx = stshndx.i;
+
+      union var8 stvalue;
+      while (k<8+8)
+      {
+          stvalue.p[k-8] = *p;
+          k++;
+          p++;
+      }
+
+      allsymble[symbolind].st_value = stvalue.i;
+
+      union var8 stsize;
+      while (k<symble_size)
+      {
+          stsize.p[k-16] = *p;
+          k++;
+          p++;
+      }
+
+      allsymble[symbolind].st_size = stsize.i;
+
+  }
+ }
+  for (int i = 0; i < elf_head.e_shnum; i++)
+ {
+  temp = shstrtab;
+  temp = temp + shdr[i].sh_name;
+    if (strcmp(temp, ".strtab") != 0) continue;
+    uint8_t *sign_data=(uint8_t*)malloc(sizeof(uint8_t)*shdr[i].sh_size);
+    strtab = (char*)malloc(sizeof(char)*shdr[i].sh_size);
+
+  fseek(fp, shdr[i].sh_offset, 
+# 296 "src/memory/paddr.c" 3 4
+                              0
+# 296 "src/memory/paddr.c"
+                                      );
+  if(fread(sign_data, sizeof(uint8_t)*shdr[i].sh_size, 1, fp)==1);
+
+
+    uint8_t *p = sign_data;
+    char *pstr = strtab;
+    int j = 0;
+  for (j=0; j<shdr[i].sh_size; j ++)
+  {
+      *pstr = *p;
+      pstr++;
+      p++;
+    }
+# 324 "src/memory/paddr.c"
+ }
+  return;
+}
+
+void log_ftrace(paddr_t addr)
+{
+  FILE *file;
+  file = fopen(elf_logfile,"a");
+  if (file == 
+# 332 "src/memory/paddr.c" 3 4
+             ((void *)0)
+# 332 "src/memory/paddr.c"
+                 ) {printf("No file!!!!\n");}
+
+
+  for (size_t j = 0; j < symblenumber; j++)
+  {
+    if (allsymble[j].st_value!=addr) continue;
+
+
+
+
+    if((allsymble[j].st_info&0x0f) == 
+# 342 "src/memory/paddr.c" 3 4
+                                     2
+# 342 "src/memory/paddr.c"
+                                             )
     {
-    case 'b':
-      sdb_set_batch_mode();
-      break;
-    case 'p':
-      sscanf(optarg, "%d", &difftest_port);
-      break;
-    case 'l':
-      log_file = optarg;
-      break;
-    case 'd':
-      diff_so_file = optarg;
-      break;
-    case 1:
-      img_file = optarg;
-      return 0;
-    case 'f':
-      printf("hhhh\n");
-      elf_filein = optarg;
-      break;
-    default:
-      printf("Usage: %s [OPTION...] IMAGE [args]\n\n", argv[0]);
-      printf("\t-b,--batch              run with batch mode\n");
-      printf("\t-l,--log=FILE           output log to FILE\n");
-      printf("\t-d,--diff=REF_SO        run DiffTest with reference REF_SO\n");
-      printf("\t-p,--port=PORT          run DiffTest with port PORT\n");
-      printf("\t-f,--port=FILE          run with ftrace");
-      printf("\n");
-      exit(0);
+      int len = 0;
+      int ind = allsymble[j].st_name;
+      char* start = strtab;
+
+      char *p;
+      for (p=start+ind; *p!='\0'; p++)
+      {
+        len++;
+      }
+      char funcname [len+1];
+      char* newp = (char*)(start);
+      strncpy(funcname,newp,len);
+      funcname[len] = '\0';
+      fprintf(file,"pc:%lx: Addr:%x call [%s]\n",cpu.pc,addr,funcname);
     }
   }
+  fclose(file);
+}
+
+
+
+word_t paddr_read(paddr_t addr, int len) {
+  if (__builtin_expect(in_pmem(addr), 1)){word_t value =pmem_read(addr, len);
+
+mtrace(0,addr,len,value);
+log_ftrace(addr);
+
+return value;}
+ 
+
+
+
+
+               ;
+  out_of_bound(addr);
   return 0;
 }
 
-void init_monitor(int argc, char *argv[])
-{
+void paddr_write(paddr_t addr, int len, word_t data) {
+  if (__builtin_expect(in_pmem(addr), 1)) { pmem_write(addr, len, data);
+
+  mtrace(1,addr,len,data);
+  log_ftrace(addr);
+
+  return; }
+ 
 
 
 
-  parse_args(argc, argv);
 
-
-  init_rand();
-
-
-  init_log(log_file);
-
-  init_mtrace();
-  elf_filein = "/home/yangli/ysyx-workbench/am-kernels/tests/cpu-tests/build/recursion-riscv64-nemu.elf";
-  if (elf_filein!=
-# 138 "src/monitor/monitor.c" 3 4
-                 ((void *)0)
-# 138 "src/monitor/monitor.c"
-                     ) init_ftrace(elf_filein);
-  else printf("No elf file\n");
-
-
-
-  init_mem();
-
-
-  ;
-
-
-  init_isa();
-
-
-  long img_size = load_img();
-
-
-  init_difftest(diff_so_file, img_size, difftest_port);
-
-
-  init_sdb();
-
-  init_disasm( "riscv64" "-pc-linux-gnu")
-
-
-
-                                                                                                                 ;
-
-
-  welcome();
+         ;
+  out_of_bound(addr);
 }
