@@ -30,13 +30,13 @@ override ARGS += $(ARGS_DIFF)
 # Command to execute NEMU
 IMG ?=
 NEMU_EXEC := $(BINARY) $(ARGS) $(IMG)
-
+NEMU_EXEC+=-b
 run-env: $(BINARY) $(DIFF_REF_SO)
 # if you want to run the nemu in batch mode , add -b at the end of run-env
 run: run-env
 	$(call git_commit, "run NEMU")
-	echo "in nemu" $(NEMU_EXEC)
-	$(NEMU_EXEC) -b
+	echo "in nemu" $(NEMU_EXEC) 
+	$(NEMU_EXEC) 
 #-f /home/yangli/ysyx-workbench/am-kernels/tests/cpu-tests/build/recursion-riscv64-nemu.elf
 #-b
 gdb: run-env
