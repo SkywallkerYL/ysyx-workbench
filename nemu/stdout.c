@@ -5785,7 +5785,7 @@ void init_ftrace(char* elf_file)
   for (size_t i = 0; i < 256; i++)
   {
     pc_ftrace[i] = 0;
-    *funcname_ftrace[i] = '\0';
+    funcname_ftrace[i] = '\0';
   }
 
 
