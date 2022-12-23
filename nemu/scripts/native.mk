@@ -40,7 +40,7 @@ run-env: $(BINARY) $(DIFF_REF_SO)
 #make ARCH=riscv64-nemu ALL=recursion MODEPARM=-b MODEPARM+=-f MODEPARM+=IMG.elf run
 run: run-env
 	$(call git_commit, "run NEMU")
-#echo "in nemu" $(NEMU_EXEC) 
+	echo "in nemu" $(IMG) 
 	$(NEMU_EXEC) 
 #-f /home/yangli/ysyx-workbench/am-kernels/tests/cpu-tests/build/recursion-riscv64-nemu.elf
 #-b
