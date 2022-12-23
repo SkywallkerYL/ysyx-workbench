@@ -33,10 +33,14 @@ IMG ?=
 MODEPARM ?=
 NEMU_EXEC := $(BINARY) $(MODEPARM) $(ARGS) $(IMG)
 
-ELF1 = $(IMG)
+#ELF1 = $(IMG)
+#字符串替换，获取elf
 ELF = $(IMG:.bin=.elf) 
 #$(pathsubst %.bin,%.elf,$(ELF1))
-
+MODEF = -f
+ifeq ($(MODEF),$(findstring $(MODEPARM),$(MODEF)))
+	MODEPARM+=$(ELF) 
+endif
 run-env: $(BINARY) $(DIFF_REF_SO)
 # if you want to run the nemu in batch mode , add -b at the end of $(BINARY)
 # $(BINARY) is the nemu program   the shell shoul be added after it like -b -f $(IMG).elf 
