@@ -42,8 +42,6 @@ run: run-env
 	$(call git_commit, "run NEMU")
 	echo "in nemu" $(IMG) 
 	$(NEMU_EXEC) 
-#-f /home/yangli/ysyx-workbench/am-kernels/tests/cpu-tests/build/recursion-riscv64-nemu.elf
-#-b
 gdb: run-env
 	$(call git_commit, "gdb NEMU")
 	gdb -s $(BINARY) --args $(NEMU_EXEC)
