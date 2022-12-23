@@ -33,6 +33,9 @@ IMG ?=
 MODEPARM ?=
 NEMU_EXEC := $(BINARY) $(MODEPARM) $(ARGS) $(IMG)
 
+ELF = $(IMG)
+$(pathsubst %.bin,%.elf,ELF)
+
 run-env: $(BINARY) $(DIFF_REF_SO)
 # if you want to run the nemu in batch mode , add -b at the end of $(BINARY)
 # $(BINARY) is the nemu program   the shell shoul be added after it like -b -f $(IMG).elf 
@@ -40,7 +43,7 @@ run-env: $(BINARY) $(DIFF_REF_SO)
 #make ARCH=riscv64-nemu ALL=recursion MODEPARM=-b MODEPARM+=-f MODEPARM+=IMG.elf run
 run: run-env
 	$(call git_commit, "run NEMU")
-	echo "in nemu" $(IMAGE) 
+	echo "in nemu" $(ELF) 
 	$(NEMU_EXEC) 
 gdb: run-env
 	$(call git_commit, "gdb NEMU")
