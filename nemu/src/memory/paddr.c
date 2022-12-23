@@ -357,8 +357,8 @@ void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1)
       strncpy(funcname,newp,len);
       funcname[len] = '\0';
       //printf(" %s",funcname); printf("\n");
-      bool retflag = jarlflag&(rd==0)&(imm==0);
-      printf("pc:%lx: Addr:%x func [%s] rd:%d rs1:%d imm:%ld jarl:%d\n",cpu.pc,addr,funcname,rd,rs1,imm,jarlflag);
+      bool retflag = jarlflag&(rd==0)&(rs1==1)&(imm==0);
+      //printf("pc:%lx: Addr:%x func [%s] rd:%d rs1:%d imm:%ld jarl:%d\n",cpu.pc,addr,funcname,rd,rs1,imm,jarlflag);
       if (retflag)
       {
         fprintf(file,"pc:%lx: Addr:%x ret [%s]\n",cpu.pc,addr,funcname);

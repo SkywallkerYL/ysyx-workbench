@@ -115,6 +115,7 @@ static int decode_exec(Decode *s) {
   INSTPAT("??????? ????? ????? 000 ????? 11001 11", jalr    , I, R(dest) = s->pc+0x4;imm=SEXT(imm,12);s->dnpc = ((src1+imm)&~1);
 #ifdef CONFIG_MTRACE 
   uint32_t i = s->isa.inst.val;
+  printf("pc:%lx: inst:%08x \n",cpu.pc,i);
   int rs1 = BITS(i, 19, 15);
   
   log_ftrace(s->dnpc,1,dest,imm,rs1)
