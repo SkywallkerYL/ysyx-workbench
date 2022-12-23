@@ -4006,12 +4006,47 @@ void log_ftrace(paddr_t addr,
   if (retflag)
   {
 
-
+    vaddr_t realpc = src1-0x4;
 
 
 
     fprintf(file,"pc:%lx: Addr:%lx ret \n",cpu.pc,src1);
-# 377 "src/memory/paddr.c"
+
+    for (size_t j = 0; j < symblenumber; j++)
+    {
+      if (allsymble[j].st_value!=realpc) continue;
+
+
+
+
+      if((allsymble[j].st_info&0x0f) == 
+# 353 "src/memory/paddr.c" 3 4
+                                       2
+# 353 "src/memory/paddr.c"
+                                               )
+      {
+        int len = 0;
+        int ind = allsymble[j].st_name;
+        char* start = strtab;
+
+        char *p;
+        for (p=start+ind; *p!='\0'; p++)
+        {
+
+          len++;
+        }
+
+        char funcname [len+1];
+        char* newp = (char*)(start)+ind;
+        strncpy(funcname,newp,len);
+        funcname[len] = '\0';
+
+
+        fprintf(file,"pc:%lx: ret [%s]\n",cpu.pc,funcname);
+      }
+    }
+
+
   }
   else
   {

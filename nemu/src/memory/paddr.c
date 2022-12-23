@@ -337,15 +337,15 @@ void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1,word_t s
   if (retflag)
   {
     //ret返回的是调用函数的后一个Pc地址
-    //vaddr_t realpc = src1-0x4;
+    vaddr_t realpc = src1-0x4;
     //读pc处的指令
     //word_t realinst = paddr_read(realpc, 4); 
     //通过指令确定函数的地址
     fprintf(file,"pc:%lx: Addr:%lx ret \n",cpu.pc,src1);
-    /*
+    
     for (size_t j = 0; j < symblenumber; j++)
     {
-      if (allsymble[j].st_value!=realaddr) continue;
+      if (allsymble[j].st_value!=realpc) continue;
       //uint8_t *p = sign_data;
       //int len = 0;
       //看elf里面 info 第一位是bind 第二位是type
@@ -372,7 +372,7 @@ void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1,word_t s
         fprintf(file,"pc:%lx: ret [%s]\n",cpu.pc,funcname);
       } 
     } 
-    */
+    
     //fprintf(file,"pc:%lx: Addr:%x ret \n",cpu.pc,addr);
   }
   else
