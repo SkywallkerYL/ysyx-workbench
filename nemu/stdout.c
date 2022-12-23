@@ -6128,7 +6128,14 @@ void log_ftrace(paddr_t addr,
         if (!pccallflag)
         {
           pc_ftrace[addind] = localpc;
-          strncpy(funcname_ftrace[addind],funcname,len);
+          char *funcp = funcname_ftrace[addind];
+          for (char* namep =start+ind; *namep !='\0'; namep++)
+          {
+            *funcp = *namep;
+            funcp++;
+          }
+          *funcp = '\0';
+
         }
 
 
