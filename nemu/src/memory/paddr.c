@@ -338,7 +338,7 @@ void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1,word_t s
   {
     for (size_t j = 0; j < symblenumber; j++)
     {
-      if (allsymble[j].st_value!=src1) continue;
+      if (allsymble[j].st_value!=src1-0x4) continue;
       //uint8_t *p = sign_data;
       //int len = 0;
       //看elf里面 info 第一位是bind 第二位是type
