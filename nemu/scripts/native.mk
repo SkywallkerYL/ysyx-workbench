@@ -34,7 +34,7 @@ MODEPARM ?=
 NEMU_EXEC := $(BINARY) $(MODEPARM) $(ARGS) $(IMG)
 
 ELF = $(IMG)
-$(pathsubst %.bin,%.elf,ELF)
+$(pathsubst %.bin,%.elf,$(ELF))
 
 run-env: $(BINARY) $(DIFF_REF_SO)
 # if you want to run the nemu in batch mode , add -b at the end of $(BINARY)
