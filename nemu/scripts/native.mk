@@ -35,7 +35,8 @@ NEMU_EXEC := $(BINARY) $(MODEPARM) $(ARGS) $(IMG)
 
 run-env: $(BINARY) $(DIFF_REF_SO)
 # if you want to run the nemu in batch mode , add -b at the end of $(BINARY)
-# $(BINARY) is the nemu program   the shell shoul be added after it like -b -f 
+# $(BINARY) is the nemu program   the shell shoul be added after it like -b -f $(IMG).elf 
+# or you can set the MODEPARM
 run: run-env
 	$(call git_commit, "run NEMU")
 #echo "in nemu" $(NEMU_EXEC) 
