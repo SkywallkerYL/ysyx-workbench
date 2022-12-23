@@ -30,40 +30,8 @@ paddr_t host_to_guest(uint8_t *haddr);
 static inline bool in_pmem(paddr_t addr) {
   return addr - CONFIG_MBASE < CONFIG_MSIZE;
 }
-#ifdef CONFIG_MTRACE
 
-void init_mtrace();
-void mtrace(bool wrrd,paddr_t addr, int len,word_t data);
-#endif
 word_t paddr_read(paddr_t addr, int len);
 void paddr_write(paddr_t addr, int len, word_t data);
-
-//ftrace
-union var8
-{
-    char p[8];
-    int64_t i;
-};
-union var4
-{
-    char p[4];
-    int32_t i;
-};
-union var2
-{
-    char p[2];
-    int16_t i;
-};
-union var1
-{
-    char p;
-    int8_t i;
-};
-
-
-
-void init_ftrace(char * elf_file);
-//接受地址，判断其是否属于函数
-void log_ftrace(paddr_t addr);
 
 #endif
