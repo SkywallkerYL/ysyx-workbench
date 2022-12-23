@@ -134,6 +134,7 @@ void init_monitor(int argc, char *argv[])
   init_log(log_file);
 #ifdef CONFIG_MTRACE
   init_mtrace();
+  printf("in monitor: %s\n",elf_filein);
   //elf_filein = "/home/yangli/ysyx-workbench/am-kernels/tests/cpu-tests/build/recursion-riscv64-nemu.elf";
   if (elf_filein!=NULL) init_ftrace(elf_filein);
   else printf("No elf file\n");
