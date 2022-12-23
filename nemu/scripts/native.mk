@@ -31,7 +31,8 @@ override ARGS += $(ARGS_DIFF)
 IMG ?=
 #BINARY+=-b
 MODEPARM ?=
-NEMU_EXEC := $(BINARY) $(MODEPARM) $(ARGS) $(IMG)
+FILENAME ?=
+NEMU_EXEC := $(BINARY) $(MODEPARM) $(FILENAME) $(ARGS) $(IMG)
 
 #ELF1 = $(IMG)
 #字符串替换，获取elf
@@ -40,7 +41,7 @@ ELF = $(IMG:.bin=.elf)
 MODEF = -f
 FIFFIND = $(findstring $(MODEF),$(MODEPARM))
 ifeq ($(MODEF),$(FIFFIND))
-	MODEPARM+=$(ELF) 
+	FILENAME=$(ELF) 
 endif
 run-env: $(BINARY) $(DIFF_REF_SO)
 # if you want to run the nemu in batch mode , add -b at the end of $(BINARY)
