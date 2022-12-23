@@ -44,7 +44,7 @@ enum {
 //通过位于操作来进行截断 其实SEXT直接进行了截断操作以及符号位扩展，直接使用即可，不要用CUT,这样自可以过load-store
 #define low32(a) (a&0x00000000FFFFFFFF)   // 返回一个数的低32位
 
-void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1);
+void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1,word_t src1);
 static void decode_operand(Decode *s, int *dest, word_t *src1, word_t *src2, word_t *imm, int type) {
   uint32_t i = s->isa.inst.val;
   int rd  = BITS(i, 11, 7);
@@ -115,10 +115,10 @@ static int decode_exec(Decode *s) {
   INSTPAT("??????? ????? ????? 000 ????? 11001 11", jalr    , I, R(dest) = s->pc+0x4;imm=SEXT(imm,12);s->dnpc = ((src1+imm)&~1);
 #ifdef CONFIG_MTRACE 
   uint32_t i = s->isa.inst.val;
-  printf("pc:%lx: inst:%08x \n",cpu.pc,i);
+  //printf("pc:%lx: inst:%08x \n",cpu.pc,i);
   int rs1 = BITS(i, 19, 15);
   
-  log_ftrace(s->dnpc,1,dest,imm,rs1)
+  log_ftrace(s->dnpc,1,dest,imm,rs1,src1)
 #endif 
   );
 //无符号数小于立即数则置位 比较时 有符号扩展的立即数视为无符号数
@@ -134,7 +134,7 @@ static int decode_exec(Decode *s) {
   //这里是由于J型指令的表示方法造成的，imm[20:1] 默认最低位为0,因此在最地位补上一个0，即左移一位，就是x2
   INSTPAT("??????? ????? ????? ??? ????? 11011 11", jal   , J, R(dest) = s->pc+0x4;imm = SEXT(imm,20);s->dnpc =imm+s->pc;
 #ifdef CONFIG_MTRACE 
-   log_ftrace(s->dnpc,0,dest,imm,src1)
+   log_ftrace(s->dnpc,0,dest,imm,src1,src1)
 #endif 
   );//x[rd]=pc+4, pc+=sext(offset)
 

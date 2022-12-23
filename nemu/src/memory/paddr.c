@@ -325,7 +325,7 @@ void init_ftrace(char* elf_file)
   return;
 }
 
-void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1)
+void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1,word_t src1)
 {
   FILE *file;
   file = fopen(elf_logfile,"a");
@@ -336,37 +336,69 @@ void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1)
   //printf("pc:%lx: Addr:%x func [%s] rd:%d rs1:%d imm:%ld jarl:%d\n",cpu.pc,addr,funcname,rd,rs1,imm,jarlflag);
   if (retflag)
   {
-    fprintf(file,"pc:%lx: Addr:%x ret \n",cpu.pc,addr);
-  }
-  for (size_t j = 0; j < symblenumber; j++)
-  {
-    if (allsymble[j].st_value!=addr) continue;
-    //uint8_t *p = sign_data;
-    //int len = 0;
-    //看elf里面 info 第一位是bind 第二位是type
-    //printf("info:%02x\n",allsymble[j].st_info);
-    if((allsymble[j].st_info&0x0f) == STT_FUNC)
+    for (size_t j = 0; j < symblenumber; j++)
     {
-      int len = 0;
-      int ind = allsymble[j].st_name;
-      char* start = strtab;
-      //p = p + ind;
-      char *p;
-      for (p=start+ind; *p!='\0'; p++)
+      if (allsymble[j].st_value!=src1) continue;
+      //uint8_t *p = sign_data;
+      //int len = 0;
+      //看elf里面 info 第一位是bind 第二位是type
+      //printf("info:%02x\n",allsymble[j].st_info);
+      if((allsymble[j].st_info&0x0f) == STT_FUNC)
       {
-        //printf("%c",*p);
-        len++;
+        int len = 0;
+        int ind = allsymble[j].st_name;
+        char* start = strtab;
+        //p = p + ind;
+        char *p;
+        for (p=start+ind; *p!='\0'; p++)
+        {
+          //printf("%c",*p);
+          len++;
+        }
+        //printf("\n");
+        char funcname [len+1];
+        char* newp = (char*)(start)+ind;
+        strncpy(funcname,newp,len);
+        funcname[len] = '\0';
+        //printf(" %s",funcname); printf("\n");
+        //printf("pc:%lx: Addr:%x func [%s] rd:%d rs1:%d imm:%ld jarl:%d\n",cpu.pc,addr,funcname,rd,rs1,imm,jarlflag);
+        fprintf(file,"pc:%lx: Addr:%lx ret [%s]\n",cpu.pc,src1,funcname);
       }
-      //printf("\n");
-      char funcname [len+1];
-      char* newp = (char*)(start)+ind;
-      strncpy(funcname,newp,len);
-      funcname[len] = '\0';
-      //printf(" %s",funcname); printf("\n");
-      //printf("pc:%lx: Addr:%x func [%s] rd:%d rs1:%d imm:%ld jarl:%d\n",cpu.pc,addr,funcname,rd,rs1,imm,jarlflag);
-      fprintf(file,"pc:%lx: Addr:%x call [%s]\n",cpu.pc,addr,funcname);
-    }
-  }  
+    } 
+    //fprintf(file,"pc:%lx: Addr:%x ret \n",cpu.pc,addr);
+  }
+  else
+  {
+    for (size_t j = 0; j < symblenumber; j++)
+    {
+      if (allsymble[j].st_value!=addr) continue;
+      //uint8_t *p = sign_data;
+      //int len = 0;
+      //看elf里面 info 第一位是bind 第二位是type
+      //printf("info:%02x\n",allsymble[j].st_info);
+      if((allsymble[j].st_info&0x0f) == STT_FUNC)
+      {
+        int len = 0;
+        int ind = allsymble[j].st_name;
+        char* start = strtab;
+        //p = p + ind;
+        char *p;
+        for (p=start+ind; *p!='\0'; p++)
+        {
+          //printf("%c",*p);
+          len++;
+        }
+        //printf("\n");
+        char funcname [len+1];
+        char* newp = (char*)(start)+ind;
+        strncpy(funcname,newp,len);
+        funcname[len] = '\0';
+        //printf(" %s",funcname); printf("\n");
+        //printf("pc:%lx: Addr:%x func [%s] rd:%d rs1:%d imm:%ld jarl:%d\n",cpu.pc,addr,funcname,rd,rs1,imm,jarlflag);
+        fprintf(file,"pc:%lx: Addr:%x call [%s]\n",cpu.pc,addr,funcname);
+      }
+    } 
+  } 
   fclose(file);  
 }
 
