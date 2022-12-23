@@ -5779,13 +5779,13 @@ int strstart;
 
 
 word_t pc_ftrace[256];
-char* funcname_ftrace[256];
+char funcname_ftrace[256][32];
 void init_ftrace(char* elf_file)
 {
   for (size_t i = 0; i < 256; i++)
   {
     pc_ftrace[i] = 0;
-    funcname_ftrace[i] = '\0';
+
   }
 
 
@@ -6128,7 +6128,6 @@ void log_ftrace(paddr_t addr,
         if (!pccallflag)
         {
           pc_ftrace[addind] = localpc;
-          printf("kkk\n");
 # 435 "src/memory/paddr.c"
           strncpy(funcname_ftrace[addind],funcname,len);
         }

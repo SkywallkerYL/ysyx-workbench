@@ -96,13 +96,13 @@ int strstart;//记录strtab的起始地址
 
 //一个表格  对应记录pc 以及其调用的函数
 word_t pc_ftrace[256];
-char*  funcname_ftrace[256];
+char  funcname_ftrace[256][32];
 void init_ftrace(char* elf_file)
 {
   for (size_t i = 0; i < 256; i++)
   {
     pc_ftrace[i] = 0;
-    funcname_ftrace[i] = '\0';
+    //funcname_ftrace[i] = {'\0'};
   }
   
   //创建ftrace写入文件
@@ -422,7 +422,7 @@ void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1,word_t s
         if (!pccallflag)
         {
           pc_ftrace[addind] = localpc;
-          printf("kkk\n");
+          //printf("kkk\n");
           /*
           char *funcp = funcname_ftrace[addind];
           for (char* namep =start+ind; *namep !='\0'; namep++)
