@@ -23,7 +23,7 @@ image: $(IMAGE).elf
 	@$(OBJCOPY) -S --set-section-flags .bss=alloc,contents -O binary $(IMAGE).elf $(IMAGE).bin
 
 run: image
-	echo "hhhh" "$(NEMUFLAGS)"
+	echo "$(IMAGE)" "$(NEMUFLAGS)"
 	$(MAKE) -C $(NEMU_HOME) -b ISA=$(ISA) run ARGS="$(NEMUFLAGS)" IMG=$(IMAGE).bin
 gdb: image
 	$(MAKE) -C $(NEMU_HOME) ISA=$(ISA) gdb ARGS="$(NEMUFLAGS)" IMG=$(IMAGE).bin
