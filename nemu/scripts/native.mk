@@ -38,7 +38,7 @@ NEMU_EXEC := $(BINARY) $(MODEPARM) $(ARGS) $(IMG)
 ELF = $(IMG:.bin=.elf) 
 #$(pathsubst %.bin,%.elf,$(ELF1))
 MODEF = -f
-ifeq ($(MODEF),$(findstring $(MODEPARM),$(MODEF)))
+ifeq ($(MODEF),$(findstring $(MODEF),$(MODEPARM)))
 	MODEPARM+=$(ELF) 
 endif
 run-env: $(BINARY) $(DIFF_REF_SO)
