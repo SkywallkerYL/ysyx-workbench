@@ -116,6 +116,7 @@ static int decode_exec(Decode *s) {
 #ifdef CONFIG_MTRACE 
   uint32_t i = s->isa.inst.val;
   int rs1 = BITS(i, 19, 15);
+  
   log_ftrace(s->dnpc,1,dest,imm,rs1)
 #endif 
   );
