@@ -4005,40 +4005,8 @@ void log_ftrace(paddr_t addr,
 
   if (retflag)
   {
-    for (size_t j = 0; j < symblenumber; j++)
-    {
-      if (allsymble[j].st_value!=src1-0x4) continue;
-
-
-
-
-      if((allsymble[j].st_info&0x0f) == 
-# 346 "src/memory/paddr.c" 3 4
-                                       2
-# 346 "src/memory/paddr.c"
-                                               )
-      {
-        int len = 0;
-        int ind = allsymble[j].st_name;
-        char* start = strtab;
-
-        char *p;
-        for (p=start+ind; *p!='\0'; p++)
-        {
-
-          len++;
-        }
-
-        char funcname [len+1];
-        char* newp = (char*)(start)+ind;
-        strncpy(funcname,newp,len);
-        funcname[len] = '\0';
-
-
-        fprintf(file,"pc:%lx: Addr:%lx ret [%s]\n",cpu.pc,src1,funcname);
-      }
-    }
-
+    fprintf(file,"pc:%lx: Addr:%lx ret \n",cpu.pc,src1);
+# 373 "src/memory/paddr.c"
   }
   else
   {
@@ -4050,9 +4018,9 @@ void log_ftrace(paddr_t addr,
 
 
       if((allsymble[j].st_info&0x0f) == 
-# 379 "src/memory/paddr.c" 3 4
+# 383 "src/memory/paddr.c" 3 4
                                        2
-# 379 "src/memory/paddr.c"
+# 383 "src/memory/paddr.c"
                                                )
       {
         int len = 0;

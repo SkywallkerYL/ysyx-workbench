@@ -336,6 +336,8 @@ void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1,word_t s
   //printf("pc:%lx: Addr:%x func [%s] rd:%d rs1:%d imm:%ld jarl:%d\n",cpu.pc,addr,funcname,rd,rs1,imm,jarlflag);
   if (retflag)
   {
+    fprintf(file,"pc:%lx: Addr:%lx ret \n",cpu.pc,src1);
+    /*
     for (size_t j = 0; j < symblenumber; j++)
     {
       if (allsymble[j].st_value!=src1-0x4) continue;
@@ -364,7 +366,9 @@ void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1,word_t s
         //printf("pc:%lx: Addr:%x func [%s] rd:%d rs1:%d imm:%ld jarl:%d\n",cpu.pc,addr,funcname,rd,rs1,imm,jarlflag);
         fprintf(file,"pc:%lx: Addr:%lx ret [%s]\n",cpu.pc,src1,funcname);
       }
+      
     } 
+    */
     //fprintf(file,"pc:%lx: Addr:%x ret \n",cpu.pc,addr);
   }
   else
