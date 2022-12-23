@@ -35,15 +35,16 @@ enum {
 #define src2R() do { *src2 = R(rs2); } while (0)
 #define immI() do { *imm = SEXT(BITS(i, 31, 20), 12); } while(0)
 #define immU() do { *imm = SEXT(BITS(i, 31, 12), 20) << 12; } while(0)
-#define immS() do { *imm = (SEXT(BITS(i, 31, 25), 7) << 5) | BITS(i, 11, 7); } while(0)
-#define immJ() do { *imm = (SEXT(BITS(i, 31, 31),1)<<19)|(SEXT(BITS(i, 19, 12), 8)<<11)|(SEXT(BITS(i, 20, 20), 1)<< 10)|BITS(i, 30, 21); *imm = *imm << 1; } while(0)
-#define immB() do { *imm = (SEXT(BITS(i, 31, 31),1)<<11)|(SEXT(BITS(i, 7, 7), 1)<<10)|(SEXT(BITS(i, 30, 25), 6)<< 4)|BITS(i, 11, 8); *imm = *imm << 1; } while(0)
+#define immS() do { *imm = (SEXT(BITS(i, 31, 25), 7) << 5) | SEXTU(BITS(i, 11, 7),5); } while(0)
+//这一部分的移位还是有点问题
+#define immJ() do { *imm = (SEXT(BITS(i, 31, 31),1)<<19)|(SEXTU(BITS(i, 19, 12), 8)<<11)|(SEXTU(BITS(i, 20, 20), 1)<< 10)|BITS(i, 30, 21); *imm = *imm << 1;} while(0)
+#define immB() do { *imm = (SEXT(BITS(i, 31, 31),1)<<11)|(SEXTU(BITS(i, 7, 7), 1)<<10)|(SEXTU(BITS(i, 30, 25), 6)<< 4)|BITS(i, 11, 8); *imm = *imm << 1; } while(0)
 #define CUT(a,bit) (a=(a<<(64-bit)>>(64-bit))) //将64位的a 截断为 bit 位
 //目前感觉是cut操作出了问题，因为截断会导致符号位被截掉，采用移位的操作进行截断，原来的负数会变成正数，再理解以下位域的表示，
 //通过位于操作来进行截断 其实SEXT直接进行了截断操作以及符号位扩展，直接使用即可，不要用CUT,这样自可以过load-store
 #define low32(a) (a&0x00000000FFFFFFFF)   // 返回一个数的低32位
 
-
+void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1,word_t src1);
 static void decode_operand(Decode *s, int *dest, word_t *src1, word_t *src2, word_t *imm, int type) {
   uint32_t i = s->isa.inst.val;
   int rd  = BITS(i, 11, 7);
@@ -107,9 +108,19 @@ static int decode_exec(Decode *s) {
   INSTPAT("??????? ????? ????? 100 ????? 00100 11", xori   , I, imm = SEXT(imm,12);R(dest) = src1^imm);
   INSTPAT("??????? ????? ????? 001 ????? 00000 11", lh     , I, imm = SEXT(imm,12);word_t temp = Mr(src1+imm,2);R(dest) =SEXT(temp,16));
   INSTPAT("??????? ????? ????? 101 ????? 00000 11", lhu    , I, imm = SEXT(imm,12);word_t temp = Mr(src1+imm,2);R(dest) =SEXTU(temp,16));
+  //好像区分了整数寄存器与浮点寄存器，要先理解一下
+  INSTPAT("??????? ????? ????? 011 ????? 00001 11", fld    , I, imm = SEXT(imm,12);double temp = Mr(src1+imm,8);R(dest) =temp);
 //ret 被解释为jalr    I-type pc = (src1+offset)&~1(最低有效位设为0)  原pc+4 写入rd 
 //这里中文的指令集有问题 应该为000
-  INSTPAT("??????? ????? ????? 000 ????? 11001 11", jalr    , I, R(dest) = s->pc+0x4;imm=SEXT(imm,12);s->dnpc = ((src1+imm)&~1));
+  INSTPAT("??????? ????? ????? 000 ????? 11001 11", jalr    , I, R(dest) = s->pc+0x4;imm=SEXT(imm,12);s->dnpc = ((src1+imm)&~1);
+#ifdef CONFIG_MTRACE 
+  uint32_t i = s->isa.inst.val;
+  //printf("pc:%lx: inst:%08x \n",cpu.pc,i);
+  int rs1 = BITS(i, 19, 15);
+  
+  log_ftrace(s->dnpc,1,dest,imm,rs1,src1)
+#endif 
+  );
 //无符号数小于立即数则置位 比较时 有符号扩展的立即数视为无符号数
 //seqz 被扩展为 src1<1  等于0置位 
   INSTPAT("??????? ????? ????? 011 ????? 00100 11", sltiu  , I, imm = SEXT(imm,12); R(dest) = (src1<imm));
@@ -121,7 +132,11 @@ static int decode_exec(Decode *s) {
   //或者直接在当前指令上来操作
   //jal 首先对20bits宽的imm*2后，在进行符号扩展，然后将符号扩展的值与pc相加
   //这里是由于J型指令的表示方法造成的，imm[20:1] 默认最低位为0,因此在最地位补上一个0，即左移一位，就是x2
-  INSTPAT("??????? ????? ????? ??? ????? 11011 11", jal   , J, R(dest) = s->pc+0x4;imm = SEXT(imm,12);s->dnpc =imm+s->pc);//x[rd]=pc+4, pc+=sext(offset)
+  INSTPAT("??????? ????? ????? ??? ????? 11011 11", jal   , J, R(dest) = s->pc+0x4;imm = SEXT(imm,20);s->dnpc =imm+s->pc;
+#ifdef CONFIG_MTRACE 
+   log_ftrace(s->dnpc,0,dest,imm,src1,src1)
+#endif 
+  );//x[rd]=pc+4, pc+=sext(offset)
 
 //R
   INSTPAT("0000000 ????? ????? 000 ????? 01110 11", addw  , RI, word_t val = src1+src2;val = SEXT(val,32); R(dest)=val); 
@@ -141,7 +156,10 @@ static int decode_exec(Decode *s) {
   INSTPAT("0000001 ????? ????? 000 ????? 01100 11", mul   , RI, word_t val = src1*src2;R(dest)= val);
   INSTPAT("0000001 ????? ????? 000 ????? 01110 11", mulw  , RI, word_t val = src1*src2;val = SEXT(val,32);R(dest)= val);//截断为32
   INSTPAT("0000001 ????? ????? 100 ????? 01110 11", divw  , RI, src1 = SEXT(src1,32);src2 = SEXT(src2,32);int32_t rs1 = src1;int32_t rs2 = src2;int32_t val=rs1/rs2;R(dest) = SEXT(val,32));
+  INSTPAT("0000001 ????? ????? 101 ????? 01100 11", divu  , RI, src1 = SEXT(src1,32);src2 = SEXT(src2,32);word_t rs1 = src1;word_t rs2 = src2;word_t val=rs1/rs2;R(dest) = val);
+  INSTPAT("0000001 ????? ????? 111 ????? 01100 11", remu  , RI, src1 = SEXT(src1,32);src2 = SEXT(src2,32);word_t rs1 = src1;word_t rs2 = src2;word_t val=rs1%rs2;R(dest) = val);
   INSTPAT("0000001 ????? ????? 110 ????? 01110 11", remw  , RI, src1 = SEXT(src1,32);src2 = SEXT(src2,32);int32_t rs1 = src1;int32_t rs2 = src2;int32_t val=rs1%rs2;R(dest) = SEXT(val,32));
+  INSTPAT("1111001 00000 ????? 000 ????? 10100 11", fmv.d.x, RI, src1 = SEXT(src1,32);int rs1 = src1;R(dest) = rs1);
 //B
   //beqz 是=0分支    src2 = 0
   INSTPAT("??????? ????? ????? 000 ????? 11000 11", beq    , B, imm = SEXT(imm,12);s->dnpc = (src1==src2)?s->pc+imm:s->pc+0x4);
@@ -160,7 +178,7 @@ static int decode_exec(Decode *s) {
   INSTPAT("??????? ????? ????? 001 ????? 01000 11", sh     , S, imm = SEXT(imm,12);Mw(src1 + imm, 2, src2));
   INSTPAT("??????? ????? ????? 000 ????? 01000 11", sb     , S, imm = SEXT(imm,12);Mw(src1 + imm, 1, src2));
   INSTPAT("??????? ????? ????? 010 ????? 01000 11", sw     , S, imm = SEXT(imm,12);Mw(src1 + imm, 4, src2));
-
+  INSTPAT("??????? ????? ????? 011 ????? 01001 11", fsd    , S, imm = SEXT(imm,12);/*printf("rs1:%lx rs2:%lx imm:%lx\n",src1,src2,imm);*/Mw(src1 + imm, 8, src2));
 
   INSTPAT("0000000 00001 00000 000 00000 11100 11", ebreak , N, NEMUTRAP(s->pc, R(10))); // R(10) is $a0
   INSTPAT("??????? ????? ????? ??? ????? ????? ??", inv    , N, INV(s->pc));

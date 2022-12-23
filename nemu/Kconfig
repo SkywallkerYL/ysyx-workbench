@@ -30,6 +30,9 @@ config  WATHCPOINT
   bool 
   default y
 
+config  MTRACE
+  bool
+  default y
 
 choice
   prompt "NEMU execution engine"

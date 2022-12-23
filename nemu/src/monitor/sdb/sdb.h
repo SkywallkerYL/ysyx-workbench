@@ -17,7 +17,7 @@
 #define __SDB_H__
 
 #include <common.h>
-
+#include <elf.h>
 word_t expr(char *e, bool *success);
 
 typedef struct watchpoint {
@@ -27,4 +27,7 @@ typedef struct watchpoint {
   word_t value; //表达式数值
   /* TODO: Add more members if necessary */
 } WP;
+
+
+
 #endif
