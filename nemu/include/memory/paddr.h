@@ -64,6 +64,6 @@ union var1
 
 void init_ftrace(char * elf_file);
 //接受地址，判断其是否属于函数
-void log_ftrace(paddr_t addr);
+void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1);
 
 #endif

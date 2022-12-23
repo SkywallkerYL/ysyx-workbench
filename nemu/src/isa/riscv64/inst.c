@@ -44,7 +44,7 @@ enum {
 //通过位于操作来进行截断 其实SEXT直接进行了截断操作以及符号位扩展，直接使用即可，不要用CUT,这样自可以过load-store
 #define low32(a) (a&0x00000000FFFFFFFF)   // 返回一个数的低32位
 
-
+void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1);
 static void decode_operand(Decode *s, int *dest, word_t *src1, word_t *src2, word_t *imm, int type) {
   uint32_t i = s->isa.inst.val;
   int rd  = BITS(i, 11, 7);
@@ -112,7 +112,11 @@ static int decode_exec(Decode *s) {
   INSTPAT("??????? ????? ????? 011 ????? 00001 11", fld    , I, imm = SEXT(imm,12);double temp = Mr(src1+imm,8);R(dest) =temp);
 //ret 被解释为jalr    I-type pc = (src1+offset)&~1(最低有效位设为0)  原pc+4 写入rd 
 //这里中文的指令集有问题 应该为000
-  INSTPAT("??????? ????? ????? 000 ????? 11001 11", jalr    , I, R(dest) = s->pc+0x4;imm=SEXT(imm,12);s->dnpc = ((src1+imm)&~1));
+  INSTPAT("??????? ????? ????? 000 ????? 11001 11", jalr    , I, R(dest) = s->pc+0x4;imm=SEXT(imm,12);s->dnpc = ((src1+imm)&~1);
+#ifdef CONFIG_MTRACE 
+  log_ftrace(s->dnpc,1,dest,imm,src1)
+#endif 
+  );
 //无符号数小于立即数则置位 比较时 有符号扩展的立即数视为无符号数
 //seqz 被扩展为 src1<1  等于0置位 
   INSTPAT("??????? ????? ????? 011 ????? 00100 11", sltiu  , I, imm = SEXT(imm,12); R(dest) = (src1<imm));
@@ -124,7 +128,11 @@ static int decode_exec(Decode *s) {
   //或者直接在当前指令上来操作
   //jal 首先对20bits宽的imm*2后，在进行符号扩展，然后将符号扩展的值与pc相加
   //这里是由于J型指令的表示方法造成的，imm[20:1] 默认最低位为0,因此在最地位补上一个0，即左移一位，就是x2
-  INSTPAT("??????? ????? ????? ??? ????? 11011 11", jal   , J, R(dest) = s->pc+0x4;imm = SEXT(imm,20);s->dnpc =imm+s->pc);//x[rd]=pc+4, pc+=sext(offset)
+  INSTPAT("??????? ????? ????? ??? ????? 11011 11", jal   , J, R(dest) = s->pc+0x4;imm = SEXT(imm,20);s->dnpc =imm+s->pc;
+#ifdef CONFIG_MTRACE 
+   log_ftrace(s->dnpc,0,dest,imm,src1)
+#endif 
+  );//x[rd]=pc+4, pc+=sext(offset)
 
 //R
   INSTPAT("0000000 ????? ????? 000 ????? 01110 11", addw  , RI, word_t val = src1+src2;val = SEXT(val,32); R(dest)=val); 

@@ -325,7 +325,7 @@ void init_ftrace(char* elf_file)
   return;
 }
 
-void log_ftrace(paddr_t addr)
+void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1)
 {
   FILE *file;
   file = fopen(elf_logfile,"a");
@@ -357,7 +357,12 @@ void log_ftrace(paddr_t addr)
       strncpy(funcname,newp,len);
       funcname[len] = '\0';
       //printf(" %s",funcname); printf("\n");
-      fprintf(file,"pc:%lx: Addr:%x call [%s]\n",cpu.pc,addr,funcname);
+      bool retflag = jarlflag&(rd==0)&(rs1==1)&(imm==0);
+      if (retflag)
+      {
+        fprintf(file,"pc:%lx: Addr:%x ret [%s]\n",cpu.pc,addr,funcname);
+      }
+      else fprintf(file,"pc:%lx: Addr:%x call [%s]\n",cpu.pc,addr,funcname);
     }
   }  
   fclose(file);  
@@ -369,13 +374,13 @@ word_t paddr_read(paddr_t addr, int len) {
   if (likely(in_pmem(addr))){word_t value =pmem_read(addr, len);
 #ifdef CONFIG_MTRACE 
 mtrace(0,addr,len,value);
-log_ftrace(value);
+//log_ftrace(value);
 #endif
 return value;}
   IFDEF(CONFIG_DEVICE, word_t value =mmio_read(addr, len); 
 #ifdef CONFIG_MTRACE 
 mtrace(0,addr,len,value);
-log_ftrace(value);
+//log_ftrace(value);
 #endif
   return value);
   out_of_bound(addr);
@@ -385,14 +390,13 @@ log_ftrace(value);
 void paddr_write(paddr_t addr, int len, word_t data) {
   if (likely(in_pmem(addr))) { pmem_write(addr, len, data); 
 #ifdef CONFIG_MTRACE 
-  mtrace(1,addr,len,data);
-  log_ftrace(data);
+  mtrace(1,addr,len,data);//  log_ftrace(data);
 #endif
   return; }
   IFDEF(CONFIG_DEVICE, mmio_write(addr, len, data);
 #ifdef CONFIG_MTRACE
   mtrace(1,addr,len,data); 
-  log_ftrace(data);
+//  log_ftrace(data);
 #endif
   return);
   out_of_bound(addr);

@@ -1,10 +1,10 @@
-# 0 "src/monitor/monitor.c"
+# 0 "src/memory/vaddr.c"
 # 0 "<built-in>"
 # 0 "<command-line>"
 # 1 "/usr/include/stdc-predef.h" 1 3 4
 # 0 "<command-line>" 2
-# 1 "src/monitor/monitor.c"
-# 16 "src/monitor/monitor.c"
+# 1 "src/memory/vaddr.c"
+# 16 "src/memory/vaddr.c"
 # 1 "/home/yangli/ysyx-workbench/nemu/include/isa.h" 1
 # 20 "/home/yangli/ysyx-workbench/nemu/include/isa.h"
 # 1 "/home/yangli/ysyx-workbench/nemu/src/isa/riscv64/include/isa-def.h" 1
@@ -3003,7 +3003,7 @@ _Bool
 # 55 "/home/yangli/ysyx-workbench/nemu/include/isa.h"
     isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc);
 void isa_difftest_attach();
-# 17 "src/monitor/monitor.c" 2
+# 17 "src/memory/vaddr.c" 2
 # 1 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h" 1
 # 26 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h"
 uint8_t* guest_to_host(paddr_t paddr);
@@ -3055,369 +3055,21 @@ union var1
 
 void init_ftrace(char * elf_file);
 
-void log_ftrace(paddr_t addr);
-# 18 "src/monitor/monitor.c" 2
+void log_ftrace(paddr_t addr,
+# 67 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h" 3 4
+                            _Bool 
+# 67 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h"
+                                 jarlflag, int rd ,word_t imm, int rs1);
+# 18 "src/memory/vaddr.c" 2
 
-void init_rand();
-void init_log(const char *log_file);
-void init_mem();
-void init_difftest(char *ref_so_file, long img_size, int port);
-void init_device();
-void init_sdb();
-void init_disasm(const char *triple);
-
-static void welcome()
-{
-  do { printf("\33[1;34m" "[%s:%d %s] " "Trace: %s" "\33[0m" "\n", "src/monitor/monitor.c", 29, __func__, "\33[1;32m" "ON" "\33[0m"); do { extern FILE* log_fp; extern 
-# 29 "src/monitor/monitor.c" 3 4
- _Bool 
-# 29 "src/monitor/monitor.c"
- log_enable(); if (log_enable()) { fprintf(log_fp, "\33[1;34m" "[%s:%d %s] " "Trace: %s" "\33[0m" "\n", "src/monitor/monitor.c", 29, __func__, "\33[1;32m" "ON" "\33[0m"); fflush(log_fp); } } while (0); } while (0);
-  do { printf("\33[1;34m" "[%s:%d %s] " "If trace is enabled, a log file will be generated " "to record the trace. This may lead to a large log file. " "If it is not necessary, you can disable it in menuconfig" "\33[0m" "\n", "src/monitor/monitor.c", 30, __func__); do { extern FILE* log_fp; extern 
-# 30 "src/monitor/monitor.c" 3 4
- _Bool 
-# 30 "src/monitor/monitor.c"
- log_enable(); if (log_enable()) { fprintf(log_fp, "\33[1;34m" "[%s:%d %s] " "If trace is enabled, a log file will be generated " "to record the trace. This may lead to a large log file. " "If it is not necessary, you can disable it in menuconfig" "\33[0m" "\n", "src/monitor/monitor.c", 30, __func__); fflush(log_fp); } } while (0); } while (0)
-
-                                                                                      ;
-  do { printf("\33[1;34m" "[%s:%d %s] " "Build time: %s, %s" "\33[0m" "\n", "src/monitor/monitor.c", 33, __func__, "23:06:13", "Dec 22 2022"); do { extern FILE* log_fp; extern 
-# 33 "src/monitor/monitor.c" 3 4
- _Bool 
-# 33 "src/monitor/monitor.c"
- log_enable(); if (log_enable()) { fprintf(log_fp, "\33[1;34m" "[%s:%d %s] " "Build time: %s, %s" "\33[0m" "\n", "src/monitor/monitor.c", 33, __func__, "23:06:13", "Dec 22 2022"); fflush(log_fp); } } while (0); } while (0);
-  printf("Welcome to %s-NEMU!\n", "\33[1;33m" "\33[1;41m" "riscv64" "\33[0m");
-  printf("For help, type \"help\"\n");
-
-
+word_t vaddr_ifetch(vaddr_t addr, int len) {
+  return paddr_read(addr, len);
 }
 
-
-# 1 "/usr/include/getopt.h" 1 3 4
-# 35 "/usr/include/getopt.h" 3 4
-# 1 "/usr/include/x86_64-linux-gnu/bits/getopt_core.h" 1 3 4
-# 28 "/usr/include/x86_64-linux-gnu/bits/getopt_core.h" 3 4
-
-
-
-
-
-
-
-
-
-# 36 "/usr/include/x86_64-linux-gnu/bits/getopt_core.h" 3 4
-extern char *optarg;
-# 50 "/usr/include/x86_64-linux-gnu/bits/getopt_core.h" 3 4
-extern int optind;
-
-
-
-
-extern int opterr;
-
-
-
-extern int optopt;
-# 91 "/usr/include/x86_64-linux-gnu/bits/getopt_core.h" 3 4
-extern int getopt (int ___argc, char *const *___argv, const char *__shortopts)
-       __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (2, 3)));
-
-
-# 36 "/usr/include/getopt.h" 2 3 4
-# 1 "/usr/include/x86_64-linux-gnu/bits/getopt_ext.h" 1 3 4
-# 27 "/usr/include/x86_64-linux-gnu/bits/getopt_ext.h" 3 4
-
-# 50 "/usr/include/x86_64-linux-gnu/bits/getopt_ext.h" 3 4
-struct option
-{
-  const char *name;
-
-
-  int has_arg;
-  int *flag;
-  int val;
-};
-
-
-
-
-
-
-
-extern int getopt_long (int ___argc, char *const *___argv,
-   const char *__shortopts,
-          const struct option *__longopts, int *__longind)
-       __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (2, 3)));
-extern int getopt_long_only (int ___argc, char *const *___argv,
-        const char *__shortopts,
-               const struct option *__longopts, int *__longind)
-       __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (2, 3)));
-
-
-# 37 "/usr/include/getopt.h" 2 3 4
-# 42 "src/monitor/monitor.c" 2
-
-
-# 43 "src/monitor/monitor.c"
-void sdb_set_batch_mode();
-void init_ftrace(char * elf_file);
-static char *log_file = 
-# 45 "src/monitor/monitor.c" 3 4
-                       ((void *)0)
-# 45 "src/monitor/monitor.c"
-                           ;
-static char *diff_so_file = 
-# 46 "src/monitor/monitor.c" 3 4
-                           ((void *)0)
-# 46 "src/monitor/monitor.c"
-                               ;
-static char *img_file = 
-# 47 "src/monitor/monitor.c" 3 4
-                       ((void *)0)
-# 47 "src/monitor/monitor.c"
-                           ;
-static int difftest_port = 1234;
-static char *elf_filein = 
-# 49 "src/monitor/monitor.c" 3 4
-                         ((void *)0)
-# 49 "src/monitor/monitor.c"
-                             ;
-static long load_img()
-{
-  if (img_file == 
-# 52 "src/monitor/monitor.c" 3 4
-                 ((void *)0)
-# 52 "src/monitor/monitor.c"
-                     )
-  {
-    do { printf("\33[1;34m" "[%s:%d %s] " "No image is given. Use the default build-in image." "\33[0m" "\n", "src/monitor/monitor.c", 54, __func__); do { extern FILE* log_fp; extern 
-# 54 "src/monitor/monitor.c" 3 4
-   _Bool 
-# 54 "src/monitor/monitor.c"
-   log_enable(); if (log_enable()) { fprintf(log_fp, "\33[1;34m" "[%s:%d %s] " "No image is given. Use the default build-in image." "\33[0m" "\n", "src/monitor/monitor.c", 54, __func__); fflush(log_fp); } } while (0); } while (0);
-    return 4096;
-  }
-
-  FILE *fp = fopen(img_file, "rb");
-  do { if (!(fp)) { (fflush(
-# 59 "src/monitor/monitor.c" 3 4
- stdout
-# 59 "src/monitor/monitor.c"
- ), fprintf(
-# 59 "src/monitor/monitor.c" 3 4
- stderr
-# 59 "src/monitor/monitor.c"
- , "\33[1;31m" "Can not open '%s'" "\33[0m" "\n", img_file)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
-# 59 "src/monitor/monitor.c" 3 4
- ((void) sizeof ((
-# 59 "src/monitor/monitor.c"
- fp
-# 59 "src/monitor/monitor.c" 3 4
- ) ? 1 : 0), __extension__ ({ if (
-# 59 "src/monitor/monitor.c"
- fp
-# 59 "src/monitor/monitor.c" 3 4
- ) ; else __assert_fail (
-# 59 "src/monitor/monitor.c"
- "fp"
-# 59 "src/monitor/monitor.c" 3 4
- , "src/monitor/monitor.c", 59, __extension__ __PRETTY_FUNCTION__); }))
-# 59 "src/monitor/monitor.c"
- ; } } while (0);
-
-  fseek(fp, 0, 
-# 61 "src/monitor/monitor.c" 3 4
-              2
-# 61 "src/monitor/monitor.c"
-                      );
-  long size = ftell(fp);
-
-  do { printf("\33[1;34m" "[%s:%d %s] " "The image is %s, size = %ld" "\33[0m" "\n", "src/monitor/monitor.c", 64, __func__, img_file, size); do { extern FILE* log_fp; extern 
-# 64 "src/monitor/monitor.c" 3 4
- _Bool 
-# 64 "src/monitor/monitor.c"
- log_enable(); if (log_enable()) { fprintf(log_fp, "\33[1;34m" "[%s:%d %s] " "The image is %s, size = %ld" "\33[0m" "\n", "src/monitor/monitor.c", 64, __func__, img_file, size); fflush(log_fp); } } while (0); } while (0);
-
-  fseek(fp, 0, 
-# 66 "src/monitor/monitor.c" 3 4
-              0
-# 66 "src/monitor/monitor.c"
-                      );
-  int ret = fread(guest_to_host((((paddr_t)0x80000000) + 0x0)), size, 1, fp);
-  
-# 68 "src/monitor/monitor.c" 3 4
- ((void) sizeof ((
-# 68 "src/monitor/monitor.c"
- ret == 1
-# 68 "src/monitor/monitor.c" 3 4
- ) ? 1 : 0), __extension__ ({ if (
-# 68 "src/monitor/monitor.c"
- ret == 1
-# 68 "src/monitor/monitor.c" 3 4
- ) ; else __assert_fail (
-# 68 "src/monitor/monitor.c"
- "ret == 1"
-# 68 "src/monitor/monitor.c" 3 4
- , "src/monitor/monitor.c", 68, __extension__ __PRETTY_FUNCTION__); }))
-# 68 "src/monitor/monitor.c"
-                 ;
-
-  fclose(fp);
-  return size;
+word_t vaddr_read(vaddr_t addr, int len) {
+  return paddr_read(addr, len);
 }
 
-static int parse_args(int argc, char *argv[])
-{
-  const struct option table[] = {
-      {"batch", 
-# 77 "src/monitor/monitor.c" 3 4
-               0
-# 77 "src/monitor/monitor.c"
-                          , 
-# 77 "src/monitor/monitor.c" 3 4
-                            ((void *)0)
-# 77 "src/monitor/monitor.c"
-                                , 'b'},
-      {"log", 
-# 78 "src/monitor/monitor.c" 3 4
-             1
-# 78 "src/monitor/monitor.c"
-                              , 
-# 78 "src/monitor/monitor.c" 3 4
-                                ((void *)0)
-# 78 "src/monitor/monitor.c"
-                                    , 'l'},
-      {"diff", 
-# 79 "src/monitor/monitor.c" 3 4
-              1
-# 79 "src/monitor/monitor.c"
-                               , 
-# 79 "src/monitor/monitor.c" 3 4
-                                 ((void *)0)
-# 79 "src/monitor/monitor.c"
-                                     , 'd'},
-      {"port", 
-# 80 "src/monitor/monitor.c" 3 4
-              1
-# 80 "src/monitor/monitor.c"
-                               , 
-# 80 "src/monitor/monitor.c" 3 4
-                                 ((void *)0)
-# 80 "src/monitor/monitor.c"
-                                     , 'p'},
-      {"help", 
-# 81 "src/monitor/monitor.c" 3 4
-              0
-# 81 "src/monitor/monitor.c"
-                         , 
-# 81 "src/monitor/monitor.c" 3 4
-                           ((void *)0)
-# 81 "src/monitor/monitor.c"
-                               , 'h'},
-      {"ftrace",
-# 82 "src/monitor/monitor.c" 3 4
-               1
-# 82 "src/monitor/monitor.c"
-                                , 
-# 82 "src/monitor/monitor.c" 3 4
-                                  ((void *)0)
-# 82 "src/monitor/monitor.c"
-                                      ,'f'},
-      {0, 0, 
-# 83 "src/monitor/monitor.c" 3 4
-            ((void *)0)
-# 83 "src/monitor/monitor.c"
-                , 0},
-  };
-  int o;
-  while ((o = getopt_long(argc, argv, "-f:bhl:d:p:", table, 
-# 86 "src/monitor/monitor.c" 3 4
-                                                           ((void *)0)
-# 86 "src/monitor/monitor.c"
-                                                               )) != -1)
-  {
-    switch (o)
-    {
-    case 'b':
-      sdb_set_batch_mode();
-      break;
-    case 'p':
-      sscanf(optarg, "%d", &difftest_port);
-      break;
-    case 'l':
-      log_file = optarg;
-      break;
-    case 'd':
-      diff_so_file = optarg;
-      break;
-    case 1:
-      img_file = optarg;
-      return 0;
-    case 'f':
-      printf("hhhh\n");
-      elf_filein = optarg;
-      break;
-    default:
-      printf("Usage: %s [OPTION...] IMAGE [args]\n\n", argv[0]);
-      printf("\t-b,--batch              run with batch mode\n");
-      printf("\t-l,--log=FILE           output log to FILE\n");
-      printf("\t-d,--diff=REF_SO        run DiffTest with reference REF_SO\n");
-      printf("\t-p,--port=PORT          run DiffTest with port PORT\n");
-      printf("\t-f,--port=FILE          run with ftrace");
-      printf("\n");
-      exit(0);
-    }
-  }
-  return 0;
-}
-
-void init_monitor(int argc, char *argv[])
-{
-
-
-
-  parse_args(argc, argv);
-
-
-  init_rand();
-
-
-  init_log(log_file);
-
-  init_mtrace();
-  elf_filein = "/home/yangli/ysyx-workbench/am-kernels/tests/cpu-tests/build/recursion-riscv64-nemu.elf";
-  if (elf_filein!=
-# 138 "src/monitor/monitor.c" 3 4
-                 ((void *)0)
-# 138 "src/monitor/monitor.c"
-                     ) init_ftrace(elf_filein);
-  else printf("No elf file\n");
-
-
-
-  init_mem();
-
-
-  ;
-
-
-  init_isa();
-
-
-  long img_size = load_img();
-
-
-  init_difftest(diff_so_file, img_size, difftest_port);
-
-
-  init_sdb();
-
-  init_disasm( "riscv64" "-pc-linux-gnu")
-
-
-
-                                                                                                                 ;
-
-
-  welcome();
+void vaddr_write(vaddr_t addr, int len, word_t data) {
+  paddr_write(addr, len, data);
 }
