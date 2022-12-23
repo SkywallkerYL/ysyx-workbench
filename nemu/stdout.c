@@ -6070,7 +6070,7 @@ void log_ftrace(paddr_t addr,
     char* newp = funcname_ftrace[tableind];
     strncpy(funcname,newp,len);
     funcname[len] = '\0';
-    fprintf(file,"pc:%lx: ret[%s] \n",cpu.pc,funcname);
+    fprintf(file,"pc:%lx: funpc:%lx ret[%s] \n",cpu.pc,realpc,funcname);
 
 
   }
