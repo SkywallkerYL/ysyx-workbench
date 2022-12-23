@@ -38,7 +38,8 @@ NEMU_EXEC := $(BINARY) $(MODEPARM) $(ARGS) $(IMG)
 ELF = $(IMG:.bin=.elf) 
 #$(pathsubst %.bin,%.elf,$(ELF1))
 MODEF = -f
-ifeq ($(MODEF),$(findstring $(MODEF),$(MODEPARM)))
+FIFFIND = $(findstring $(MODEF),$(MODEPARM))
+ifeq ($(MODEF),$(FIFFIND))
 	MODEPARM+=$(ELF) 
 endif
 run-env: $(BINARY) $(DIFF_REF_SO)
@@ -48,7 +49,7 @@ run-env: $(BINARY) $(DIFF_REF_SO)
 #make ARCH=riscv64-nemu ALL=recursion MODEPARM=-b MODEPARM+=-f MODEPARM+=IMG.elf run
 run: run-env
 	$(call git_commit, "run NEMU")
-	echo "in nemu" $(MODEF) $(findstring $(MODEF),$(MODEPARM))
+	echo "in nemu" $(MODEF) $(findstring $(MODEF),$(MODEPARM)) $(FIFFIND)
 	$(NEMU_EXEC) 
 gdb: run-env
 	$(call git_commit, "gdb NEMU")
