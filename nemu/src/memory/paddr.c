@@ -341,7 +341,7 @@ void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1,word_t s
     //读pc处的指令
     //word_t realinst = paddr_read(realpc, 4); 
     //通过指令确定函数的地址
-    fprintf(file,"pc:%lx: Addr:%lx ret \n",cpu.pc,src1);
+    fprintf(file,"pc:%lx: Addr:%lx realpc:%lx ret \n",cpu.pc,src1,realpc);
     
     for (size_t j = 0; j < symblenumber; j++)
     {

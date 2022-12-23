@@ -4010,7 +4010,7 @@ void log_ftrace(paddr_t addr,
 
 
 
-    fprintf(file,"pc:%lx: Addr:%lx ret \n",cpu.pc,src1);
+    fprintf(file,"pc:%lx: Addr:%lx realpc:%lx ret \n",cpu.pc,src1,realpc);
 
     for (size_t j = 0; j < symblenumber; j++)
     {
