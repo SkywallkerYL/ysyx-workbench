@@ -336,11 +336,14 @@ void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1,word_t s
   //printf("pc:%lx: Addr:%x func [%s] rd:%d rs1:%d imm:%ld jarl:%d\n",cpu.pc,addr,funcname,rd,rs1,imm,jarlflag);
   if (retflag)
   {
-    fprintf(file,"pc:%lx: Addr:%lx ret \n",cpu.pc,src1);
-    /*
+    //ret返回的是调用函数的后一个Pc地址
+    vaddr_t realpc = src1-0x4;
+    word_t realaddr = paddr_read(realpc, 4); 
+    //fprintf(file,"pc:%lx: Addr:%lx ret \n",cpu.pc,src1);
+    
     for (size_t j = 0; j < symblenumber; j++)
     {
-      if (allsymble[j].st_value!=src1-0x4) continue;
+      if (allsymble[j].st_value!=realaddr) continue;
       //uint8_t *p = sign_data;
       //int len = 0;
       //看elf里面 info 第一位是bind 第二位是type
@@ -364,11 +367,11 @@ void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1,word_t s
         funcname[len] = '\0';
         //printf(" %s",funcname); printf("\n");
         //printf("pc:%lx: Addr:%x func [%s] rd:%d rs1:%d imm:%ld jarl:%d\n",cpu.pc,addr,funcname,rd,rs1,imm,jarlflag);
-        fprintf(file,"pc:%lx: Addr:%lx ret [%s]\n",cpu.pc,src1,funcname);
+        fprintf(file,"pc:%lx: ret [%s]\n",cpu.pc,funcname);
       }
       
     } 
-    */
+    
     //fprintf(file,"pc:%lx: Addr:%x ret \n",cpu.pc,addr);
   }
   else
