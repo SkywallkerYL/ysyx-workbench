@@ -139,17 +139,14 @@ bool test_change(){
   }
    //printf("%d\n",change);
    //printf("%d\n",change);
-  while (wp!=NULL)
+  while (wp->next!=NULL)
   {
     //printf("%d\n",change);
     //printf("jhjj\n");
     bool success = true;
     word_t newvalue = expr(wp->expre,&success);
-    //printf("old:%ld new:%ld\n",newvalue,wp->value);
     if (newvalue!=wp->value)
     {
-      newvalue = wp->value;
-      //printf("old:%ld new:%ld\n",newvalue,wp->value);
       change = 1;
       break;
     }
