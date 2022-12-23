@@ -12,7 +12,9 @@
 *
 * See the Mulan PSL v2 for more details.
 ***************************************************************************************/
-
+#include <./cpu/cpu.h>
+#include <./cpu/ifetch.h>
+#include <./cpu/decode.h>
 #include <memory/host.h>
 #include <memory/paddr.h>
 #include <device/mmio.h>
@@ -339,13 +341,16 @@ void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1,word_t s
     //ret返回的是调用函数的后一个Pc地址
     vaddr_t realpc = src1-0x4;
     //读pc处的指令
-    //word_t realinst = paddr_read(realpc, 4); 
-    //通过指令确定函数的地址
-    fprintf(file,"pc:%lx: Addr:%lx realpc:%lx ret \n",cpu.pc,src1,realpc);
+    word_t realinst = paddr_read(realpc, 4); 
+    //通过指令确定函数的地址  即计算dnpc以确定该ret对应的函数的地址
+    int rs1 = BITS(realinst, 19, 15);   
+    imm = SEXT(BITS(realinst, 31, 20), 12);
+    word_t realnpc =((cpu.gpr[rs1]+imm)&~1);
+    fprintf(file,"pc:%lx: Addr:%lx realpc:%lx ret \n",cpu.pc,src1,realnpc);
     
     for (size_t j = 0; j < symblenumber; j++)
     {
-      if (allsymble[j].st_value!=realpc) continue;
+      if (allsymble[j].st_value!=realnpc) continue;
       //uint8_t *p = sign_data;
       //int len = 0;
       //看elf里面 info 第一位是bind 第二位是type
