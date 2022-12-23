@@ -332,6 +332,12 @@ void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1)
   if (file == NULL) {printf("No file!!!!\n");}
   //这一部分读取与init_trace内部一样
   //下面通过strtab表的地址与name来
+  bool retflag = jarlflag&(rd==0)&(rs1==1)&(imm==0);
+  //printf("pc:%lx: Addr:%x func [%s] rd:%d rs1:%d imm:%ld jarl:%d\n",cpu.pc,addr,funcname,rd,rs1,imm,jarlflag);
+  if (retflag)
+  {
+    fprintf(file,"pc:%lx: Addr:%x ret \n",cpu.pc,addr);
+  }
   for (size_t j = 0; j < symblenumber; j++)
   {
     if (allsymble[j].st_value!=addr) continue;
@@ -357,13 +363,8 @@ void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1)
       strncpy(funcname,newp,len);
       funcname[len] = '\0';
       //printf(" %s",funcname); printf("\n");
-      bool retflag = jarlflag&(rd==0)&(rs1==1)&(imm==0);
       //printf("pc:%lx: Addr:%x func [%s] rd:%d rs1:%d imm:%ld jarl:%d\n",cpu.pc,addr,funcname,rd,rs1,imm,jarlflag);
-      if (retflag)
-      {
-        fprintf(file,"pc:%lx: Addr:%x ret [%s]\n",cpu.pc,addr,funcname);
-      }
-      else fprintf(file,"pc:%lx: Addr:%x call [%s]\n",cpu.pc,addr,funcname);
+      fprintf(file,"pc:%lx: Addr:%x call [%s]\n",cpu.pc,addr,funcname);
     }
   }  
   fclose(file);  

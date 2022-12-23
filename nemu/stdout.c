@@ -3997,6 +3997,16 @@ void log_ftrace(paddr_t addr,
                  ) {printf("No file!!!!\n");}
 
 
+  
+# 335 "src/memory/paddr.c" 3 4
+ _Bool 
+# 335 "src/memory/paddr.c"
+      retflag = jarlflag&(rd==0)&(rs1==1)&(imm==0);
+
+  if (retflag)
+  {
+    fprintf(file,"pc:%lx: Addr:%x ret \n",cpu.pc,addr);
+  }
   for (size_t j = 0; j < symblenumber; j++)
   {
     if (allsymble[j].st_value!=addr) continue;
@@ -4005,9 +4015,9 @@ void log_ftrace(paddr_t addr,
 
 
     if((allsymble[j].st_info&0x0f) == 
-# 342 "src/memory/paddr.c" 3 4
+# 348 "src/memory/paddr.c" 3 4
                                      2
-# 342 "src/memory/paddr.c"
+# 348 "src/memory/paddr.c"
                                              )
     {
       int len = 0;
@@ -4026,17 +4036,8 @@ void log_ftrace(paddr_t addr,
       strncpy(funcname,newp,len);
       funcname[len] = '\0';
 
-      
-# 360 "src/memory/paddr.c" 3 4
-     _Bool 
-# 360 "src/memory/paddr.c"
-          retflag = jarlflag&(rd==0)&(rs1==1)&(imm==0);
 
-      if (retflag)
-      {
-        fprintf(file,"pc:%lx: Addr:%x ret [%s]\n",cpu.pc,addr,funcname);
-      }
-      else fprintf(file,"pc:%lx: Addr:%x call [%s]\n",cpu.pc,addr,funcname);
+      fprintf(file,"pc:%lx: Addr:%x call [%s]\n",cpu.pc,addr,funcname);
     }
   }
   fclose(file);
