@@ -36,7 +36,7 @@ run-env: $(BINARY) $(DIFF_REF_SO)
 run: run-env
 	$(call git_commit, "run NEMU")
 	echo "in nemu" $(NEMU_EXEC)
-	$(NEMU_EXEC) 
+	$(NEMU_EXEC) -b
 #-f /home/yangli/ysyx-workbench/am-kernels/tests/cpu-tests/build/recursion-riscv64-nemu.elf
 #-b
 gdb: run-env
