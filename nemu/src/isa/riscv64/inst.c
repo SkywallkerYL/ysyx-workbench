@@ -114,7 +114,9 @@ static int decode_exec(Decode *s) {
 //这里中文的指令集有问题 应该为000
   INSTPAT("??????? ????? ????? 000 ????? 11001 11", jalr    , I, R(dest) = s->pc+0x4;imm=SEXT(imm,12);s->dnpc = ((src1+imm)&~1);
 #ifdef CONFIG_MTRACE 
-  log_ftrace(s->dnpc,1,dest,imm,src1)
+  uint32_t i = s->isa.inst.val;
+  int rs1 = BITS(i, 19, 15);
+  log_ftrace(s->dnpc,1,dest,imm,rs1)
 #endif 
   );
 //无符号数小于立即数则置位 比较时 有符号扩展的立即数视为无符号数
