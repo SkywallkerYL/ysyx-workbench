@@ -422,18 +422,21 @@ void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1,word_t s
         if (!pccallflag)
         {
           pc_ftrace[addind] = localpc;
+          printf("kkk\n");
+          /*
           char *funcp = funcname_ftrace[addind];
           for (char* namep =start+ind; *namep !='\0'; namep++)
           {
             *funcp = *namep;
             funcp++;
           }
-          *funcp = '\0';
-          //strncpy(funcname_ftrace[addind],funcname,len);
+          
+          *funcp = '\0';*/
+          strncpy(funcname_ftrace[addind],funcname,len);
         }
         
         //printf(" %s",funcname); printf("\n");
-        printf("pc:%lx: Addr:%x func [%s] rd:%d rs1:%d imm:%ld jarl:%d\n",cpu.pc,addr,funcname,rd,rs1,imm,jarlflag);
+        //printf("pc:%lx: Addr:%x func [%s] rd:%d rs1:%d imm:%ld jarl:%d\n",cpu.pc,addr,funcname,rd,rs1,imm,jarlflag);
         fprintf(file,"pc:%lx: Addr:%x call [%s]\n",localpc,addr,funcname);
       }
     } 

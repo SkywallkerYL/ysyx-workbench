@@ -6128,18 +6128,13 @@ void log_ftrace(paddr_t addr,
         if (!pccallflag)
         {
           pc_ftrace[addind] = localpc;
-          char *funcp = funcname_ftrace[addind];
-          for (char* namep =start+ind; *namep !='\0'; namep++)
-          {
-            *funcp = *namep;
-            funcp++;
-          }
-          *funcp = '\0';
-
+          printf("kkk\n");
+# 435 "src/memory/paddr.c"
+          strncpy(funcname_ftrace[addind],funcname,len);
         }
 
 
-        printf("pc:%lx: Addr:%x func [%s] rd:%d rs1:%d imm:%ld jarl:%d\n",cpu.pc,addr,funcname,rd,rs1,imm,jarlflag);
+
         fprintf(file,"pc:%lx: Addr:%x call [%s]\n",localpc,addr,funcname);
       }
     }
