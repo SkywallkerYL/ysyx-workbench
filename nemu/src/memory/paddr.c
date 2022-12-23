@@ -93,8 +93,18 @@ static Elf64_Sym allsymble[4096];//最多4096个
 char elf_logfile[] = "/home/yangli/ysyx-workbench/nemu/build/ftrace-log.txt";
 char* strtab;//存储所有变量名
 int strstart;//记录strtab的起始地址
+
+//一个表格  对应记录pc 以及其调用的函数
+word_t pc_ftrace[256];
+char*  funcname_ftrace[256];
 void init_ftrace(char* elf_file)
 {
+  for (size_t i = 0; i < 256; i++)
+  {
+    pc_ftrace[i] = 0;
+    *funcname_ftrace[i] = '\0';
+  }
+  
   //创建ftrace写入文件
   FILE *file;
   file = fopen(elf_logfile,"w+");
@@ -341,42 +351,28 @@ void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1,word_t s
     //ret返回的是调用函数的后一个Pc地址
     vaddr_t realpc = src1-0x4;
     //读pc处的指令
-    word_t realinst = paddr_read(realpc, 4); 
-    //通过指令确定函数的地址  即计算dnpc以确定该ret对应的函数的地址
-    int rs1 = BITS(realinst, 19, 15);   
-    imm = SEXT(BITS(realinst, 31, 20), 12);
-    word_t realnpc =((cpu.gpr[rs1]+imm)&~1);
-    fprintf(file,"pc:%lx: Addr:%lx realpc:%lx ret \n",cpu.pc,src1,realnpc);
-    
-    for (size_t j = 0; j < symblenumber; j++)
+    int tableind = 0;
+    for (size_t i = 0; i < 256; i++)
     {
-      if (allsymble[j].st_value!=realnpc) continue;
-      //uint8_t *p = sign_data;
-      //int len = 0;
-      //看elf里面 info 第一位是bind 第二位是type
-      //printf("info:%02x\n",allsymble[j].st_info);
-      if((allsymble[j].st_info&0x0f) == STT_FUNC)
+      if (realpc == pc_ftrace[i])
       {
-        int len = 0;
-        int ind = allsymble[j].st_name;
-        char* start = strtab;
-        //p = p + ind;
-        char *p;
-        for (p=start+ind; *p!='\0'; p++)
-        {
-          //printf("%c",*p);
-          len++;
-        }
-        //printf("\n");
-        char funcname [len+1];
-        char* newp = (char*)(start)+ind;
-        strncpy(funcname,newp,len);
-        funcname[len] = '\0';
-        //printf(" %s",funcname); printf("\n");
-        //printf("pc:%lx: Addr:%x func [%s] rd:%d rs1:%d imm:%ld jarl:%d\n",cpu.pc,addr,funcname,rd,rs1,imm,jarlflag);
-        fprintf(file,"pc:%lx: ret [%s]\n",cpu.pc,funcname);
-      } 
-    } 
+        tableind = i;
+        break;
+      }
+    }
+    int len = 0;
+    char *p;
+    for (p=funcname_ftrace[tableind]; *p!='\0'; p++)
+    {
+      //printf("%c",*p);
+      len++;
+    }
+    //printf("\n");
+    char funcname [len+1];
+    char* newp = funcname_ftrace[tableind];
+    strncpy(funcname,newp,len);
+    funcname[len] = '\0';
+    fprintf(file,"pc:%lx: ret[%s] \n",cpu.pc,funcname);
     
     //fprintf(file,"pc:%lx: Addr:%x ret \n",cpu.pc,addr);
   }
@@ -406,9 +402,32 @@ void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1,word_t s
         char* newp = (char*)(start)+ind;
         strncpy(funcname,newp,len);
         funcname[len] = '\0';
+        bool pccallflag = 0;
+        word_t localpc = cpu.pc;
+        for (size_t i = 0; i < 256; i++)
+        {
+          //说明该函数已经调用过了
+          if (pc_ftrace[i]==localpc) pccallflag=1;
+        }
+        int addind = 0;
+        for (size_t i = 0; i < 256; i++)
+        {
+          if (pc_ftrace[i]==0) 
+          {
+            //加入的索引值
+            addind = i;
+            break;
+          }
+        }
+        if (!pccallflag)
+        {
+          pc_ftrace[addind] = localpc;
+          strncpy(funcname_ftrace[addind],funcname,len);
+        }
+        
         //printf(" %s",funcname); printf("\n");
         //printf("pc:%lx: Addr:%x func [%s] rd:%d rs1:%d imm:%ld jarl:%d\n",cpu.pc,addr,funcname,rd,rs1,imm,jarlflag);
-        fprintf(file,"pc:%lx: Addr:%x call [%s]\n",cpu.pc,addr,funcname);
+        fprintf(file,"pc:%lx: Addr:%x call [%s]\n",localpc,addr,funcname);
       }
     } 
   } 

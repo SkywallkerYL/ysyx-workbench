@@ -5776,16 +5776,26 @@ static Elf64_Sym allsymble[4096];
 char elf_logfile[] = "/home/yangli/ysyx-workbench/nemu/build/ftrace-log.txt";
 char* strtab;
 int strstart;
+
+
+word_t pc_ftrace[256];
+char* funcname_ftrace[256];
 void init_ftrace(char* elf_file)
 {
+  for (size_t i = 0; i < 256; i++)
+  {
+    pc_ftrace[i] = 0;
+    *funcname_ftrace[i] = '\0';
+  }
+
 
   FILE *file;
   file = fopen(elf_logfile,"w+");
 
   if (file == 
-# 102 "src/memory/paddr.c" 3 4
+# 112 "src/memory/paddr.c" 3 4
              ((void *)0)
-# 102 "src/memory/paddr.c"
+# 112 "src/memory/paddr.c"
                  )
   {
     printf("Fail to creat mtracefile!\n");
@@ -5796,9 +5806,9 @@ void init_ftrace(char* elf_file)
  FILE *fp;
  fp = fopen(elf_file, "r");
  if (
-# 111 "src/memory/paddr.c" 3 4
+# 121 "src/memory/paddr.c" 3 4
     ((void *)0) 
-# 111 "src/memory/paddr.c"
+# 121 "src/memory/paddr.c"
          == fp)
  {
   printf("fail to open the file");
@@ -5831,9 +5841,9 @@ void init_ftrace(char* elf_file)
 
  Elf64_Shdr *shdr = (Elf64_Shdr*)malloc(sizeof(Elf64_Shdr) * elf_head.e_shnum);
  if (
-# 142 "src/memory/paddr.c" 3 4
+# 152 "src/memory/paddr.c" 3 4
     ((void *)0) 
-# 142 "src/memory/paddr.c"
+# 152 "src/memory/paddr.c"
          == shdr)
  {
   printf("shdr malloc failed\n");
@@ -5842,9 +5852,9 @@ void init_ftrace(char* elf_file)
 
 
  a = fseek(fp, elf_head.e_shoff, 
-# 149 "src/memory/paddr.c" 3 4
+# 159 "src/memory/paddr.c" 3 4
                                 0
-# 149 "src/memory/paddr.c"
+# 159 "src/memory/paddr.c"
                                         );
  if (0 != a)
  {
@@ -5865,9 +5875,9 @@ void init_ftrace(char* elf_file)
 
 
  fseek(fp, shdr[elf_head.e_shstrndx].sh_offset, 
-# 168 "src/memory/paddr.c" 3 4
+# 178 "src/memory/paddr.c" 3 4
                                                0
-# 168 "src/memory/paddr.c"
+# 178 "src/memory/paddr.c"
                                                        );
 
 
@@ -5882,7 +5892,7 @@ void init_ftrace(char* elf_file)
  }
     Elf64_Sym symble_entry;
     int symble_size = sizeof(symble_entry);
-# 194 "src/memory/paddr.c"
+# 204 "src/memory/paddr.c"
   for (int i = 0; i < elf_head.e_shnum; i++)
  {
   temp = shstrtab;
@@ -5905,9 +5915,9 @@ void init_ftrace(char* elf_file)
     uint8_t *sign_data=(uint8_t*)malloc(sizeof(uint8_t)*shdr[i].sh_size);
 
   fseek(fp, shdr[i].sh_offset, 
-# 215 "src/memory/paddr.c" 3 4
+# 225 "src/memory/paddr.c" 3 4
                               0
-# 215 "src/memory/paddr.c"
+# 225 "src/memory/paddr.c"
                                       );
   if(fread(sign_data, sizeof(uint8_t)*shdr[i].sh_size, 1, fp)==1);
 
@@ -5992,9 +6002,9 @@ void init_ftrace(char* elf_file)
     strtab = (char*)malloc(sizeof(char)*shdr[i].sh_size);
 
   fseek(fp, shdr[i].sh_offset, 
-# 298 "src/memory/paddr.c" 3 4
+# 308 "src/memory/paddr.c" 3 4
                               0
-# 298 "src/memory/paddr.c"
+# 308 "src/memory/paddr.c"
                                       );
   if(fread(sign_data, sizeof(uint8_t)*shdr[i].sh_size, 1, fp)==1);
 
@@ -6008,30 +6018,30 @@ void init_ftrace(char* elf_file)
       pstr++;
       p++;
     }
-# 326 "src/memory/paddr.c"
+# 336 "src/memory/paddr.c"
  }
   return;
 }
 
 void log_ftrace(paddr_t addr,
-# 330 "src/memory/paddr.c" 3 4
+# 340 "src/memory/paddr.c" 3 4
                             _Bool 
-# 330 "src/memory/paddr.c"
+# 340 "src/memory/paddr.c"
                                  jarlflag, int rd ,word_t imm, int rs1,word_t src1)
 {
   FILE *file;
   file = fopen(elf_logfile,"a");
   if (file == 
-# 334 "src/memory/paddr.c" 3 4
+# 344 "src/memory/paddr.c" 3 4
              ((void *)0)
-# 334 "src/memory/paddr.c"
+# 344 "src/memory/paddr.c"
                  ) {printf("No file!!!!\n");}
 
 
   
-# 337 "src/memory/paddr.c" 3 4
+# 347 "src/memory/paddr.c" 3 4
  _Bool 
-# 337 "src/memory/paddr.c"
+# 347 "src/memory/paddr.c"
       retflag = jarlflag&(rd==0)&(rs1==1)&(imm==0);
 
   if (retflag)
@@ -6039,46 +6049,28 @@ void log_ftrace(paddr_t addr,
 
     vaddr_t realpc = src1-0x4;
 
-    word_t realinst = paddr_read(realpc, 4);
-
-    int rs1 = (((realinst) >> (15)) & ((1ull << ((19) - (15) + 1)) - 1));
-    imm = ({ struct { int64_t n : 12; } __x = { .n = (((realinst) >> (20)) & ((1ull << ((31) - (20) + 1)) - 1)) }; (uint64_t)__x.n; });
-    word_t realnpc =((cpu.gpr[rs1]+imm)&~1);
-    fprintf(file,"pc:%lx: Addr:%lx realpc:%lx ret \n",cpu.pc,src1,realnpc);
-
-    for (size_t j = 0; j < symblenumber; j++)
+    int tableind = 0;
+    for (size_t i = 0; i < 256; i++)
     {
-      if (allsymble[j].st_value!=realnpc) continue;
-
-
-
-
-      if((allsymble[j].st_info&0x0f) == 
-# 358 "src/memory/paddr.c" 3 4
-                                       2
-# 358 "src/memory/paddr.c"
-                                               )
+      if (realpc == pc_ftrace[i])
       {
-        int len = 0;
-        int ind = allsymble[j].st_name;
-        char* start = strtab;
-
-        char *p;
-        for (p=start+ind; *p!='\0'; p++)
-        {
-
-          len++;
-        }
-
-        char funcname [len+1];
-        char* newp = (char*)(start)+ind;
-        strncpy(funcname,newp,len);
-        funcname[len] = '\0';
-
-
-        fprintf(file,"pc:%lx: ret [%s]\n",cpu.pc,funcname);
+        tableind = i;
+        break;
       }
     }
+    int len = 0;
+    char *p;
+    for (p=funcname_ftrace[tableind]; *p!='\0'; p++)
+    {
+
+      len++;
+    }
+
+    char funcname [len+1];
+    char* newp = funcname_ftrace[tableind];
+    strncpy(funcname,newp,len);
+    funcname[len] = '\0';
+    fprintf(file,"pc:%lx: ret[%s] \n",cpu.pc,funcname);
 
 
   }
@@ -6092,9 +6084,9 @@ void log_ftrace(paddr_t addr,
 
 
       if((allsymble[j].st_info&0x0f) == 
-# 392 "src/memory/paddr.c" 3 4
+# 388 "src/memory/paddr.c" 3 4
                                        2
-# 392 "src/memory/paddr.c"
+# 388 "src/memory/paddr.c"
                                                )
       {
         int len = 0;
@@ -6112,9 +6104,36 @@ void log_ftrace(paddr_t addr,
         char* newp = (char*)(start)+ind;
         strncpy(funcname,newp,len);
         funcname[len] = '\0';
+        
+# 405 "src/memory/paddr.c" 3 4
+       _Bool 
+# 405 "src/memory/paddr.c"
+            pccallflag = 0;
+        word_t localpc = cpu.pc;
+        for (size_t i = 0; i < 256; i++)
+        {
+
+          if (pc_ftrace[i]==localpc) pccallflag=1;
+        }
+        int addind = 0;
+        for (size_t i = 0; i < 256; i++)
+        {
+          if (pc_ftrace[i]==0)
+          {
+
+            addind = i;
+            break;
+          }
+        }
+        if (!pccallflag)
+        {
+          pc_ftrace[addind] = localpc;
+          strncpy(funcname_ftrace[addind],funcname,len);
+        }
 
 
-        fprintf(file,"pc:%lx: Addr:%x call [%s]\n",cpu.pc,addr,funcname);
+
+        fprintf(file,"pc:%lx: Addr:%x call [%s]\n",localpc,addr,funcname);
       }
     }
   }
