@@ -4030,7 +4030,7 @@ void log_ftrace(paddr_t addr,
 # 360 "src/memory/paddr.c" 3 4
      _Bool 
 # 360 "src/memory/paddr.c"
-          retflag = jarlflag&(rd==1)&(rs1==1)&(imm==0);
+          retflag = jarlflag&(rd==0)&(imm==0);
       printf("pc:%lx: Addr:%x func [%s] rd:%d rs1:%d imm:%ld jarl:%d\n",cpu.pc,addr,funcname,rd,rs1,imm,jarlflag);
       if (retflag)
       {
