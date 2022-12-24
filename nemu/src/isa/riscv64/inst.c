@@ -35,7 +35,7 @@ enum {
 #define src2R() do { *src2 = R(rs2); } while (0)
 #define immI() do { *imm = SEXT(BITS(i, 31, 20), 12); } while(0)
 #define immU() do { *imm = SEXT(BITS(i, 31, 12), 20) << 12; } while(0)
-#define immS() do { *imm = (SEXT(BITS(i, 31, 25), 7) << 5) | BITS(i, 11, 7); } while(0)
+#define immS() do { *imm = (SEXT(BITS(i, 31, 25), 7) << 5) | SEXTU(BITS(i, 11, 7),5); } while(0)
 //这一部分的移位还是有点问题
 #define immJ() do { *imm = (SEXT(BITS(i, 31, 31),1)<<19)|(SEXTU(BITS(i, 19, 12), 8)<<11)|(SEXTU(BITS(i, 20, 20), 1)<< 10)|SEXTU(BITS(i, 30, 21), 10); *imm = *imm << 1;} while(0)
 #define immB() do { *imm = (SEXT(BITS(i, 31, 31),1)<<11)|(SEXTU(BITS(i, 7, 7), 1)<<10)|(SEXTU(BITS(i, 30, 25), 6)<< 4)|SEXTU(BITS(i, 11, 8), 4); *imm = *imm << 1; } while(0)
