@@ -29,15 +29,31 @@ override ARGS += $(ARGS_DIFF)
 
 # Command to execute NEMU
 IMG ?=
-NEMU_EXEC := $(BINARY) $(ARGS) $(IMG)
+#BINARY+=-b
+MODEPARM ?=
+FILENAME ?=
+#ELF1 = $(IMG)
+#字符串替换，获取elf
+ELF = $(IMG:.bin=.elf) 
+#$(pathsubst %.bin,%.elf,$(ELF1))
+MODEF = -f
+FIFFIND = $(findstring $(MODEF),$(MODEPARM))
+ifeq ($(MODEF),$(FIFFIND))
+	FILENAME=$(ELF) 
+endif
+NEMU_EXEC := $(BINARY) $(MODEPARM) $(FILENAME) $(ARGS) $(IMG)
+
 
 run-env: $(BINARY) $(DIFF_REF_SO)
-# if you want to run the nemu in batch mode , add -b at the end of run-env
+# if you want to run the nemu in batch mode , add -b at the end of $(BINARY)
+# $(BINARY) is the nemu program   the shell shoul be added after it like -b -f $(IMG).elf 
+# or you can set the MODEPARM by shell like
+#make ARCH=riscv64-nemu ALL=recursion MODEPARM=-b MODEPARM+=-f run
+# only need to type in -f   the filename of elf file will be added auto
 run: run-env
 	$(call git_commit, "run NEMU")
+	echo "in nemu" $(MODEF) $(findstring $(MODEF),$(MODEPARM)) $(FIFFIND) $(FILENAME)
 	$(NEMU_EXEC) 
-#-f /home/yangli/ysyx-workbench/am-kernels/tests/cpu-tests/build/recursion-riscv64-nemu.elf
-#-b
 gdb: run-env
 	$(call git_commit, "gdb NEMU")
 	gdb -s $(BINARY) --args $(NEMU_EXEC)
