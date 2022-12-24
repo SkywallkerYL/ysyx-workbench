@@ -3348,6 +3348,7 @@ static void checkregs(CPU_state *ref, vaddr_t pc) {
 void difftest_step(vaddr_t pc, vaddr_t npc) {
   CPU_state ref_r;
   printf("pc:%08lx npc:%08lx\n",pc,npc);
+  printf("skip_dut_nr_inst:%d \n",skip_dut_nr_inst);
   if (skip_dut_nr_inst > 0) {
     ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
     printf("ref_r_pc:%08lx \n",ref_r.pc);
@@ -3359,37 +3360,37 @@ void difftest_step(vaddr_t pc, vaddr_t npc) {
     skip_dut_nr_inst --;
     if (skip_dut_nr_inst == 0)
       do { if (!(0)) { (fflush(
-# 116 "src/cpu/difftest/dut.c" 3 4
+# 117 "src/cpu/difftest/dut.c" 3 4
      stdout
-# 116 "src/cpu/difftest/dut.c"
+# 117 "src/cpu/difftest/dut.c"
      ), fprintf(
-# 116 "src/cpu/difftest/dut.c" 3 4
+# 117 "src/cpu/difftest/dut.c" 3 4
      stderr
-# 116 "src/cpu/difftest/dut.c"
+# 117 "src/cpu/difftest/dut.c"
      , "\33[1;31m" "can not catch up with ref.pc = " "0x%016"
-# 116 "src/cpu/difftest/dut.c" 3 4
+# 117 "src/cpu/difftest/dut.c" 3 4
      "l" "x" 
-# 116 "src/cpu/difftest/dut.c"
+# 117 "src/cpu/difftest/dut.c"
      " at pc = " "0x%016"
-# 116 "src/cpu/difftest/dut.c" 3 4
+# 117 "src/cpu/difftest/dut.c" 3 4
      "l" "x" 
-# 116 "src/cpu/difftest/dut.c"
+# 117 "src/cpu/difftest/dut.c"
      "\33[0m" "\n", ref_r.pc, pc)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
-# 116 "src/cpu/difftest/dut.c" 3 4
+# 117 "src/cpu/difftest/dut.c" 3 4
      ((void) sizeof ((
-# 116 "src/cpu/difftest/dut.c"
+# 117 "src/cpu/difftest/dut.c"
      0
-# 116 "src/cpu/difftest/dut.c" 3 4
+# 117 "src/cpu/difftest/dut.c" 3 4
      ) ? 1 : 0), __extension__ ({ if (
-# 116 "src/cpu/difftest/dut.c"
+# 117 "src/cpu/difftest/dut.c"
      0
-# 116 "src/cpu/difftest/dut.c" 3 4
+# 117 "src/cpu/difftest/dut.c" 3 4
      ) ; else __assert_fail (
-# 116 "src/cpu/difftest/dut.c"
+# 117 "src/cpu/difftest/dut.c"
      "0"
-# 116 "src/cpu/difftest/dut.c" 3 4
-     , "src/cpu/difftest/dut.c", 116, __extension__ __PRETTY_FUNCTION__); }))
-# 116 "src/cpu/difftest/dut.c"
+# 117 "src/cpu/difftest/dut.c" 3 4
+     , "src/cpu/difftest/dut.c", 117, __extension__ __PRETTY_FUNCTION__); }))
+# 117 "src/cpu/difftest/dut.c"
      ; } } while (0);
     return;
   }
@@ -3398,9 +3399,9 @@ void difftest_step(vaddr_t pc, vaddr_t npc) {
 
     ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
     is_skip_ref = 
-# 123 "src/cpu/difftest/dut.c" 3 4
+# 124 "src/cpu/difftest/dut.c" 3 4
                  0
-# 123 "src/cpu/difftest/dut.c"
+# 124 "src/cpu/difftest/dut.c"
                       ;
     return;
   }
