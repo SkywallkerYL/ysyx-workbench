@@ -1,10 +1,10 @@
-# 0 "src/memory/vaddr.c"
+# 0 "src/isa/riscv64/difftest/dut.c"
 # 0 "<built-in>"
 # 0 "<command-line>"
 # 1 "/usr/include/stdc-predef.h" 1 3 4
 # 0 "<command-line>" 2
-# 1 "src/memory/vaddr.c"
-# 16 "src/memory/vaddr.c"
+# 1 "src/isa/riscv64/difftest/dut.c"
+# 16 "src/isa/riscv64/difftest/dut.c"
 # 1 "/home/yangli/ysyx-workbench/nemu/include/isa.h" 1
 # 20 "/home/yangli/ysyx-workbench/nemu/include/isa.h"
 # 1 "/home/yangli/ysyx-workbench/nemu/src/isa/riscv64/include/isa-def.h" 1
@@ -3003,73 +3003,155 @@ _Bool
 # 55 "/home/yangli/ysyx-workbench/nemu/include/isa.h"
     isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc);
 void isa_difftest_attach();
-# 17 "src/memory/vaddr.c" 2
-# 1 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h" 1
-# 26 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h"
-uint8_t* guest_to_host(paddr_t paddr);
+# 17 "src/isa/riscv64/difftest/dut.c" 2
+# 1 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 1
+# 20 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+# 1 "/home/yangli/ysyx-workbench/nemu/include/difftest-def.h" 1
+# 20 "/home/yangli/ysyx-workbench/nemu/include/difftest-def.h"
+# 1 "/home/yangli/ysyx-workbench/nemu/include/generated/autoconf.h" 1
+# 21 "/home/yangli/ysyx-workbench/nemu/include/difftest-def.h" 2
 
-paddr_t host_to_guest(uint8_t *haddr);
+enum { DIFFTEST_TO_DUT, DIFFTEST_TO_REF };
+# 21 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 2
+
+
+void difftest_skip_ref();
+void difftest_skip_dut(int nr_ref, int nr_dut);
+void difftest_set_patch(void (*fn)(void *arg), void *arg);
+void difftest_step(vaddr_t pc, vaddr_t npc);
+void difftest_detach();
+void difftest_attach();
+# 38 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+extern void (*ref_difftest_memcpy)(paddr_t addr, void *buf, size_t n, 
+# 38 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
+                                                                     _Bool 
+# 38 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+                                                                          direction);
+extern void (*ref_difftest_regcpy)(void *dut, 
+# 39 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
+                                             _Bool 
+# 39 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+                                                  direction);
+extern void (*ref_difftest_exec)(uint64_t n);
+extern void (*ref_difftest_raise_intr)(uint64_t NO);
 
 static inline 
-# 30 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h" 3 4
+# 43 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
              _Bool 
-# 30 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h"
-                  in_pmem(paddr_t addr) {
-  return addr - 0x80000000 < 0x8000000;
+# 43 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+                  difftest_check_reg(const char *name, vaddr_t pc, word_t ref, word_t dut) {
+  if (ref != dut) {
+    do { printf("\33[1;34m" "[%s:%d %s] " "%s is different after executing instruction at pc = " "0x%016"
+# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
+   "l" "x" 
+# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+   ", right = " "0x%016"
+# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
+   "l" "x" 
+# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+   ", wrong = " "0x%016"
+# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
+   "l" "x" 
+# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+   ", diff = " "0x%016"
+# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
+   "l" "x" 
+# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+   "\33[0m" "\n", "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h", 45, __func__, name, pc, ref, dut, ref ^ dut); do { extern FILE* log_fp; extern 
+# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
+   _Bool 
+# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+   log_enable(); if (log_enable()) { fprintf(log_fp, "\33[1;34m" "[%s:%d %s] " "%s is different after executing instruction at pc = " "0x%016"
+# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
+   "l" "x" 
+# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+   ", right = " "0x%016"
+# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
+   "l" "x" 
+# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+   ", wrong = " "0x%016"
+# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
+   "l" "x" 
+# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+   ", diff = " "0x%016"
+# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
+   "l" "x" 
+# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+   "\33[0m" "\n", "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h", 45, __func__, name, pc, ref, dut, ref ^ dut); fflush(log_fp); } } while (0); } while (0)
+
+                                      ;
+    return 
+# 48 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
+          0
+# 48 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+               ;
+  }
+  return 
+# 50 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
+        1
+# 50 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+            ;
+}
+# 18 "src/isa/riscv64/difftest/dut.c" 2
+# 1 "src/isa/riscv64/difftest/../local-include/reg.h" 1
+# 21 "src/isa/riscv64/difftest/../local-include/reg.h"
+static inline int check_reg_idx(int idx) {
+  
+# 22 "src/isa/riscv64/difftest/../local-include/reg.h" 3 4
+ ((void) sizeof ((
+# 22 "src/isa/riscv64/difftest/../local-include/reg.h"
+ idx >= 0 && idx < 32
+# 22 "src/isa/riscv64/difftest/../local-include/reg.h" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 22 "src/isa/riscv64/difftest/../local-include/reg.h"
+ idx >= 0 && idx < 32
+# 22 "src/isa/riscv64/difftest/../local-include/reg.h" 3 4
+ ) ; else __assert_fail (
+# 22 "src/isa/riscv64/difftest/../local-include/reg.h"
+ "idx >= 0 && idx < 32"
+# 22 "src/isa/riscv64/difftest/../local-include/reg.h" 3 4
+ , "src/isa/riscv64/difftest/../local-include/reg.h", 22, __extension__ __PRETTY_FUNCTION__); }))
+# 22 "src/isa/riscv64/difftest/../local-include/reg.h"
+                                                     ;
+  return idx;
 }
 
 
-void init_mtrace();
-void mtrace(
-# 36 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h" 3 4
-           _Bool 
-# 36 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h"
-                wrrd,paddr_t addr, int len,word_t data);
 
-word_t paddr_read(paddr_t addr, int len);
-void paddr_write(paddr_t addr, int len, word_t data);
+static inline const char* reg_name(int idx, int width) {
+  extern const char* regs[];
+  return regs[check_reg_idx(idx)];
+}
+# 19 "src/isa/riscv64/difftest/dut.c" 2
 
 
-union var8
-{
-    char p[8];
-    int64_t i;
-};
-union var4
-{
-    char p[4];
-    int32_t i;
-};
-union var2
-{
-    char p[2];
-    int16_t i;
-};
-union var1
-{
-    char p;
-    int8_t i;
-};
+# 20 "src/isa/riscv64/difftest/dut.c" 3 4
+_Bool 
+# 20 "src/isa/riscv64/difftest/dut.c"
+    isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
+  if (ref_r->pc!=pc) return 
+# 21 "src/isa/riscv64/difftest/dut.c" 3 4
+                           0
+# 21 "src/isa/riscv64/difftest/dut.c"
+                                ;
+  for (size_t i = 0; i < 32; i++)
+  {
+    if (ref_r->gpr[i]!=cpu.gpr[i])
+    {
+      return 
+# 26 "src/isa/riscv64/difftest/dut.c" 3 4
+            0
+# 26 "src/isa/riscv64/difftest/dut.c"
+                 ;
+    }
 
-
-
-void init_ftrace(char * elf_file);
-
-void log_ftrace(paddr_t addr,
-# 67 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h" 3 4
-                            _Bool 
-# 67 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h"
-                                 jarlflag, int rd ,word_t imm, int rs1,word_t src1);
-# 18 "src/memory/vaddr.c" 2
-
-word_t vaddr_ifetch(vaddr_t addr, int len) {
-  return paddr_read(addr, len);
+  }
+  return 
+# 30 "src/isa/riscv64/difftest/dut.c" 3 4
+        1
+# 30 "src/isa/riscv64/difftest/dut.c"
+            ;
 }
 
-word_t vaddr_read(vaddr_t addr, int len) {
-  return paddr_read(addr, len);
-}
-
-void vaddr_write(vaddr_t addr, int len, word_t data) {
-  paddr_write(addr, len, data);
+void isa_difftest_attach() {
 }
