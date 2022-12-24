@@ -3394,7 +3394,7 @@ void difftest_step(vaddr_t pc, vaddr_t npc) {
      ; } } while (0);
     return;
   }
-
+  printf("is_skip_ref:%d \n",is_skip_ref);
   if (is_skip_ref) {
 
     ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
