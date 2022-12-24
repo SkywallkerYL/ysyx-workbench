@@ -3138,18 +3138,19 @@ _Bool
   {
     if (ref_r->gpr[i]!=cpu.gpr[i])
     {
+      printf("i: ref:%08lx nemu:%08lx\n",ref_r->gpr[i],cpu.gpr[i]);
       return 
-# 26 "src/isa/riscv64/difftest/dut.c" 3 4
+# 27 "src/isa/riscv64/difftest/dut.c" 3 4
             0
-# 26 "src/isa/riscv64/difftest/dut.c"
+# 27 "src/isa/riscv64/difftest/dut.c"
                  ;
     }
 
   }
   return 
-# 30 "src/isa/riscv64/difftest/dut.c" 3 4
+# 31 "src/isa/riscv64/difftest/dut.c" 3 4
         1
-# 30 "src/isa/riscv64/difftest/dut.c"
+# 31 "src/isa/riscv64/difftest/dut.c"
             ;
 }
 
