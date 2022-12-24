@@ -3129,11 +3129,11 @@ static inline const char* reg_name(int idx, int width) {
 _Bool 
 # 20 "src/isa/riscv64/difftest/dut.c"
     isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
-  if (ref_r->pc!=pc) {printf("i: ref:%08lx nemu:%08lx\n",ref_r->pc,cpu.pc);return 
+  if (ref_r->pc!=pc) {printf("i: ref:%08lx nemu:%08lx inpc:%08lx\n",ref_r->pc,cpu.pc,pc);return 
 # 21 "src/isa/riscv64/difftest/dut.c" 3 4
-                                                                                 0
+                                                                                               0
 # 21 "src/isa/riscv64/difftest/dut.c"
-                                                                                      ;}
+                                                                                                    ;}
   for (size_t i = 0; i < 32; i++)
   {
     if (ref_r->gpr[i]!=cpu.gpr[i])
