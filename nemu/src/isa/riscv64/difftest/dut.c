@@ -18,7 +18,7 @@
 #include "../local-include/reg.h"
 
 bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
-  if (ref_r->pc!=pc) {printf("i: ref:%08lx nemu:%08lx inpc:%08lx\n",ref_r->pc,cpu.pc,pc);return false;}
+  if (ref_r->pc!=cpu.pc) {printf("i: ref:%08lx nemu:%08lx inpc:%08lx\n",ref_r->pc,cpu.pc,pc);return false;}
   for (size_t i = 0; i < 32; i++)
   {
     if (ref_r->gpr[i]!=cpu.gpr[i])
