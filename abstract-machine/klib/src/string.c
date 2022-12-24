@@ -234,19 +234,14 @@ int memcmp(const void *s1, const void *s2, size_t n) {
   {
     if (*(pdst)<*(psrc))
     {
-      //printf("%c<%c",*(pdst),*(psrc));
       return -1;
     }
     else if (*(pdst)>*(psrc))
     {
-      //printf("%c>%c",*(pdst),*(psrc));
       return 1;
     }
     else if (*(pdst)==*(psrc))
     {
-      (pdst)++;
-      psrc++;
-      //printf("%c=%c",*(pdst),*(psrc));
       continue;
     }
   }
