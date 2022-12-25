@@ -37,8 +37,8 @@ enum {
 #define immU() do { *imm = SEXT(BITS(i, 31, 12), 20) << 12; } while(0)
 #define immS() do { *imm = (SEXT(BITS(i, 31, 25), 7) << 5) | SEXTU(BITS(i, 11, 7),5); } while(0)
 //这一部分的移位还是有点问题
-#define immJ() do { *imm = (SEXT(BITS(i, 31, 31),1)<<19)|(SEXTU(BITS(i, 19, 12), 8)<<11)|(SEXTU(BITS(i, 20, 20), 1)<< 10)|SEXTU(BITS(i, 30, 21), 10); *imm = *imm << 1;} while(0)
-#define immB() do { *imm = (SEXT(BITS(i, 31, 31),1)<<11)|(SEXTU(BITS(i, 7, 7), 1)<<10)|(SEXTU(BITS(i, 30, 25), 6)<< 4)|SEXTU(BITS(i, 11, 8), 4); *imm = *imm << 1; } while(0)
+#define immJ() do { *imm = (SEXT(BITS(i, 31, 31),1)<<19)|(SEXTU(BITS(i, 19, 12), 8)<<11)|(SEXTU(BITS(i, 20, 20), 1)<< 10)|BITS(i, 30, 21); *imm = *imm << 1;} while(0)
+#define immB() do { *imm = (SEXT(BITS(i, 31, 31),1)<<11)|(SEXTU(BITS(i, 7, 7), 1)<<10)|(SEXTU(BITS(i, 30, 25), 6)<< 4)|BITS(i, 11, 8); *imm = *imm << 1; } while(0)
 #define CUT(a,bit) (a=(a<<(64-bit)>>(64-bit))) //将64位的a 截断为 bit 位
 //目前感觉是cut操作出了问题，因为截断会导致符号位被截掉，采用移位的操作进行截断，原来的负数会变成正数，再理解以下位域的表示，
 //通过位于操作来进行截断 其实SEXT直接进行了截断操作以及符号位扩展，直接使用即可，不要用CUT,这样自可以过load-store
@@ -98,8 +98,8 @@ static int decode_exec(Decode *s) {
   //INSTPAT("??????? ????? ????? ??? ????? 00100 11", li     , I, R(dest) = imm);// Load Immediate x(rd) = sexr(imm)
   INSTPAT("??????? ????? ????? 010 ????? 00000 11", lw     , I, imm = SEXT(imm,12);word_t val = Mr(src1+imm,4);val = SEXT(val,32);R(dest) = val);//字加载指令x[rd] = sext(M(x[rs1]+sext(offset)[31:0]))
   //移位指令目前实现有问题
-  INSTPAT("000000? ????? ????? 001 ????? 00100 11", slli   , I, word_t shamt=SEXTU(imm,6);R(dest) = src1 << shamt);
-  INSTPAT("000000? ????? ????? 001 ????? 00110 11", slliw   , I, word_t shamt=SEXTU(imm,6);R(dest) = SEXT((src1 << shamt),32));
+  INSTPAT("000000? ????? ????? 001 ????? 00100 11", slli   , I, word_t shamt=SEXT(imm,6);R(dest) = src1 << shamt);
+  INSTPAT("000000? ????? ????? 001 ????? 00110 11", slliw   , I, word_t shamt=SEXT(imm,6);R(dest) = SEXT((src1 << shamt),32));
   INSTPAT("000000? ????? ????? 101 ????? 00100 11", srli   , I, word_t shamt=SEXT(imm,6);R(dest) = src1 >> shamt);
   INSTPAT("000000? ????? ????? 101 ????? 00110 11", srliw   , I, uint32_t rs1 = low32(src1);word_t shamt=SEXT(imm,6);R(dest) = SEXT((rs1 >> shamt),32));
 
