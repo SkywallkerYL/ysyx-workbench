@@ -10,7 +10,7 @@ static uint64_t read_time() {
   uint32_t lo = *(volatile uint32_t *)(TIME_BASE + 0);
   uint32_t hi = *(volatile uint32_t *)(TIME_BASE + 4);
   uint64_t time = ((uint64_t)hi << 32) | lo;
-  return time ;
+  return time*10 ;
 }
 
 void __am_timer_uptime(AM_TIMER_UPTIME_T *uptime) {
@@ -25,7 +25,7 @@ void __am_timer_rtc(AM_TIMER_RTC_T *rtc) {
   rtc->second = 1;
   rtc->minute = 1;
   rtc->hour   = 1;
-  rtc->day    = 1;
-  rtc->month  = 1;
+  rtc->day    = 0;
+  rtc->month  = 0;
   rtc->year   = 1900;
 }
