@@ -3363,6 +3363,7 @@ void init_map() {
 }
 
 
+word_t last_pc = 0;
 char dtracefile [] = "/home/yangli/ysyx-workbench/nemu/build/dtrace-log.txt";
 void init_dtrace()
 {
@@ -3372,27 +3373,28 @@ void init_dtrace()
   return;
 }
 void log_dtrace(paddr_t addr,int len, 
-# 64 "src/device/io/map.c" 3 4
+# 65 "src/device/io/map.c" 3 4
                                      _Bool 
-# 64 "src/device/io/map.c"
+# 65 "src/device/io/map.c"
                                           writeflag ,const char* name)
 {
   FILE *file;
   file = fopen(dtracefile,"a");
   if (file == 
-# 68 "src/device/io/map.c" 3 4
+# 69 "src/device/io/map.c" 3 4
              ((void *)0)
-# 68 "src/device/io/map.c"
+# 69 "src/device/io/map.c"
                  ) {printf("No file!\n");}
+  last_pc = cpu.pc;
   if (writeflag)
   {
-    printf("pc:%lx: w addr:%x len:%d map_name:%s\n",cpu.pc,addr,len,name);
-    fprintf(file,"pc:%lx: w addr:%x len:%d map_name:%s\n",cpu.pc,addr,len,name);
+
+    fprintf(file,"pc:%lx: w addr:%x len:%d map_name:%s\n",last_pc,addr,len,name);
   }
   else
   {
-    printf("pc:%lx: r addr:%x len:%d map_name:%s\n",cpu.pc,addr,len,name);
-    fprintf(file,"pc:%lx: r addr:%x len:%d map_name:%s\n",cpu.pc,addr,len,name);
+
+    fprintf(file,"pc:%lx: r addr:%x len:%d map_name:%s\n",last_pc,addr,len,name);
   }
   fclose(file);
   return;
@@ -3402,64 +3404,64 @@ void log_dtrace(paddr_t addr,int len,
 
 word_t map_read(paddr_t addr, int len, IOMap *map) {
   
-# 86 "src/device/io/map.c" 3 4
+# 88 "src/device/io/map.c" 3 4
  ((void) sizeof ((
-# 86 "src/device/io/map.c"
+# 88 "src/device/io/map.c"
  len >= 1 && len <= 8
-# 86 "src/device/io/map.c" 3 4
+# 88 "src/device/io/map.c" 3 4
  ) ? 1 : 0), __extension__ ({ if (
-# 86 "src/device/io/map.c"
+# 88 "src/device/io/map.c"
  len >= 1 && len <= 8
-# 86 "src/device/io/map.c" 3 4
+# 88 "src/device/io/map.c" 3 4
  ) ; else __assert_fail (
-# 86 "src/device/io/map.c"
+# 88 "src/device/io/map.c"
  "len >= 1 && len <= 8"
-# 86 "src/device/io/map.c" 3 4
- , "src/device/io/map.c", 86, __extension__ __PRETTY_FUNCTION__); }))
-# 86 "src/device/io/map.c"
+# 88 "src/device/io/map.c" 3 4
+ , "src/device/io/map.c", 88, __extension__ __PRETTY_FUNCTION__); }))
+# 88 "src/device/io/map.c"
                              ;
   check_bound(map, addr);
 
   paddr_t offset = addr - map->low;
   invoke_callback(map->callback, offset, len, 
-# 90 "src/device/io/map.c" 3 4
+# 92 "src/device/io/map.c" 3 4
                                              0
-# 90 "src/device/io/map.c"
+# 92 "src/device/io/map.c"
                                                   );
   word_t ret = host_read(map->space + offset, len);
 
-  log_dtrace(addr,len,0,map->name);
+  if(last_pc!=cpu.pc)log_dtrace(addr,len,0,map->name);
 
   return ret;
 }
 
 void map_write(paddr_t addr, int len, word_t data, IOMap *map) {
   
-# 99 "src/device/io/map.c" 3 4
+# 101 "src/device/io/map.c" 3 4
  ((void) sizeof ((
-# 99 "src/device/io/map.c"
+# 101 "src/device/io/map.c"
  len >= 1 && len <= 8
-# 99 "src/device/io/map.c" 3 4
+# 101 "src/device/io/map.c" 3 4
  ) ? 1 : 0), __extension__ ({ if (
-# 99 "src/device/io/map.c"
+# 101 "src/device/io/map.c"
  len >= 1 && len <= 8
-# 99 "src/device/io/map.c" 3 4
+# 101 "src/device/io/map.c" 3 4
  ) ; else __assert_fail (
-# 99 "src/device/io/map.c"
+# 101 "src/device/io/map.c"
  "len >= 1 && len <= 8"
-# 99 "src/device/io/map.c" 3 4
- , "src/device/io/map.c", 99, __extension__ __PRETTY_FUNCTION__); }))
-# 99 "src/device/io/map.c"
+# 101 "src/device/io/map.c" 3 4
+ , "src/device/io/map.c", 101, __extension__ __PRETTY_FUNCTION__); }))
+# 101 "src/device/io/map.c"
                              ;
   check_bound(map, addr);
   paddr_t offset = addr - map->low;
   host_write(map->space + offset, len, data);
   invoke_callback(map->callback, offset, len, 
-# 103 "src/device/io/map.c" 3 4
+# 105 "src/device/io/map.c" 3 4
                                              1
-# 103 "src/device/io/map.c"
+# 105 "src/device/io/map.c"
                                                  );
 
-  log_dtrace(addr,len,1,map->name);
+  if(last_pc!=cpu.pc) log_dtrace(addr,len,1,map->name);
 
 }
