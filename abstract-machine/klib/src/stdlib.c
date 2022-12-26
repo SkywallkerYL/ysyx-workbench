@@ -29,12 +29,6 @@ int atoi(const char* nptr) {
   return x;
 }
 static char *hbrk;
-typedef struct Setting {
-  int size;
-  unsigned long mlim, ref;
-  uint32_t checksum;
-} Setting;
-Setting *setting;
 void *malloc(size_t size) {
   // On native, malloc() will be called during initializaion of C runtime.
   // Therefore do not call panic() here, else it will yield a dead recursion:
@@ -53,14 +47,13 @@ void *malloc(size_t size) {
   for (uint64_t *p = (uint64_t *)old; p != (uint64_t *)hbrk; p ++) {
     *p = 0;
   }
-  assert((uintptr_t)hbrk - (uintptr_t)heap.start <= setting->mlim);
   return old;
 #endif
   return NULL;
 }
 
 void free(void *ptr) {
-  
+
 }
 
 #endif
