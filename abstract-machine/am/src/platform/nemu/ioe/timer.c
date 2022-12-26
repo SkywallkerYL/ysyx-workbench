@@ -19,7 +19,7 @@ void __am_timer_uptime(AM_TIMER_UPTIME_T *uptime) {
 }
 
 void __am_timer_init() {
-  boot_time = 0;
+  boot_time = read_time();
 }
 
 void __am_timer_rtc(AM_TIMER_RTC_T *rtc) {
