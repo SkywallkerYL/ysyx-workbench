@@ -3361,7 +3361,36 @@ void init_map() {
                  ;
   p_space = io_space;
 }
-# 76 "src/device/io/map.c"
+
+
+char dtracefile [] = "/home/yangli/ysyx-workbench/nemu/build/dtrace-log.txt";
+
+void log_dtrace(paddr_t addr,int len, 
+# 58 "src/device/io/map.c" 3 4
+                                     _Bool 
+# 58 "src/device/io/map.c"
+                                          writeflag ,const char* name)
+{
+  FILE *file;
+  file = fopen(dtracefile,"a");
+  if (file == 
+# 62 "src/device/io/map.c" 3 4
+             ((void *)0)
+# 62 "src/device/io/map.c"
+                 ) {file = fopen(dtracefile,"w");printf("No file! It is creat now\n");}
+  if (writeflag)
+  {
+    fprintf(file,"pc:%lx: w addr:%x len:%d map_name:%s\n",cpu.pc,addr,len,name);
+  }
+  else
+  {
+    fprintf(file,"pc:%lx: r addr:%x len:%d map_name:%s\n",cpu.pc,addr,len,name);
+  }
+  return;
+}
+
+
+
 word_t map_read(paddr_t addr, int len, IOMap *map) {
   
 # 77 "src/device/io/map.c" 3 4
@@ -3382,45 +3411,46 @@ word_t map_read(paddr_t addr, int len, IOMap *map) {
                              ;
   check_bound(map, addr);
 
-
-
   paddr_t offset = addr - map->low;
   invoke_callback(map->callback, offset, len, 
-# 83 "src/device/io/map.c" 3 4
+# 81 "src/device/io/map.c" 3 4
                                              0
-# 83 "src/device/io/map.c"
+# 81 "src/device/io/map.c"
                                                   );
   word_t ret = host_read(map->space + offset, len);
+
+  log_dtrace(addr,len,0,map->name);
+
   return ret;
 }
 
 void map_write(paddr_t addr, int len, word_t data, IOMap *map) {
   
-# 89 "src/device/io/map.c" 3 4
+# 90 "src/device/io/map.c" 3 4
  ((void) sizeof ((
-# 89 "src/device/io/map.c"
+# 90 "src/device/io/map.c"
  len >= 1 && len <= 8
-# 89 "src/device/io/map.c" 3 4
+# 90 "src/device/io/map.c" 3 4
  ) ? 1 : 0), __extension__ ({ if (
-# 89 "src/device/io/map.c"
+# 90 "src/device/io/map.c"
  len >= 1 && len <= 8
-# 89 "src/device/io/map.c" 3 4
+# 90 "src/device/io/map.c" 3 4
  ) ; else __assert_fail (
-# 89 "src/device/io/map.c"
+# 90 "src/device/io/map.c"
  "len >= 1 && len <= 8"
-# 89 "src/device/io/map.c" 3 4
- , "src/device/io/map.c", 89, __extension__ __PRETTY_FUNCTION__); }))
-# 89 "src/device/io/map.c"
+# 90 "src/device/io/map.c" 3 4
+ , "src/device/io/map.c", 90, __extension__ __PRETTY_FUNCTION__); }))
+# 90 "src/device/io/map.c"
                              ;
   check_bound(map, addr);
-
-
-
   paddr_t offset = addr - map->low;
   host_write(map->space + offset, len, data);
   invoke_callback(map->callback, offset, len, 
-# 96 "src/device/io/map.c" 3 4
+# 94 "src/device/io/map.c" 3 4
                                              1
-# 96 "src/device/io/map.c"
+# 94 "src/device/io/map.c"
                                                  );
+
+  log_dtrace(addr,len,1,map->name);
+
 }
