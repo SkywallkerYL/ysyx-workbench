@@ -3380,10 +3380,12 @@ void log_dtrace(paddr_t addr,int len,
                  ) {file = fopen(dtracefile,"w");printf("No file! It is creat now\n");}
   if (writeflag)
   {
+    printf("pc:%lx: w addr:%x len:%d map_name:%s\n",cpu.pc,addr,len,name);
     fprintf(file,"pc:%lx: w addr:%x len:%d map_name:%s\n",cpu.pc,addr,len,name);
   }
   else
   {
+    printf("pc:%lx: r addr:%x len:%d map_name:%s\n",cpu.pc,addr,len,name);
     fprintf(file,"pc:%lx: r addr:%x len:%d map_name:%s\n",cpu.pc,addr,len,name);
   }
   return;
@@ -3393,29 +3395,29 @@ void log_dtrace(paddr_t addr,int len,
 
 word_t map_read(paddr_t addr, int len, IOMap *map) {
   
-# 77 "src/device/io/map.c" 3 4
+# 79 "src/device/io/map.c" 3 4
  ((void) sizeof ((
-# 77 "src/device/io/map.c"
+# 79 "src/device/io/map.c"
  len >= 1 && len <= 8
-# 77 "src/device/io/map.c" 3 4
+# 79 "src/device/io/map.c" 3 4
  ) ? 1 : 0), __extension__ ({ if (
-# 77 "src/device/io/map.c"
+# 79 "src/device/io/map.c"
  len >= 1 && len <= 8
-# 77 "src/device/io/map.c" 3 4
+# 79 "src/device/io/map.c" 3 4
  ) ; else __assert_fail (
-# 77 "src/device/io/map.c"
+# 79 "src/device/io/map.c"
  "len >= 1 && len <= 8"
-# 77 "src/device/io/map.c" 3 4
- , "src/device/io/map.c", 77, __extension__ __PRETTY_FUNCTION__); }))
-# 77 "src/device/io/map.c"
+# 79 "src/device/io/map.c" 3 4
+ , "src/device/io/map.c", 79, __extension__ __PRETTY_FUNCTION__); }))
+# 79 "src/device/io/map.c"
                              ;
   check_bound(map, addr);
 
   paddr_t offset = addr - map->low;
   invoke_callback(map->callback, offset, len, 
-# 81 "src/device/io/map.c" 3 4
+# 83 "src/device/io/map.c" 3 4
                                              0
-# 81 "src/device/io/map.c"
+# 83 "src/device/io/map.c"
                                                   );
   word_t ret = host_read(map->space + offset, len);
 
@@ -3426,29 +3428,29 @@ word_t map_read(paddr_t addr, int len, IOMap *map) {
 
 void map_write(paddr_t addr, int len, word_t data, IOMap *map) {
   
-# 90 "src/device/io/map.c" 3 4
+# 92 "src/device/io/map.c" 3 4
  ((void) sizeof ((
-# 90 "src/device/io/map.c"
+# 92 "src/device/io/map.c"
  len >= 1 && len <= 8
-# 90 "src/device/io/map.c" 3 4
+# 92 "src/device/io/map.c" 3 4
  ) ? 1 : 0), __extension__ ({ if (
-# 90 "src/device/io/map.c"
+# 92 "src/device/io/map.c"
  len >= 1 && len <= 8
-# 90 "src/device/io/map.c" 3 4
+# 92 "src/device/io/map.c" 3 4
  ) ; else __assert_fail (
-# 90 "src/device/io/map.c"
+# 92 "src/device/io/map.c"
  "len >= 1 && len <= 8"
-# 90 "src/device/io/map.c" 3 4
- , "src/device/io/map.c", 90, __extension__ __PRETTY_FUNCTION__); }))
-# 90 "src/device/io/map.c"
+# 92 "src/device/io/map.c" 3 4
+ , "src/device/io/map.c", 92, __extension__ __PRETTY_FUNCTION__); }))
+# 92 "src/device/io/map.c"
                              ;
   check_bound(map, addr);
   paddr_t offset = addr - map->low;
   host_write(map->space + offset, len, data);
   invoke_callback(map->callback, offset, len, 
-# 94 "src/device/io/map.c" 3 4
+# 96 "src/device/io/map.c" 3 4
                                              1
-# 94 "src/device/io/map.c"
+# 96 "src/device/io/map.c"
                                                  );
 
   log_dtrace(addr,len,1,map->name);

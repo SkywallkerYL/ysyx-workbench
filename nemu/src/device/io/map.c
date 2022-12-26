@@ -62,10 +62,12 @@ void log_dtrace(paddr_t addr,int len, bool writeflag ,const char* name)
   if (file == NULL) {file = fopen(dtracefile,"w");printf("No file! It is creat now\n");}
   if (writeflag)
   {
+    printf("pc:%lx: w addr:%x len:%d map_name:%s\n",cpu.pc,addr,len,name);
     fprintf(file,"pc:%lx: w addr:%x len:%d map_name:%s\n",cpu.pc,addr,len,name);
   }
   else 
   {
+    printf("pc:%lx: r addr:%x len:%d map_name:%s\n",cpu.pc,addr,len,name);
     fprintf(file,"pc:%lx: r addr:%x len:%d map_name:%s\n",cpu.pc,addr,len,name);
   }
   return;
