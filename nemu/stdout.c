@@ -5692,7 +5692,17 @@ static void out_of_bound(paddr_t addr) {
 }
 
 void init_mem() {
-# 59 "src/memory/paddr.c"
+
+
+
+
+
+  uint32_t *p = (uint32_t *)pmem;
+  int i;
+  for (i = 0; i < (int) (0x8000000 / sizeof(p[0])); i ++) {
+    p[i] = rand();
+  }
+
   do { printf("\33[1;34m" "[%s:%d %s] " "physical memory area [" "0x%08"
 # 59 "src/memory/paddr.c" 3 4
  "x" 
