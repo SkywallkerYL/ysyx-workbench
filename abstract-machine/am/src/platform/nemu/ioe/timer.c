@@ -3,12 +3,11 @@
 
 static uint64_t boot_time = 0;
 
-#define CLINT_MMIO 0
 #define TIME_BASE RTC_ADDR
 
 static uint64_t read_time() {
-  uint32_t lo = *(volatile uint32_t *)(CLINT_MMIO + TIME_BASE + 0);
-  uint32_t hi = *(volatile uint32_t *)(CLINT_MMIO + TIME_BASE + 4);
+  uint32_t lo = *(volatile uint32_t *)(TIME_BASE + 0);
+  uint32_t hi = *(volatile uint32_t *)(TIME_BASE + 4);
   uint64_t time = ((uint64_t)hi << 32) | lo;
   return time / 10;
 }
