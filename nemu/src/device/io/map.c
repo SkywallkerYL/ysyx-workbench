@@ -51,10 +51,34 @@ void init_map() {
   assert(io_space);
   p_space = io_space;
 }
+#ifdef CONFIG_DTRACE
+/*dtrace*/
+char dtracefile [] = "/home/yangli/ysyx-workbench/nemu/build/dtrace-log.txt";
 
+void log_dtrace(paddr_t addr,int len, bool writeflag ,const char* name)
+{
+  FILE *file;
+  file = fopen(dtracefile,"a");
+  if (file == NULL) {file = fopen(dtracefile,"w");printf("No file! It is creat now\n");}
+  if (writeflag)
+  {
+    fprintf(file,"pc:%lx: w addr:%x len:%d map_name:%s\n",cpu.pc,addr,len,name);
+  }
+  else 
+  {
+    fprintf(file,"pc:%lx: r addr:%x len:%d map_name:%s\n",cpu.pc,addr,len,name);
+  }
+  return;
+}
+
+
+#endif
 word_t map_read(paddr_t addr, int len, IOMap *map) {
   assert(len >= 1 && len <= 8);
   check_bound(map, addr);
+#ifdef CONFIG_DTRACE
+  log_dtrace(addr,len,0,map->name);
+#endif
   paddr_t offset = addr - map->low;
   invoke_callback(map->callback, offset, len, false); // prepare data to read
   word_t ret = host_read(map->space + offset, len);
@@ -64,6 +88,9 @@ word_t map_read(paddr_t addr, int len, IOMap *map) {
 void map_write(paddr_t addr, int len, word_t data, IOMap *map) {
   assert(len >= 1 && len <= 8);
   check_bound(map, addr);
+#ifdef CONFIG_DTRACE
+  log_dtrace(addr,len,0,map->name);
+#endif
   paddr_t offset = addr - map->low;
   host_write(map->space + offset, len, data);
   invoke_callback(map->callback, offset, len, true);
