@@ -9,7 +9,7 @@ static uint64_t boot_time = 0;
 
 
 void __am_timer_uptime(AM_TIMER_UPTIME_T *uptime) {
-  uptime->us = io_read(AM_TIMER_UPTIME).us;
+  uptime->us = 0;//io_read(AM_TIMER_UPTIME).us;
 }
 
 void __am_timer_init() {
