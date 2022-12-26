@@ -3364,20 +3364,26 @@ void init_map() {
 
 
 char dtracefile [] = "/home/yangli/ysyx-workbench/nemu/build/dtrace-log.txt";
-
+void init_dtrace()
+{
+  FILE *file;
+  file = fopen(dtracefile,"w");
+  fclose(file);
+  return;
+}
 void log_dtrace(paddr_t addr,int len, 
-# 58 "src/device/io/map.c" 3 4
+# 64 "src/device/io/map.c" 3 4
                                      _Bool 
-# 58 "src/device/io/map.c"
+# 64 "src/device/io/map.c"
                                           writeflag ,const char* name)
 {
   FILE *file;
   file = fopen(dtracefile,"a");
   if (file == 
-# 62 "src/device/io/map.c" 3 4
+# 68 "src/device/io/map.c" 3 4
              ((void *)0)
-# 62 "src/device/io/map.c"
-                 ) {file = fopen(dtracefile,"w");printf("No file! It is creat now\n");}
+# 68 "src/device/io/map.c"
+                 ) {printf("No file!\n");}
   if (writeflag)
   {
     printf("pc:%lx: w addr:%x len:%d map_name:%s\n",cpu.pc,addr,len,name);
@@ -3388,6 +3394,7 @@ void log_dtrace(paddr_t addr,int len,
     printf("pc:%lx: r addr:%x len:%d map_name:%s\n",cpu.pc,addr,len,name);
     fprintf(file,"pc:%lx: r addr:%x len:%d map_name:%s\n",cpu.pc,addr,len,name);
   }
+  fclose(file);
   return;
 }
 
@@ -3395,29 +3402,29 @@ void log_dtrace(paddr_t addr,int len,
 
 word_t map_read(paddr_t addr, int len, IOMap *map) {
   
-# 79 "src/device/io/map.c" 3 4
+# 86 "src/device/io/map.c" 3 4
  ((void) sizeof ((
-# 79 "src/device/io/map.c"
+# 86 "src/device/io/map.c"
  len >= 1 && len <= 8
-# 79 "src/device/io/map.c" 3 4
+# 86 "src/device/io/map.c" 3 4
  ) ? 1 : 0), __extension__ ({ if (
-# 79 "src/device/io/map.c"
+# 86 "src/device/io/map.c"
  len >= 1 && len <= 8
-# 79 "src/device/io/map.c" 3 4
+# 86 "src/device/io/map.c" 3 4
  ) ; else __assert_fail (
-# 79 "src/device/io/map.c"
+# 86 "src/device/io/map.c"
  "len >= 1 && len <= 8"
-# 79 "src/device/io/map.c" 3 4
- , "src/device/io/map.c", 79, __extension__ __PRETTY_FUNCTION__); }))
-# 79 "src/device/io/map.c"
+# 86 "src/device/io/map.c" 3 4
+ , "src/device/io/map.c", 86, __extension__ __PRETTY_FUNCTION__); }))
+# 86 "src/device/io/map.c"
                              ;
   check_bound(map, addr);
 
   paddr_t offset = addr - map->low;
   invoke_callback(map->callback, offset, len, 
-# 83 "src/device/io/map.c" 3 4
+# 90 "src/device/io/map.c" 3 4
                                              0
-# 83 "src/device/io/map.c"
+# 90 "src/device/io/map.c"
                                                   );
   word_t ret = host_read(map->space + offset, len);
 
@@ -3428,29 +3435,29 @@ word_t map_read(paddr_t addr, int len, IOMap *map) {
 
 void map_write(paddr_t addr, int len, word_t data, IOMap *map) {
   
-# 92 "src/device/io/map.c" 3 4
+# 99 "src/device/io/map.c" 3 4
  ((void) sizeof ((
-# 92 "src/device/io/map.c"
+# 99 "src/device/io/map.c"
  len >= 1 && len <= 8
-# 92 "src/device/io/map.c" 3 4
+# 99 "src/device/io/map.c" 3 4
  ) ? 1 : 0), __extension__ ({ if (
-# 92 "src/device/io/map.c"
+# 99 "src/device/io/map.c"
  len >= 1 && len <= 8
-# 92 "src/device/io/map.c" 3 4
+# 99 "src/device/io/map.c" 3 4
  ) ; else __assert_fail (
-# 92 "src/device/io/map.c"
+# 99 "src/device/io/map.c"
  "len >= 1 && len <= 8"
-# 92 "src/device/io/map.c" 3 4
- , "src/device/io/map.c", 92, __extension__ __PRETTY_FUNCTION__); }))
-# 92 "src/device/io/map.c"
+# 99 "src/device/io/map.c" 3 4
+ , "src/device/io/map.c", 99, __extension__ __PRETTY_FUNCTION__); }))
+# 99 "src/device/io/map.c"
                              ;
   check_bound(map, addr);
   paddr_t offset = addr - map->low;
   host_write(map->space + offset, len, data);
   invoke_callback(map->callback, offset, len, 
-# 96 "src/device/io/map.c" 3 4
+# 103 "src/device/io/map.c" 3 4
                                              1
-# 96 "src/device/io/map.c"
+# 103 "src/device/io/map.c"
                                                  );
 
   log_dtrace(addr,len,1,map->name);

@@ -54,12 +54,18 @@ void init_map() {
 #ifdef CONFIG_DTRACE
 /*dtrace*/
 char dtracefile [] = "/home/yangli/ysyx-workbench/nemu/build/dtrace-log.txt";
-
+void init_dtrace()
+{
+  FILE *file;
+  file = fopen(dtracefile,"w");
+  fclose(file);
+  return;
+}
 void log_dtrace(paddr_t addr,int len, bool writeflag ,const char* name)
 {
   FILE *file;
   file = fopen(dtracefile,"a");
-  if (file == NULL) {file = fopen(dtracefile,"w");printf("No file! It is creat now\n");}
+  if (file == NULL) {printf("No file!\n");}
   if (writeflag)
   {
     printf("pc:%lx: w addr:%x len:%d map_name:%s\n",cpu.pc,addr,len,name);
@@ -70,6 +76,7 @@ void log_dtrace(paddr_t addr,int len, bool writeflag ,const char* name)
     printf("pc:%lx: r addr:%x len:%d map_name:%s\n",cpu.pc,addr,len,name);
     fprintf(file,"pc:%lx: r addr:%x len:%d map_name:%s\n",cpu.pc,addr,len,name);
   }
+  fclose(file);
   return;
 }
 
