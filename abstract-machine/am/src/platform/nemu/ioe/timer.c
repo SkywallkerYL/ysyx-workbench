@@ -3,7 +3,7 @@
 
 static uint64_t boot_time = 0;
 
-#define CLINT_MMIO MMIO_BASE
+#define CLINT_MMIO 0
 #define TIME_BASE RTC_ADDR
 
 static uint64_t read_time() {
