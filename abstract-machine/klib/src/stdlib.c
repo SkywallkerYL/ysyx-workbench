@@ -42,6 +42,11 @@ void *malloc(size_t size) {
 #if !(defined(__ISA_NATIVE__) && defined(__NATIVE_USE_KLIB__))
   //panic("Not implemented");
   size  = (size_t)ROUNDUP(size, 8);
+  if (hbrk==NULL)
+  {
+    hbrk = heap.start;
+  }
+  
   char *old = hbrk;
   hbrk += size;
   assert((uintptr_t)heap.start <= (uintptr_t)hbrk && (uintptr_t)hbrk < (uintptr_t)heap.end);
