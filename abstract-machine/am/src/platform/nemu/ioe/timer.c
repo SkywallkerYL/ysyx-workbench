@@ -7,20 +7,13 @@ static uint64_t boot_time = 0;
 
 #define TIME_BASE RTC_ADDR
 
-static uint64_t read_time() {
-  uint32_t lo = *(volatile uint32_t *)(TIME_BASE + 0);
-  printf("lo %d\n",lo);
-  uint32_t hi = *(volatile uint32_t *)(TIME_BASE + 4);
-  uint64_t time = ((uint64_t)hi << 32) | lo;
-  return time / 10;
-}
 
 void __am_timer_uptime(AM_TIMER_UPTIME_T *uptime) {
-  uptime->us = read_time() - boot_time;
+  uptime->us = io_read(AM_TIMER_UPTIME).us;
 }
 
 void __am_timer_init() {
-  boot_time = read_time();
+  boot_time = 0;
 }
 
 void __am_timer_rtc(AM_TIMER_RTC_T *rtc) {
