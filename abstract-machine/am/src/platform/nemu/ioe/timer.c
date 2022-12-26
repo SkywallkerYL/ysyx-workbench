@@ -1,6 +1,7 @@
 #include <am.h>
 #include <nemu.h>
-
+#include <sys/time.h>
+#include <time.h>
 static uint64_t boot_time = 0;
 
 #define TIME_BASE RTC_ADDR
