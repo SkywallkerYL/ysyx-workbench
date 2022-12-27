@@ -62887,15 +62887,13 @@ static inline void update_screen() {
 }
 # 73 "src/device/vga.c"
 void vga_update_screen() {
-  
-# 74 "src/device/vga.c" 3 4
- _Bool 
-# 74 "src/device/vga.c"
-      sync = 1;
-  if (sync) update_screen();
-  else printf("%d\n",sync);
 
-
+  if (vgactl_port_base[1])
+  {
+    update_screen();
+    vgactl_port_base[1] = 0;
+  }
+# 93 "src/device/vga.c"
 }
 
 void init_vga() {
@@ -62905,17 +62903,17 @@ void init_vga() {
 
 
   add_mmio_map("vgactl", 0xa0000100, vgactl_port_base, 8, 
-# 87 "src/device/vga.c" 3 4
+# 101 "src/device/vga.c" 3 4
                                                                   ((void *)0)
-# 87 "src/device/vga.c"
+# 101 "src/device/vga.c"
                                                                       );
 
 
   vmem = new_space(screen_size());
   add_mmio_map("vmem", 0xa1000000, vmem, screen_size(), 
-# 91 "src/device/vga.c" 3 4
+# 105 "src/device/vga.c" 3 4
                                                            ((void *)0)
-# 91 "src/device/vga.c"
+# 105 "src/device/vga.c"
                                                                );
   init_screen();
   memset(vmem, 0, screen_size());
