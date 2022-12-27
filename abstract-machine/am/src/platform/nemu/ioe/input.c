@@ -2,8 +2,13 @@
 #include <nemu.h>
 
 #define KEYDOWN_MASK 0x8000
+#define KEYBASE KBD_ADDR
 
 void __am_input_keybrd(AM_INPUT_KEYBRD_T *kbd) {
-  kbd->keydown = 0;
-  kbd->keycode = AM_KEY_NONE;
+  //uint32_t KEY = *(volatile uint32_t *)(KEYBASE + 0);
+  int k = AM_KEY_NONE;
+  k = key_dequeue();
+  //uint32_t hi = *(volatile uint32_t *)(KEYBASE + 4);
+  kbd->keydown = (k & KEYDOWN_MASK ? true : false);
+  kbd->keycode = k & ~KEYDOWN_MASK;
 }
