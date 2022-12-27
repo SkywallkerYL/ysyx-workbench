@@ -26,23 +26,13 @@ config ISA64
   bool
   default y
 
-menu "MTRACE AND FTRACE"
-  config  MTRACE
-    bool "Enable mtrace and ftrace"
-    default y
-endmenu
-menu "DTRACE"
-  config  DTRACE
-    bool "Enable DTRACE"
-    default y
-endmenu
+config  WATHCPOINT
+  bool 
+  default y
 
-menu "Watchpoint"
-  config  WATHCPOINT
-    bool "watchpoint for nemu"
-    default y 
-endmenu
-
+config  MTRACE
+  bool
+  default y
 
 choice
   prompt "NEMU execution engine"
