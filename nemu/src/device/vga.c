@@ -71,6 +71,9 @@ static inline void update_screen() {
 #endif
 
 void vga_update_screen() {
+  bool sync = MUXDEF(AM_GPU_FBDRAW, io_read(AM_GPU_FBDRAW).sync,  MUXDEF(CONFIG_HAS_VGA,CONFIG_HAS_VGA,0));
+  if (sync) update_screen();
+  else printf("%d\n",sync);
   // TODO: call `update_screen()` when the sync register is non-zero,
   // then zero out the sync register
 }
