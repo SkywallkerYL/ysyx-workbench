@@ -18,14 +18,19 @@ void __am_gpu_init() {
 }
 
 void __am_gpu_config(AM_GPU_CONFIG_T *cfg) {
+  uint16_t w = (*(volatile uint32_t *)(VGACTL_ADDR)&0xff00)>>16;
+  uint16_t h  =(*(volatile uint32_t *)(VGACTL_ADDR)&0x00ff);
   *cfg = (AM_GPU_CONFIG_T) {
     .present = true, .has_accel = false,
-    .width = 400, .height = 300,
+    .width = w, .height = h,
     .vmemsz = 0
   };
 }
 
 void __am_gpu_fbdraw(AM_GPU_FBDRAW_T *ctl) {
+  //int x = ctl->x, y = ctl->y, w = ctl->w, h = ctl->h;
+  
+  //if (w == 0 || h == 0) return;
   if (ctl->sync) {
     outl(SYNC_ADDR, 1);
   }
