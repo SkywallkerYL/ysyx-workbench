@@ -48,7 +48,6 @@ enum {
   AM_KEY_NONE = 0,
   AM_KEYS(AM_KEY_NAMES)
 };
-
 // GPU
 
 #define AM_GPU_TEXTURE  1

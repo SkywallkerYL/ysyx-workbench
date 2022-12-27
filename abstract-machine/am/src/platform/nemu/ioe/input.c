@@ -3,7 +3,7 @@
 
 #define KEYDOWN_MASK 0x8000
 #define KEYBASE KBD_ADDR
-
+/*
 #define KEY_QUEUE_LEN 1024
 #define _KEYS(f) \
   f(ESCAPE) f(F1) f(F2) f(F3) f(F4) f(F5) f(F6) f(F7) f(F8) f(F9) f(F10) f(F11) f(F12) \
@@ -29,7 +29,7 @@ static uint32_t key_dequeue() {
   }
   return key;
 }
-
+*/
 void __am_input_keybrd(AM_INPUT_KEYBRD_T *kbd) {
   //uint32_t KEY = *(volatile uint32_t *)(KEYBASE + 0);
   int k = AM_KEY_NONE;
