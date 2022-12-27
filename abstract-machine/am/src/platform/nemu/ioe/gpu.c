@@ -5,7 +5,7 @@
 
 void __am_gpu_init() {
   int i;
-  int w = *(volatile uint32_t *)(VGACTL_ADDR + 4);
+  int w = 400;//*(volatile uint32_t *)(VGACTL_ADDR + 4);
   int h = 300;//*(volatile uint32_t *)(VGACTL_ADDR + 0);
   printf("%d %d\n",w,h);
   uint32_t *fb = (uint32_t *)(uintptr_t) FB_ADDR;
@@ -20,7 +20,7 @@ void __am_gpu_init() {
 void __am_gpu_config(AM_GPU_CONFIG_T *cfg) {
   *cfg = (AM_GPU_CONFIG_T) {
     .present = true, .has_accel = false,
-    .width = *(volatile uint32_t *)(VGACTL_ADDR + 0), .height = *(volatile uint32_t *)(VGACTL_ADDR + 0),
+    .width = 400, .height = 300,
     .vmemsz = 0
   };
 }
