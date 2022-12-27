@@ -3034,7 +3034,7 @@ typedef struct Decode {
   vaddr_t snpc;
   vaddr_t dnpc;
   ISADecodeInfo isa;
-  ;
+  char logbuf[128];
 } Decode;
 
 
