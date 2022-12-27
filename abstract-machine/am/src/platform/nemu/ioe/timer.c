@@ -15,7 +15,7 @@ static uint64_t read_time() {
   //但是跑分数据不对
   if (time%1000000==0)
   {
-    printf("s :%ld\n",time/1000000);
+    printf("s:%d\n",time/1000000);
   }
   
   return time;
