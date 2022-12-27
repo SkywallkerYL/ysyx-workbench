@@ -1,10 +1,10 @@
-# 0 "src/device/io/map.c"
+# 0 "src/memory/vaddr.c"
 # 0 "<built-in>"
 # 0 "<command-line>"
 # 1 "/usr/include/stdc-predef.h" 1 3 4
 # 0 "<command-line>" 2
-# 1 "src/device/io/map.c"
-# 16 "src/device/io/map.c"
+# 1 "src/memory/vaddr.c"
+# 16 "src/memory/vaddr.c"
 # 1 "/home/yangli/ysyx-workbench/nemu/include/isa.h" 1
 # 20 "/home/yangli/ysyx-workbench/nemu/include/isa.h"
 # 1 "/home/yangli/ysyx-workbench/nemu/src/isa/riscv64/include/isa-def.h" 1
@@ -3003,465 +3003,69 @@ _Bool
 # 55 "/home/yangli/ysyx-workbench/nemu/include/isa.h"
     isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc);
 void isa_difftest_attach();
-# 17 "src/device/io/map.c" 2
-# 1 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h" 1
-# 21 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h"
-static inline word_t host_read(void *addr, int len) {
-  switch (len) {
-    case 1: return *(uint8_t *)addr;
-    case 2: return *(uint16_t *)addr;
-    case 4: return *(uint32_t *)addr;
-    case 8: return *(uint64_t *)addr;
-    default: 
-# 27 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h" 3 4
-            ((void) sizeof ((
-# 27 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h"
-            0
-# 27 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h" 3 4
-            ) ? 1 : 0), __extension__ ({ if (
-# 27 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h"
-            0
-# 27 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h" 3 4
-            ) ; else __assert_fail (
-# 27 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h"
-            "0"
-# 27 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h" 3 4
-            , "/home/yangli/ysyx-workbench/nemu/include/memory/host.h", 27, __extension__ __PRETTY_FUNCTION__); }))
-# 27 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h"
-                                                        ;
-  }
-}
+# 17 "src/memory/vaddr.c" 2
+# 1 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h" 1
+# 26 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h"
+uint8_t* guest_to_host(paddr_t paddr);
 
-static inline void host_write(void *addr, int len, word_t data) {
-  switch (len) {
-    case 1: *(uint8_t *)addr = data; return;
-    case 2: *(uint16_t *)addr = data; return;
-    case 4: *(uint32_t *)addr = data; return;
-    case 8: *(uint64_t *)addr = data; return;
-    default: 
-# 37 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h" 3 4
-   ((void) sizeof ((
-# 37 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h"
-   0
-# 37 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h" 3 4
-   ) ? 1 : 0), __extension__ ({ if (
-# 37 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h"
-   0
-# 37 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h" 3 4
-   ) ; else __assert_fail (
-# 37 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h"
-   "0"
-# 37 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h" 3 4
-   , "/home/yangli/ysyx-workbench/nemu/include/memory/host.h", 37, __extension__ __PRETTY_FUNCTION__); }))
-# 37 "/home/yangli/ysyx-workbench/nemu/include/memory/host.h"
-                                             ;
-  }
-}
-# 18 "src/device/io/map.c" 2
-# 1 "/home/yangli/ysyx-workbench/nemu/include/memory/vaddr.h" 1
-# 21 "/home/yangli/ysyx-workbench/nemu/include/memory/vaddr.h"
-word_t vaddr_ifetch(vaddr_t addr, int len);
-word_t vaddr_read(vaddr_t addr, int len);
-void vaddr_write(vaddr_t addr, int len, word_t data);
-# 19 "src/device/io/map.c" 2
-# 1 "/home/yangli/ysyx-workbench/nemu/include/device/map.h" 1
-# 19 "/home/yangli/ysyx-workbench/nemu/include/device/map.h"
-# 1 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 1
-# 20 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
-# 1 "/home/yangli/ysyx-workbench/nemu/include/difftest-def.h" 1
-# 20 "/home/yangli/ysyx-workbench/nemu/include/difftest-def.h"
-# 1 "/home/yangli/ysyx-workbench/nemu/include/generated/autoconf.h" 1
-# 21 "/home/yangli/ysyx-workbench/nemu/include/difftest-def.h" 2
-
-enum { DIFFTEST_TO_DUT, DIFFTEST_TO_REF };
-# 21 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 2
-# 30 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
-static inline void difftest_skip_ref() {}
-static inline void difftest_skip_dut(int nr_ref, int nr_dut) {}
-static inline void difftest_set_patch(void (*fn)(void *arg), void *arg) {}
-static inline void difftest_step(vaddr_t pc, vaddr_t npc) {}
-static inline void difftest_detach() {}
-static inline void difftest_attach() {}
-
-
-extern void (*ref_difftest_memcpy)(paddr_t addr, void *buf, size_t n, 
-# 38 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
-                                                                     _Bool 
-# 38 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
-                                                                          direction);
-extern void (*ref_difftest_regcpy)(void *dut, 
-# 39 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
-                                             _Bool 
-# 39 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
-                                                  direction);
-extern void (*ref_difftest_exec)(uint64_t n);
-extern void (*ref_difftest_raise_intr)(uint64_t NO);
+paddr_t host_to_guest(uint8_t *haddr);
 
 static inline 
-# 43 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
+# 30 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h" 3 4
              _Bool 
-# 43 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
-                  difftest_check_reg(const char *name, vaddr_t pc, word_t ref, word_t dut) {
-  if (ref != dut) {
-    do { printf("\33[1;34m" "[%s:%d %s] " "%s is different after executing instruction at pc = " "0x%016"
-# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
-   "l" "x" 
-# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
-   ", right = " "0x%016"
-# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
-   "l" "x" 
-# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
-   ", wrong = " "0x%016"
-# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
-   "l" "x" 
-# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
-   ", diff = " "0x%016"
-# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
-   "l" "x" 
-# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
-   "\33[0m" "\n", "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h", 45, __func__, name, pc, ref, dut, ref ^ dut); do { extern FILE* log_fp; extern 
-# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
-   _Bool 
-# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
-   log_enable(); if (log_enable()) { fprintf(log_fp, "\33[1;34m" "[%s:%d %s] " "%s is different after executing instruction at pc = " "0x%016"
-# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
-   "l" "x" 
-# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
-   ", right = " "0x%016"
-# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
-   "l" "x" 
-# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
-   ", wrong = " "0x%016"
-# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
-   "l" "x" 
-# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
-   ", diff = " "0x%016"
-# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
-   "l" "x" 
-# 45 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
-   "\33[0m" "\n", "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h", 45, __func__, name, pc, ref, dut, ref ^ dut); fflush(log_fp); } } while (0); } while (0)
-
-                                      ;
-    return 
-# 48 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
-          0
-# 48 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
-               ;
-  }
-  return 
-# 50 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
-        1
-# 50 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
-            ;
-}
-# 20 "/home/yangli/ysyx-workbench/nemu/include/device/map.h" 2
-
-typedef void(*io_callback_t)(uint32_t, int, 
-# 21 "/home/yangli/ysyx-workbench/nemu/include/device/map.h" 3 4
-                                           _Bool
-# 21 "/home/yangli/ysyx-workbench/nemu/include/device/map.h"
-                                               );
-uint8_t* new_space(int size);
-
-typedef struct {
-  const char *name;
-
-  paddr_t low;
-  paddr_t high;
-  void *space;
-  io_callback_t callback;
-} IOMap;
-
-static inline 
-# 33 "/home/yangli/ysyx-workbench/nemu/include/device/map.h" 3 4
-             _Bool 
-# 33 "/home/yangli/ysyx-workbench/nemu/include/device/map.h"
-                  map_inside(IOMap *map, paddr_t addr) {
-  return (addr >= map->low && addr <= map->high);
-}
-
-static inline int find_mapid_by_addr(IOMap *maps, int size, paddr_t addr) {
-  int i;
-  for (i = 0; i < size; i ++) {
-    if (map_inside(maps + i, addr)) {
-      difftest_skip_ref();
-      return i;
-    }
-  }
-  return -1;
-}
-
-void add_pio_map(const char *name, ioaddr_t addr,
-        void *space, uint32_t len, io_callback_t callback);
-void add_mmio_map(const char *name, paddr_t addr,
-        void *space, uint32_t len, io_callback_t callback);
-
-word_t map_read(paddr_t addr, int len, IOMap *map);
-void map_write(paddr_t addr, int len, word_t data, IOMap *map);
-# 20 "src/device/io/map.c" 2
-
-
-
-static uint8_t *io_space = 
-# 23 "src/device/io/map.c" 3 4
-                          ((void *)0)
-# 23 "src/device/io/map.c"
-                              ;
-static uint8_t *p_space = 
-# 24 "src/device/io/map.c" 3 4
-                         ((void *)0)
-# 24 "src/device/io/map.c"
-                             ;
-
-uint8_t* new_space(int size) {
-  uint8_t *p = p_space;
-
-  size = (size + ((1ul << 12) - 1)) & ~((1ul << 12) - 1);
-  p_space += size;
-  
-# 31 "src/device/io/map.c" 3 4
- ((void) sizeof ((
-# 31 "src/device/io/map.c"
- p_space - io_space < (2 * 1024 * 1024)
-# 31 "src/device/io/map.c" 3 4
- ) ? 1 : 0), __extension__ ({ if (
-# 31 "src/device/io/map.c"
- p_space - io_space < (2 * 1024 * 1024)
-# 31 "src/device/io/map.c" 3 4
- ) ; else __assert_fail (
-# 31 "src/device/io/map.c"
- "p_space - io_space < IO_SPACE_MAX"
-# 31 "src/device/io/map.c" 3 4
- , "src/device/io/map.c", 31, __extension__ __PRETTY_FUNCTION__); }))
-# 31 "src/device/io/map.c"
-                                          ;
-  return p;
-}
-
-static void check_bound(IOMap *map, paddr_t addr) {
-  if (map == 
-# 36 "src/device/io/map.c" 3 4
-            ((void *)0)
-# 36 "src/device/io/map.c"
-                ) {
-    do { if (!(map != 
-# 37 "src/device/io/map.c" 3 4
-   ((void *)0)
-# 37 "src/device/io/map.c"
-   )) { (fflush(
-# 37 "src/device/io/map.c" 3 4
-   stdout
-# 37 "src/device/io/map.c"
-   ), fprintf(
-# 37 "src/device/io/map.c" 3 4
-   stderr
-# 37 "src/device/io/map.c"
-   , "\33[1;31m" "address (" "0x%08"
-# 37 "src/device/io/map.c" 3 4
-   "x" 
-# 37 "src/device/io/map.c"
-   ") is out of bound at pc = " "0x%016"
-# 37 "src/device/io/map.c" 3 4
-   "l" "x" 
-# 37 "src/device/io/map.c"
-   "\33[0m" "\n", addr, cpu.pc)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
-# 37 "src/device/io/map.c" 3 4
-   ((void) sizeof ((
-# 37 "src/device/io/map.c"
-   map != 
-# 37 "src/device/io/map.c" 3 4
-   ((void *)0)) ? 1 : 0), __extension__ ({ if (
-# 37 "src/device/io/map.c"
-   map != 
-# 37 "src/device/io/map.c" 3 4
-   ((void *)0)) ; else __assert_fail (
-# 37 "src/device/io/map.c"
-   "map != ((void *)0)"
-# 37 "src/device/io/map.c" 3 4
-   , "src/device/io/map.c", 37, __extension__ __PRETTY_FUNCTION__); }))
-# 37 "src/device/io/map.c"
-   ; } } while (0);
-  } else {
-    do { if (!(addr <= map->high && addr >= map->low)) { (fflush(
-# 39 "src/device/io/map.c" 3 4
-   stdout
-# 39 "src/device/io/map.c"
-   ), fprintf(
-# 39 "src/device/io/map.c" 3 4
-   stderr
-# 39 "src/device/io/map.c"
-   , "\33[1;31m" "address (" "0x%08"
-# 39 "src/device/io/map.c" 3 4
-   "x" 
-# 39 "src/device/io/map.c"
-   ") is out of bound {%s} [" "0x%08"
-# 39 "src/device/io/map.c" 3 4
-   "x" 
-# 39 "src/device/io/map.c"
-   ", " "0x%08"
-# 39 "src/device/io/map.c" 3 4
-   "x" 
-# 39 "src/device/io/map.c"
-   "] at pc = " "0x%016"
-# 39 "src/device/io/map.c" 3 4
-   "l" "x" 
-# 39 "src/device/io/map.c"
-   "\33[0m" "\n", addr, map->name, map->low, map->high, cpu.pc)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
-# 39 "src/device/io/map.c" 3 4
-   ((void) sizeof ((
-# 39 "src/device/io/map.c"
-   addr <= map->high && addr >= map->low
-# 39 "src/device/io/map.c" 3 4
-   ) ? 1 : 0), __extension__ ({ if (
-# 39 "src/device/io/map.c"
-   addr <= map->high && addr >= map->low
-# 39 "src/device/io/map.c" 3 4
-   ) ; else __assert_fail (
-# 39 "src/device/io/map.c"
-   "addr <= map->high && addr >= map->low"
-# 39 "src/device/io/map.c" 3 4
-   , "src/device/io/map.c", 39, __extension__ __PRETTY_FUNCTION__); }))
-# 39 "src/device/io/map.c"
-   ; } } while (0)
-
-                                                     ;
-  }
-}
-
-static void invoke_callback(io_callback_t c, paddr_t offset, int len, 
-# 45 "src/device/io/map.c" 3 4
-                                                                     _Bool 
-# 45 "src/device/io/map.c"
-                                                                          is_write) {
-  if (c != 
-# 46 "src/device/io/map.c" 3 4
-          ((void *)0)
-# 46 "src/device/io/map.c"
-              ) { c(offset, len, is_write); }
-}
-
-void init_map() {
-  io_space = malloc((2 * 1024 * 1024));
-  
-# 51 "src/device/io/map.c" 3 4
- ((void) sizeof ((
-# 51 "src/device/io/map.c"
- io_space
-# 51 "src/device/io/map.c" 3 4
- ) ? 1 : 0), __extension__ ({ if (
-# 51 "src/device/io/map.c"
- io_space
-# 51 "src/device/io/map.c" 3 4
- ) ; else __assert_fail (
-# 51 "src/device/io/map.c"
- "io_space"
-# 51 "src/device/io/map.c" 3 4
- , "src/device/io/map.c", 51, __extension__ __PRETTY_FUNCTION__); }))
-# 51 "src/device/io/map.c"
-                 ;
-  p_space = io_space;
+# 30 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h"
+                  in_pmem(paddr_t addr) {
+  return addr - 0x80000000 < 0x8000000;
 }
 
 
-word_t last_pc = 0;
-char dtracefile [] = "/home/yangli/ysyx-workbench/nemu/build/dtrace-log.txt";
-void init_dtrace()
+
+
+
+word_t paddr_read(paddr_t addr, int len);
+void paddr_write(paddr_t addr, int len, word_t data);
+
+
+union var8
 {
-  FILE *file;
-  file = fopen(dtracefile,"w");
-  fclose(file);
-  return;
-}
-void log_dtrace(paddr_t addr,int len, 
-# 65 "src/device/io/map.c" 3 4
-                                     _Bool 
-# 65 "src/device/io/map.c"
-                                          writeflag ,const char* name)
+    char p[8];
+    int64_t i;
+};
+union var4
 {
-  FILE *file;
-  file = fopen(dtracefile,"a");
-  if (file == 
-# 69 "src/device/io/map.c" 3 4
-             ((void *)0)
-# 69 "src/device/io/map.c"
-                 ) {printf("No file!\n");}
-  last_pc = cpu.pc;
-  if (writeflag)
-  {
+    char p[4];
+    int32_t i;
+};
+union var2
+{
+    char p[2];
+    int16_t i;
+};
+union var1
+{
+    char p;
+    int8_t i;
+};
 
-    fprintf(file,"pc:%lx: w addr:%x len:%d map_name:%s\n",last_pc,addr,len,name);
-  }
-  else
-  {
 
-    fprintf(file,"pc:%lx: r addr:%x len:%d map_name:%s\n",last_pc,addr,len,name);
-  }
-  fclose(file);
-  return;
+
+void init_ftrace(char * elf_file);
+
+void log_ftrace(paddr_t addr,
+# 67 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h" 3 4
+                            _Bool 
+# 67 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h"
+                                 jarlflag, int rd ,word_t imm, int rs1,word_t src1);
+# 18 "src/memory/vaddr.c" 2
+
+word_t vaddr_ifetch(vaddr_t addr, int len) {
+  return paddr_read(addr, len);
 }
 
-
-
-word_t map_read(paddr_t addr, int len, IOMap *map) {
-  
-# 88 "src/device/io/map.c" 3 4
- ((void) sizeof ((
-# 88 "src/device/io/map.c"
- len >= 1 && len <= 8
-# 88 "src/device/io/map.c" 3 4
- ) ? 1 : 0), __extension__ ({ if (
-# 88 "src/device/io/map.c"
- len >= 1 && len <= 8
-# 88 "src/device/io/map.c" 3 4
- ) ; else __assert_fail (
-# 88 "src/device/io/map.c"
- "len >= 1 && len <= 8"
-# 88 "src/device/io/map.c" 3 4
- , "src/device/io/map.c", 88, __extension__ __PRETTY_FUNCTION__); }))
-# 88 "src/device/io/map.c"
-                             ;
-  check_bound(map, addr);
-
-  paddr_t offset = addr - map->low;
-  invoke_callback(map->callback, offset, len, 
-# 92 "src/device/io/map.c" 3 4
-                                             0
-# 92 "src/device/io/map.c"
-                                                  );
-  word_t ret = host_read(map->space + offset, len);
-
-  if(last_pc!=cpu.pc)log_dtrace(addr,len,0,map->name);
-
-  return ret;
+word_t vaddr_read(vaddr_t addr, int len) {
+  return paddr_read(addr, len);
 }
 
-void map_write(paddr_t addr, int len, word_t data, IOMap *map) {
-  
-# 101 "src/device/io/map.c" 3 4
- ((void) sizeof ((
-# 101 "src/device/io/map.c"
- len >= 1 && len <= 8
-# 101 "src/device/io/map.c" 3 4
- ) ? 1 : 0), __extension__ ({ if (
-# 101 "src/device/io/map.c"
- len >= 1 && len <= 8
-# 101 "src/device/io/map.c" 3 4
- ) ; else __assert_fail (
-# 101 "src/device/io/map.c"
- "len >= 1 && len <= 8"
-# 101 "src/device/io/map.c" 3 4
- , "src/device/io/map.c", 101, __extension__ __PRETTY_FUNCTION__); }))
-# 101 "src/device/io/map.c"
-                             ;
-  check_bound(map, addr);
-  paddr_t offset = addr - map->low;
-  host_write(map->space + offset, len, data);
-  invoke_callback(map->callback, offset, len, 
-# 105 "src/device/io/map.c" 3 4
-                                             1
-# 105 "src/device/io/map.c"
-                                                 );
-
-  if(last_pc!=cpu.pc) log_dtrace(addr,len,1,map->name);
-
+void vaddr_write(vaddr_t addr, int len, word_t data) {
+  paddr_write(addr, len, data);
 }
