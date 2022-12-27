@@ -13,6 +13,11 @@ static uint64_t read_time() {
   uint64_t time = ((uint64_t)hi << 32) | lo;
   //这里的time会影响跑分的数据，d当就返回time时，进行real time test可以1s打印一个
   //但是跑分数据不对
+  if (time%1000000==0)
+  {
+    printf("s :ld\n",time/1000000);
+  }
+  
   return time;
 }
 
