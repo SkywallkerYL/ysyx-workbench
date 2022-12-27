@@ -7,7 +7,7 @@
 size_t strlen(const char *s) {
   //panic("Not implemented");
   //int point = 0;
-  assert(s!=NULL);
+  if(s==NULL) return 0;
   const char *pt = s;
   //int maxsize = sizeof(s)/sizeof(char);
   while (*pt++!='\0')
