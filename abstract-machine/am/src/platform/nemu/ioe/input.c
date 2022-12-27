@@ -1,5 +1,6 @@
 #include <am.h>
 #include <nemu.h>
+#include <stdio.h>
 //#include </home/yangli/ysyx-workbench/nemu/src/device/keyboard.c>
 #define KEYDOWN_MASK 0x8000
 #define KEYBASE KBD_ADDR
@@ -18,6 +19,7 @@ static uint32_t key_dequeue() {
     key = key_queue[key_f];
     key_f = (key_f + 1) % KEY_QUEUE_LEN;
   }
+  printf("key %x\n",key);
   return key;
 }
 void __am_input_keybrd(AM_INPUT_KEYBRD_T *kbd) {
