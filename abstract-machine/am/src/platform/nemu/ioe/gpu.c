@@ -5,7 +5,7 @@
 
 void __am_gpu_init() {
   int i;
-  int w = *(volatile uint32_t *)(VGACTL_ADDR + 0);
+  int w = *(volatile uint32_t *)(VGACTL_ADDR + 12);
   int h = 300;//*(volatile uint32_t *)(VGACTL_ADDR + 0);
   printf("%d %d\n",w,h);
   uint32_t *fb = (uint32_t *)(uintptr_t) FB_ADDR;
