@@ -73,10 +73,10 @@ $(BIN) : $(VSRC) $(CSRC) $(NVBOARD_ARCHIVE)
 all: default
 
 sim:
-	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
+#$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	@echo "Write this Makefile by your self."
 
-include ../Makefile
+#include ../Makefile
 run: $(BIN)
 	#for nvboard
 	@$^
@@ -98,6 +98,6 @@ test:
 show-config:
 	$(VERILATOR) -V
 clean:
-	-rm -rf obj_dir logs *.log *.dmp *.vpd *.vcd $(BUILD_DIR) vsrc
-	git clean -fd
+	-rm -rf obj_dir logs *.log *.dmp *.vpd *.vcd $(BUILD_DIR) vsrc .bloop/ project/.bloop/npc-build/ target/bg-jobs/ target/task-temp-directory/
+#git clean -fd
 .PHONY: default all clean run
