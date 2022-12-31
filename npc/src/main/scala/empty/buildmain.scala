@@ -13,5 +13,6 @@ object cpubuild extends App {
   emitVerilog(new IF_ID(), Array("--target-dir", "vsrc"))
   emitVerilog(new RegFile(), Array("--target-dir", "vsrc"))
   emitVerilog(new IDU(), Array("--target-dir", "vsrc"))
-  
+  emitVerilog(new ID_EX(), Array("--target-dir", "vsrc"))
+  emitVerilog(new EXU(), Array("--target-dir", "vsrc"))
 }

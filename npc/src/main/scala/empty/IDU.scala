@@ -46,12 +46,17 @@ class IDU extends Module{
     val B_imm = Fill((parm.REGWIDTH-12),sign) ## idu.instr_i(7) ## idu.instr_i(30,25) ## idu.instr_i(11,8) ##0.U
     val S_imm = Fill((parm.REGWIDTH-12),sign) ## idu.instr_i(31,25) ## idu.instr_i(11,7)
 
+
+    
     idu.imm := MuxCase(0.U,
     Array(
         (idu.opcode===parm.INST_ADDI.U) -> I_imm,
         (idu.opcode===parm.INST_EBREAK.U) -> I_imm
     ))
+    
     idu.ebreak := Mux(idu.instr_i === "x00100037".U,1.B,0.B)
+
+    /*
     class function_Verilog extends BlackBox with HasBlackBoxInline{
         setInline("IDU.v", 
             """
@@ -63,6 +68,7 @@ class IDU extends Module{
             """.stripMargin
         )
     }
-    val func_verilog = Module(new function_Verilog)
+    */
+    //val func_verilog = Module(new function_Verilog)
     //emitVerilog(Module(new function_Verilog()), Array("--target-dir", "vsrc"))
 }
