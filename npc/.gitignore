@@ -12,3 +12,12 @@
 !/csrc/*.*
 !/csrc/*
 !/src/main/scala/empty/*
+!src
+!csrc
+!project
+!quartus
+!target
+.bloop 
+project/.bloop/npc-build
+target/bg-jobs
+target/task-temp-directory
