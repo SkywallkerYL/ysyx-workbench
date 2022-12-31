@@ -10,4 +10,5 @@
 !.gitignore
 !README.md
 !/csrc/*.*
-!/src/
+!/csrc/*
+!/src/main/scala/empty/*
