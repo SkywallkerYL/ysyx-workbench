@@ -70,6 +70,11 @@ class EXU extends Module{
         src2 := io.imm_i
         io.rddata := io.expres
     }
+    is(parm.INST_EBREAK.U) {
+        src1 := 0.U
+        src2 := 0.U
+        io.rddata := io.expres
+    }
   }
 
 }
