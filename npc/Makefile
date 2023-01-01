@@ -5,7 +5,7 @@ doit:
 
 
 TOPNAME?=top
-TOPNAMETEST?=Add
+TOPNAMETEST?=RiscvCpu
 #FSM_m #keyboard_top #top
 NXDC_FILES=constr/top.nxdc
 INC_PATH?=
@@ -30,7 +30,7 @@ VERILATOR_CFLAGS += --top-module $(TOPNAMETEST)
 
 
 
-CSRCT = $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "$(TOPNAMETEST)_tb.cpp") 
+CSRCT = $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "main.cpp") 
 #addertop.cpp alu_tb.cpp main.cpp
 
 BUILD_DIR = ./build
