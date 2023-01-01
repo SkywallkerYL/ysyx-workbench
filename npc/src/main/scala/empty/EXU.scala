@@ -25,7 +25,7 @@ class  ALU (val width : Int = 64) extends Module{
 }
 
 class EXU extends Module{
-    val exu = IO(new Bundle {
+    val io = IO(new Bundle {
     val pc_i = Input(UInt(parm.PCWIDTH.W))
     val instr_i = Input(UInt(parm.INSTWIDTH.W))
     val rs1_i = Input(UInt(parm.REGWIDTH.W))
@@ -39,7 +39,7 @@ class EXU extends Module{
     val pc_o = Output(UInt(parm.PCWIDTH.W))
     val instr_o = Output(UInt(parm.INSTWIDTH.W))
     val expres = Output(UInt(parm.REGWIDTH.W))
-    val rddata = Output(UInt(parm.REGWIDTH.W))
+    val rddata = Output(UInt(parm.REGWIDTH.W))//按理说rddata不应该在这里，目前是三级流水，暂且这样
     val rs2_o = Output(UInt(parm.REGWIDTH.W))
     //val imm_o = Output(UInt(parm.REGWIDTH.W))
     //val func3_o = Output(UInt(3.W))
@@ -47,14 +47,14 @@ class EXU extends Module{
     val rdaddr_o = Output(UInt(parm.REGADDRWIDTH.W))
     val rden_o = Output(Bool())
   })
-  exu.pc_o := exu.pc_i
-  exu.instr_o := exu.instr_i
-  exu.rs2_o := exu.rs2_i
-  exu.rdaddr_o := exu.rdaddr_i
-  exu.rden_o := exu.rden_i
+  io.pc_o := io.pc_i
+  io.instr_o := io.instr_i
+  io.rs2_o := io.rs2_i
+  io.rdaddr_o := io.rdaddr_i
+  io.rden_o := io.rden_i
   val alu = Module (new ALU(parm.REGWIDTH))
-  alu.io.func3 := exu.func3_i 
-  exu.expres := alu.io.res
+  alu.io.func3 := io.func3_i 
+  io.expres := alu.io.res
   val src1 = Wire(UInt(parm.REGWIDTH.W))
   val src2 = Wire(UInt(parm.REGWIDTH.W))
 
@@ -63,12 +63,12 @@ class EXU extends Module{
 
   src1 := 0.U
   src2 := 0.U
-  exu.rddata := 0.U
-  switch(exu.opcode_i){
+  io.rddata := 0.U
+  switch(io.opcode_i){
     is(parm.INST_ADDI.U) {
-        src1 := exu.rs1_i
-        src2 := exu.imm_i
-        exu.rddata := exu.expres
+        src1 := io.rs1_i
+        src2 := io.imm_i
+        io.rddata := io.expres
     }
   }
 

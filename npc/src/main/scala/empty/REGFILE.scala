@@ -6,7 +6,7 @@ import chisel3.util._
 
 
 class RegFile extends Module{
-    val Regfile = IO(new Bundle {
+    val io = IO(new Bundle {
     val wen = Input(Bool())
     val waddr = Input(UInt(parm.REGADDRWIDTH.W))
     val wdata = Input(UInt(parm.REGWIDTH.W))
@@ -18,31 +18,31 @@ class RegFile extends Module{
     //val rdata = Output(Vec(parm.RegFileReadPorts,UInt(parm.REGWIDTH.W)))
   })
   val reg = RegInit(VecInit(Seq.fill(parm.RegNumber)(0.U(parm.REGWIDTH.W))))
-  when (Regfile.wen){
-    when (Regfile.waddr =/= 0.U) {reg(Regfile.waddr) := Regfile.wdata}
+  when (io.wen){
+    when (io.waddr =/= 0.U) {reg(io.waddr) := io.wdata}
   }
   //生成出来的verilog文件似乎不会解决冲突的问题
-  if(Regfile.raddr1 == 0.U){
-      Regfile.rdata1 := 0.U(parm.REGWIDTH)
-  }else if (Regfile.raddr1 == Regfile.waddr ){
-      Regfile.rdata1 := Regfile.wdata
-  }else Regfile.rdata1 := reg(Regfile.raddr1)
+  if(io.raddr1 == 0.U){
+      io.rdata1 := 0.U(parm.REGWIDTH)
+  }else if (io.raddr1 == io.waddr ){
+      io.rdata1 := io.wdata
+  }else io.rdata1 := reg(io.raddr1)
   
-  if (Regfile.raddr2 == 0.U){
-      Regfile.rdata2 := 0.U(parm.REGWIDTH)
-  }else if (Regfile.raddr2 == Regfile.waddr ){
-      Regfile.rdata2 := Regfile.wdata
-  }else Regfile.rdata2 := reg(Regfile.raddr2)
+  if (io.raddr2 == 0.U){
+      io.rdata2 := 0.U(parm.REGWIDTH)
+  }else if (io.raddr2 == io.waddr ){
+      io.rdata2 := io.wdata
+  }else io.rdata2 := reg(io.raddr2)
   
   /*
   for (i <- 0 until parm.RegFileReadPorts){
-    when (Regfile.raddr(i) === 0.U){
-        Regfile.rdata(i) := 0.U(parm.REGWIDTH)
-    }.elsewhen (Regfile.raddr(i) === Regfile.waddr ){
-        //when (Regfile.waddr === 0.U) {Regfile.rdata(i) := 0.U(parm.REGWIDTH)}
+    when (io.raddr(i) === 0.U){
+        io.rdata(i) := 0.U(parm.REGWIDTH)
+    }.elsewhen (io.raddr(i) === io.waddr ){
+        //when (io.waddr === 0.U) {io.rdata(i) := 0.U(parm.REGWIDTH)}
         //.otherwise
-        Regfile.rdata(i) := Regfile.wdata
-    }.otherwise (Regfile.rdata(i) := reg(Regfile.raddr(i)))
+        io.rdata(i) := io.wdata
+    }.otherwise (io.rdata(i) := reg(io.raddr(i)))
   }
   */
 }

@@ -6,9 +6,9 @@ import chisel3.util.HasBlackBoxInline
 
 
 class ID_EX extends Module{
-    val id_ex = IO(new Bundle {
+    val io = IO(new Bundle {
     val pc_i = Input(UInt(parm.PCWIDTH.W))
-    val instr_i = Input(UInt(parm.INSTWIDTH.W))
+    val instr_i = Input(UInt(parm.INSTWIDTH.W))//这个instr可能不需要继续传递了
     val rs1_i = Input(UInt(parm.REGWIDTH.W))
     val rs2_i = Input(UInt(parm.REGWIDTH.W))
     val imm_i = Input(UInt(parm.REGWIDTH.W))
@@ -27,14 +27,14 @@ class ID_EX extends Module{
     val rdaddr_o = Output(UInt(parm.REGADDRWIDTH.W))
     val rden_o = Output(Bool())
   })
-  id_ex.pc_o := RegNext(id_ex.pc_i,parm.INITIAL_PC.U(parm.PCWIDTH.W))
-  id_ex.instr_o := RegNext(id_ex.instr_i,0.U(parm.INSTWIDTH.W))
-  id_ex.rs1_o :=  RegNext(id_ex.rs1_i,0.U(parm.REGWIDTH.W))
-  id_ex.rs2_o :=  RegNext(id_ex.rs2_i,0.U(parm.REGWIDTH.W))
-  id_ex.imm_o :=  RegNext(id_ex.imm_i,0.U(parm.REGWIDTH.W))
-  id_ex.func3_o :=  RegNext(id_ex.func3_i,0.U(3.W))
-  id_ex.opcode_o :=  RegNext(id_ex.opcode_i,0.U(parm.OPCODEWIDTH.W))
-  id_ex.rdaddr_o :=  RegNext(id_ex.rdaddr_i,0.U(parm.REGADDRWIDTH.W))
-  id_ex.rden_o := RegNext(id_ex.rden_i,0.B)
+  io.pc_o := RegNext(io.pc_i,parm.INITIAL_PC.U(parm.PCWIDTH.W))
+  io.instr_o := RegNext(io.instr_i,0.U(parm.INSTWIDTH.W))
+  io.rs1_o :=  RegNext(io.rs1_i,0.U(parm.REGWIDTH.W))
+  io.rs2_o :=  RegNext(io.rs2_i,0.U(parm.REGWIDTH.W))
+  io.imm_o :=  RegNext(io.imm_i,0.U(parm.REGWIDTH.W))
+  io.func3_o :=  RegNext(io.func3_i,0.U(3.W))
+  io.opcode_o :=  RegNext(io.opcode_i,0.U(parm.OPCODEWIDTH.W))
+  io.rdaddr_o :=  RegNext(io.rdaddr_i,0.U(parm.REGADDRWIDTH.W))
+  io.rden_o := RegNext(io.rden_i,0.B)
   
 }
