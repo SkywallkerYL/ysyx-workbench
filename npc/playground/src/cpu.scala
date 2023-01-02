@@ -24,7 +24,7 @@ class  RiscvCpu extends Module{
 //pc   
     val PcRegOut = Wire(UInt(parm.PCWIDTH.W))
     val instr = M(PcRegOut(parm.PCWIDTH-1,2))//因为M/4，所以PC要把低两位去掉
-    printf(p"instr=${Binary(instr)}\n")
+    printf(p"instr=${Hexadecimal(instr)}\n")
     //val PcReg = Module(new PC_REG()) 
     PcReg.io.pc_i := PcRegOut + "x4".U
     PcRegOut := PcReg.io.pc_o
