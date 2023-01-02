@@ -8,7 +8,7 @@
 #include "verilated_vcd_c.h"
 #include "svdpi.h"
 #define instr_break 0b00000000000100000000000001110011
-#define MSIZE=1024
+#define MSIZE 1024
 
 VerilatedContext* contextp = NULL;
 VerilatedVcdC* tfp = NULL;
@@ -68,8 +68,9 @@ void reset(int n ){
 
 void load_prog(const char *bin){
   FILE *fp = fopen(bin,"r");
-  assert(fp!=NULL);
-  fread(&top->VL_MODULE->RiscvCpu__DOT__M_ext__DOT__Memory,1,MSIZE,fp);
+  //assert(fp!=NULL);
+  if(fp==NULL) {printf("No Image Input\n");return;} 
+  fread(&top->rootp->RiscvCpu__DOT__M_ext__DOT__Memory,1,MSIZE,fp);
   printf("HHH\n");
   fclose(fp);
 }
@@ -100,10 +101,12 @@ int main(int argc , char** argv, char** env) {
   */
 	sim_init();
   reset(5);
+  //printf("%s\n",argv[1]);
+  load_prog(argv[1]);
   //top->pc = 0x80000000;
   
   
-  while (!top->halt)
+  while (!top->io_halt)
   {
     clockntimes(1);
     //int pc = top->io_PcRegOut;
