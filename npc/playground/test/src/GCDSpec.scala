@@ -1,8 +1,8 @@
-//import chisel3._
-//import chiseltest._
-//import chisel3.experimental.BundleLiterals._
+import chisel3._
+import chiseltest._
+import chisel3.experimental.BundleLiterals._
 
-//iport utest._
+import utest._
 
 /**
   * This is a trivial example of how to run this Specification
@@ -15,7 +15,6 @@
   * sbt 'testOnly gcd.GcdDecoupledTester'
   * }}}
   */
-/*
 object GCDSpec extends ChiselUtestTester {
   val tests = Tests {
     test("GCD") {
@@ -47,4 +46,3 @@ object GCDSpec extends ChiselUtestTester {
     }
   }
 }
-*/
