@@ -23,7 +23,7 @@ class  RiscvCpu extends Module{
     val exu = Module(new EXU())
 //pc   
     val PcRegOut = Wire(UInt(parm.PCWIDTH.W))
-    val instr = M(PcRegOut(parm.PCWIDTH,2))//因为M/4，所以PC要把低两位去掉
+    val instr = M(PcRegOut(parm.PCWIDTH-1,2))//因为M/4，所以PC要把低两位去掉
     //val PcReg = Module(new PC_REG()) 
     PcReg.io.pc_i := PcRegOut + "x4".U
     PcRegOut := PcReg.io.pc_o
