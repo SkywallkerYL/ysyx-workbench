@@ -23,4 +23,4 @@ image: $(IMAGE).elf
 
 run: image
 	echo "$(IMAGE)" 
-	@echo $(MAKE) -C $(NPC_HOME) test IMG=$(IMAGE).bin
+	$(MAKE) -C $(NPC_HOME) test IMG=$(IMAGE).bin

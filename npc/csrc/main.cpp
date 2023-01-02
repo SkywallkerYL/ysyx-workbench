@@ -70,8 +70,9 @@ void load_prog(const char *bin){
   FILE *fp = fopen(bin,"r");
   //assert(fp!=NULL);
   if(fp==NULL) {printf("No Image Input\n");return;} 
+  else printf("Read file %s\n",bin);
   fread(&top->rootp->RiscvCpu__DOT__M_ext__DOT__Memory,1,MSIZE,fp);
-  printf("HHH\n");
+  //printf("HHH\n");
   fclose(fp);
 }
 /*
@@ -90,7 +91,7 @@ void exuinstr(int pc){
 }
 */
 
-int main(int argc , char** argv, char** env) {
+int main(int argc , char* argv[]) {
   /*
   instr_mem[0] = 0b00000000000100000000000010010011;
   instr_mem[1] = 0b00000000001100000000000100010011;
@@ -101,12 +102,13 @@ int main(int argc , char** argv, char** env) {
   */
 	sim_init();
   reset(5);
-  //printf("%s\n",argv[1]);
+  printf("%s\n",argv[0]);
+  
   load_prog(argv[1]);
   //top->pc = 0x80000000;
   
-  
-  while (!top->io_halt)
+  int n = 20 ;
+  while (!top->io_halt&&n--)
   {
     clockntimes(1);
     //int pc = top->io_PcRegOut;

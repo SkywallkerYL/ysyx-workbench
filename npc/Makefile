@@ -111,6 +111,7 @@ all: default
 run: $(BIN)
 	#for nvboard
 	@$^
+IMG?=
 test: 
 	#for testbench        
 	@echo "---------------VERILATE------------------"
@@ -124,8 +125,9 @@ test:
 	# $(MAKE) -j -C obj_dir -f ../Makefile_obj
 
 	@echo "-------------------RUN-------------------"
-	./obj_dir/V$(TOPNAMETEST)
-	gtkwave wave.vcd
+	@echo $(IMG)
+	./obj_dir/V$(TOPNAMETEST) $(IMG)
+#gtkwave wave.vcd
 show-config:
 	$(VERILATOR) -V
 clean:
