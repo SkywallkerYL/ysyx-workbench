@@ -2,7 +2,7 @@ BUILD_DIR = ./build
 
 export PATH := $(PATH):$(abspath ./utils)
 
-milltest:
+test_mill:
 	mill -i __.test
 
 verilog:
@@ -111,7 +111,6 @@ all: default
 run: $(BIN)
 	#for nvboard
 	@$^
-IMG?=
 test: 
 	#for testbench        
 	@echo "---------------VERILATE------------------"
@@ -125,9 +124,8 @@ test:
 	# $(MAKE) -j -C obj_dir -f ../Makefile_obj
 
 	@echo "-------------------RUN-------------------"
-	@echo $(IMG)
-	./obj_dir/V$(TOPNAMETEST) $(IMG)
-#gtkwave wave.vcd
+	./obj_dir/V$(TOPNAMETEST)
+	gtkwave wave.vcd
 show-config:
 	$(VERILATOR) -V
 clean:

@@ -12,7 +12,8 @@ class  RiscvCpu extends Module{
         //val PcRegOut = Output(UInt(parm.PCWIDTH.W)) //根据pc_reg的out来取指
         //val res = Output(UInt(parm.REGWIDTH.W))
     })
-    val M = Mem(parm.MSIZE/4,UInt(parm.INSTWIDTH.W))
+    val
+    val instr 
     //chisel里变量还未命名好像不能直接用
     val PcReg = Module(new PC_REG()) 
     val IfU = Module(new IFU())
@@ -23,8 +24,6 @@ class  RiscvCpu extends Module{
     val exu = Module(new EXU())
 //pc   
     val PcRegOut = Wire(UInt(parm.PCWIDTH.W))
-    val instr = M(PcRegOut(parm.PCWIDTH-1,2))//因为M/4，所以PC要把低两位去掉
-    printf(p"instr=${Hexadecimal(instr)}\n")
     //val PcReg = Module(new PC_REG()) 
     PcReg.io.pc_i := PcRegOut + "x4".U
     PcRegOut := PcReg.io.pc_o
@@ -33,7 +32,7 @@ class  RiscvCpu extends Module{
     //val IfU = Module(new IFU())
 
     IfU.io.pc_i := PcRegOut
-    IfU.io.instr_i := instr
+    IfU.io.instr_i := io.instr
 //if_id
     //val If_Id = Module(new IF_ID())
 
@@ -80,8 +79,7 @@ class  RiscvCpu extends Module{
     exu.io.rdaddr_i := Id_Ex.io.rdaddr_o
     exu.io.rden_i := Id_Ex.io.rden_o
 
-//out
-    io.halt := Id.io.ebreak&&(Id.io.rs_data1===1.U)
+//
     //io.res := exu.io.expres
 
 }

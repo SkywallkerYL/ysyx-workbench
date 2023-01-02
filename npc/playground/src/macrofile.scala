@@ -8,12 +8,11 @@ object  parm{
     val CPUWIDTH    : Int = 64
     val REGWIDTH    : Int = 64
     val INSTWIDTH   : Int = 32
-    val PCWIDTH     : Int = 64
+    val PCWIDTH     : Int = 32
     val REGADDRWIDTH: Int = 5
     val RegNumber   : Int = 32
     val RegFileReadPorts: Int = 2
     val OPCODEWIDTH : Int = 7
-    val MSIZE : Int = 1024
     
 // initial value
     val INITIAL_PC : String = "x80000000"
