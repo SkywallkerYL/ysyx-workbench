@@ -23,13 +23,13 @@ class RegFile extends Module{
   }
   //生成出来的verilog文件似乎不会解决冲突的问题
   if(io.raddr1 == 0.U){
-      io.rdata1 := 0.U(parm.REGWIDTH)
+      io.rdata1 := 0.U(parm.REGWIDTH.W)
   }else if (io.raddr1 == io.waddr ){
       io.rdata1 := io.wdata
   }else io.rdata1 := reg(io.raddr1)
   
   if (io.raddr2 == 0.U){
-      io.rdata2 := 0.U(parm.REGWIDTH)
+      io.rdata2 := 0.U(parm.REGWIDTH.W)
   }else if (io.raddr2 == io.waddr ){
       io.rdata2 := io.wdata
   }else io.rdata2 := reg(io.raddr2)
