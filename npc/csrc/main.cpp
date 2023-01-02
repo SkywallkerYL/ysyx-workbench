@@ -8,7 +8,7 @@
 #include "verilated_vcd_c.h"
 #include "svdpi.h"
 #define instr_break 0b00000000000100000000000001110011
-
+#define MSIZE=1024
 
 VerilatedContext* contextp = NULL;
 VerilatedVcdC* tfp = NULL;
@@ -68,7 +68,8 @@ void reset(int n ){
 
 void load_prog(const char *bin){
   FILE *fp = fopen(bin,"r");
-
+  fread(&top->VL_MODULE->RiscvCpu__DOT__M_ext__DOT__Memory,1,MSIZE,fp);
+  fclose(fp);
 }
 int instr_mem[255];
 
@@ -77,7 +78,7 @@ void exuinstr(int pc){
 	//printf("mem_addr :%d\n",mem_addr);
   top-> clock   = 0;
   //top-> pc    = pc;
-  top-> io_instr = instr_mem[mem_addr];
+  //top-> io_instr = instr_mem[mem_addr];
   step_and_dump_wave();
   top->clock = 1;
   step_and_dump_wave();
@@ -102,9 +103,9 @@ int main(int argc , char** argv, char** env) {
   
   while (n > 0)
   {
-    int pc = top->io_PcRegOut;
+    //int pc = top->io_PcRegOut;
    //printf("n %d: pc %x \n",n,pc);
-    exuinstr(pc);
+    //exuinstr(pc);
     //top->pc = top->npc;
     //if (checkebreak()) break;
     n--;
