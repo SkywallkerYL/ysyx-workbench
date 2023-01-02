@@ -68,9 +68,12 @@ void reset(int n ){
 
 void load_prog(const char *bin){
   FILE *fp = fopen(bin,"r");
+  assert(fp!=NULL);
   fread(&top->VL_MODULE->RiscvCpu__DOT__M_ext__DOT__Memory,1,MSIZE,fp);
+  printf("HHH\n");
   fclose(fp);
 }
+/*
 int instr_mem[255];
 
 void exuinstr(int pc){
@@ -84,31 +87,30 @@ void exuinstr(int pc){
   step_and_dump_wave();
   //clockntimes(1);
 }
-
+*/
 
 int main(int argc , char** argv, char** env) {
+  /*
   instr_mem[0] = 0b00000000000100000000000010010011;
   instr_mem[1] = 0b00000000001100000000000100010011;
   instr_mem[2] = 0b00000000011100001000000100010011;
   instr_mem[3] = instr_break;
   instr_mem[4] = 0b00000000111100001000000100010011;
   instr_mem[5] = 0b00000001111100001000001100010011;
+  */
 	sim_init();
-	top->reset = 0b1;
-  clockntimes(4);
-  top->reset = 0b0;
+  reset(5);
   //top->pc = 0x80000000;
   
-  int n = 5;
   
-  while (n > 0)
+  while (!top->halt)
   {
+    clockntimes(1);
     //int pc = top->io_PcRegOut;
    //printf("n %d: pc %x \n",n,pc);
     //exuinstr(pc);
     //top->pc = top->npc;
     //if (checkebreak()) break;
-    n--;
   }
   
 	sim_exit();

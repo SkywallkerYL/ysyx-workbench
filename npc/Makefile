@@ -108,10 +108,10 @@ $(BIN) : $(VSRC) $(CSRC) $(NVBOARD_ARCHIVE)
 all: default
 
 
-run: $(BIN)
+run_nvboard: $(BIN)
 	#for nvboard
 	@$^
-test: 
+build: 
 	#for testbench        
 	@echo "---------------VERILATE------------------"
 	$(VERILATOR) $(VERILATOR_CFLAGS) $(CSRCT) $(VSRC)
@@ -122,10 +122,10 @@ test:
 
 	$(MAKE) -j -C obj_dir -f V$(TOPNAMETEST).mk V$(TOPNAMETEST)
 	# $(MAKE) -j -C obj_dir -f ../Makefile_obj
-
+run:
 	@echo "-------------------RUN-------------------"
-	./obj_dir/V$(TOPNAMETEST)
-	gtkwave wave.vcd
+	@echo ./obj_dir/V$(TOPNAMETEST) 
+#gtkwave wave.vcd
 show-config:
 	$(VERILATOR) -V
 clean:
