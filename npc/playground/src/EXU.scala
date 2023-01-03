@@ -90,7 +90,7 @@ class EXU extends Module{
   val AluRes = MuxLookup(op, src1+src2,Seq(
     OpType.ADD -> (src1+src2)
   ))
-  io.ex.rdata:= AluRes
+  io.ex.rddata:= AluRes
   /*
   switch(io.opcode_i){
     is(parm.INST_ADDI.U) {
