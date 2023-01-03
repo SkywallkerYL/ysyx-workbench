@@ -71,6 +71,7 @@ void load_prog(const char *bin){
   //assert(fp!=NULL);
   if(fp==NULL) {printf("No Image Input\n");return;} 
   else printf("Read file %s\n",bin);
+  fseek(fp,0,SEEK_SET);
   fread(&top->rootp->RiscvCpu__DOT__M_ext__DOT__Memory,1,MSIZE,fp);
   //printf("HHH\n");
   fclose(fp);
@@ -101,15 +102,18 @@ int main(int argc , char* argv[]) {
   instr_mem[5] = 0b00000001111100001000001100010011;
   */
 	sim_init();
-  reset(5);
-  printf("%s\n",argv[0]);
-  
+  //reset(5);
+  //printf("%s\n",argv[0]);
+  assert(argc >=2);
+  //先读文件，再reset，不然第一条指令始终是0
   load_prog(argv[1]);
+  reset(5);
   //top->pc = 0x80000000;
   
   int n = 20 ;
   while (!top->io_halt&&n--)
   {
+    printf("pc: %lx\n",top->rootp->RiscvCpu__DOT__PcReg__DOT__reg_0);
     clockntimes(1);
     //int pc = top->io_PcRegOut;
    //printf("n %d: pc %x \n",n,pc);
