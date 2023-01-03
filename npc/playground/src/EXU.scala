@@ -35,7 +35,7 @@ class EX extends Bundle{
     val alures = Output(UInt(parm.REGWIDTH.W))
     //val func3 = Output(UInt(3.W))
     //val opcode = Output(UInt(parm.OPCODEWIDTH.W))
-    //val rddata = 
+    val rddata = Output(UInt(parm.REGADDRWIDTH.W))
     val rdaddr = Output(UInt(parm.REGADDRWIDTH.W))
     val rden = Output(Bool())
 }
@@ -90,6 +90,7 @@ class EXU extends Module{
   val AluRes = MuxLookup(op, src1+src2,Seq(
     OpType.ADD -> (src1+src2)
   ))
+  io.ex.rdata:= AluRes
   /*
   switch(io.opcode_i){
     is(parm.INST_ADDI.U) {

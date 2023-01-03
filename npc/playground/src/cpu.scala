@@ -46,9 +46,9 @@ class  RiscvCpu extends Module{
     //val Regfile = Module(new RegFile)
     Regfile.io.raddr1 := Idu.io.rs_addr1
     Regfile.io.raddr2 := Idu.io.rs_addr2
-    Regfile.io.wen := exu.io.rden_o
-    Regfile.io.waddr := exu.io.rdaddr_o
-    Regfile.io.wdata := exu.io.rddata
+    Regfile.io.wen := exu.io.ex.rden
+    Regfile.io.waddr := exu.io.ex.rdaddr
+    Regfile.io.wdata := exu.io.ex.rddata
     //Regfile.io.
 //id
     //val Idu = Module(new IDU())
@@ -59,10 +59,10 @@ class  RiscvCpu extends Module{
     Idu.io.rs_data2 := Regfile.io.rdata2
 //ID_EX
     //val Id_Ex = Module(new ID_EX())
-    Idu.io.
+    //Idu.io.
     Id_Ex.io.pc_i := Idu.io.pc_o
     Id_Ex.io.instr_i := Idu.io.instr_o
-    Id_Ex.io.IDEX_i <> Idu.io.IDEX
+    Id_Ex.io.IDEX_i <> Idu.io.idex
    // Id_Ex.io.rs1_i := Id.io.rs1
    // Id_Ex.io.rs2_i := Id.io.rs2
    // Id_Ex.io.imm_i := Id.io.imm
