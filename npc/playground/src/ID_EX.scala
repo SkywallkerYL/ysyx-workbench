@@ -59,5 +59,5 @@ class ID_EX extends Module{
   io.rdaddr_o :=  RegNext(io.rdaddr_i,0.U(parm.REGADDRWIDTH.W))
   io.rden_o := RegNext(io.rden_i,0.B)
   */
-  IDEX_o :=  RegNext(io.IDEX_i,0.U.asTypeOf(new ID_EX))
+  io.IDEX_o :=  RegNext(io.IDEX_i,0.U.asTypeOf(new IDEX))
 }

@@ -67,9 +67,9 @@ class EXU extends Module{
   })
   io.pc_o := io.pc_i
   io.instr_o := io.instr_i
-  io.ex.rs2 := io.rs2_i
-  io.ex.rdaddr := io.rdaddr_i
-  io.ex.rden := io.rden_i
+  io.ex.rs2 := io.id.rs2
+  io.ex.rdaddr := io.id.rdaddr
+  io.ex.rden := io.id.rden
   //val alu = Module (new ALU(parm.REGWIDTH))
   //alu.io.func3 := io.func3_i 
   io.ex.alures := 0.U
@@ -81,12 +81,12 @@ class EXU extends Module{
 
   //src1 := 0.U
   //src2 := 0.U
-  io.rddata := 0.U
+  io.ex.rddata := 0.U
   /*-----------------------ALU---------------------*/
   val src1 = io.id.AluOp.rd1
   val src2 = io.id.AluOp.rd2
   val op = io.id.AluOp.op
-  val shamt = b(4,0)
+  val shamt = src2(4,0)
   val AluRes = MuxLookup(op, src1+src2,Seq(
     OpType.ADD -> (src1+src2)
   ))

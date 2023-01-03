@@ -63,7 +63,7 @@ class IDU extends Module{
             io.idex.AluOp.rd2 := I_imm
         }
         is(InstrType.R){
-            io.idex.imm := R_imm
+            //io.idex.imm := R_imm
             io.idex.AluOp.rd1 := io.rs_data1
             io.idex.AluOp.rd2 := io.rs_data2
         }
