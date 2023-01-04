@@ -35,6 +35,6 @@ class ebreakDPI extends BlackBox with HasBlackBoxInline{
 
 class ebreakfunc extends Module{
     val io = IO(new InOut)
-    val ebk = Module(new InOut)
+    val ebk = Module(new ebreakDPI)
     ebk.io <> io 
 }
