@@ -32,7 +32,7 @@ class IDU extends Module{
 
     io.instr_o := io.instr_i
     io.pc_o := io.pc_i
-    io.jal := 0.U
+    //io.jal := 0.U
     io.rs_addr1 := io.instr_i(19,15)
     io.rs_addr2 := io.instr_i(24,20)
     io.idex.rdaddr := io.instr_i(11,7)
