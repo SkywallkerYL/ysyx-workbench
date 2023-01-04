@@ -81,7 +81,7 @@ class IDU extends Module{
             io.idex.imm := J_imm
             io.idex.AluOp.rd1 := io.pc_i
             io.idex.AluOp.rd2 := 4.U
-            io.jal = 1.U
+            io.jal := 1.U
         }
     }
     io.ebreak := Mux(io.instr_i === "x00100073".U,1.B,0.B)
