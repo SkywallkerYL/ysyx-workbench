@@ -39,12 +39,13 @@ class  RiscvCpu extends Module{
 
     IfU.io.pc_i := PcRegOut
     IfU.io.instr_i := instr
-    IfU.io.nop := Idu.io.jal =/= 0.U
+    
 //if_id
     //val If_Id = Module(new IF_ID())
 
     If_Id.io.ifpc := IfU.io.pc_o
     If_Id.io.ifinstr := IfU.io.instr_o
+    If_Id.io.nop := Idu.io.jal =/= 0.U
 // regfile
 
     //val Regfile = Module(new RegFile)
