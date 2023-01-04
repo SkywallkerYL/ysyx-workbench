@@ -48,8 +48,16 @@ class ID_EX extends Module{
     //val rdaddr_o = Output(UInt(parm.REGADDRWIDTH.W))
     //val rden_o = Output(Bool())
   })
-  io.pc_o := RegNext(io.pc_i,parm.INITIAL_PC.U(parm.PCWIDTH.W))
-  io.instr_o := RegNext(io.instr_i,0.U(parm.INSTWIDTH.W))
+  if(parm.pip){
+      io.pc_o := RegNext(io.pc_i,parm.INITIAL_PC.U(parm.PCWIDTH.W))
+      io.instr_o := RegNext(io.instr_i,0.U(parm.INSTWIDTH.W))
+      io.IDEX_o :=  RegNext(io.IDEX_i,0.U.asTypeOf(new IDEX))
+  }
+  else {
+      io.pc_o := io.pc_i
+      io.instr_o := io.instr_i
+      io.IDEX_o :=  io.IDEX_i
+  }
   /*
   io.rs1_o :=  RegNext(io.rs1_i,0.U(parm.REGWIDTH.W))
   io.rs2_o :=  RegNext(io.rs2_i,0.U(parm.REGWIDTH.W))
@@ -59,5 +67,5 @@ class ID_EX extends Module{
   io.rdaddr_o :=  RegNext(io.rdaddr_i,0.U(parm.REGADDRWIDTH.W))
   io.rden_o := RegNext(io.rden_i,0.B)
   */
-  io.IDEX_o :=  RegNext(io.IDEX_i,0.U.asTypeOf(new IDEX))
+  
 }

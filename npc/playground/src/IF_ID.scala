@@ -12,8 +12,12 @@ class IF_ID extends Module{
     val idpc = Output(UInt(parm.PCWIDTH.W))
     val idinstr =  Output(UInt(parm.INSTWIDTH.W))
   })
-  val regpc = RegNext(io.ifpc,parm.INITIAL_PC.U(parm.PCWIDTH.W))
-  io.idpc := regpc
-  val reginstr = RegNext(io.ifinstr,0.U(parm.INSTWIDTH.W))
-  io.idinstr := reginstr
+  if(parm.pip){
+    io.idpc := RegNext(io.ifpc,parm.INITIAL_PC.U(parm.PCWIDTH.W))
+    io.idinstr := RegNext(io.ifinstr,0.U(parm.INSTWIDTH.W))
+  }
+  else {
+    io.idpc := io.ifpc
+    io.idinstr := io.ifinstr
+  }
 }

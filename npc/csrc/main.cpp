@@ -113,7 +113,7 @@ int main(int argc , char* argv[]) {
   int n = 20 ;
   while (!top->io_halt&&n--)
   {
-    printf("pc: %lx\n",top->rootp->RiscvCpu__DOT__PcReg__DOT__reg_0);
+    //printf("pc: %lx\n",top->rootp->RiscvCpu__DOT__PcReg__DOT__reg_0);
     clockntimes(1);
     //int pc = top->io_PcRegOut;
    //printf("n %d: pc %x \n",n,pc);

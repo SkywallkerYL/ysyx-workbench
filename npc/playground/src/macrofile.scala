@@ -18,10 +18,8 @@ object  parm{
 // initial value
     val INITIAL_PC : String = "x80000000"
 
-//INSTROCTION 
-    val INST_LUI : String =  "b0110111"
-    val INST_ADDI: String =  "b0010011"
-    val INST_EBREAK: String = "b1110011"
+//pip 
+    val pip : Bool = 1
 
 }
 
