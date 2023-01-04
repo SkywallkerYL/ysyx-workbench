@@ -129,7 +129,7 @@ run:
 	@echo "-------------------RUN-------------------"
 	@echo $(IMG)
 	./obj_dir/V$(TOPNAMETEST) $(IMG)
-#gtkwave wave.vcd
+	gtkwave wave.vcd
 show-config:
 	$(VERILATOR) -V
 clean:
