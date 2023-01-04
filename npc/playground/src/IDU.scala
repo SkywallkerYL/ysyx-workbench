@@ -59,7 +59,7 @@ class IDU extends Module{
     val InstType = DecodeRes(InstrTable.InstrT)
     io.idex.AluOp.op := DecodeRes(InstrTable.OpT)
     switch(InstType){
-        is(InstrType.I){.0
+        is(InstrType.I){
             io.idex.imm := I_imm
             io.idex.AluOp.rd1 := io.rs_data1
             io.idex.AluOp.rd2 := I_imm
