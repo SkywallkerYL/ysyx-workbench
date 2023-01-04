@@ -18,8 +18,8 @@ class NPCMUX extends Module{
   val jalpc  = io.IdPc + io.imm.asUInt
   val jalrpc = (io.imm.asUInt + io.rs1)&(~1.U(parm.REGWIDTH.W))
   val jumppc = MuxCase(pc_4,Array(
-    (io.jal === 1.U).B -> jalpc,
-    (io.jal === 2.U).B -> jalrpc
+    (io.jal === 1.U) -> jalpc,
+    (io.jal === 2.U) -> jalrpc
   ))
   io.NOP := io.jal=/=0.U
   io.NPC := Mux(io.NOP,jumppc,pc_4)
