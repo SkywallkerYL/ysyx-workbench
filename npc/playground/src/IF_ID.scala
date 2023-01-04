@@ -19,8 +19,8 @@ class IF_ID extends Module{
   val instrin = Mux(io.nop,io.ifinstr,io.ifinstr)
   if(parm.pip){
 
-    io.idpc := RegNext(io.ifpc,parm.INITIAL_PC.U(parm.PCWIDTH.W))
-    io.idinstr := RegNext(io.ifinstr,0.U(parm.INSTWIDTH.W))
+    io.idpc := RegNext(pcin,parm.INITIAL_PC.U(parm.PCWIDTH.W))
+    io.idinstr := RegNext(instrin,0.U(parm.INSTWIDTH.W))
   }
   else {
     io.idpc := pcin
