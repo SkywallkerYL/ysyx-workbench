@@ -74,7 +74,10 @@ void initial_default_img(){
   instr_mem[3] = instr_break;
   instr_mem[4] = 0b00000000111100001000000100010011;
   instr_mem[5] = 0b00000001111100001000001100010011;
-  uint* p = &top->rootp->RiscvCpu__DOT__M_ext__DOT__Memory[0];
+  //chisel不同模式下生成的Mem的名字不一样，一个不行的时候换另一个
+  //RiscvCpu__DOT__M
+  //RiscvCpu__DOT__M_ext__DOT__Memory
+  uint* p = &top->rootp->RiscvCpu__DOT__M[0];
   for (size_t i = 0; i < 6; i++)
   {
     *p = instr_mem[i];
@@ -89,7 +92,7 @@ void load_prog(const char *bin){
   if(fp==NULL) {printf("No Image Input\n");return;} 
   else printf("Read file %s\n",bin);
   fseek(fp,0,SEEK_SET);
-  fread(&top->rootp->RiscvCpu__DOT__M_ext__DOT__Memory,1,MSIZE,fp);
+  if(fread(&top->rootp->RiscvCpu__DOT__M,1,MSIZE,fp)==0) return;
   //printf("HHH\n");
   fclose(fp);
 }

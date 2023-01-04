@@ -97,6 +97,8 @@ INCFLAGS = $(addprefix -I, $(INC_PATH))
 CFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""
 LDFLAGS += -lSDL2 -lSDL2_image
 
+IMG?=
+
 	
 $(BIN) : $(VSRC) $(CSRC) $(NVBOARD_ARCHIVE)
 	@rm -rf $(OBJ_DIR)
@@ -111,11 +113,8 @@ all: default
 run: $(BIN)
 	#for nvboard
 	@$^
-IMG?=
+
 test: 
-	@echo "------------Generate Verilog-------------"
-#mkdir -p $(BUILD_DIR)
-#	mill -i __.test.runMain npc.Elaborate -td $(BUILD_DIR)
 	#for testbench        
 	@echo "---------------VERILATE------------------"
 	$(VERILATOR) $(VERILATOR_CFLAGS) $(CSRCT) $(VSRC)
