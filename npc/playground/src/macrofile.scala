@@ -19,7 +19,7 @@ object  parm{
     val INITIAL_PC : String = "x80000000"
 
 //pip 
-    val pip : Boolean = 1
+    val pip : Boolean = true
 
 }
 
