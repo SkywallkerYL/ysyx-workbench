@@ -25,7 +25,7 @@ class  RiscvCpu extends Module{
 //pc   
     val PcRegOut = Wire(UInt(parm.PCWIDTH.W))
     //val addr  = (PcRegOut-parm.INITIAL_PC.U)>>2
-    val instr = M((PcRegOut-parm.INITIAL_PC.U)>>2)//因为M/4，所以PC要把低两位去掉
+    val instr = M((PcRegOut(parm.PCWIDTH-1,2))//因为M/4，所以PC要把低两位去掉
     //printf(p"addr=${addr} instr=0x${Hexadecimal(M(addr))} \n")
     printf(p"pc=0x${Hexadecimal(PcRegOut)} instr=0x${Hexadecimal(instr)}\n")
     NpcMux.io.jal := Idu.io.jal
