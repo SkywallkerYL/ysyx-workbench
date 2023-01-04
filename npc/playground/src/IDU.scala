@@ -63,6 +63,13 @@ class IDU extends Module{
             io.idex.imm := I_imm
             io.idex.AluOp.rd1 := io.rs_data1
             io.idex.AluOp.rd2 := I_imm
+            when(DecodeRes(InstrTable.OpT) === OpType.JALR)
+            {
+                io.idex.AluOp.rd1 := io.pc_i
+                io.idex.AluOp.rd2 := 4.U
+                io.idex.AluOp.op  := OpType.ADD
+                io.jal := 2.U
+            }
         }
         is(InstrType.R){
             //io.idex.imm := R_imm
@@ -81,8 +88,14 @@ class IDU extends Module{
             io.idex.imm := J_imm
             io.idex.AluOp.rd1 := io.pc_i
             io.idex.AluOp.rd2 := 4.U
-            
+            io.idex.AluOp.op  := OpType.ADD
             io.jal := 1.U
+        }
+        is (InstrType.S){
+            io.idex.imm := S_imm
+            io.idex.AluOp.rd1 := io.rs_data1
+            io.idex.AluOp.rd2 := S_imm.asUInt
+            
         }
     }
     io.ebreak := Mux(io.instr_i === "x00100073".U,1.B,0.B)

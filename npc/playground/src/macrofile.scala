@@ -28,7 +28,7 @@ object  parm{
 object RV64IInstr {
     //I
     def ADDI   = BitPat("b???????_?????_?????_000_?????_0011011")
-
+    def JALR   = BitPat("b???????_?????_?????_000_?????_1100111")
 
 
 
@@ -38,6 +38,9 @@ object RV64IInstr {
     def LUI    = BitPat("b???????_?????_?????_???_?????_0110111")
     //J
     def JAL    = BitPat("b???????_?????_?????_???_?????_1101111")
+    //S
+    def SD     = BitPat("b???????_?????_?????_011_?????_0100011")
+    
 }
 
 object InstrType{
@@ -54,7 +57,8 @@ object InstrType{
 //这个op是决定ALU的操作
 object  OpType{
     val OPINUMWIDTH = 6
-    val ADD = 0.U(OPINUMWIDTH.W)
+    val ADD  = 0.U(OPINUMWIDTH.W)
+    val JALR = 10.U(OPINUMWIDTH.W)
 }
 //这个对操作数进行具体的区分 以便决定操作数
 object  OpUType{
@@ -65,7 +69,12 @@ object  OpUType{
 object  OpJType{
     val OPJNUMWIDTH = 2
     val JAL     = 1.U(OPJNUMWIDTH.W)
-    val JALR    = 2.U(OPJNUMWIDTH.W)
+    //val JALR    = 2.U(OPJNUMWIDTH.W)
+}
+object  OpSType{
+    val OPSNUMWIDTH = 4
+    val SD     = 0.U(OPSNUMWIDTH.W)
+    //val JALR    = 2.U(OPSNUMWIDTH.W)
 }
 //val map =ListLookup(inst,InstrTable.Default,InstrTable.InstrMap)
 //val instrtype = map(0)
@@ -73,13 +82,17 @@ object  OpJType{
 object InstrTable{
     val Default = List(InstrType.BAD,OpType.ADD)
     val InstrMap = Array(
+        //I
         RV64IInstr.ADDI     -> List(InstrType.I,OpType.ADD),
         RV64IInstr.EBREAK   -> List(InstrType.I,OpType.ADD),
-
+        RV64IInstr.JALR     -> List(InstrType.I,OpType.JALR),
+        //U
         RV64IInstr.AUIPC    -> List(InstrType.U,OpUType.AUIPC),
         RV64IInstr.LUI      -> List(InstrType.U,OpUType.LUI),
-
+        //J
         RV64IInstr.JAL      -> List(InstrType.J,OpJType.JAL),
+        //S
+        RV64IInstr.SD       -> List(InstrType.J,OpSType.SD)
     )
     val InstrT = 0
     val OpT = 1

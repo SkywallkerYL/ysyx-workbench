@@ -32,6 +32,7 @@ class  RiscvCpu extends Module{
     NpcMux.io.PcRegPc := PcReg.io.pc_o
     NpcMux.io.IdPc := Idu.io.pc_o
     NpcMux.io.imm := Idu.io.idex.imm
+    NpcMux.io.rs1 := Idu.io.idex.rs1
     PcReg.io.pc_i := NpcMux.io.NPC
     PcRegOut := PcReg.io.pc_o
 //ifu

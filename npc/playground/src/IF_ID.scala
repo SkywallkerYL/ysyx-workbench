@@ -22,6 +22,9 @@ class IF_ID extends Module{
     io.idinstr := RegNext(instrin,0.U(parm.INSTWIDTH.W))
   }
   else {
+    //单周期的时候不要在这里引入MUX，即调用nop信号，否则会导致combinational loop
+    //因为此时IF_ID 和IFU模块一起组成了组合逻辑，而nop信号来自idu模块通过组合逻辑计算，其本身也是组合逻辑
+    //这样子就会有loop 而且单周期也不需要调用
     val pcin = io.ifpc
     val instrin = io.ifinstr
     io.idpc := pcin
