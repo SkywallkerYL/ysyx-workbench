@@ -16,11 +16,11 @@ class IF_ID extends Module{
   //由于中途会有pc跳转，如果这一级是流水线的话，那么会导致后面一条指令被执行，因此
   //这里要根据NOP指令来决定是否刷新
   if(parm.pip){
-    io.idpc :=Mux(io.nop,RegNext(parm.INITIAL_PC.U,parm.INITIAL_PC.U(parm.PCWIDTH.W)),RegNext(io.ifpc,parm.INITIAL_PC.U(parm.PCWIDTH.W)))
-    io.idinstr := Mux(io.nop,RegNext(0.U,0.U(parm.INSTWIDTH.W)),RegNext(io.ifinstr,0.U(parm.INSTWIDTH.W)))
+    io.idpc := RegNext(io.ifpc,parm.INITIAL_PC.U(parm.PCWIDTH.W))
+    io.idinstr := RegNext(io.ifinstr,0.U(parm.INSTWIDTH.W))
   }
   else {
-    io.idpc := Mux(io.nop,parm.INITIAL_PC.U,io.ifpc)
-    io.idinstr := Mux(io.nop,0.U,io.ifinstr)
+    io.idpc := io.ifpc
+    io.idinstr := io.ifinstr
   }
 }
