@@ -32,7 +32,6 @@ class  RiscvCpu extends Module{
     NpcMux.io.PcRegPc := PcRegOut
     NpcMux.io.IdPc := Idu.io.pc_o
     NpcMux.io.imm := Idu.io.idex.imm
-    NpcMux.io.nop := Idu.io.jal =/= 0.U
     PcReg.io.pc_i := NpcMux.io.NPC
     PcRegOut := PcReg.io.pc_o
 //ifu
@@ -40,6 +39,7 @@ class  RiscvCpu extends Module{
 
     IfU.io.pc_i := PcRegOut
     IfU.io.instr_i := instr
+    IfU.io.nop := Idu.io.jal =/= 0.U
 //if_id
     //val If_Id = Module(new IF_ID())
 
