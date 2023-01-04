@@ -110,11 +110,11 @@ $(BIN) : $(VSRC) $(CSRC) $(NVBOARD_ARCHIVE)
 all: default
 
 
-run: $(BIN)
+runnvboard: $(BIN)
 	#for nvboard
 	@$^
 
-test: 
+run: 
 	#for testbench        
 	@echo "---------------VERILATE------------------"
 	$(VERILATOR) $(VERILATOR_CFLAGS) $(CSRCT) $(VSRC)
