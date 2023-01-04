@@ -97,6 +97,8 @@ INCFLAGS = $(addprefix -I, $(INC_PATH))
 CFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""
 LDFLAGS += -lSDL2 -lSDL2_image
 
+IMG?=
+
 	
 $(BIN) : $(VSRC) $(CSRC) $(NVBOARD_ARCHIVE)
 	@rm -rf $(OBJ_DIR)
@@ -108,14 +110,11 @@ $(BIN) : $(VSRC) $(CSRC) $(NVBOARD_ARCHIVE)
 all: default
 
 
-run: $(BIN)
+runnvboard: $(BIN)
 	#for nvboard
 	@$^
-IMG?=
-test: 
-	@echo "------------Generate Verilog-------------"
-	mkdir -p $(BUILD_DIR)
-	mill -i __.test.runMain npc.Elaborate -td $(BUILD_DIR)
+
+run: 
 	#for testbench        
 	@echo "---------------VERILATE------------------"
 	$(VERILATOR) $(VERILATOR_CFLAGS) $(CSRCT) $(VSRC)
@@ -130,7 +129,7 @@ test:
 	@echo "-------------------RUN-------------------"
 	@echo $(IMG)
 	./obj_dir/V$(TOPNAMETEST) $(IMG)
-#gtkwave wave.vcd
+	gtkwave wave.vcd
 show-config:
 	$(VERILATOR) -V
 clean:
