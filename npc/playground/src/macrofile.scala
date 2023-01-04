@@ -64,8 +64,8 @@ object  OpUType{
 }
 object  OpJType{
     val OPJNUMWIDTH = 2
-    val JAL     = 1.U(OPUNUMWIDTH.W)
-    val JALR    = 2.U(OPUNUMWIDTH.W)
+    val JAL     = 1.U(OPJNUMWIDTH.W)
+    val JALR    = 2.U(OPJNUMWIDTH.W)
 }
 //val map =ListLookup(inst,InstrTable.Default,InstrTable.InstrMap)
 //val instrtype = map(0)
