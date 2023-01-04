@@ -16,7 +16,7 @@ class IF_ID extends Module{
   //由于中途会有pc跳转，如果这一级是流水线的话，那么会导致后面一条指令被执行，因此
   //这里要根据NOP指令来决定是否刷新
   val pcin = Mux(io.nop,parm.INITIAL_PC.U,io.ifpc)
-  val instrin = Mux(io.nop,parm.INITIAL_INST.U,io.ifinstr)
+  val instrin = Mux(io.nop,io.ifinstr,io.ifinstr)
   if(parm.pip){
 
     io.idpc := RegNext(io.ifpc,parm.INITIAL_PC.U(parm.PCWIDTH.W))
