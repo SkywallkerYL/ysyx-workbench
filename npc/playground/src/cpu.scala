@@ -15,6 +15,7 @@ class  RiscvCpu extends Module{
     val M = Mem(parm.MSIZE/4,UInt(parm.INSTWIDTH.W))
     //chisel里变量还未命名好像不能直接用
     val PcReg = Module(new PC_REG()) 
+    val NpcMux = Module(new NPCMUX())
     val IfU = Module(new IFU())
     val If_Id = Module(new IF_ID())
     val Regfile = Module(new RegFile)
@@ -27,10 +28,12 @@ class  RiscvCpu extends Module{
     val instr = M((PcRegOut-parm.INITIAL_PC.U)>>2)//因为M/4，所以PC要把低两位去掉
     //printf(p"addr=${addr} instr=0x${Hexadecimal(M(addr))} \n")
     printf(p"pc=0x${Hexadecimal(PcRegOut)} instr=0x${Hexadecimal(instr)}\n")
-    //val PcReg = Module(new PC_REG()) 
-    PcReg.io.pc_i := PcRegOut + "x4".U
+    NpcMux.io.jal := Idu.io.jal
+    NpcMux.io.PcRegPc := PcRegOut
+    NpcMux.io.IdPc := Idu.io.pc_o
+    NpcMux.io.imm := Idu.io.idex.imm
+    PcReg.io.pc_i := NpcMux.io.NPC
     PcRegOut := PcReg.io.pc_o
-    //io.PcRegOut := PcRegOut
 //ifu
     //val IfU = Module(new IFU())
 

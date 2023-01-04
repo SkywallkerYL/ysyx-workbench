@@ -27,10 +27,12 @@ class IDU extends Module{
     //val func3 = Output(UInt(3.W))
     //val func7 = Output(UInt(7.W))
     val ebreak = Output(Bool())
+    val jal    = Output(UInt(OpJType.OPJNUMWIDTH.W))
   })
 
     io.instr_o := io.instr_i
     io.pc_o := io.pc_i
+    io.jal := 0.U
     io.rs_addr1 := io.instr_i(19,15)
     io.rs_addr2 := io.instr_i(24,20)
     io.idex.rdaddr := io.instr_i(11,7)
@@ -48,7 +50,7 @@ class IDU extends Module{
     val B_imm = Fill((parm.REGWIDTH-12),sign) ## io.instr_i(7) ## io.instr_i(30,25) ## io.instr_i(11,8) ##0.U
     val S_imm = Fill((parm.REGWIDTH-12),sign) ## io.instr_i(31,25) ## io.instr_i(11,7)
 
-
+    //default
     io.idex.AluOp.rd1 := 0.U
     io.idex.AluOp.rd2 := 0.U
     io.idex.AluOp.op  := 0.U
@@ -57,7 +59,7 @@ class IDU extends Module{
     val InstType = DecodeRes(InstrTable.InstrT)
     io.idex.AluOp.op := DecodeRes(InstrTable.OpT)
     switch(InstType){
-        is(InstrType.I){
+        is(InstrType.I){.0
             io.idex.imm := I_imm
             io.idex.AluOp.rd1 := io.rs_data1
             io.idex.AluOp.rd2 := I_imm
@@ -67,29 +69,22 @@ class IDU extends Module{
             io.idex.AluOp.rd1 := io.rs_data1
             io.idex.AluOp.rd2 := io.rs_data2
         }
+        is(InstrType.U){
+            io.idex.imm := U_imm
+            io.idex.AluOp.rd1 := U_imm
+            val Uty = DecodeRes(InstrTable.OpT)
+            // 0->lui->0.U  1->auipc->pc
+            io.idex.AluOp.rd2 := Mux(Uty(0),io.pc_i,0.U)
+            io.idex.AluOp.op := OpType.ADD
+        }
+        is(InstrType.J){
+            io.idex.imm := J_imm
+            io.idex.AluOp.rd1 := io.pc_i
+            io.idex.AluOp.rd2 := 4.U
+            io.jal = 1.U
+        }
     }
-    /*
-    io.idex.imm := MuxCase(0.U,
-    Array(
-        (io.opcode===parm.INST_ADDI.U) -> I_imm,
-        (io.opcode===parm.INST_EBREAK.U) -> I_imm
-    ))
-    */
     io.ebreak := Mux(io.instr_i === "x00100073".U,1.B,0.B)
+    
 
-    /*
-    class function_Verilog extends BlackBox with HasBlackBoxInline{
-        setInline("IDU.v", 
-            """
-            |   export "DPI-C" function ebreakflag;
-            |   function  ebreakflag ;
-            |	    ebreakflag = ex_ebreak;
-            |   endfunction
-            |
-            """.stripMargin
-        )
-    }
-    */
-    //val func_verilog = Module(new function_Verilog)
-    //emitVerilog(Module(new function_Verilog()), Array("--target-dir", "vsrc"))
 }
