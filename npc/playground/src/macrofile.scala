@@ -76,10 +76,10 @@ object InstrTable{
         RV64IInstr.ADDI     -> List(InstrType.I,OpType.ADD),
         RV64IInstr.EBREAK   -> List(InstrType.I,OpType.ADD),
 
-        RV64IInstr.AUIPC    -> List(InstrType.U,OpJType.AUIPC),
-        RV64IInstr.LUI      -> List(InstrType.U,OpJType.LUI),
+        RV64IInstr.AUIPC    -> List(InstrType.U,OpUType.AUIPC),
+        RV64IInstr.LUI      -> List(InstrType.U,OpUType.LUI),
 
-        RV64IInstr.JAL      -> List(InstrType.J,OpUType.JAL),
+        RV64IInstr.JAL      -> List(InstrType.J,OpJType.JAL),
     )
     val InstrT = 0
     val OpT = 1
