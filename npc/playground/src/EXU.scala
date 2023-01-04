@@ -35,7 +35,7 @@ class EX extends Bundle{
     val alures = Output(UInt(parm.REGWIDTH.W))
     //val func3 = Output(UInt(3.W))
     //val opcode = Output(UInt(parm.OPCODEWIDTH.W))
-    val rddata = Output(UInt(parm.REGADDRWIDTH.W))
+    val rddata = Output(UInt(parm.REGWIDTH.W))
     val rdaddr = Output(UInt(parm.REGADDRWIDTH.W))
     val rden = Output(Bool())
 }
