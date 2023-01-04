@@ -7,8 +7,8 @@ import chisel3.BlackBox
 import chisel3.experimental._ 
 
 class InOut extends Bundle{
-    val a = Input(Bool(1.W))
-    val b = Output(Bool(1.W))
+    val a = Input(Bool())
+    val b = Output(Bool())
 }
 
 class ebreakDPI extends BlackBox with HasBlackBoxInline{
