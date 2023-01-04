@@ -58,7 +58,6 @@ class IDU extends Module{
     val DecodeRes = ListLookup(io.instr_i,InstrTable.Default,InstrTable.InstrMap)
     val InstType = DecodeRes(InstrTable.InstrT)
     io.idex.AluOp.op := DecodeRes(InstrTable.OpT)
-    io.jal := io.idex.AluOp.op 
     switch(InstType){
         is(InstrType.I){
             io.idex.imm := I_imm
@@ -82,7 +81,8 @@ class IDU extends Module{
             io.idex.imm := J_imm
             io.idex.AluOp.rd1 := io.pc_i
             io.idex.AluOp.rd2 := 4.U
-            //io.jal := 1.U
+            
+            io.jal := 1.U
         }
     }
     io.ebreak := Mux(io.instr_i === "x00100073".U,1.B,0.B)

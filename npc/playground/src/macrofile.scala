@@ -19,7 +19,7 @@ object  parm{
     val INITIAL_PC  : String = "x80000000"
     val INITIAL_INST: String = "x00000000"
 //pip 
-    val pip : Boolean = false
+    val pip : Boolean = true
 
 }
 //每一次添加一条新的指令，需要在这里添加指令，Table内添加匹配规则,然后在IDU和EXU内实现
