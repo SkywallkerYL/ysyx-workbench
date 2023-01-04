@@ -75,7 +75,7 @@ class IDU extends Module{
         (io.opcode===parm.INST_EBREAK.U) -> I_imm
     ))
     */
-    io.ebreak := Mux(io.instr_i === "x00100037".U,1.B,0.B)
+    io.ebreak := Mux(io.instr_i === "x00100073".U,1.B,0.B)
 
     /*
     class function_Verilog extends BlackBox with HasBlackBoxInline{

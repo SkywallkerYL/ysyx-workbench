@@ -114,8 +114,8 @@ run: $(BIN)
 IMG?=
 test: 
 	@echo "------------Generate Verilog-------------"
-	mkdir -p $(BUILD_DIR)
-	mill -i __.test.runMain npc.Elaborate -td $(BUILD_DIR)
+#mkdir -p $(BUILD_DIR)
+#	mill -i __.test.runMain npc.Elaborate -td $(BUILD_DIR)
 	#for testbench        
 	@echo "---------------VERILATE------------------"
 	$(VERILATOR) $(VERILATOR_CFLAGS) $(CSRCT) $(VSRC)
