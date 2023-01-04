@@ -23,6 +23,6 @@ class IF_ID extends Module{
   }
   else {
     io.idpc := Mux(io.nop,parm.INITIAL_PC.U,io.ifpc)
-    io.idinstr := io.ifinstr
+    io.idinstr := Mux(io.nop,parm.INITIAL_INST.U,io.ifinstr)
   }
 }

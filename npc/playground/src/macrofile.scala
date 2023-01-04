@@ -16,8 +16,8 @@ object  parm{
     val MSIZE : Int = 1024
     
 // initial value
-    val INITIAL_PC : String = "x80000000"
-
+    val INITIAL_PC  : String = "x80000000"
+    val INITIAL_INST: String = "x00000000"
 //pip 
     val pip : Boolean = false
 
