@@ -122,8 +122,7 @@ int main(int argc , char* argv[]) {
   reset(5);
   //top->pc = 0x80000000;
   
-  int n = 20 ;
-  while (!top->io_halt&&n--)
+  while (!top->io_halt)
   {
     //printf("pc: %lx\n",top->rootp->RiscvCpu__DOT__PcReg__DOT__reg_0);
     clockntimes(1);
