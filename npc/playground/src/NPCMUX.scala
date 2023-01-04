@@ -9,6 +9,7 @@ class NPCMUX extends Module{
         val PcRegPc = Input(UInt(parm.PCWIDTH.W))
         val IdPc    = Input(UInt(parm.PCWIDTH.W))
         val imm = Input(UInt(parm.REGWIDTH.W))
+        
         val NPC = Output(UInt(parm.PCWIDTH.W))
         val NOP = Output(Bool())
   })

@@ -29,15 +29,15 @@ class  RiscvCpu extends Module{
     //printf(p"addr=${addr} instr=0x${Hexadecimal(M(addr))} \n")
     printf(p"pc=0x${Hexadecimal(PcRegOut)} instr=0x${Hexadecimal(instr)}\n")
     NpcMux.io.jal := Idu.io.jal
-    NpcMux.io.PcRegPc := PcRegOut
+    NpcMux.io.PcRegPc := PcReg.io.pc_o
     NpcMux.io.IdPc := Idu.io.pc_o
     NpcMux.io.imm := Idu.io.idex.imm
     PcReg.io.pc_i := NpcMux.io.NPC
-    PcRegOut := PcReg.io.pc_o
+    //PcRegOut := PcReg.io.pc_o
 //ifu
     //val IfU = Module(new IFU())
 
-    IfU.io.pc_i := PcRegOut
+    IfU.io.pc_i := PcReg.io.pc_o
     IfU.io.instr_i := instr
     
 //if_id
