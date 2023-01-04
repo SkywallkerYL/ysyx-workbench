@@ -39,6 +39,7 @@ void sim_exit(){
 
 bool checkebreak ()
 {
+  //这里的scpoe是调用函数位置的模块的名字
   const svScope scope = svGetScopeFromName("TOP.RiscvCpu.ebrdpi");
   assert(scope);
   svSetScope(scope);
