@@ -45,7 +45,7 @@ class  RiscvCpu extends Module{
 
     If_Id.io.ifpc := IfU.io.pc_o
     If_Id.io.ifinstr := IfU.io.instr_o
-    If_Id.io.nop := Idu.io.jal =/= 0.U
+    If_Id.io.nop := NpcMux.io.NOP
 // regfile
 
     //val Regfile = Module(new RegFile)
