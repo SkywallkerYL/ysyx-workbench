@@ -21,8 +21,8 @@ class RegFile extends Module{
   if(parm.DPI){
     val regdpi = Module(new regDPI)
     regdpi.io.a := reg(1)
-    regdpi.io.clock := io.clock
-    regdpi.io.reset := io.reset
+    //regdpi.io.clock := io.clock
+    //regdpi.io.reset := io.reset
     printf(p"reg(1)=${(regdpi.io.b)} \n")
   }
   when (io.wen){
