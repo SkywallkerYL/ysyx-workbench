@@ -1,12 +1,24 @@
-#include <readline/readline.h>
-#include <readline/history.h>
+#ifndef NPCSDB
+#define NPCSDB
+//#include <readline/readline.h>
+//#include <readline/history.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <iostream>
+#include <string>
 #include "npc-exec.h"
+using namespace std;
 
-#define NR_CMD ARRLEN(cmd_table)
 
+string mygetline(){
+    //printf("in mygetline\n");
+    string line ;
+    getline(cin,line);
+    //printf("line_length:%ld\n",line.length());
 
+    return line;
+}
+/*
 static char* rl_gets() {
   static char *line_read = NULL;
 
@@ -23,6 +35,9 @@ static char* rl_gets() {
 
   return line_read;
 }
+*/
+static int cmd_help(char *args);
+
 
 static int cmd_si(char *args){
   //最多只能執行四步，因爲img 只有4個
@@ -48,6 +63,7 @@ static int cmd_c(char *args) {
   return 0;
 }
 
+
 static struct {
   const char *name;
   const char *description;
@@ -67,6 +83,30 @@ static struct {
 
 };
 
+#define NR_CMD ARRLEN(cmd_table)
+
+static int cmd_help(char *args) {
+  /* extract the first argument */
+  char *arg = strtok(NULL, " ");
+  int i;
+
+  if (arg == NULL) {
+    /* no argument given */
+    for (i = 0; i < NR_CMD; i ++) {
+      printf("%s - %s\n", cmd_table[i].name, cmd_table[i].description);
+    }
+  }
+  else {
+    for (i = 0; i < NR_CMD; i ++) {
+      if (strcmp(arg, cmd_table[i].name) == 0) {
+        printf("%s - %s\n", cmd_table[i].name, cmd_table[i].description);
+        return 0;
+      }
+    }
+    printf("Unknown command '%s'\n", arg);
+  }
+  return 0;
+}
 
 static bool is_batch_mode = false;
 
@@ -80,10 +120,14 @@ void sdb_mainloop() {
     cmd_c(NULL);
     return;
   }
-
-  for (char *str; (str = rl_gets()) != NULL; ) {
+  //printf("hhhh\n");
+  for (string strcin=mygetline(); strcin.length()!= 0; ) {
+   // printf("hjhhhh:%d\n",strcin.length());
+    char str[20];
+    strcpy(str,strcin.c_str());
+   // printf("hjhhhh\n");
     char *str_end = str + strlen(str);
-
+   // printf("str:%s\n",str);
     /* extract the first token as the command */
     char *cmd = strtok(str, " ");
     if (cmd == NULL) { continue; }
@@ -110,5 +154,9 @@ void sdb_mainloop() {
     }
 
     if (i == NR_CMD) { printf("Unknown command '%s'\n", cmd); }
+    strcin=mygetline();
   }
 }
+
+
+#endif

@@ -1,11 +1,11 @@
-#ifndef _NPCSDB_
-#define _NPCSDB_
+#ifndef _MONITOR_
+#define _MONITOR_
 #include <getopt.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
 #include "npc-exec.h"
-
+#include "npcsdb.h"
 static char *img_file = NULL;
 
 
