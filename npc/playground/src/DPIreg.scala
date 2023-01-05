@@ -7,24 +7,24 @@ import chisel3.experimental._
 
 
 class RegInOut extends Bundle{
-    val a = Input(VecInit(Seq.fill(parm.RegNumber)(0.U(parm.REGWIDTH.W))))
-    val b = Output(VecInit(Seq.fill(parm.RegNumber)(0.U(parm.REGWIDTH.W))))
+    val a = Input(UInt(parm.REGWIDTH))
+    val b = Output(UInt(parm.REGWIDTH))
 }
 
 //val ebrdpi = Module(new ebreakDPI)
 
 class regDPI extends BlackBox with HasBlackBoxInline{
-    val io = IO(new InOut)
+    val io = IO(new RegInOut)
     setInline("regDPI.v",
     """
     |module regDPI(
-    |   input a,
-    |   output b
+    |   input [63:0] a,
+    |   output [63:0] b
     |);
     |
     |assign b = a;
     |
-    |import "DPI-C" function void set_gpr_ptr(input logic [63:0] a[]);
+    |import "DPI-C" function void set_gpr_ptr(input logic [63:0] a);
     |
     |initial set_gpr_ptr(b);
     |
