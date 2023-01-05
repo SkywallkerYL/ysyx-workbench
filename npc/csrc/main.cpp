@@ -7,59 +7,18 @@
 #include "VRiscvCpu__Dpi.h"
 #include "verilated_vcd_c.h"
 #include "svdpi.h"
+#include "state.h"
+#include "types.h"
+#include "npc-exec.h"
 #define instr_break 0b00000000000100000000000001110011
-#define MSIZE 1024
+#define MSIZE 1024 //this should be same with npc
 
 VerilatedContext* contextp = NULL;
 VerilatedVcdC* tfp = NULL;
 
 static VRiscvCpu* top;
 //每一步更新波形
-void step_and_dump_wave(){
-  top->eval();
-  contextp->timeInc(1);
-  tfp->dump(contextp->time());
-}
-//初始化
-void sim_init(){
-  contextp = new VerilatedContext;
-  tfp = new VerilatedVcdC;
-  top = new VRiscvCpu;
-  contextp->traceEverOn(true);
-  top->trace(tfp, 0);
-  tfp->open("wave.vcd");
-}
 
-void sim_exit(){
-  step_and_dump_wave();
-  tfp->close();
-  delete top;
-  delete contextp;
-}
-
-bool checkebreak ()
-{
-  //这里的scpoe是调用函数位置的模块的名字
-  const svScope scope = svGetScopeFromName("TOP.RiscvCpu.ebrdpi");
-  assert(scope);
-  svSetScope(scope);
-  bool flag = ebreakflag();
-  return flag;
-}
-
-
-void clockntimes(int n ){
-	
-	int temp = n;
-	while (temp >= 1)
-	{
-		top->clock = 0;
-		step_and_dump_wave();
-		top->clock = 1;
-		step_and_dump_wave();
-		temp --;
-	}
-}
 
 void reset(int n ){
   top->reset = 0b1;
@@ -96,21 +55,6 @@ void load_prog(const char *bin){
   //printf("HHH\n");
   fclose(fp);
 }
-/*
-int instr_mem[255];
-
-void exuinstr(int pc){
-	int mem_addr = (pc - 0b10000000000000000000000000000000)>>2;
-	//printf("mem_addr :%d\n",mem_addr);
-  top-> clock   = 0;
-  //top-> pc    = pc;
-  //top-> io_instr = instr_mem[mem_addr];
-  step_and_dump_wave();
-  top->clock = 1;
-  step_and_dump_wave();
-  //clockntimes(1);
-}
-*/
 
 int main(int argc , char* argv[]) {
 	sim_init();
@@ -119,20 +63,22 @@ int main(int argc , char* argv[]) {
   //Initial IMG
   if(argc >= 2) load_prog(argv[1]);
   else initial_default_img();
-  reset(5);
-  //top->pc = 0x80000000;
   
-  while (!top->io_halt)
+  reset(5);
+  
+
+  while (!checkebreak())
   {
     //printf("pc: %lx\n",top->rootp->RiscvCpu__DOT__PcReg__DOT__reg_0);
     clockntimes(1);
-    //int pc = top->io_PcRegOut;
-   //printf("n %d: pc %x \n",n,pc);
-    //exuinstr(pc);
-    //top->pc = top->npc;
-    if (checkebreak()) break;
   }
-  
+  if(checkebreak()){
+    Log("npc: %s at pc = " FMT_WORD,
+    (//nemu_state.state == NEMU_ABORT ? ANSI_FMT("ABORT", ANSI_FG_RED) :
+      (top->halt == 0 ? ANSI_FMT("HIT GOOD TRAP", ANSI_FG_GREEN) :
+      ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED))),
+        );
+  }
 	sim_exit();
 	return 0;
 }
