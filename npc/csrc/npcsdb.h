@@ -101,7 +101,7 @@ static int cmd_x(char *args){
   printf("\n");
   return 0;
 }
-uint64_t cpu_gpr = 0;
+uint64_t  cpu_gpr = -1;
 void isa_reg_display(){
   printf("0x%08lx\n",cpu_gpr);
   return;
