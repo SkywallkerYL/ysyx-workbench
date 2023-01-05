@@ -58,9 +58,26 @@ bool checkebreak ()
   return flag;
 }
 
+void load_prog(const char *bin){
+  FILE *fp = fopen(bin,"r");
+  //assert(fp!=NULL);
+  if(fp==NULL) {printf("No Image Input\n");return;} 
+  else printf("Read file %s\n",bin);
+  fseek(fp,0,SEEK_SET);
+  if(fread(&top->rootp->RiscvCpu__DOT__M,1,MSIZE,fp)==0) return;
+  //printf("HHH\n");
+  fclose(fp);
+}
+
 static void execute(uint64_t n) {
-    while (n--&&!checkebreak()){
-        clockntimes(1);
+    while (n--){
+      clockntimes(1);
+      if(checkebreak()){
+      //printf("%d\n",top->io_halt);
+        if(top->io_halt == 1) printf( ANSI_FMT("HIT GOOD TRAP\n", ANSI_FG_GREEN)) ;
+        else printf(ANSI_FMT("HIT BAD TRAP\n", ANSI_FG_RED));
+        break;
+      }
     }
     //if (nemu_state.state != NEMU_RUNNING) {break;}
     //IFDEF(CONFIG_DEVICE, device_update());
