@@ -7,8 +7,8 @@ import chisel3.experimental._
 
 
 class RegInOut extends Bundle{
-    val a = Input(UInt(parm.REGWIDTH))
-    val b = Output(UInt(parm.REGWIDTH))
+    val a = Input(UInt(parm.REGWIDTH.W))
+    val b = Output(UInt(parm.REGWIDTH.W))
 }
 
 //val ebrdpi = Module(new ebreakDPI)
