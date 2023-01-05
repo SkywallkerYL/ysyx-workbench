@@ -14,7 +14,7 @@ class RegInOut extends Bundle{
 //val ebrdpi = Module(new ebreakDPI)
 
 class regDPI extends BlackBox with HasBlackBoxInline{
-    val io = IO(new RegInOut)
+    val io = IO(new InOut)
     setInline("regDPI.v",
     """
     |module regDPI(
