@@ -20,7 +20,8 @@ object  parm{
     val INITIAL_INST: String = "x00000000"
 //pip 
     val pip : Boolean = false
-
+//DPI-C
+    val DPI : Boolean = true
 }
 //每一次添加一条新的指令，需要在这里添加指令，Table内添加匹配规则,然后在IDU和EXU内实现
 //IDU内部只要识别操作数和操作类型即可

@@ -91,8 +91,10 @@ class  RiscvCpu extends Module{
     //exu.io.rden_i := Id_Ex.io.rden_o
 
 //out
-    val ebrdpi = Module(new ebreakDPI)
-    ebrdpi.io.a := Idu.io.ebreak 
+    if(parm.DPI){
+        val ebrdpi = Module(new ebreakDPI)
+        ebrdpi.io.a := Idu.io.ebreak 
+    }
     io.halt := Idu.io.ebreak&&(Idu.io.rs_data1===0.U)
     //io.res := exu.io.expres
 
