@@ -101,6 +101,26 @@ static int cmd_x(char *args){
   printf("\n");
   return 0;
 }
+uint64_t *cpu_gpr = NULL;
+void isa_reg_display(){
+  printf("0x%08lx\n",*cpu_gpr);
+  return;
+}
+static int cmd_info(char *args){
+  char *arg = strtok(NULL," ");
+  if (strcmp(arg,"r")==0)
+  {
+    isa_reg_display();
+
+  }
+  else if (strcmp(arg,"w")==0)
+  {
+    //print_wp();
+  }
+  
+  else printf("Invalid SUBCMD!\n");
+  return 0;
+}
 
 static struct {
   const char *name;
@@ -111,7 +131,7 @@ static struct {
   { "c", "Continue the execution of the program", cmd_c },
   //{ "q", "Exit NEMU", cmd_q },
   { "si", "Single excutaion", cmd_si},
-  //{"info","info SUBCMD",cmd_info},
+  {"info","info SUBCMD",cmd_info},
   {"x","EXPR SCAN",cmd_x}
   //{"p","Expression calculation",cmd_p},
   //{"pt","Expression calculation test",cmd_pt},
