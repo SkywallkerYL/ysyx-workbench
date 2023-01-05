@@ -18,6 +18,7 @@ class RegFile extends Module{
     //val rdata = Output(Vec(parm.RegFileReadPorts,UInt(parm.REGWIDTH.W)))
   })
   val reg = RegInit(VecInit(Seq.fill(parm.RegNumber)(0.U(parm.REGWIDTH.W))))
+  val regdpi = Module(new regDPI)
   when (io.wen){
     when (io.waddr =/= 0.U) {reg(io.waddr) := io.wdata}
   }
