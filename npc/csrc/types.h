@@ -16,7 +16,7 @@ typedef unsigned long int uint64_t;
 # define PRIx16		"x"
 # define PRIx32		"x"
 # define PRIx64		__PRI64_PREFIX "x"
-#define FMT_WORD MUXDEF(CONFIG_ISA64, "0x%016"PRIx64, "0x%08"PRIx32)
+#define FMT_WORD    "016x%"
 
 #define ANSI_FG_BLACK   "\33[1;30m"
 #define ANSI_FG_RED     "\33[1;31m"
@@ -36,28 +36,8 @@ typedef unsigned long int uint64_t;
 #define ANSI_BG_WHITE   "\33[1;47m"
 #define ANSI_NONE       "\33[0m"
 
-
 #define ANSI_FMT(str, fmt) fmt str ANSI_NONE
 
-#define log_write(...) IFDEF(CONFIG_TARGET_NATIVE_ELF, \
-  do { \
-    extern FILE* log_fp; \
-    extern bool log_enable(); \
-    if (log_enable()) { \
-      fprintf(log_fp, __VA_ARGS__); \
-      fflush(log_fp); \
-    } \
-  } while (0) \
-)
 
-#define _Log(...) \
-  do { \
-    printf(__VA_ARGS__); \
-    log_write(__VA_ARGS__); \
-  } while (0)
-
-#define Log(format, ...) \
-    _Log(ANSI_FMT("[%s:%d %s] " format, ANSI_FG_BLUE) "\n", \
-        __FILE__, __LINE__, __func__, ## __VA_ARGS__)
 
 #endif

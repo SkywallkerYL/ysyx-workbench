@@ -84,7 +84,7 @@ $(SRC_AUTO_BIND): $(NXDC_FILES)
 	python3 $(NVBOARD_HOME)/scripts/auto_pin_bind.py $^ $@
 	
 VSRC = $(shell find $(abspath ./build) -name "*.v")
-CSRC = $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "main.cpp")
+CSRC = $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.h" -or -name "main.cpp")
 CSRC += $(SRC_AUTO_BIND)
 #VSRC += $(shell find $(abspath ./generated) -name "*.v")
 #VSRC += $(shell find $(abspath ../templete/Mux) -name "*.v")
@@ -129,6 +129,7 @@ run:
 	@echo "-------------------RUN-------------------"
 	@echo $(IMG)
 	./obj_dir/V$(TOPNAMETEST) $(IMG)
+
 #gtkwave wave.vcd
 wave:
 	gtkwave wave.vcd

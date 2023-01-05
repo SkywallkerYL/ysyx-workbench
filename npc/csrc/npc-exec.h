@@ -9,6 +9,12 @@
 #include "svdpi.h"
 #include "state.h"
 #include "types.h"
+#include "macro.h"
+VerilatedContext* contextp = NULL;
+VerilatedVcdC* tfp = NULL;
+
+static VRiscvCpu* top;
+
 void step_and_dump_wave(){
   top->eval();
   contextp->timeInc(1);

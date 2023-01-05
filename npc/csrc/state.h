@@ -14,7 +14,8 @@ typedef struct {
 
 extern NPCState npc_state;
 
-
+/*
+NPCState npc_state = { .state = NPC_STOP };
 void set_npc_state(int state, uint64_t pc, int halt_ret) {
   //difftest_skip_ref();
   npc_state.state = state;
@@ -22,6 +23,7 @@ void set_npc_state(int state, uint64_t pc, int halt_ret) {
   npc_state.halt_ret = halt_ret;
 }
 
+*/
 
 
 
