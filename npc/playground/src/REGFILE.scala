@@ -19,7 +19,7 @@ class RegFile extends Module{
   })
   val reg = RegInit(VecInit(Seq.fill(parm.RegNumber)(0.U(parm.REGWIDTH.W))))
   val regdpi = Module(new regDPI)
-  regdpi = reg()
+  regdpi.a := reg(1)
   when (io.wen){
     when (io.waddr =/= 0.U) {reg(io.waddr) := io.wdata}
   }
