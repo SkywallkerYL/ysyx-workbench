@@ -60,7 +60,7 @@ class IDU extends Module{
     io.idex.AluOp.op := DecodeRes(InstrTable.OpT)
     switch(InstType){
         is(InstrType.I){
-            printf(p"TYPE=${decimal(PcRegOut)} \n")
+            printf(p"TYPE=${decimal(InstType)} \n")
             io.idex.imm := I_imm
             io.idex.AluOp.rd1 := io.rs_data1
             io.idex.AluOp.rd2 := I_imm
