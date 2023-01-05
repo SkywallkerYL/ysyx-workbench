@@ -28,7 +28,7 @@ class regDPI extends BlackBox with HasBlackBoxInline{
     |
     |import "DPI-C" function void set_gpr_ptr(input bit[63:0] a);
     |always@(posedge clock) begin
-    |   if (~reset) initial set_gpr_ptr(b);
+    |   if (~reset)  set_gpr_ptr(b);
     |end
     |//initial set_gpr_ptr(b);
     |
