@@ -27,9 +27,10 @@ class IDU extends Module{
     //val func3 = Output(UInt(3.W))
     //val func7 = Output(UInt(7.W))
     val ebreak = Output(Bool())
+    val instrnoimpl = Output(Bool())
     val jal    = Output(UInt(OpJType.OPJNUMWIDTH.W))
   })
-
+    io.instrnoimpl := false.B;
     io.instr_o := io.instr_i
     io.pc_o := io.pc_i
     io.jal := 0.U
@@ -60,6 +61,7 @@ class IDU extends Module{
     io.idex.AluOp.op := DecodeRes(InstrTable.OpT)
     switch(InstType){
         is(InstrType.I){
+            //printf(p"TYPE=${(InstType)} \n")
             io.idex.imm := I_imm
             io.idex.AluOp.rd1 := io.rs_data1
             io.idex.AluOp.rd2 := I_imm
@@ -97,8 +99,10 @@ class IDU extends Module{
             io.idex.AluOp.rd2 := S_imm.asUInt
             
         }
+        is (InstrType.BAD){
+            io.instrnoimpl := true.B 
+        }
     }
     io.ebreak := Mux(io.instr_i === "x00100073".U,1.B,0.B)
-    
 
 }

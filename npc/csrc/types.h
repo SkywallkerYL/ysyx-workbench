@@ -16,7 +16,7 @@ typedef unsigned long int uint64_t;
 # define PRIx16		"x"
 # define PRIx32		"x"
 # define PRIx64		__PRI64_PREFIX "x"
-#define FMT_WORD    "016x%"
+#define FMT_WORD    "%016lx"
 
 #define ANSI_FG_BLACK   "\33[1;30m"
 #define ANSI_FG_RED     "\33[1;31m"
