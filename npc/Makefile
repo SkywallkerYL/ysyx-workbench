@@ -66,7 +66,7 @@ VERILATOR_CFLAGS += --top-module $(TOPNAMETEST)
 
 
 
-CSRCT = $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "main.cpp") 
+CSRCT = $(shell find $(abspath ./csrc) -name "*.c" -or -name "main.cpp" -or -name "*.cc" ) 
 #addertop.cpp alu_tb.cpp main.cpp
 
 #BUILD_DIR = ./build
