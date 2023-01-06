@@ -21,7 +21,7 @@ class regDPI extends BlackBox with HasBlackBoxInline{
     |   //input clock,
     |   //input reset,
     |   input [63:0] a,
-    |   output [63:0] b
+    |   output reg [63:0] b
     |);
     |
     |assign b = a;
