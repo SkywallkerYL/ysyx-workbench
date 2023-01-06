@@ -39,7 +39,7 @@ doit:
 #Makefile for Verilator
 
 
-TOPNAME?=top
+TOPNAME?=RiscvCpu
 TOPNAMETEST?=RiscvCpu
 #FSM_m #keyboard_top #top
 NXDC_FILES=constr/top.nxdc
@@ -96,12 +96,14 @@ include $(NVBOARD_HOME)/scripts/nvboard.mk
 #rules for verilator
 INCFLAGS = $(addprefix -I, $(INC_PATH))
 CFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""
+CFLAGS += $(shell llvm-config --cxxflags) -fPIE
 LDFLAGS += -lSDL2 -lSDL2_image
+LDFLAGS += $(shell llvm-config --libs)
 
 IMG?=
 
 	
-$(BIN) : $(VSRC) $(CSRC) $(NVBOARD_ARCHIVE)
+$(BIN) : $(VSRC) $(CSRCT) 
 	@rm -rf $(OBJ_DIR)
 	$(VERILATOR) $(VERILATOR_FLAGS) \
 		--top-module $(TOPNAME) $^ \
@@ -117,10 +119,11 @@ runnvboard: $(BIN)
 
 NPCMODE=
 
-run: $(CSRCT) $(VSRC)
+run: 
 	#for testbench        
 	@echo "---------------VERILATE------------------"
-	$(VERILATOR) $(VERILATOR_CFLAGS) 
+	$(VERILATOR) $(VERILATOR_CFLAGS) $(CSRCT) $(VSRC) $(addprefix -CFLAGS , $(CFLAGS)) $(addprefix -LDFLAGS , $(LDFLAGS))\
+		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))
 	
 
 	@echo "-----------------BUILD-------------------"
