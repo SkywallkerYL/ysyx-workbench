@@ -11,10 +11,10 @@
 #include "types.h"
 #include "npc-exec.h"
 #include "monitor.h"
+#include "verilated_dpi.h"
 
 
-
-//每一步更新波形
+//寄存器堆的值
 extern "C" void set_gpr_ptr(const svOpenArrayHandle r){
   //printf("hhhh\n");
   //printf("reg_addr: %d\n",r);

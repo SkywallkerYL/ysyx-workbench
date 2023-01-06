@@ -7,6 +7,7 @@ import chisel3.util.HasBlackBoxInline
 class  RiscvCpu extends Module{
     val io = IO(new Bundle{
         val halt = Output(Bool())
+        val abort = Output(Bool())
         //val pc = Input(UInt(parm.PCWIDTH.W))
         //val instr = Input(UInt(parm.INSTWIDTH.W)) // instr暂时拉到顶层
         //val PcRegOut = Output(UInt(parm.PCWIDTH.W)) //根据pc_reg的out来取指
@@ -96,6 +97,7 @@ class  RiscvCpu extends Module{
         ebrdpi.io.a := Idu.io.ebreak 
     }
     io.halt := Idu.io.ebreak&&(Idu.io.rs_data1===0.U)
+    io.abort := Idu.io.instrnoimpl;
     //io.res := exu.io.expres
 
 }
