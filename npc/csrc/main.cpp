@@ -15,10 +15,10 @@
 
 
 //每一步更新波形
-extern "C" void set_gpr_ptr(const svBitVecVal* r){
+extern "C" void set_gpr_ptr(const svOpenArrayHandle r){
   //printf("hhhh\n");
   //printf("reg_addr: %d\n",r);
-  cpu_gpr = ((uint64_t *) (r));  
+  cpu_gpr = ((uint64_t *)(((VerilatedDpiOpenVar*)r)->datap()));  
 }
 
 void reset(int n ){
