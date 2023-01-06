@@ -14,6 +14,7 @@
 #include "svdpi.h"
 #include "macro.h"
 #include "monitor.h"
+
 uint64_t Pc_Fetch ()
 {
   //这里的scpoe是调用函数位置的模块的名字
@@ -58,6 +59,8 @@ typedef struct Decode {
 } Decode;
 #ifdef  CONFIG_ITRACE
 //itrace 
+void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
+char default_log[100] = "/home/yangli/ysyx-workbench/npc/build/nemu-log.txt" ;
 void instr_tracelog(){
     Decode s;
     //printf("No file!!!!\n");
@@ -66,9 +69,9 @@ void instr_tracelog(){
     //printf("No file!!!!\n");
     FILE *file;
     file = fopen(log_file,"a");
-    if (file == NULL) {printf("No file!!!!\n");}
+    if (file == NULL) {file = fopen(default_log,"a");}
     char *p = s.logbuf;
-    //printf("p :%s logbuf:%s\n",p,s->logbuf);
+    //printf("p :%s logbuf:%s\n",p,s.logbuf);
     //printf("inside exec_once:p :%s, s->snpc: %ld, s->pc: %ld\n",p,s->snpc,s->pc);
     p += snprintf(p, sizeof(s.logbuf), FMT_WORD ":", s.pc);
     
@@ -92,11 +95,10 @@ void instr_tracelog(){
     memset(p, ' ', space_len);
     p += space_len;
     //printf("inside exec_once:%s\n",p);
-    
-    void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
-    disassemble(p, s.logbuf + sizeof(s.logbuf) - p,
-       s.pc, inst, ilen);
-       
+    int size = s.logbuf + sizeof(s.logbuf) - p;
+    //printf("size:%d\n",size);
+    //void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
+    disassemble(p, size,s.pc, inst, ilen);
     //printf("%s\n",s.logbuf);
     fprintf(file,"%s\n",s.logbuf);
     fclose(file);

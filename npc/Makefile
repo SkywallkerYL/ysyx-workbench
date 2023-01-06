@@ -97,7 +97,7 @@ include $(NVBOARD_HOME)/scripts/nvboard.mk
 INCFLAGS = $(addprefix -I, $(INC_PATH))
 CFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""
 CFLAGS += $(shell llvm-config --cxxflags) -fPIE
-LDFLAGS += -lSDL2 -lSDL2_image
+LDFLAGS += -lSDL2 -lSDL2_image 
 LDFLAGS += $(shell llvm-config --libs)
 LDFLAGS += -lreadline
 IMG?=
