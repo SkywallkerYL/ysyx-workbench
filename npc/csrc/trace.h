@@ -14,20 +14,30 @@
 #include "svdpi.h"
 #include "macro.h"
 #include "monitor.h"
-uint32_t Instr_Fetch ()
+uint64_t Pc_Fetch ()
 {
   //这里的scpoe是调用函数位置的模块的名字
-  const svScope scope = svGetScopeFromName("TOP.RiscvCpu.Idu");
+  const svScope scope = svGetScopeFromName("TOP.RiscvCpu.pcdpi");
   assert(scope);
   svSetScope(scope);
-  uint32_t inst = instr_fetch();
-  return inst;
+  uint64_t pc = (uint64_t)pc_fetch();
+  return pc;
 }
+uint64_t Dnpc_Fetch ()
+{
+  //这里的scpoe是调用函数位置的模块的名字
+  const svScope scope = svGetScopeFromName("TOP.RiscvCpu.pcdpi");
+  assert(scope);
+  svSetScope(scope);
+  uint64_t pc = (uint64_t)npc_fetch();
+  return pc;
+}
+
 
 uint32_t Instr_Fetch ()
 {
   //这里的scpoe是调用函数位置的模块的名字
-  const svScope scope = svGetScopeFromName("TOP.RiscvCpu.");
+  const svScope scope = svGetScopeFromName("TOP.RiscvCpu.instrdpi");
   assert(scope);
   svSetScope(scope);
   uint32_t inst = instr_fetch();
@@ -47,6 +57,7 @@ typedef struct Decode {
 //itrace 
 void instr_tracelog(){
     Decode s;
+    s->pc;
     FILE *file;
     file = fopen(log_file,"a");
     if (file == NULL) {printf("No file!!!!\n");}

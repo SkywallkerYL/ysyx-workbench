@@ -104,9 +104,5 @@ class IDU extends Module{
         }
     }
     io.ebreak := Mux(io.instr_i === "x00100073".U,1.B,0.B)
-    if(parm.pip) {
-        val instrdpi = Module(new InstrFetchDPI)
-        instrdpi.io.a := io.instr_i
-    }
 
 }
