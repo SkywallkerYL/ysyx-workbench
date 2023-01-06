@@ -99,13 +99,13 @@ CFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""
 CFLAGS += $(shell llvm-config --cxxflags) -fPIE
 LDFLAGS += -lSDL2 -lSDL2_image
 LDFLAGS += $(shell llvm-config --libs)
-
+LDFLAGS += -lreadline
 IMG?=
 
 	
 $(BIN) : $(VSRC) $(CSRCT) 
 	@rm -rf $(OBJ_DIR)
-	$(VERILATOR) $(VERILATOR_CFLAGS) \
+	$(VERILATOR) $(VERILATOR_FLAGS) \
 		--top-module $(TOPNAME) $^ \
 		$(addprefix -CFLAGS , $(CFLAGS)) $(addprefix -LDFLAGS , $(LDFLAGS))\
 		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))

@@ -85,11 +85,11 @@ void instr_tracelog(){
     memset(p, ' ', space_len);
     p += space_len;
     //printf("inside exec_once:%s\n",p);
-    /*
+    
     void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
     disassemble(p, s->logbuf + sizeof(s->logbuf) - p,
        s->pc, inst, ilen);
-       */
+       
       //fprintf(file,"pc:%lx: Addr:%x len:%x %c value:%lx\n",cpu.pc,addr,len,wrflag,data);
 }   
 

@@ -18,7 +18,7 @@ static char* rl_gets() {
     line_read = NULL;
   }
 
-  line_read = readline("(nemu) ");
+  line_read = readline("(npc_sdb) ");
 
   if (line_read && *line_read) {
     add_history(line_read);
@@ -189,17 +189,18 @@ void sdb_mainloop() {
     return;
   }
   //printf("hhhh\n");
-  string quit = "quit";
+  //string quit = "quit";
   //string enter = '\n';
   //for (char * str = mygetline(str);str!=NULL;){
-  for (string strcin=mygetline(); strcin.length()!= 0; ) {
-  //for (char *str; (str = rl_gets()) != NULL; ) {
+  //for (string strcin=mygetline(); strcin.length()!= 0; ) {
+  for (char *str; (str = rl_gets()) != NULL; ) {
     //printf("start:%ld\n",strcin.length());
     //cout<<strcin;
-    char str[20];
-    strcpy(str,strcin.c_str());
-    //printf("hjhhhh\n");
     char *str_end = str + strlen(str);
+    //char str[20];
+    //strcpy(str,strcin.c_str());
+    //printf("hjhhhh\n");
+    //char *str_end = str + strlen(str);
     //printf("str:%s\n",str);
     /* extract the first token as the command */
     char *cmd = strtok(str, " ");
@@ -229,7 +230,7 @@ void sdb_mainloop() {
     if (i == NR_CMD) { printf("Unknown command '%s'\n", cmd); }
     //cin.ignore();
     //acin.get();
-    strcin=mygetline();
+    //strcin=mygetline();
     //cout<<strcin;
     //printf("end:%d\n",strcin.length());
   }
