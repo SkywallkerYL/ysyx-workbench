@@ -32,6 +32,7 @@ class pcDPI extends BlackBox with HasBlackBoxInline{
     |*/
     |   pc_fetch = pc;
     |endfunction
+    |
     |function longint npc_fetch;
     |/*
     |   integer k;
@@ -43,6 +44,7 @@ class pcDPI extends BlackBox with HasBlackBoxInline{
     |*/
     |   npc_fetch = dnpc;
     |endfunction
+    |
     |endmodule
     """.stripMargin
     )
