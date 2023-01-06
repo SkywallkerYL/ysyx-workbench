@@ -39,7 +39,7 @@ doit:
 #Makefile for Verilator
 
 
-TOPNAME?=top
+TOPNAME?=RiscvCpu
 TOPNAMETEST?=RiscvCpu
 #FSM_m #keyboard_top #top
 NXDC_FILES=constr/top.nxdc
@@ -60,7 +60,7 @@ VERILATOR_CFLAGS += -cc --exe -Os -x-assign 0
 VERILATOR_CFLAGS += --trace --coverage 
 VERILATOR_CFLAGS += -Wno-fatal
 
-VERILATOR_CFLAGS += --top-module $(TOPNAMETEST)
+#VERILATOR_CFLAGS += --top-module $(TOPNAMETEST)
 
 #VERILATOR_CFLAGS += --x-initial fast --noassert
 #VERILATOR_CFLAGS += --timing
@@ -96,21 +96,21 @@ CSRC += $(SRC_AUTO_BIND)
 include $(NVBOARD_HOME)/scripts/nvboard.mk
 #rules for verilator
 INCFLAGS = $(addprefix -I, $(INC_PATH))
-CFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""
-LDFLAGS += -lSDL2 -lSDL2_image
-
+CFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAMETEST)\""
+LDFLAGS += -lSDL2 -lSDL2_image -lreadline
+LDFLAGS += $(shell llvm-config --libs)
 
 CFLAGS += $(shell llvm-config --cxxflags) -fPIE
-LIBS += $(shell llvm-config --libs)
+#LIBS += $(shell llvm-config --libs)
 
 
 IMG?=
 
 	
-$(BIN) : $(VSRC) $(CSRC) $(NVBOARD_ARCHIVE)
+$(BIN) : $(VSRC) $(CSRCT) $(NVBOARD_ARCHIVE)
 	@rm -rf $(OBJ_DIR)
-	$(VERILATOR) $(VERILATOR_FLAGS) \
-		--top-module $(TOPNAME) $^ \
+	$(VERILATOR) $(VERILATOR_CFLAGS) \
+		-top $(TOPNAMETEST) $^ \
 		$(addprefix -CFLAGS , $(CFLAGS)) $(addprefix -LDFLAGS , $(LDFLAGS))\
 		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))
 
@@ -123,21 +123,23 @@ runnvboard: $(BIN)
 
 NPCMODE=
 
-run: 
-	#for testbench        
-	@echo "---------------VERILATE------------------"
-	$(VERILATOR) $(VERILATOR_CFLAGS) $(CSRCT) $(VSRC) $(LIBS)
+run: $(BIN)
+	./build/V$(TOPNAMETEST) $(NPCMODE) $(IMG)
+
+#for testbench        
+#@echo "---------------VERILATE------------------"
+#$(VERILATOR) $(VERILATOR_CFLAGS) $(CSRCT) $(VSRC) 
 	
 	
 
-	@echo "-----------------BUILD-------------------"
+#@echo "-----------------BUILD-------------------"
 
-	$(MAKE) -j -C obj_dir -f V$(TOPNAMETEST).mk V$(TOPNAMETEST) 
+#$(MAKE) -j -C obj_dir -f V$(TOPNAMETEST).mk V$(TOPNAMETEST) 
 # $(MAKE) -j -C obj_dir -f ../Makefile_obj
 
-	@echo "-------------------RUN-------------------"
-	@echo $(IMG)
-	./obj_dir/V$(TOPNAMETEST) $(NPCMODE) $(IMG)
+#@echo "-------------------RUN-------------------"
+#@echo $(IMG)
+#./build/obj_dir/V$(TOPNAMETEST) $(NPCMODE) $(IMG)
 
 #gtkwave wave.vcd
 wave:
