@@ -57,7 +57,7 @@ VERILATOR_FLAGS += --x-initial fast --noassert
 VERILATOR_FLAGS += -Wno-fatal
 #for testbench
 VERILATOR_CFLAGS += -cc --exe -Os -x-assign 0
-VERILATOR_CFLAGS += --trace --coverage 
+VERILATOR_CFLAGS += --trace --coverage --build
 VERILATOR_CFLAGS += -Wno-fatal
 
 VERILATOR_CFLAGS += --top-module $(TOPNAMETEST)
@@ -122,8 +122,7 @@ NPCMODE=
 run: 
 	#for testbench        
 	@echo "---------------VERILATE------------------"
-	$(VERILATOR) $(VERILATOR_CFLAGS) $(CSRCT) $(VSRC) $(addprefix -CFLAGS , $(CFLAGS)) $(addprefix -LDFLAGS , $(LDFLAGS))\
-		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))
+	$(VERILATOR) $(VERILATOR_CFLAGS) $(CSRCT) $(VSRC) $(addprefix -CFLAGS , $(CFLAGS)) $(addprefix -LDFLAGS , $(LDFLAGS))
 	
 
 	@echo "-----------------BUILD-------------------"
