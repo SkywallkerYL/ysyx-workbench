@@ -56,11 +56,14 @@ VERILATOR_FLAGS += -O3 --x-assign fast
 VERILATOR_FLAGS += --x-initial fast --noassert
 VERILATOR_FLAGS += -Wno-fatal
 #for testbench
+#VERILATOR_CFLAGS += -MMD --build -cc
+#VERILATOR_CFLAGS += --exe -Os -x-assign 0
+#VERILATOR_CFLAGS += --trace --coverage 
+#VERILATOR_CFLAGS += -Wno-fatal
 VERILATOR_CFLAGS += -MMD --build -cc
-VERILATOR_CFLAGS += --exe -Os -x-assign 0
-VERILATOR_CFLAGS += --trace --coverage 
+VERILATOR_CFLAGS += --exe -O3 --x-assign fast
+VERILATOR_CFLAGS += --trace --x-initial fast  --noassert 
 VERILATOR_CFLAGS += -Wno-fatal
-
 #VERILATOR_CFLAGS += --top-module $(TOPNAMETEST)
 
 #VERILATOR_CFLAGS += --x-initial fast --noassert
@@ -111,7 +114,7 @@ IMG?=
 $(BIN) : $(VSRC) $(CSRCT)
 	@rm -rf $(OBJ_DIR)
 	$(VERILATOR) $(VERILATOR_CFLAGS) \
-		-top $(TOPNAMETEST) $^ \
+		--top-module $(TOPNAMETEST) $^ \
 		$(addprefix -CFLAGS , $(CFLAGS)) $(addprefix -LDFLAGS , $(LDFLAGS))\
 		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))
 
@@ -125,6 +128,7 @@ runnvboard: $(BIN)
 NPCMODE=
 
 run: $(BIN)
+#$(MAKE) -j -C $(OBJ_DIR) -f V$(TOPNAMETEST).mk V$(TOPNAMETEST) 
 #./build/obj_dir/V$(TOPNAMETEST) $(NPCMODE) $(IMG)
 
 #for testbench        
