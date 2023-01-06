@@ -9,7 +9,7 @@ import chisel3.experimental._
 class RegInOut extends Bundle{
     //val a = Input(UInt(parm.REGWIDTH.W))
     //val a = RegInit(VecInit(Seq.fill(parm.RegNumber)(0.U(parm.REGWIDTH.W))))
-    val a = Input(Wire(VecInit(Seq.fill(parm.RegNumber)(0.U(parm.REGWIDTH.W)))))
+    val a = Input(Vec(parm.RegNumber,UInt(parm.REGWIDTH.W)))
     //val b = Output(UInt(parm.REGWIDTH.W))
 }
 
