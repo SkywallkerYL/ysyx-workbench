@@ -7,7 +7,19 @@
 #include "npc-exec.h"
 #include "npcsdb.h"
 static char *img_file = NULL;
+static char *log_file = NULL;
 
+void init_log(const char *log_file) {
+  log_fp = stdout;
+  if (log_file != NULL) {
+    FILE *fp = fopen(log_file, "w");
+    assert(fp!=NULL);
+    //Assert(fp, "Can not open '%s'", log_file);
+    log_fp = fp;
+  }
+  
+  //Log("Log is written to %s", log_file ? log_file : "stdout");
+}
 
 static int parse_args(int argc, char *argv[])
 {
@@ -32,7 +44,7 @@ static int parse_args(int argc, char *argv[])
       //sscanf(optarg, "%d", &difftest_port);
       break;
     case 'l':
-      //log_file = optarg;
+      log_file = optarg;
       break;
     case 'd':
       //diff_so_file = optarg;
@@ -66,7 +78,7 @@ void init_monitor(int argc, char *argv[])
   parse_args(argc, argv);
 
   /* Open the log file. */
-  //init_log(log_file);
+  init_log(log_file);
 #ifdef CONFIG_MTRACE
   init_mtrace();
   printf("in monitor: %s\n",elf_filein);

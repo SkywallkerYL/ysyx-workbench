@@ -16,6 +16,9 @@ LDFLAGS   += --gc-sections -e _start
 CFLAGS += -DMAINARGS=\"$(mainargs)\"
 .PHONY: $(AM_HOME)/am/src/riscv/npc/trm.c
 
+NEMUFLAGS += -l $(shell dirname $(IMAGE).elf)/nemu-log.txt
+
+
 image: $(IMAGE).elf
 	@$(OBJDUMP) -d $(IMAGE).elf > $(IMAGE).txt
 	@echo + OBJCOPY "->" $(IMAGE_REL).bin
@@ -23,4 +26,4 @@ image: $(IMAGE).elf
 
 run: image
 	echo "$(IMAGE)" 
-	$(MAKE) -C $(NPC_HOME) run IMG=$(IMAGE).bin
+	$(MAKE) -C $(NPC_HOME) run NPCMODE+=$(NEMUFLAGS) IMG=$(IMAGE).bin
