@@ -57,7 +57,8 @@ typedef struct Decode {
 //itrace 
 void instr_tracelog(){
     Decode s;
-    s->pc;
+    s->pc = Pc_Fetch();
+    s->dnpc = Dnpc_Fetch();
     FILE *file;
     file = fopen(log_file,"a");
     if (file == NULL) {printf("No file!!!!\n");}
@@ -66,9 +67,9 @@ void instr_tracelog(){
     //printf("inside exec_once:p :%s, s->snpc: %ld, s->pc: %ld\n",p,s->snpc,s->pc);
     p += snprintf(p, sizeof(s->logbuf), FMT_WORD ":", s->pc);
     //printf("p :%s\n",s->logbuf);
-    int ilen = s->snpc - s->pc;
+    int ilen = 4;
     int i;
-    uint8_t *inst = (uint8_t *)&s->isa.inst.val;
+    uint8_t *inst = (uint8_t *)&Instr_Fetch();
     for (i = ilen - 1; i >= 0; i --) {
       //printf("inside exec_once:%s\n",p);
       p += snprintf(p, 4, " %02x", inst[i]);

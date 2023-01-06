@@ -61,13 +61,12 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 static void exec_once(Decode *s, vaddr_t pc) {
   s->pc = pc;
   s->snpc = pc;
-  printf("s->snpc: %ld, s->pc: %ld\n",s->snpc,s->pc);
   isa_exec_once(s);
   cpu.pc = s->dnpc;
 #ifdef CONFIG_ITRACE
   char *p = s->logbuf;
   //printf("p :%s logbuf:%s\n",p,s->logbuf);
-  printf("inside exec_once:p :%s, s->snpc: %ld, s->pc: %ld\n",p,s->snpc,s->pc);
+  //printf("inside exec_once:p :%s, s->snpc: %ld, s->pc: %ld\n",p,s->snpc,s->pc);
   p += snprintf(p, sizeof(s->logbuf), FMT_WORD ":", s->pc);
   //printf("p :%s\n",s->logbuf);
   int ilen = s->snpc - s->pc;
@@ -82,6 +81,7 @@ static void exec_once(Decode *s, vaddr_t pc) {
   //printf("p :%s\n",s->logbuf);
   //printf("inside exec_once:%s\n",p);
   int ilen_max = MUXDEF(CONFIG_ISA_x86, 8, 4);
+  printf("ilen_max :%d\n",ilen_max);
   int space_len = ilen_max - ilen;
   if (space_len < 0) space_len = 0;
   space_len = space_len * 3 + 1;
