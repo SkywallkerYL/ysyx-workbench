@@ -56,7 +56,8 @@ VERILATOR_FLAGS += -O3 --x-assign fast
 VERILATOR_FLAGS += --x-initial fast --noassert
 VERILATOR_FLAGS += -Wno-fatal
 #for testbench
-VERILATOR_CFLAGS += -cc --exe -Os -x-assign 0
+VERILATOR_CFLAGS += -MMD --build -cc
+VERILATOR_CFLAGS += --exe -Os -x-assign 0
 VERILATOR_CFLAGS += --trace --coverage 
 VERILATOR_CFLAGS += -Wno-fatal
 
@@ -107,7 +108,7 @@ CFLAGS += $(shell llvm-config --cxxflags) -fPIE
 IMG?=
 
 	
-$(BIN) : $(VSRC) $(CSRCT) $(NVBOARD_ARCHIVE)
+$(BIN) : $(VSRC) $(CSRCT)
 	@rm -rf $(OBJ_DIR)
 	$(VERILATOR) $(VERILATOR_CFLAGS) \
 		-top $(TOPNAMETEST) $^ \
@@ -124,7 +125,7 @@ runnvboard: $(BIN)
 NPCMODE=
 
 run: $(BIN)
-	./build/V$(TOPNAMETEST) $(NPCMODE) $(IMG)
+#./build/obj_dir/V$(TOPNAMETEST) $(NPCMODE) $(IMG)
 
 #for testbench        
 #@echo "---------------VERILATE------------------"
