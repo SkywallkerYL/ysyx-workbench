@@ -97,7 +97,7 @@ class  RiscvCpu extends Module{
         ebrdpi.io.a := Idu.io.ebreak 
         val pcdpi = Module(new pcDPI)
         pcdpi.io.pc := Idu.io.pc_o
-        pcdpi.io.npc := NpcMux.io.NPC
+        pcdpi.io.dnpc := NpcMux.io.NPC
     }
     io.halt := Idu.io.ebreak&&(Idu.io.rs_data1===0.U)
     io.abort := Idu.io.instrnoimpl;
