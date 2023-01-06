@@ -19,8 +19,8 @@ class pcDPI extends BlackBox with HasBlackBoxInline{
     |   input [63:0] dnpc
     |);
     |
-    |export "DPI-C" function [63:0] pc_fetch;
-    |export "DPI-C" function [63:0] npc_fetch;
+    |export "DPI-C" function pc_fetch;
+    |export "DPI-C" function npc_fetch;
     |function [63:0] pc_fetch;
     |   pc_fetch = pc;
     |endfunction
