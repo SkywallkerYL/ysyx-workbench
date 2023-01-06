@@ -7,7 +7,6 @@ import chisel3.util.HasBlackBoxInline
 class  RiscvCpu extends Module{
     val io = IO(new Bundle{
         val halt = Output(Bool())
-        val abort = Output(Bool())
         //val pc = Input(UInt(parm.PCWIDTH.W))
         //val instr = Input(UInt(parm.INSTWIDTH.W)) // instr暂时拉到顶层
         //val PcRegOut = Output(UInt(parm.PCWIDTH.W)) //根据pc_reg的out来取指
@@ -25,8 +24,8 @@ class  RiscvCpu extends Module{
     val exu = Module(new EXU())
 //pc   
     val PcRegOut = Wire(UInt(parm.PCWIDTH.W))
-    val addr  = (PcRegOut-parm.INITIAL_PC.U)>>2
-    val instr = M(addr)//因为M/4，所以PC要把低两位去掉
+    //val addr  = (PcRegOut-parm.INITIAL_PC.U)>>2
+    val instr = M((PcRegOut(parm.PCWIDTH-1,2)))//因为M/4，所以PC要把低两位去掉
     //printf(p"addr=${addr} instr=0x${Hexadecimal(M(addr))} \n")
     printf(p"pc=0x${Hexadecimal(PcRegOut)} instr=0x${Hexadecimal(instr)}\n")
     NpcMux.io.jal := Idu.io.jal
@@ -92,17 +91,9 @@ class  RiscvCpu extends Module{
     //exu.io.rden_i := Id_Ex.io.rden_o
 
 //out
-    if(parm.DPI){
-        val ebrdpi = Module(new ebreakDPI)
-        ebrdpi.io.a := Idu.io.ebreak 
-        val pcdpi = Module(new pcDPI)
-        pcdpi.io.pc := Idu.io.pc_o
-        pcdpi.io.dnpc := NpcMux.io.NPC
-        val instrdpi = Module(new InstrFetchDPI)
-        instrdpi.io.a := Idu.io.instr_i
-    }
+    val ebrdpi = Module(new ebreakDPI)
+    ebrdpi.io.a := Idu.io.ebreak 
     io.halt := Idu.io.ebreak&&(Idu.io.rs_data1===0.U)
-    io.abort := Idu.io.instrnoimpl;
     //io.res := exu.io.expres
 
 }

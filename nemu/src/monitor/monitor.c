@@ -103,7 +103,7 @@ static int parse_args(int argc, char *argv[])
       img_file = optarg;
       return 0;
     case 'f':
-      //printf("hhhh\n");
+      printf("hhhh\n");
       elf_filein = optarg;
       break;
     default:

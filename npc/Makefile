@@ -39,7 +39,7 @@ doit:
 #Makefile for Verilator
 
 
-TOPNAME?=RiscvCpu
+TOPNAME?=top
 TOPNAMETEST?=RiscvCpu
 #FSM_m #keyboard_top #top
 NXDC_FILES=constr/top.nxdc
@@ -57,9 +57,8 @@ VERILATOR_FLAGS += --x-initial fast --noassert
 VERILATOR_FLAGS += -Wno-fatal
 #for testbench
 VERILATOR_CFLAGS += -cc --exe -Os -x-assign 0
-VERILATOR_CFLAGS += --trace --coverage --build
+VERILATOR_CFLAGS += --trace --coverage 
 VERILATOR_CFLAGS += -Wno-fatal
-
 VERILATOR_CFLAGS += --top-module $(TOPNAMETEST)
 #VERILATOR_CFLAGS += --x-initial fast --noassert
 #VERILATOR_CFLAGS += --timing
@@ -85,7 +84,7 @@ $(SRC_AUTO_BIND): $(NXDC_FILES)
 	python3 $(NVBOARD_HOME)/scripts/auto_pin_bind.py $^ $@
 	
 VSRC = $(shell find $(abspath ./build) -name "*.v")
-CSRC = $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "main.cpp")
+CSRC = $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.h" -or -name "main.cpp")
 CSRC += $(SRC_AUTO_BIND)
 #VSRC += $(shell find $(abspath ./generated) -name "*.v")
 #VSRC += $(shell find $(abspath ../templete/Mux) -name "*.v")
@@ -96,14 +95,12 @@ include $(NVBOARD_HOME)/scripts/nvboard.mk
 #rules for verilator
 INCFLAGS = $(addprefix -I, $(INC_PATH))
 CFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""
-CFLAGS += $(shell llvm-config --cxxflags) -fPIE
 LDFLAGS += -lSDL2 -lSDL2_image
-LDFLAGS += $(shell llvm-config --libs)
-LDFLAGS += -lreadline
+
 IMG?=
 
 	
-$(BIN) : $(VSRC) $(CSRCT) 
+$(BIN) : $(VSRC) $(CSRC) $(NVBOARD_ARCHIVE)
 	@rm -rf $(OBJ_DIR)
 	$(VERILATOR) $(VERILATOR_FLAGS) \
 		--top-module $(TOPNAME) $^ \
@@ -117,22 +114,21 @@ runnvboard: $(BIN)
 	#for nvboard
 	@$^
 
-NPCMODE=
-
 run: 
 	#for testbench        
 	@echo "---------------VERILATE------------------"
-	$(VERILATOR) $(VERILATOR_CFLAGS) $(CSRCT) $(VSRC) $(addprefix -CFLAGS , $(CFLAGS)) $(addprefix -LDFLAGS , $(LDFLAGS))
+	$(VERILATOR) $(VERILATOR_CFLAGS) $(CSRCT) $(VSRC)
+	
 	
 
 	@echo "-----------------BUILD-------------------"
 
-	$(MAKE) -j -C obj_dir -f V$(TOPNAMETEST).mk V$(TOPNAMETEST) 
-# $(MAKE) -j -C obj_dir -f ../Makefile_obj
+	$(MAKE) -j -C obj_dir -f V$(TOPNAMETEST).mk V$(TOPNAMETEST)
+	# $(MAKE) -j -C obj_dir -f ../Makefile_obj
 
 	@echo "-------------------RUN-------------------"
 	@echo $(IMG)
-	./obj_dir/V$(TOPNAMETEST) $(NPCMODE) $(IMG)
+	./obj_dir/V$(TOPNAMETEST) $(IMG)
 
 #gtkwave wave.vcd
 wave:
