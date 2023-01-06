@@ -128,7 +128,7 @@ runnvboard: $(BIN)
 NPCMODE=
 
 run: $(BIN)
-#$(MAKE) -j -C $(OBJ_DIR) -f V$(TOPNAMETEST).mk V$(TOPNAMETEST) 
+#$(MAKE) -j -C $(OBJ_DIR) -f V$(TOPNAMETEST).mk V$(TOPNAMETEST)_classes.mk 
 #./build/obj_dir/V$(TOPNAMETEST) $(NPCMODE) $(IMG)
 
 #for testbench        
