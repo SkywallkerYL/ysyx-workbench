@@ -66,7 +66,8 @@ VERILATOR_CFLAGS += --top-module $(TOPNAMETEST)
 
 
 
-CSRCT = $(shell find $(abspath ./csrc) -name "*.c" -or -name "main.cpp" -or -name "*.cc" ) 
+CSRCT = $(shell find $(abspath ./csrc) -name "*.c" -or -name "main.cpp" ) 
+CSRCT += $(shell find $(abspath ./csrc) -name "*.cc" ) 
 #addertop.cpp alu_tb.cpp main.cpp
 
 #BUILD_DIR = ./build
@@ -122,6 +123,7 @@ NPCMODE=
 run: 
 	#for testbench        
 	@echo "---------------VERILATE------------------"
+	@echo $(CSRCT)
 	$(VERILATOR) $(VERILATOR_CFLAGS) $(CSRCT) $(VSRC) $(addprefix -CFLAGS , $(CFLAGS)) $(addprefix -LDFLAGS , $(LDFLAGS))
 	
 
