@@ -17,7 +17,7 @@
 //每一步更新波形
 extern "C" void set_gpr_ptr(const svBitVecVal* r){
   //printf("hhhh\n");
-  *cpu_gpr = (uint64_t *) r;  
+  cpu_gpr = ((uint64_t *) &(*r));  
 }
 
 void reset(int n ){
