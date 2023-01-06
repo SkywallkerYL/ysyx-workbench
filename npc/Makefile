@@ -61,6 +61,7 @@ VERILATOR_CFLAGS += --trace --coverage
 VERILATOR_CFLAGS += -Wno-fatal
 
 VERILATOR_CFLAGS += --top-module $(TOPNAMETEST)
+
 #VERILATOR_CFLAGS += --x-initial fast --noassert
 #VERILATOR_CFLAGS += --timing
 
@@ -98,6 +99,11 @@ INCFLAGS = $(addprefix -I, $(INC_PATH))
 CFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""
 LDFLAGS += -lSDL2 -lSDL2_image
 
+
+CFLAGS += $(shell llvm-config --cxxflags) -fPIE
+LIBS += $(shell llvm-config --libs)
+
+
 IMG?=
 
 	
@@ -120,7 +126,7 @@ NPCMODE=
 run: 
 	#for testbench        
 	@echo "---------------VERILATE------------------"
-	$(VERILATOR) $(VERILATOR_CFLAGS) $(CSRCT) $(VSRC)
+	$(VERILATOR) $(VERILATOR_CFLAGS) $(CSRCT) $(VSRC) $(LIBS)
 	
 	
 

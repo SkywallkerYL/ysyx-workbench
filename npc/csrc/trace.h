@@ -78,7 +78,7 @@ void instr_tracelog(){
     //写进去的同时 p作为指针也+了
     //printf("p :%s\n",s->logbuf);
     //printf("inside exec_once:%s\n",p);
-    int ilen_max = MUXDEF(CONFIG_ISA_x86, 8, 4);
+    int ilen_max = 4;
     int space_len = ilen_max - ilen;
     if (space_len < 0) space_len = 0;
     space_len = space_len * 3 + 1;
@@ -87,7 +87,7 @@ void instr_tracelog(){
     //printf("inside exec_once:%s\n",p);
     void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
     disassemble(p, s->logbuf + sizeof(s->logbuf) - p,
-        MUXDEF(CONFIG_ISA_x86, s->snpc, s->pc), (uint8_t *)&s->isa.inst.val, ilen);
+       s->pc, inst, ilen);
       //fprintf(file,"pc:%lx: Addr:%x len:%x %c value:%lx\n",cpu.pc,addr,len,wrflag,data);
 }   
 
