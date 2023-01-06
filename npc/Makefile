@@ -105,7 +105,7 @@ IMG?=
 	
 $(BIN) : $(VSRC) $(CSRCT) 
 	@rm -rf $(OBJ_DIR)
-	$(VERILATOR) $(VERILATOR_FLAGS) \
+	$(VERILATOR) $(VERILATOR_CFLAGS) \
 		--top-module $(TOPNAME) $^ \
 		$(addprefix -CFLAGS , $(CFLAGS)) $(addprefix -LDFLAGS , $(LDFLAGS))\
 		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))
