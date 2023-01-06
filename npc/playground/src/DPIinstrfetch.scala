@@ -19,7 +19,7 @@ class InstrFetchDPI extends BlackBox with HasBlackBoxInline{
     |
     |export "DPI-C" function [31:0] instr_fetch;
     |
-    |function instr_fetch;
+    |function [31:0] instr_fetch;
     |   instr_fetch = a;
     |endfunction
     |
