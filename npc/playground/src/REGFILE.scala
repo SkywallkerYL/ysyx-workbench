@@ -20,10 +20,13 @@ class RegFile extends Module{
   val reg = RegInit(VecInit(Seq.fill(parm.RegNumber)(0.U(parm.REGWIDTH.W))))
   if(parm.DPI){
     val regdpi = Module(new regDPI)
-    regdpi.io.a := reg(1)
+    for(i <- 1 until 32){
+      regdpi.io.a(i) := reg(i)
+    }
+    //regdpi.io.a(1) := reg(1)
     //regdpi.io.clock := io.clock
     //regdpi.io.reset := io.reset
-    printf(p"reg(1)=${(regdpi.io.b)} \n")
+    //printf(p"reg(1)=${(regdpi.io.b)} \n")
   }
   when (io.wen){
     when (io.waddr =/= 0.U) {reg(io.waddr) := io.wdata}
