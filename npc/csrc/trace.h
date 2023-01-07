@@ -92,7 +92,7 @@ void instr_tracelog(){
       //printf("i:%d inst:%02x\n",i,inst[i]);
     }
     //写进去的同时 p作为指针也+了
-    printf("%s\n",s.logbuf);
+    //printf("%s\n",s.logbuf);
     //printf("inside exec_once:%s\n",p);
     int ilen_max = 4;
     int space_len = ilen_max - ilen;
@@ -106,7 +106,7 @@ void instr_tracelog(){
     void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
     //extern "C" void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
     disassemble(p,  s.logbuf + sizeof(s.logbuf) - p,s.pc, inst , ilen);
-    //printf("%s\n",s.logbuf);
+    printf("%s\n",s.logbuf);
     fprintf(file,"%s\n",s.logbuf);
     fclose(file);
 }   
