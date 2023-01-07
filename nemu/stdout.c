@@ -5294,7 +5294,7 @@ static void exec_once(Decode *s, vaddr_t pc) {
 
 
   }
-  printf("size:%ls\n",&s->isa.inst.val);
+  printf("size:%d\n",*(uint32_t *)&s->isa.inst.val);
 
 
 

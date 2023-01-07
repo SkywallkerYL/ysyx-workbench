@@ -80,7 +80,7 @@ static void exec_once(Decode *s, vaddr_t pc) {
     //printf("size:%ld\n",s->logbuf + sizeof(s->logbuf) - p);
     //printf("i:%d inst:%02x\n",i,inst[i]);
   }
-  printf("size:%ls\n",&s->isa.inst.val);
+  printf("size:%d\n",*(uint32_t *)&s->isa.inst.val);
   //写进去的同时 p作为指针也+了
   //printf("p :%s\n",s->logbuf);
   //printf("inside exec_once:%s\n",p);
