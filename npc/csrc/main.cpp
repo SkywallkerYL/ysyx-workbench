@@ -23,7 +23,10 @@ extern "C" void set_gpr_ptr(const svOpenArrayHandle r){
 
 void reset(int n ){
   top->reset = 0b1;
+  top->io_PcFlag = 0b1;
+  top->io_PCIN = 0x80000000;
   clockntimes(n);
+  top->io_PcFlag = 0b0;
   top->reset = 0b0;
 }
 

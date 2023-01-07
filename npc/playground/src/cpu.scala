@@ -6,6 +6,8 @@ import chisel3.util.HasBlackBoxInline
 
 class  RiscvCpu extends Module{
     val io = IO(new Bundle{
+        val PcFlag =  Input(Bool())
+        val PCIN = Input(UInt(parm.PCWIDTH.W))
         val halt = Output(Bool())
         val abort = Output(Bool())
         //val pc = Input(UInt(parm.PCWIDTH.W))
@@ -28,13 +30,13 @@ class  RiscvCpu extends Module{
     val addr  = (PcRegOut-parm.INITIAL_PC.U)>>2
     val instr = M(addr)//因为M/4，所以PC要把低两位去掉
     //printf(p"addr=${addr} instr=0x${Hexadecimal(M(addr))} \n")
-    printf(p"pc=0x${Hexadecimal(PcRegOut)} instr=0x${Hexadecimal(instr)}\n")
+    //printf(p"pc=0x${Hexadecimal(PcRegOut)} instr=0x${Hexadecimal(instr)}\n")
     NpcMux.io.jal := Idu.io.jal
     NpcMux.io.PcRegPc := PcReg.io.pc_o
     NpcMux.io.IdPc := Idu.io.pc_o
     NpcMux.io.imm := Idu.io.idex.imm
     NpcMux.io.rs1 := Idu.io.idex.rs1
-    PcReg.io.pc_i := NpcMux.io.NPC
+    PcReg.io.pc_i := Mux(io.PcFlag,io.PCIN,NpcMux.io.NPC)
     PcRegOut := PcReg.io.pc_o
 //ifu
     //val IfU = Module(new IFU())
