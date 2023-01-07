@@ -18,7 +18,7 @@ class SrcFetchDPI extends BlackBox with HasBlackBoxInline{
     |module SrcFetchDPI(
     |   input [4:0] rs1,
     |   input [4:0] rd,
-    |   input [63:0] imm,
+    |   input [63:0] imm
     |);
     |
     |export "DPI-C" function rs1_fetch;
