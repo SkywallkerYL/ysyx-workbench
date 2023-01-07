@@ -36,7 +36,7 @@ class  RiscvCpu extends Module{
     NpcMux.io.IdPc := Idu.io.pc_o
     NpcMux.io.imm := Idu.io.idex.imm
     NpcMux.io.rs1 := Idu.io.idex.rs1
-    PcReg.io.pc_i := Mux(io.PcFlag,PCIN,NpcMux.io.NPC)
+    PcReg.io.pc_i := Mux(io.PcFlag,io.PCIN,NpcMux.io.NPC)
     PcRegOut := PcReg.io.pc_o
 //ifu
     //val IfU = Module(new IFU())
