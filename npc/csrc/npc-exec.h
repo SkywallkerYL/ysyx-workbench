@@ -98,15 +98,15 @@ void initial_default_img(){
   }
   
 }
-void sim_once(){
+void sim_once(uint64_t n){
   clockntimes(1);
 #ifdef CONFIG_ITRACE
-  instr_tracelog();
+  instr_tracelog(n<=max_instr_printnum);
 #endif
 }
 static void execute(uint64_t n) {
     while (n--){
-      sim_once();
+      sim_once(n);
       //注意这里由于单周期，下一条指令如果是ebreak，上面sim_once之后回
       //在sim_once只是更新波形，下一个周期的指令在上一个周期更新时就执行了
       if(checkebreak()){
