@@ -64,6 +64,18 @@ typedef struct Decode {
 } Decode;
 #ifdef  CONFIG_ITRACE
 //itrace 
+#define iringbufsize 16
+char iringbuf[iringbufsize][128];
+int iringbufind = 0;
+void printiringbuf(int finalinst)
+{
+  for (size_t i = 0; i < iringbufsize; i++)
+  {
+    if (i == finalinst) printf("-->");
+    printf("%s\n",iringbuf[i]);
+  }
+}
+
 extern "C" void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
 char default_log[100] = "/home/yangli/ysyx-workbench/npc/build/nemu-log.txt" ;
 void instr_tracelog(bool flag){
@@ -104,17 +116,15 @@ void instr_tracelog(bool flag){
     int size = s.logbuf + sizeof(s.logbuf) - p;
     //printf("size:%ld\n",s.logbuf + sizeof(s.logbuf) - p);
     void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
-    //extern "C" void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
     disassemble(p,  s.logbuf + sizeof(s.logbuf) - p,s.pc, inst , ilen);
     if(flag)printf("%s\n",s.logbuf);
     fprintf(file,"%s\n",s.logbuf);
     fclose(file);
+    strcpy(iringbuf[iringbufind],s->logbuf);
+    iringbufind=(iringbufind+1)%iringbufsize;
 }   
 
 #endif
-
-
-
 
 //ftrace 
 

@@ -67,6 +67,12 @@ bool checkebreak ()
   return flag;
 }
 
+
+void assert_fail_msg() {
+  printiringbuf((iringbufind+iringbufsize-1)%iringbufsize);
+  isa_reg_display();
+}
+
 void load_prog(const char *bin){
   FILE *fp = fopen(bin,"r");
   //assert(fp!=NULL);
@@ -103,13 +109,24 @@ void sim_once(uint64_t n){
 #ifdef CONFIG_ITRACE
   instr_tracelog(n<=max_instr_printnum);
 #endif
+  if(checkebreak()){
+
+  }
 }
 static void execute(uint64_t n) {
+
+    switch (npc_state.state) {
+    case NPC_END: case NPC_ABORT:
+      printf("Program execution has ended. To restart the program, exit NPC and run again.\n");
+      return;
+    default: npc_state.state = NPC_RUNNING;
+    }
     while (n--){
+      //这个n用来决定是否打印指令
       sim_once(n);
       //注意这里由于单周期，下一条指令如果是ebreak，上面sim_once之后回
       //在sim_once只是更新波形，下一个周期的指令在上一个周期更新时就执行了
-      if(checkebreak()){
+      if(checkebreak()||npc_state.state!=NPC_RUNNING){
       //printf("%d\n",top->io_halt);
         if(top->io_halt == 1) printf( ANSI_FMT("HIT GOOD TRAP\n", ANSI_FG_GREEN)) ;
         else printf(ANSI_FMT("HIT BAD TRAP\n", ANSI_FG_RED));
@@ -117,7 +134,7 @@ static void execute(uint64_t n) {
       }
       //sim_once();
     }
-    //if (nemu_state.state != NEMU_RUNNING) {break;}
+    //if (nemu_state.state != NPC_RUNNING) {break;}
     //IFDEF(CONFIG_DEVICE, device_update());
 }
 #endif
