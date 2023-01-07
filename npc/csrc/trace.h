@@ -64,7 +64,7 @@ typedef struct Decode {
 } Decode;
 #ifdef  CONFIG_ITRACE
 //itrace 
-void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
+extern "C" void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
 char default_log[100] = "/home/yangli/ysyx-workbench/npc/build/nemu-log.txt" ;
 void instr_tracelog(){
     Decode s;
@@ -101,7 +101,7 @@ void instr_tracelog(){
     p += space_len;
     //printf("inside exec_once:%s\n",p);
     int size = s.logbuf + sizeof(s.logbuf) - p;
-    //printf("size:%d\n",size);
+    printf("size:%d\n",size);
     //void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
     disassemble(p, size,s.pc, inst, ilen);
     //printf("%s\n",s.logbuf);

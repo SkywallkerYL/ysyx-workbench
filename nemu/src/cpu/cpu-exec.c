@@ -87,6 +87,8 @@ static void exec_once(Decode *s, vaddr_t pc) {
   space_len = space_len * 3 + 1;
   memset(p, ' ', space_len);
   p += space_len;
+  int size = s->logbuf + sizeof(s->logbuf) - p;
+  printf("size:%d\n",size);
   //printf("inside exec_once:%s\n",p);
   void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
   disassemble(p, s->logbuf + sizeof(s->logbuf) - p,
