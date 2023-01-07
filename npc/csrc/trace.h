@@ -113,14 +113,14 @@ void instr_tracelog(bool flag){
     memset(p, ' ', space_len);
     p += space_len;
     //printf("inside exec_once:%s\n",p);
-    int size = s.logbuf + sizeof(s.logbuf) - p;
+    //int size = s.logbuf + sizeof(s.logbuf) - p;
     //printf("size:%ld\n",s.logbuf + sizeof(s.logbuf) - p);
     void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
     disassemble(p,  s.logbuf + sizeof(s.logbuf) - p,s.pc, inst , ilen);
     if(flag)printf("%s\n",s.logbuf);
     fprintf(file,"%s\n",s.logbuf);
     fclose(file);
-    strcpy(iringbuf[iringbufind],s->logbuf);
+    strcpy(iringbuf[iringbufind],s.logbuf);
     iringbufind=(iringbufind+1)%iringbufsize;
 }   
 

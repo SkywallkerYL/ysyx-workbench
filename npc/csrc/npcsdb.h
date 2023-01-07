@@ -81,6 +81,12 @@ static int cmd_c(char *args) {
   execute(-1);
   return 0;
 }
+static int cmd_q(char *args) {
+  npc_state.state= NPC_QUIT;
+  exit(0);
+  //printf("hhhh\n");
+  return 0;
+}
 
 //从起始地址打印给定个数的地址存储的信息
 //example x 10 0x8000_0000
@@ -143,7 +149,7 @@ static struct {
 } cmd_table [] = {
   { "help", "Display information about all supported commands", cmd_help },
   { "c", "Continue the execution of the program", cmd_c },
-  //{ "q", "Exit NEMU", cmd_q },
+  { "q", "Exit NPC", cmd_q },
   { "si", "Single excutaion", cmd_si},
   {"info","info SUBCMD",cmd_info},
   {"x","EXPR SCAN",cmd_x}

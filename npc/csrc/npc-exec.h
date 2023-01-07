@@ -109,8 +109,8 @@ void sim_once(uint64_t n){
 #ifdef CONFIG_ITRACE
   instr_tracelog(n<=max_instr_printnum);
 #endif
-  if(checkebreak()){
-
+  if(checkebreak()||top->io_abort){
+     npc_state.state = NPC_ABORT;
   }
 }
 static void execute(uint64_t n) {
@@ -126,15 +126,51 @@ static void execute(uint64_t n) {
       sim_once(n);
       //注意这里由于单周期，下一条指令如果是ebreak，上面sim_once之后回
       //在sim_once只是更新波形，下一个周期的指令在上一个周期更新时就执行了
-      if(checkebreak()||npc_state.state!=NPC_RUNNING){
+      if(npc_state.state!=NPC_RUNNING){
       //printf("%d\n",top->io_halt);
-        if(top->io_halt == 1) printf( ANSI_FMT("HIT GOOD TRAP\n", ANSI_FG_GREEN)) ;
-        else printf(ANSI_FMT("HIT BAD TRAP\n", ANSI_FG_RED));
+        //if(top->io_halt == 1) printf( ANSI_FMT("HIT GOOD TRAP\n", ANSI_FG_GREEN)) ;
+        //else printf(ANSI_FMT("HIT BAD TRAP\n", ANSI_FG_RED));
         break;
       }
       //sim_once();
     }
-    //if (nemu_state.state != NPC_RUNNING) {break;}
+    switch (npc_state.state) {
+    case NPC_RUNNING: npc_state.state = NPC_STOP; break;
+
+    case NPC_END: break;
+    case NPC_ABORT:
+      if (checkebreak())
+      {
+        if(top->io_halt == 1) printf( ANSI_FMT("HIT GOOD TRAP\n", ANSI_FG_GREEN)) ;
+        else printf(ANSI_FMT("HIT BAD TRAP\n", ANSI_FG_RED));
+      }
+      if (top->io_abort == 1) {
+        int ilen = 4;
+        char inst_buf[128];
+        char *p = inst_buf; 
+        uint64_t pc = Pc_Fetch();
+        uint32_t instr = Instr_Fetch();
+        uint8_t *inst = (uint8_t *)&instr;
+        for (int i = ilen - 1; i >= 0; i --) {
+         p += snprintf(p, 4, " %02x", inst[i]);
+        }
+        int ilen_max = 4;
+        int space_len = ilen_max - ilen;
+        if (space_len < 0) space_len = 0;
+        space_len = space_len * 3 + 1;
+        memset(p, ' ', space_len);
+        p += space_len;
+        void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
+        disassemble(p,  inst_buf + sizeof(inst_buf) - p,pc, inst , ilen);
+        //assert_fail_msg();
+        printf("Instr not implement or other situation!\n");
+        printf("pc: 0x%016lx Inst: %s\n",pc,inst_buf);
+      }
+      
+      // fall through
+    case NPC_QUIT: break;
+    }
+    //if (npc_state.state != NPC_RUNNING) {break;}
     //IFDEF(CONFIG_DEVICE, device_update());
 }
 #endif
