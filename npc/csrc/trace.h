@@ -15,6 +15,11 @@
 #include "macro.h"
 #include "monitor.h"
 
+
+
+
+
+
 uint64_t Pc_Fetch ()
 {
   //这里的scpoe是调用函数位置的模块的名字
@@ -110,6 +115,9 @@ void instr_tracelog(){
 
 
 //ftrace 
+
+
+
 
 
 
