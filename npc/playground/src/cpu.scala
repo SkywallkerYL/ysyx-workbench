@@ -103,7 +103,7 @@ class  RiscvCpu extends Module{
         pcdpi.io.dnpc := NpcMux.io.NPC
         val instrdpi = Module(new InstrFetchDPI)
         instrdpi.io.a := Idu.io.instr_i
-        val srcdpi := Module(new SrcFetchDPI)
+        val srcdpi = Module(new SrcFetchDPI)
         srcdpi.io.rs1 := Idu.io.idex.rs1
         srcdpi.io.rd := Idu.io.idex.rddata
         srcdpi.io.imm := Idu.io.idex.imm
