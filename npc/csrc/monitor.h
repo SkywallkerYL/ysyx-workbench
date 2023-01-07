@@ -6,12 +6,10 @@
 #include <assert.h>
 #include "npc-exec.h"
 #include "npcsdb.h"
-#include "trace.h"
 static char *img_file = NULL;
 static char *log_file = NULL;
 void load_prog(const char *bin);
 void initial_default_img();
-extern "C" void init_disasm(const char *triple);
 FILE *log_fp = NULL;
 void init_log(const char *log_file) {
   log_fp = stdout;
@@ -109,7 +107,7 @@ void init_monitor(int argc, char *argv[])
 
   /* Initialize the simple debugger. */
   //init_sdb();
-   init_disasm("riscv64-pc-linux-gnu");
+
   /* Display welcome message. */
 }
 

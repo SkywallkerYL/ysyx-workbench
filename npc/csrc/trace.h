@@ -14,12 +14,6 @@
 #include "svdpi.h"
 #include "macro.h"
 #include "monitor.h"
-
-
-
-
-
-
 uint64_t Pc_Fetch ()
 {
   //这里的scpoe是调用函数位置的模块的名字
@@ -64,8 +58,6 @@ typedef struct Decode {
 } Decode;
 #ifdef  CONFIG_ITRACE
 //itrace 
-extern "C" void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
-char default_log[100] = "/home/yangli/ysyx-workbench/npc/build/nemu-log.txt" ;
 void instr_tracelog(){
     Decode s;
     //printf("No file!!!!\n");
@@ -74,25 +66,24 @@ void instr_tracelog(){
     //printf("No file!!!!\n");
     FILE *file;
     file = fopen(log_file,"a");
-    if (file == NULL) {file = fopen(default_log,"a");}
+    if (file == NULL) {printf("No file!!!!\n");}
     char *p = s.logbuf;
-    //printf("p :%s logbuf:%s\n",p,s.logbuf);
+    //printf("p :%s logbuf:%s\n",p,s->logbuf);
     //printf("inside exec_once:p :%s, s->snpc: %ld, s->pc: %ld\n",p,s->snpc,s->pc);
     p += snprintf(p, sizeof(s.logbuf), FMT_WORD ":", s.pc);
-    //printf("size:%ld\n",s.logbuf + sizeof(s.logbuf) - p);
+    
     //printf("p: %saaa\n",s.logbuf);
     int ilen = 4;
     int i;
-    uint32_t instr = Instr_Fetch();
+    uint64_t instr = Instr_Fetch();
     uint8_t *inst = (uint8_t *)&instr;
     for (i = ilen - 1; i >= 0; i --) {
       //printf("inside exec_once:%s\n",p);
       p += snprintf(p, 4, " %02x", inst[i]);
-      //printf("size:%ld\n",s.logbuf + sizeof(s.logbuf) - p);
       //printf("i:%d inst:%02x\n",i,inst[i]);
     }
     //写进去的同时 p作为指针也+了
-    //printf("%s\n",s.logbuf);
+    printf("%s\n",s.logbuf);
     //printf("inside exec_once:%s\n",p);
     int ilen_max = 4;
     int space_len = ilen_max - ilen;
@@ -101,12 +92,12 @@ void instr_tracelog(){
     memset(p, ' ', space_len);
     p += space_len;
     //printf("inside exec_once:%s\n",p);
-    int size = s.logbuf + sizeof(s.logbuf) - p;
-    //printf("size:%ld\n",s.logbuf + sizeof(s.logbuf) - p);
+    
     void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
-    //extern "C" void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
-    disassemble(p,  s.logbuf + sizeof(s.logbuf) - p,s.pc, inst , ilen);
-    printf("%s\n",s.logbuf);
+    disassemble(p, s.logbuf + sizeof(s.logbuf) - p,
+       s.pc, inst, ilen);
+       
+    //printf("%s\n",s.logbuf);
     fprintf(file,"%s\n",s.logbuf);
     fclose(file);
 }   
@@ -117,9 +108,6 @@ void instr_tracelog(){
 
 
 //ftrace 
-
-
-
 
 
 
