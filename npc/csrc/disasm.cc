@@ -92,7 +92,7 @@ extern "C" void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int
   printf("hhhh\n");
   llvm::ArrayRef<uint8_t> arr(code, nbyte);
   uint64_t dummy_size = 0;
-  printf("hhh1h\n");
+  printf("pc: 0x%08lx  hhh1h\n",pc);
   //这个函数会触发段错误
   gDisassembler->getInstruction(inst, dummy_size, arr, pc, llvm::nulls());
  //printf("hhh1h\n");
