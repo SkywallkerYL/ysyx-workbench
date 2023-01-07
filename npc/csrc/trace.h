@@ -17,9 +17,9 @@
 #include "monitor.h"
 
 
-
-
-
+#define word_t uint64_t
+#define paddr_t uint64_t
+#define vaddr_t uint64_t
 
 uint64_t Pc_Fetch ()
 {
@@ -43,6 +43,34 @@ uint64_t Dnpc_Fetch ()
   return pc;
 }
 
+uint64_t imm_Fetch ()
+{
+  //这里的scpoe是调用函数位置的模块的名字
+  const svScope scope = svGetScopeFromName("TOP.RiscvCpu.srcdpi");
+  assert(scope);
+  svSetScope(scope);
+  uint64_t imm = (uint64_t)imm_fetch();
+  return imm;
+}
+int8_t rs1_Fetch ()
+{
+  //这里的scpoe是调用函数位置的模块的名字
+  const svScope scope = svGetScopeFromName("TOP.RiscvCpu.srcdpi");
+  assert(scope);
+  svSetScope(scope);
+  uint64_t rs1 = (uint64_t)rs1_fetch();
+  return rs1;
+}
+
+int8_t rd_Fetch ()
+{
+  //这里的scpoe是调用函数位置的模块的名字
+  const svScope scope = svGetScopeFromName("TOP.RiscvCpu.srcdpi");
+  assert(scope);
+  svSetScope(scope);
+  uint64_t rd = (uint64_t)rd_fetch();
+  return rd;
+}
 
 uint32_t Instr_Fetch ()
 {
@@ -78,7 +106,7 @@ void printiringbuf(int finalinst)
 }
 
 extern "C" void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
-char default_log[100] = "/home/yangli/ysyx-workbench/npc/build/nemu-log.txt" ;
+char default_log[100] = "/home/yangli/ysyx-workbench/npc/build/npc-flog.txt" ;
 void instr_tracelog(bool flag){
     Decode s;
     //printf("No file!!!!\n");
@@ -128,6 +156,29 @@ void instr_tracelog(bool flag){
 #endif
 
 //ftrace 
+
+union var8
+{
+    char p[8];
+    int64_t i;
+};
+union var4
+{
+    char p[4];
+    int32_t i;
+};
+union var2
+{
+    char p[2];
+    int16_t i;
+};
+union var1
+{
+    char p;
+    int8_t i;
+};
+
+
 
 static int symblenumber ;//记录符号的表的符号个数
 //static int maxsymbolnumber = 4096;
@@ -396,7 +447,8 @@ void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1,word_t s
     strncpy(funcname,newp,len);
     funcname[len] = '\0';
     callcount--;
-    fprintf(file,"pc:%lx: funpc:%lx ",cpu.pc,realpc);
+    uint64_t localpc = Pc_Fetch();
+    fprintf(file,"pc:%lx: funpc:%lx ",localpc,realpc);
     for (int i = 0;i<callcount;i++)  fprintf(file," ");
     fprintf(file,"ret [%s]\n",funcname);
     //ret[%s] \n
@@ -430,7 +482,7 @@ void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1,word_t s
         strncpy(funcname,newp,len);
         funcname[len] = '\0';
         bool pccallflag = 0;
-        word_t localpc = cpu.pc;
+        word_t localpc = Pc_Fetch();
         for (size_t i = 0; i < 256; i++)
         {
           //说明该函数已经调用过了
@@ -464,7 +516,7 @@ void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1,word_t s
         
         //printf(" %s",funcname); printf("\n");
         //printf("pc:%lx: Addr:%x func [%s] rd:%d rs1:%d imm:%ld jarl:%d\n",cpu.pc,addr,funcname,rd,rs1,imm,jarlflag);
-        fprintf(file,"pc:%lx: Addr:%x ",localpc,addr);
+        fprintf(file,"pc:%lx: Addr:%lx ",localpc,addr);
         //call [%s]\n
         for (int i = 0;i<callcount;i++)  fprintf(file," ");
         fprintf(file,"call [%s]\n",funcname);

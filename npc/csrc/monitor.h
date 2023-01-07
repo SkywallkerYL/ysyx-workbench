@@ -9,6 +9,7 @@
 #include "trace.h"
 static char *img_file = NULL;
 static char *log_file = NULL;
+static char *elf_file = NULL;
 static char *elf_logfile = NULL ;
 static char defaultelf_logfile[128] = "/home/yangli/ysyx-workbench/npc/build/ftrace-log.txt";
 void load_prog(const char *bin);
@@ -39,7 +40,7 @@ static int parse_args(int argc, char *argv[])
       {0, 0, NULL, 0},
   };
   int o;
-  while ((o = getopt_long(argc, argv, "-f:bhl:d:p:-flog:", table, NULL)) != -1)
+  while ((o = getopt_long(argc, argv, "-f:bhl:d:p:-v:", table, NULL)) != -1)
   {
     switch (o)
     {
@@ -62,7 +63,7 @@ static int parse_args(int argc, char *argv[])
       //printf("hhhh\n");
       elf_file = optarg;
       break;
-    case 'f':
+    case 'v':
       //printf("hhhh\n");
       elf_logfile = optarg;
       break;
