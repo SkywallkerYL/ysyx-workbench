@@ -105,7 +105,7 @@ void instr_tracelog(){
     //printf("size:%ld\n",s.logbuf + sizeof(s.logbuf) - p);
     void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
     //extern "C" void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
-    disassemble(p,  s.logbuf + sizeof(s.logbuf) - p,s.pc,  (uint8_t *)&instr, ilen);
+    disassemble(p,  s.logbuf + sizeof(s.logbuf) - p,s.pc, inst , ilen);
     //printf("%s\n",s.logbuf);
     fprintf(file,"%s\n",s.logbuf);
     fclose(file);

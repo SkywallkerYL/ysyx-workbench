@@ -98,7 +98,7 @@ static void exec_once(Decode *s, vaddr_t pc) {
   printf("chose pc:%08lx\n",MUXDEF(CONFIG_ISA_x86, s->snpc, s->pc));
   void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
   disassemble(p, s->logbuf + sizeof(s->logbuf) - p,
-      MUXDEF(CONFIG_ISA_x86, s->snpc, s->pc), (uint8_t *)&s->isa.inst.val, ilen);
+      MUXDEF(CONFIG_ISA_x86, s->snpc, s->pc), inst, ilen);
   //printf("p :%s\n",s->logbuf);
   strcpy(iringbuf[iringbufind],s->logbuf);
   iringbufind=(iringbufind+1)%iringbufsize;

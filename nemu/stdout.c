@@ -5312,7 +5312,7 @@ static void exec_once(Decode *s, vaddr_t pc) {
   printf("chose pc:%08lx\n",s->pc);
   void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
   disassemble(p, s->logbuf + sizeof(s->logbuf) - p,
-      s->pc, (uint8_t *)&s->isa.inst.val, ilen);
+      s->pc, inst, ilen);
 
   strcpy(iringbuf[iringbufind],s->logbuf);
   iringbufind=(iringbufind+1)%16;

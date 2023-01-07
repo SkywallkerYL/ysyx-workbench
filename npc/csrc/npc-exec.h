@@ -79,7 +79,7 @@ void load_prog(const char *bin){
 }
 int instr_mem[MSIZE/4-1];
 void initial_default_img(){
-  instr_mem[0] = 0b00000000000100000000000010010011;
+  instr_mem[0] = 0x00000297;
   instr_mem[1] = 0b00000000000100000000000010010011;
   instr_mem[2] = 0b00000000000100000000000010010011;
   instr_mem[3] = 0b00000000001100000000000010010011;
