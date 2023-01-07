@@ -68,6 +68,7 @@ static void exec_once(Decode *s, vaddr_t pc) {
   //printf("p :%s logbuf:%s\n",p,s->logbuf);
   //printf("inside exec_once:p :%s, s->snpc: %ld, s->pc: %ld\n",p,s->snpc,s->pc);
   p += snprintf(p, sizeof(s->logbuf), FMT_WORD ":", s->pc);
+  printf("size:%ld\n",s->logbuf + sizeof(s->logbuf) - p);
   //printf("p :%s\n",s->logbuf);
   int ilen = s->snpc - s->pc;
   printf("ilen :%d\n",ilen);
@@ -76,6 +77,7 @@ static void exec_once(Decode *s, vaddr_t pc) {
   for (i = ilen - 1; i >= 0; i --) {
     //printf("inside exec_once:%s\n",p);
     p += snprintf(p, 4, " %02x", inst[i]);
+    printf("size:%ld\n",s->logbuf + sizeof(s->logbuf) - p);
     //printf("i:%d inst:%02x\n",i,inst[i]);
   }
   //写进去的同时 p作为指针也+了
@@ -88,8 +90,8 @@ static void exec_once(Decode *s, vaddr_t pc) {
   space_len = space_len * 3 + 1;
   memset(p, ' ', space_len);
   p += space_len;
-  int size = s->logbuf + sizeof(s->logbuf) - p;
-  printf("size:%d\n",size);
+  //int size = s->logbuf + sizeof(s->logbuf) - p;
+  printf("size:%ld\n",s->logbuf + sizeof(s->logbuf) - p);
   //printf("inside exec_once:%s\n",p);
   void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
   disassemble(p, s->logbuf + sizeof(s->logbuf) - p,
