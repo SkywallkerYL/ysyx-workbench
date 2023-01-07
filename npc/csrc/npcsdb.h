@@ -9,7 +9,6 @@
 #include "npc-exec.h"
 using namespace std;
 static VRiscvCpu* top;
-#define max_instr_printnum 10
 static void execute(uint64_t n) ;
 
 static char* rl_gets() {
@@ -120,9 +119,7 @@ void isa_reg_display(){
   return;
 }
 static int cmd_info(char *args){
-  if (arg==NULL) return 0;
   char *arg = strtok(NULL," ");
-  if (arg==NULL) return 0;
   if (strcmp(arg,"r")==0)
   {
     isa_reg_display();
