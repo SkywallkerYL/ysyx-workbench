@@ -80,25 +80,25 @@ static void exec_once(Decode *s, vaddr_t pc) {
     //printf("size:%ld\n",s->logbuf + sizeof(s->logbuf) - p);
     //printf("i:%d inst:%02x\n",i,inst[i]);
   }
-  printf("size:%d\n",*(uint32_t *)&s->isa.inst.val);
+  //printf("size:%d\n",*(uint32_t *)&s->isa.inst.val);
   //写进去的同时 p作为指针也+了
   //printf("p :%s\n",s->logbuf);
   //printf("inside exec_once:%s\n",p);
   int ilen_max = MUXDEF(CONFIG_ISA_x86, 8, 4);
-  printf("ilen_max :%d\n",ilen_max);
-  printf("ilen_max :%d\n",MUXDEF(CONFIG_ISA_x86, 8, 4));
+ // printf("ilen_max :%d\n",ilen_max);
+  //printf("ilen_max :%d\n",MUXDEF(CONFIG_ISA_x86, 8, 4));
   int space_len = ilen_max - ilen;
   if (space_len < 0) space_len = 0;
   space_len = space_len * 3 + 1;
   memset(p, ' ', space_len);
   p += space_len;
   //int size = s->logbuf + sizeof(s->logbuf) - p;
-  printf("size:%ld\n",s->logbuf + sizeof(s->logbuf) - p);
+  //printf("size:%ld\n",s->logbuf + sizeof(s->logbuf) - p);
   //printf("inside exec_once:%s\n",p);
   printf("chose pc:%08lx\n",MUXDEF(CONFIG_ISA_x86, s->snpc, s->pc));
   void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
   disassemble(p, s->logbuf + sizeof(s->logbuf) - p,
-      MUXDEF(CONFIG_ISA_x86, s->snpc, s->pc), inst, ilen);
+      MUXDEF(CONFIG_ISA_x86, s->snpc, s->pc), (uint8_t *)&s->isa.inst.val, ilen);
   //printf("p :%s\n",s->logbuf);
   strcpy(iringbuf[iringbufind],s->logbuf);
   iringbufind=(iringbufind+1)%iringbufsize;
