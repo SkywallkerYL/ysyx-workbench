@@ -98,19 +98,31 @@ void initial_default_img(){
   }
   
 }
-
-static void execute(uint64_t n) {
-    while (n--){
+void sim_once(){
+  clockntimes(1);
 #ifdef CONFIG_ITRACE
-      instr_tracelog();
+  instr_tracelog();
 #endif
-      clockntimes(1);
+}
+static bool firstinst = 1;
+static void execute(uint64_t n) {
+if (firstinst) {
+#ifdef CONFIG_ITRACE
+  instr_tracelog();
+#endif
+firstinst = 0;
+}
+    while (n--){
+      sim_once();
+      //注意这里由于单周期，下一条指令如果是ebreak，上面sim_once之后回
+      //在sim_once只是更新波形，下一个周期的指令在上一个周期更新时就执行了
       if(checkebreak()){
       //printf("%d\n",top->io_halt);
         if(top->io_halt == 1) printf( ANSI_FMT("HIT GOOD TRAP\n", ANSI_FG_GREEN)) ;
         else printf(ANSI_FMT("HIT BAD TRAP\n", ANSI_FG_RED));
         break;
       }
+      //sim_once();
     }
     //if (nemu_state.state != NEMU_RUNNING) {break;}
     //IFDEF(CONFIG_DEVICE, device_update());
