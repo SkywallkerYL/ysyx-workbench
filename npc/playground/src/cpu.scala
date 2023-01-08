@@ -10,6 +10,7 @@ class  RiscvCpu extends Module{
         val PCIN = Input(UInt(parm.PCWIDTH.W))
         val halt = Output(Bool())
         val abort = Output(Bool())
+        val jalr = Output(Bool())
         //val pc = Input(UInt(parm.PCWIDTH.W))
         //val instr = Input(UInt(parm.INSTWIDTH.W)) // instr暂时拉到顶层
         //val PcRegOut = Output(UInt(parm.PCWIDTH.W)) //根据pc_reg的out来取指
@@ -102,9 +103,14 @@ class  RiscvCpu extends Module{
         pcdpi.io.dnpc := NpcMux.io.NPC
         val instrdpi = Module(new InstrFetchDPI)
         instrdpi.io.a := Idu.io.instr_i
+        val srcdpi = Module(new SrcFetchDPI)
+        srcdpi.io.rs1 := Idu.io.idex.rs1
+        srcdpi.io.rd := Idu.io.idex.rdaddr
+        srcdpi.io.imm := Idu.io.idex.imm
     }
     io.halt := Idu.io.ebreak&&(Idu.io.rs_data1===0.U)
-    io.abort := Idu.io.instrnoimpl;
+    io.abort := Idu.io.instrnoimpl
+    io.jalr := Idu.io.jal === 2.U
     //io.res := exu.io.expres
 
 }
