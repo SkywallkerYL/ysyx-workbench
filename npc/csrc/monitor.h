@@ -9,9 +9,6 @@
 #include "trace.h"
 static char *img_file = NULL;
 static char *log_file = NULL;
-static char *elf_file = NULL;
-static char *elf_logfile = NULL ;
-static char defaultelf_logfile[128] = "/home/yangli/ysyx-workbench/npc/build/ftrace-log.txt";
 void load_prog(const char *bin);
 void initial_default_img();
 extern "C" void init_disasm(const char *triple);
@@ -40,7 +37,7 @@ static int parse_args(int argc, char *argv[])
       {0, 0, NULL, 0},
   };
   int o;
-  while ((o = getopt_long(argc, argv, "-f:bhl:d:p:-v:", table, NULL)) != -1)
+  while ((o = getopt_long(argc, argv, "-f:bhl:d:p:", table, NULL)) != -1)
   {
     switch (o)
     {
@@ -61,11 +58,7 @@ static int parse_args(int argc, char *argv[])
       return 0;
     case 'f':
       //printf("hhhh\n");
-      elf_file = optarg;
-      break;
-    case 'v':
-      //printf("hhhh\n");
-      elf_logfile = optarg;
+      //elf_filein = optarg;
       break;
     default:
       printf("Usage: %s [OPTION...] IMAGE [args]\n\n", argv[0]);
@@ -90,11 +83,11 @@ void init_monitor(int argc, char *argv[])
 
   /* Open the log file. */
   init_log(log_file);
-#ifdef CONFIG_ITRACE
-  //init_mtrace();
-  //printf("in monitor: %s\n",elf_filein);
+#ifdef CONFIG_MTRACE
+  init_mtrace();
+  printf("in monitor: %s\n",elf_filein);
   //elf_filein = "/home/yangli/ysyx-workbench/am-kernels/tests/cpu-tests/build/recursion-riscv64-nemu.elf";
-  if (elf_file!=NULL) init_ftrace(elf_file);
+  if (elf_filein!=NULL) init_ftrace(elf_filein);
   else printf("No elf file\n");
 #endif
   //if (elf_filein!=NULL) init_ftrace(elf_filein);

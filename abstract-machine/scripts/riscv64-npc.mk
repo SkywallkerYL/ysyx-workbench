@@ -17,12 +17,9 @@ CFLAGS += -DMAINARGS=\"$(mainargs)\"
 .PHONY: $(AM_HOME)/am/src/riscv/npc/trm.c
 
 NEMUFLAGS = -l 
-NEMUFLAGS += $(shell dirname $(IMAGE).elf)/npclog.txt
+NEMUFLAGS += $(shell dirname $(IMAGE).elf)/nemu-log.txt
 
-ELFFILE = $(IMAGE).elf
-ELFLOGFILE = $(shell dirname $(IMAGE).elf)/npcftrace.txt
-
-FILENAME = $(shell dirname $(IMAGE).elf)/npclog.txt
+FILENAME = $(shell dirname $(IMAGE).elf)/nemu-log.txt
 image: $(IMAGE).elf
 	@$(OBJDUMP) -d $(IMAGE).elf > $(IMAGE).txt
 	@echo + OBJCOPY "->" $(IMAGE_REL).bin
@@ -30,4 +27,4 @@ image: $(IMAGE).elf
 
 run: image
 	echo "$(IMAGE)" "$(NEMUFLAGS )" "$(NEMUFLAG)"
-	$(MAKE) -C $(NPC_HOME) run NPCMODE+=-l NPCMODE+=$(FILENAME) NPCMODE+=-f NPCMODE+=$(ELFFILE) NPCMODE+=-v NPCMODE+=$(ELFLOGFILE)  IMG=$(IMAGE).bin
+	$(MAKE) -C $(NPC_HOME) run NPCMODE+=-l NPCMODE+=$(FILENAME) IMG=$(IMAGE).bin

@@ -108,13 +108,6 @@ void sim_once(uint64_t n){
   clockntimes(1);
 #ifdef CONFIG_ITRACE
   instr_tracelog(n<=max_instr_printnum);
-  uint64_t dnpc = Dnpc_Fetch();
-  bool jalrflag = top->io_jalr;
-  int d = rd_Fetch();
-  int rs1 = rs1_Fetch();
-  uint64_t src1 = cpu_gpr[rs1];
-  uint64_t imm = imm_Fetch();
-  log_ftrace(dnpc,jalrflag,d,imm,rs1,src1);
 #endif
   if(checkebreak()||top->io_abort){
      npc_state.state = NPC_ABORT;
