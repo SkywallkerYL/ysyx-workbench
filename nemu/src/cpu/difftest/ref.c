@@ -45,7 +45,7 @@ void difftest_regcpy(void *dut, bool direction) {
     //看riscv64-nemu.h的实现还有几个寄存器，目前还没实现，先写在这里
     //为了地址的连续性，把pc放在dut的第32个
     cpu.pc = ((uint64_t *)dut)[32];
-    printf("cpu.pc : 0x%08x\n",cpu.pc );
+    //printf("cpu.pc : 0x%08x\n",cpu.pc );
     //cpu.mepc = ((uint64_t *)dut)[33];
     //cpu.mcause = ((uint64_t *)dut)[34];
     //cpu.mtvec = ((uint64_t *)dut)[35];
@@ -62,7 +62,7 @@ void difftest_regcpy(void *dut, bool direction) {
 }
 
 void difftest_exec(uint64_t n) {
-  printf("in difftest_exec\n");
+  //printf("in difftest_exec\n");
   cpu_exec(n);
   //assert(0);
 }
@@ -73,8 +73,8 @@ void difftest_raise_intr(word_t NO) {
 
 void difftest_init(int port) {
   /* Perform ISA dependent initialization. */
-  printf("in nemu initial!!\n");
-  Log("nemu difftest init");
+  //printf("in nemu initial!!\n");
+  //Log("nemu difftest init");
   init_isa();
 }
 

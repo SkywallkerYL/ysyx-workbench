@@ -19,6 +19,9 @@ CFLAGS += -DMAINARGS=\"$(mainargs)\"
 NEMUFLAGS = -l 
 NEMUFLAGS += $(shell dirname $(IMAGE).elf)/npclog.txt
 
+
+DIFFTESTNEMUFILE=/home/yangli/ysyx-workbench/nemu/build/riscv64-nemu-interpreter-so
+NPCMODE+=$(DIFFTESTNEMUFILE)
 ELFFILE = $(IMAGE).elf
 ELFLOGFILE = $(shell dirname $(IMAGE).elf)/npcftrace.txt
 
@@ -30,4 +33,4 @@ image: $(IMAGE).elf
 
 run: image
 	echo "$(IMAGE)" "$(NEMUFLAGS )" "$(NEMUFLAG)"
-	$(MAKE) -C $(NPC_HOME) run NPCMODE+=-l NPCMODE+=$(FILENAME) NPCMODE+=-f NPCMODE+=$(ELFFILE) NPCMODE+=-v NPCMODE+=$(ELFLOGFILE)  IMG=$(IMAGE).bin
+	$(MAKE) -C $(NPC_HOME) run NPCMODE+=-l NPCMODE+=$(FILENAME) NPCMODE+=-f NPCMODE+=$(ELFFILE) NPCMODE+=-v NPCMODE+=$(ELFLOGFILE) NPCMODE+=-d NPCMODE+=$(DIFFTESTNEMUFILE)  IMG=$(IMAGE).bin

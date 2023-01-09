@@ -64,6 +64,15 @@ void difftest_skip_dut(int nr_ref, int nr_dut) {
 }
 
 void init_difftest(char *ref_so_file, long img_size, int port) {
+
+
+  CPU_state refcpu;
+  for (size_t i = 0; i < 32; i++)
+  {
+    refcpu.gpr[i] = cpu_gpr[i];
+  }
+  refcpu.pc = cpu.gpr[32];
+  
   assert(ref_so_file != NULL);
   printf("%s\n",ref_so_file);
   void *handle;
@@ -96,7 +105,7 @@ void init_difftest(char *ref_so_file, long img_size, int port) {
   //guest_to_host(RESET_VECTOR)
   ref_difftest_memcpy(RESET_VECTOR, guest_to_host(RESET_VECTOR), img_size, DIFFTEST_TO_REF);
   Log("nemu memcpy init");
-  ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
+  ref_difftest_regcpy(&refcpu, DIFFTEST_TO_REF);
 }
 
 static void checkregs(CPU_state *ref, vaddr_t pc) {
