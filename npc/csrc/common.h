@@ -39,6 +39,27 @@ static inline bool in_pmem(paddr_t addr) {
 
  
 #define CONFIG_TARGET_NATIVE_ELF
+
+#define Assert(cond, format, ...) \
+  do { \
+    if (!(cond)) { \
+        (fflush(stdout), fprintf(stderr, ANSI_FMT(format, ANSI_FG_RED) "\n", ##  __VA_ARGS__)); \
+           extern FILE* log_fp; fflush(log_fp); \
+      extern void assert_fail_msg(); \
+      assert_fail_msg(); \
+      assert(cond); \
+    } \
+  } while (0)
+
+#define panic(format, ...) Assert(0, format, ## __VA_ARGS__)
+
+#define panic_on(cond, s) \
+  ({ if (cond) { \
+      putstr("AM Panic: "); putstr(s); \
+      putstr(" @ " __FILE__ ":" TOSTRING(__LINE__) "  \n"); \
+      halt(1); \
+    } })
+//#define panic(s) panic_on(1, s)
 #define log_write(...) IFDEF(CONFIG_TARGET_NATIVE_ELF, \
   do { \
     extern FILE* log_fp; \

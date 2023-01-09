@@ -100,6 +100,7 @@ CFLAGS += $(shell llvm-config --cxxflags) -fPIE
 LDFLAGS += -lSDL2 -lSDL2_image 
 LDFLAGS += $(shell llvm-config --libs)
 LDFLAGS += -lreadline
+
 IMG?=
 
 	
@@ -117,8 +118,10 @@ runnvboard: $(BIN)
 	#for nvboard
 	@$^
 
-NPCMODE=
+NPCMODE=-d
 
+DIFFTESTNEMUFILE=/home/yangli/ysyx-workbench/nemu/build/riscv64-nemu-interpreter-so
+NPCMODE+=$(DIFFTESTNEMUFILE)
 run: 
 	#for testbench        
 	@echo "---------------VERILATE------------------"

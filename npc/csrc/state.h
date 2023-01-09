@@ -31,6 +31,6 @@ typedef struct {
 typedef riscv64_CPU_state CPU_state;
 
 
-extern CPU_state cpu;
+CPU_state cpu;
 
 #endif

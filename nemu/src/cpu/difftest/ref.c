@@ -20,6 +20,8 @@
 //direction指定拷贝的方向，
 //DIFFTEST_TO_DUT 获取ref的寄存器状态到DUT 表示往DUT拷贝
 //DIDDTEST_TO_REF 设置REF的寄存器的状态位DUT 表示往REF拷贝
+
+
 void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction) {
   
   if (direction == DIFFTEST_TO_REF)
@@ -71,3 +73,4 @@ void difftest_init(int port) {
   /* Perform ISA dependent initialization. */
   init_isa();
 }
+

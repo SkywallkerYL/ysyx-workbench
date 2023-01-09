@@ -15,8 +15,8 @@ static char *diff_so_file = NULL;
 static char *elf_logfile = NULL ;
 static int difftest_port = 1234;
 static char defaultelf_logfile[128] = "/home/yangli/ysyx-workbench/npc/build/ftrace-log.txt";
-void load_prog(const char *bin);
-void initial_default_img();
+long load_prog(const char *bin);
+long initial_default_img();
 extern "C" void init_disasm(const char *triple);
 FILE *log_fp = NULL;
 void init_log(const char *log_file) {

@@ -11,6 +11,7 @@
 #include "types.h"
 #include "npc-exec.h"
 #include "monitor.h"
+#include "common.h"
 #include "verilated_dpi.h"
 
 
