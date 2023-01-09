@@ -6,6 +6,7 @@
 #include "common.h"
 #include "state.h"
 #include "npcsdb.h"
+#include "trace.h"
 void (*ref_difftest_memcpy)(paddr_t addr, void *buf, size_t n, bool direction) = NULL;
 void (*ref_difftest_regcpy)(void *dut, bool direction) = NULL;
 void (*ref_difftest_exec)(uint64_t n) = NULL;
@@ -22,11 +23,12 @@ static bool is_skip_ref = false;
 static int skip_dut_nr_inst = 0;
 bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc);
 bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
-  if (ref_r->pc!=pc) return false;
+  if (ref_r->pc!=pc) {Log("ref_pc: 0x%016lx npc_pc:0x%016lx ",ref_r->pc,pc);return false;}
   for (size_t i = 0; i < 32; i++)
   {
     if (ref_r->gpr[i]!=cpu.gpr[i])
     {
+      Log("reg:%s ref: 0x%016lx npc:0x%016lx ",regs[i],ref_r->gpr[i],pc);
       return false;
     }
     
@@ -62,7 +64,7 @@ void difftest_skip_dut(int nr_ref, int nr_dut) {
     ref_difftest_exec(1);
   }
 }
-
+uint64_t Pc_Fetch ();
 void init_difftest(char *ref_so_file, long img_size, int port) {
 
 
@@ -71,8 +73,8 @@ void init_difftest(char *ref_so_file, long img_size, int port) {
   {
     refcpu.gpr[i] = cpu_gpr[i];
   }
-  refcpu.pc = cpu.gpr[32];
-  
+  refcpu.pc = 0x80000000;
+  printf("0x%08lx\n",refcpu.pc);
   assert(ref_so_file != NULL);
   printf("%s\n",ref_so_file);
   void *handle;
@@ -100,11 +102,11 @@ void init_difftest(char *ref_so_file, long img_size, int port) {
       "If it is not necessary, you can turn it off in menuconfig.", ref_so_file);
 
   ref_difftest_init(port);
-  Log("nemu difftest init");
+  //Log("nemu difftest init");
   //&top->rootp->RiscvCpu__DOT__M
   //guest_to_host(RESET_VECTOR)
-  ref_difftest_memcpy(RESET_VECTOR, guest_to_host(RESET_VECTOR), img_size, DIFFTEST_TO_REF);
-  Log("nemu memcpy init");
+  ref_difftest_memcpy(RESET_VECTOR, (uint8_t *)&top->rootp->RiscvCpu__DOT__M, img_size, DIFFTEST_TO_REF);
+  //Log("nemu memcpy init");
   ref_difftest_regcpy(&refcpu, DIFFTEST_TO_REF);
 }
 
@@ -112,7 +114,7 @@ static void checkregs(CPU_state *ref, vaddr_t pc) {
   if (!isa_difftest_checkregs(ref, pc)) {
     npc_state.state = NPC_ABORT;
     npc_state.halt_pc = pc;
-    //printf("hhhh\n");
+    printf("Not same!!!\n");
     isa_reg_display();
   }
 }
@@ -141,10 +143,15 @@ void difftest_step(vaddr_t pc, vaddr_t npc) {
     is_skip_ref = false;
     return;
   }
-  printf("hhhhhh\n");
+  //Log("ref_pc: 0x%016lx npc_pc:0x%016lx ",ref_r->pc,pc);
+  //printf("hhhhhh\n");
+  uint64_t pcnow = Pc_Fetch();
+  ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
+   Log("ref_pc: 0x%016lx npc_pc:0x%016lx ",ref_r.pc,pc);
   ref_difftest_exec(1);
   //printf("ref_r_pc:%08lx \n",ref_r.pc);
   ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
+  Log("ref_pc: 0x%016lx npc_pc:0x%016lx ",ref_r.pc,pcnow);
   //printf("ref_r_pc:%08lx \n",ref_r.pc);
   checkregs(&ref_r, pc);
 }

@@ -48,7 +48,7 @@ int main(int argc , char* argv[]) {
 
   //先读文件，再reset，不然第一条指令始终是0
   //Initial IMG
-  
+  reset(1);
   init_monitor(argc, argv);
 
   reset(5);
