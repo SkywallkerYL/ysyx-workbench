@@ -15,11 +15,9 @@
 #include "svdpi.h"
 #include "macro.h"
 #include "monitor.h"
+#include "common.h"
 
 
-#define word_t uint64_t
-#define paddr_t uint64_t
-#define vaddr_t uint64_t
 
 uint64_t Pc_Fetch ()
 {

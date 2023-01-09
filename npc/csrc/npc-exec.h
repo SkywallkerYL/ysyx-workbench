@@ -73,18 +73,21 @@ void assert_fail_msg() {
   isa_reg_display();
 }
 
-void load_prog(const char *bin){
+long load_prog(const char *bin){
   FILE *fp = fopen(bin,"r");
   //assert(fp!=NULL);
-  if(fp==NULL) {printf("No Image Input\n");return;} 
+  if(fp==NULL) {printf("No Image Input\n");return 1024;} 
   else printf("Read file %s\n",bin);
+  fseek(fp, 0, SEEK_END);
+  long size = ftell(fp);
   fseek(fp,0,SEEK_SET);
-  if(fread(&top->rootp->RiscvCpu__DOT__M,1,MSIZE,fp)==0) return;
+  if(fread(&top->rootp->RiscvCpu__DOT__M,1,MSIZE,fp)==0) return 0;
   //printf("HHH\n");
   fclose(fp);
+  return size;
 }
 int instr_mem[MSIZE/4-1];
-void initial_default_img(){
+long initial_default_img(){
   instr_mem[0] = 0x00000297;
   instr_mem[1] = 0b00000000000100000000000010010011;
   instr_mem[2] = 0b00000000000100000000000010010011;
@@ -102,7 +105,7 @@ void initial_default_img(){
     *p = instr_mem[i];
     p++;
   }
-  
+  return MSIZE;
 }
 void sim_once(uint64_t n){
   clockntimes(1);
@@ -133,6 +136,11 @@ static void execute(uint64_t n) {
       sim_once(n);
       //注意这里由于单周期，下一条指令如果是ebreak，上面sim_once之后回
       //在sim_once只是更新波形，下一个周期的指令在上一个周期更新时就执行了
+#ifdef CONFIG_ITRACE
+      uint64_t localpc = Pc_Fetch();
+      uint64_t localnpc = Dnpc_Fetch();
+      difftest_step(localpc,localnpc);
+#endif
       if(npc_state.state!=NPC_RUNNING){
       //printf("%d\n",top->io_halt);
         //if(top->io_halt == 1) printf( ANSI_FMT("HIT GOOD TRAP\n", ANSI_FG_GREEN)) ;

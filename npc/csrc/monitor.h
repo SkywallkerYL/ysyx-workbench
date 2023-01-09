@@ -7,10 +7,13 @@
 #include "npc-exec.h"
 #include "npcsdb.h"
 #include "trace.h"
+#include "difftest.h"
 static char *img_file = NULL;
 static char *log_file = NULL;
 static char *elf_file = NULL;
+static char *diff_so_file = NULL;
 static char *elf_logfile = NULL ;
+static int difftest_port = 1234;
 static char defaultelf_logfile[128] = "/home/yangli/ysyx-workbench/npc/build/ftrace-log.txt";
 void load_prog(const char *bin);
 void initial_default_img();
@@ -54,7 +57,7 @@ static int parse_args(int argc, char *argv[])
       log_file = optarg;
       break;
     case 'd':
-      //diff_so_file = optarg;
+      diff_so_file = optarg;
       break;
     case 1:
       img_file = optarg;
@@ -106,13 +109,13 @@ void init_monitor(int argc, char *argv[])
 
   /* Perform ISA dependent initialization. */
   //init_isa();
-
+  long img_size = 0;
   /* Load the image to memory. This will overwrite the built-in image. */
-  if(img_file!=NULL) load_prog(img_file);
-  else initial_default_img();
+  if(img_file!=NULL)img_size = load_prog(img_file);
+  else img_size = initial_default_img();
 
   /* Initialize differential testing. */
-  //init_difftest(diff_so_file, img_size, difftest_port);
+  init_difftest(diff_so_file, img_size, difftest_port);
 
   /* Initialize the simple debugger. */
   //init_sdb();
