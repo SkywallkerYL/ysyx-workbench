@@ -12,7 +12,9 @@ void (*ref_difftest_exec)(uint64_t n) = NULL;
 void (*ref_difftest_raise_intr)(uint64_t NO) = NULL;
 uint8_t* guest_to_host(paddr_t paddr) { return pmem + paddr - CONFIG_MBASE; }
 paddr_t host_to_guest(uint8_t *haddr) { return haddr - pmem + CONFIG_MBASE; }
-
+uint8_t* pmembase(){
+  return pmem;
+}
 
 #ifdef CONFIG_DIFFTEST
 
@@ -89,7 +91,11 @@ void init_difftest(char *ref_so_file, long img_size, int port) {
       "If it is not necessary, you can turn it off in menuconfig.", ref_so_file);
 
   ref_difftest_init(port);
+  Log("nemu difftest init");
+  //&top->rootp->RiscvCpu__DOT__M
+  //guest_to_host(RESET_VECTOR)
   ref_difftest_memcpy(RESET_VECTOR, guest_to_host(RESET_VECTOR), img_size, DIFFTEST_TO_REF);
+  Log("nemu memcpy init");
   ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
 }
 
@@ -126,7 +132,7 @@ void difftest_step(vaddr_t pc, vaddr_t npc) {
     is_skip_ref = false;
     return;
   }
-
+  printf("hhhhhh\n");
   ref_difftest_exec(1);
   //printf("ref_r_pc:%08lx \n",ref_r.pc);
   ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);

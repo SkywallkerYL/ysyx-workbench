@@ -134,11 +134,13 @@ static void execute(uint64_t n) {
     while (n--){
       //这个n用来决定是否打印指令
       sim_once(n);
+      printf("hhhh\n");
       //注意这里由于单周期，下一条指令如果是ebreak，上面sim_once之后回
       //在sim_once只是更新波形，下一个周期的指令在上一个周期更新时就执行了
-#ifdef CONFIG_ITRACE
+#ifdef CONFIG_DIFFTEST
       uint64_t localpc = Pc_Fetch();
       uint64_t localnpc = Dnpc_Fetch();
+      printf("hhhh\n");
       difftest_step(localpc,localnpc);
 #endif
       if(npc_state.state!=NPC_RUNNING){

@@ -12,6 +12,7 @@ class RegFile extends Module{
     val wdata = Input(UInt(parm.REGWIDTH.W))
     val raddr1 = Input(UInt(parm.REGADDRWIDTH.W))
     val raddr2 = Input(UInt(parm.REGADDRWIDTH.W))
+    val pc = Input(UInt(parm.PCWIDTH.W))
     val rdata1 = Output(UInt(parm.REGWIDTH.W))
     val rdata2 = Output(UInt(parm.REGWIDTH.W))
     //val raddr = Input(Vec(parm.RegFileReadPorts,UInt(parm.REGADDRWIDTH.W)))
@@ -23,6 +24,7 @@ class RegFile extends Module{
     for(i <- 1 until 32){
       regdpi.io.a(i) := reg(i)
     }
+    regdpi.io.pc := io.pc
     //regdpi.io.a(1) := reg(1)
     //regdpi.io.clock := io.clock
     //regdpi.io.reset := io.reset

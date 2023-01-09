@@ -59,6 +59,7 @@ class  RiscvCpu extends Module{
     Regfile.io.wen := exu.io.ex.rden
     Regfile.io.waddr := exu.io.ex.rdaddr
     Regfile.io.wdata := exu.io.ex.rddata
+    Regfile.io.pc := If_Id.io.idpc
     //Regfile.io.
 //id
     //val Idu = Module(new IDU())
