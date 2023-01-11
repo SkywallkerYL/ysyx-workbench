@@ -50,9 +50,9 @@ void clockntimes(int n ){
 	int temp = n;
 	while (temp >= 1)
 	{
-		top->clock = 1;
-		step_and_dump_wave();
 		top->clock = 0;
+		step_and_dump_wave();
+		top->clock = 1;
 		step_and_dump_wave();
 		temp --;
 	}
