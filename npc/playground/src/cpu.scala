@@ -47,7 +47,7 @@ class  RiscvCpu extends Module{
     //IfU.io.instr_i := instr
     if(parm.DPI){
         val instrread = Module(new InstrReadDPI)
-        instrread.io.a = PcReg.io.pc_o
+        instrread.io.a := PcReg.io.pc_o
         IfU.io.instr_i := instrread.io.b
     }
 //if_id
