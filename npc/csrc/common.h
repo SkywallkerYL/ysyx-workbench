@@ -15,7 +15,7 @@
 #define word_t uint64_t
 #define paddr_t uint64_t
 #define vaddr_t uint64_t
-#define CONFIG_DIFFTEST
+//#define CONFIG_DIFFTEST
 
 #define DIFFTEST_REG_SIZE (sizeof(uint64_t) * 33) // GRPs + pc
 #define CONFIG_MBASE 0x80000000
