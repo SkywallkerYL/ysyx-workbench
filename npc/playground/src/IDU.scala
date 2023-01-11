@@ -27,6 +27,8 @@ class IDU extends Module{
     //val func3 = Output(UInt(3.W))
     //val func7 = Output(UInt(7.W))
     val ebreak = Output(Bool())
+    val wflag = Output(Bool())
+    val rflag = Output(Bool())
     val instrnoimpl = Output(Bool())
     val jal    = Output(UInt(OpJType.OPJNUMWIDTH.W))
   })
@@ -39,6 +41,8 @@ class IDU extends Module{
     io.idex.rdaddr := io.instr_i(11,7)
     io.idex.rs1 := io.rs_data1
     io.idex.rs2 := io.rs_data2
+    io.idex.rflag := 0.U
+    io.idex.wflag := 0.U
     //io.func7 := io.instr_i(31,25)
     //io.func3 := io.instr_i(14,12)
     //io.opcode := io.instr_i(6,0)
@@ -101,6 +105,7 @@ class IDU extends Module{
         }
         is (InstrType.BAD){
             io.instrnoimpl := true.B 
+            io.idex.rden := 0.U
         }
     }
     io.ebreak := Mux(io.instr_i === "x00100073".U,1.B,0.B)

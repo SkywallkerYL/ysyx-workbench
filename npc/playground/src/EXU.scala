@@ -57,6 +57,7 @@ class EXU extends Module{
     val instr_o = Output(UInt(parm.INSTWIDTH.W))
     //val expres = Output(UInt(parm.REGWIDTH.W))
     val ex =new EX
+    val ls = new EXLSIO
     //val rddata = Output(UInt(parm.REGWIDTH.W))//按理说rddata不应该在这里，目前是三级流水，暂且这样
     //val rs2_o = Output(UInt(parm.REGWIDTH.W))
     //val imm_o = Output(UInt(parm.REGWIDTH.W))
@@ -73,6 +74,13 @@ class EXU extends Module{
   //val alu = Module (new ALU(parm.REGWIDTH))
   //alu.io.func3 := io.func3_i 
   io.ex.alures := 0.U
+
+
+  io.ls.wflag := io.id.wflag
+  io.ls.rflag := io.id.rflag
+  io.ls.writeaddr :=  AluRes
+  io.ls.readaddr := AluRes
+  io.ls.writedata := io.id.rs2
   //val src1 = Wire(UInt(parm.REGWIDTH.W))
   //val src2 = Wire(UInt(parm.REGWIDTH.W))
 

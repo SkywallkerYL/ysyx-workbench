@@ -1,5 +1,6 @@
 #ifndef _MONITOR_
 #define _MONITOR_
+
 #include <getopt.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,10 +16,11 @@ static char *diff_so_file = NULL;
 static char *elf_logfile = NULL ;
 static int difftest_port = 1234;
 static char defaultelf_logfile[128] = "/home/yangli/ysyx-workbench/npc/build/ftrace-log.txt";
+FILE *log_fp = NULL;
+
 long load_prog(const char *bin);
 long initial_default_img();
 extern "C" void init_disasm(const char *triple);
-FILE *log_fp = NULL;
 void init_log(const char *log_file) {
   log_fp = stdout;
   if (log_file != NULL) {
@@ -83,7 +85,7 @@ static int parse_args(int argc, char *argv[])
   }
   return 0;
 }
-
+void init_ftrace(char* elf_file);
 void init_monitor(int argc, char *argv[])
 {
   /* Perform some global initialization. */

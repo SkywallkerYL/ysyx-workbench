@@ -7,6 +7,8 @@
 #include <iostream>
 #include <string>
 #include "npc-exec.h"
+#include "macro.h"
+#include "state.h"
 using namespace std;
 static VRiscvCpu* top;
 #define max_instr_printnum 10
@@ -98,15 +100,15 @@ static int cmd_x(char *args){
   uint64_t addexpr;
   sscanf(EXPR,"%lx",&addexpr);
   //printf ("%x\t",addexpr);
-  int init = (addexpr-0x80000000)/4;
-  uint* p = &instr_mem[init];//&top->rootp->RiscvCpu__DOT__M[init];
+  uint64_t init = (addexpr-0x80000000);
+  uint32_t* p = (uint32_t *)(&p_mem + init);//&top->rootp->RiscvCpu__DOT__M[init];
   for (size_t i = 0; i < addrn; i++)
   {
     printf("0x%08lx\t 0x%08x\n",addexpr,*p);
     addexpr+=4;
     p++;
   }
-  printf("\n");
+  //printf("\n");
   return 0;
 }
 uint64_t  *cpu_gpr = NULL;

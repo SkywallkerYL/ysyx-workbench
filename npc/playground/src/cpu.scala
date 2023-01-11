@@ -26,6 +26,10 @@ class  RiscvCpu extends Module{
     val Idu = Module(new IDU())
     val Id_Ex = Module(new ID_EX())
     val exu = Module(new EXU())
+    val Ex_Ls = Module(new EX_LS())
+    val Lsu = Module(new LSU())
+    val Ls_Wb = Module(new LS_WB())
+    val Wbu = Module(new WBU())
 //pc   
     val PcRegOut = Wire(UInt(parm.PCWIDTH.W))
     //val addr  = (PcRegOut-parm.INITIAL_PC.U)>>2
@@ -61,9 +65,9 @@ class  RiscvCpu extends Module{
     //val Regfile = Module(new RegFile)
     Regfile.io.raddr1 := Idu.io.rs_addr1
     Regfile.io.raddr2 := Idu.io.rs_addr2
-    Regfile.io.wen := exu.io.ex.rden
-    Regfile.io.waddr := exu.io.ex.rdaddr
-    Regfile.io.wdata := exu.io.ex.rddata
+    Regfile.io.wen := Wbu.io.Regfile_o.wen//exu.io.ex.rden
+    Regfile.io.waddr := Wbu.io.Regfile_o.waddr//exu.io.ex.rdaddr
+    Regfile.io.wdata := Wbu.io.Regfile_o.wdata//exu.io.ex.rddata
     Regfile.io.pc := If_Id.io.idpc
     //Regfile.io.
 //id
@@ -99,7 +103,20 @@ class  RiscvCpu extends Module{
     //exu.io.opcode_i := Id_Ex.io.opcode_o
     //exu.io.rdaddr_i := Id_Ex.io.rdaddr_o
     //exu.io.rden_i := Id_Ex.io.rden_o
+//EX_LS
+    Ex_Ls.io.Regfile_i.wen := exu.io.ex.rden
+    Ex_Ls.io.Regfile_i.waddr := exu.io.ex.rdaddr
+    Ex_Ls.io.Regfile_i.wdata := exu.io.ex.rddata
+    Ex_Ls.io.EXLS_i <> exu.io.ls
 
+// LSU
+    Lsu.io.EXLS_i <> Ex_Ls.io.EXLS_o
+//LS_WB
+    Ls_Wb.io.Regfile_i <> Ex_Ls.io.Regfile_o
+    Ls_Wb.io.LsuRes_i := Lsu.io.LsuRes
+//WB
+    Wbu.io.Regfile_i <> Ls_Wb.io.Regfile_o
+    Wbu.io.LsuRes_i := Ls_Wb.io.LsuRes_o
 //out
     if(parm.DPI){
         val ebrdpi = Module(new ebreakDPI)

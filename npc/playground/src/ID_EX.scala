@@ -21,6 +21,8 @@ class IDEX extends Bundle{
     //val opcode = Output(UInt(parm.OPCODEWIDTH.W))
     val rdaddr = Output(UInt(parm.REGADDRWIDTH.W))
     val rden = Output(Bool())
+    val wflag = Output(Bool())
+    val rflag = Output(Bool())
 }
 
 

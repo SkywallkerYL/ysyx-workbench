@@ -9,6 +9,7 @@ object  parm{
     val REGWIDTH    : Int = 64
     val INSTWIDTH   : Int = 32
     val PCWIDTH     : Int = 64
+    val BYTEWIDTH   : Int = 8
     val REGADDRWIDTH: Int = 5
     val RegNumber   : Int = 32
     val RegFileReadPorts: Int = 2

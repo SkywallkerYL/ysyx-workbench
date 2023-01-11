@@ -19,6 +19,66 @@
 
 
 
+typedef struct Decode {
+  uint64_t pc;
+  //vaddr_t snpc; //static next pc
+  uint64_t dnpc; //dynamic next pc
+  //ISADecodeInfo isa;
+  char logbuf[128];
+  //char logbuf[128];
+} Decode;
+#ifdef  CONFIG_ITRACE
+//itrace 
+#define iringbufsize 16
+char iringbuf[iringbufsize][128];
+int iringbufind = 0;
+void printiringbuf(int finalinst);
+
+extern "C" void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
+char default_log[100] = "/home/yangli/ysyx-workbench/npc/build/npc-flog.txt" ;
+#endif
+
+//ftrace 
+
+union var8
+{
+    char p[8];
+    int64_t i;
+};
+union var4
+{
+    char p[4];
+    int32_t i;
+};
+union var2
+{
+    char p[2];
+    int16_t i;
+};
+union var1
+{
+    char p;
+    int8_t i;
+};
+
+
+
+static int symblenumber ;//记录符号的表的符号个数
+//static int maxsymbolnumber = 4096;
+static Elf64_Sym allsymble[4096];//最多4096个
+char* strtab;//存储所有变量名
+int strstart;//记录strtab的起始地址
+
+//一个表格  对应记录pc 以及其调用的函数
+word_t pc_ftrace[256];
+char  funcname_ftrace[256][32];
+void init_ftrace(char* elf_file);
+int callcount = 0;
+void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1,word_t src1);
+
+
+
+
 uint64_t Pc_Fetch ()
 {
   //这里的scpoe是调用函数位置的模块的名字
@@ -80,20 +140,10 @@ uint32_t Instr_Fetch ()
   return inst;
 }
 
-#define CONFIG_ITRACE
-typedef struct Decode {
-  uint64_t pc;
-  //vaddr_t snpc; //static next pc
-  uint64_t dnpc; //dynamic next pc
-  //ISADecodeInfo isa;
-  char logbuf[128];
-  //char logbuf[128];
-} Decode;
+
 #ifdef  CONFIG_ITRACE
 //itrace 
 #define iringbufsize 16
-char iringbuf[iringbufsize][128];
-int iringbufind = 0;
 void printiringbuf(int finalinst)
 {
   for (size_t i = 0; i < iringbufsize; i++)
@@ -104,7 +154,6 @@ void printiringbuf(int finalinst)
 }
 
 extern "C" void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
-char default_log[100] = "/home/yangli/ysyx-workbench/npc/build/npc-flog.txt" ;
 void instr_tracelog(bool flag){
     Decode s;
     //printf("No file!!!!\n");
@@ -155,38 +204,8 @@ void instr_tracelog(bool flag){
 
 //ftrace 
 
-union var8
-{
-    char p[8];
-    int64_t i;
-};
-union var4
-{
-    char p[4];
-    int32_t i;
-};
-union var2
-{
-    char p[2];
-    int16_t i;
-};
-union var1
-{
-    char p;
-    int8_t i;
-};
 
 
-
-static int symblenumber ;//记录符号的表的符号个数
-//static int maxsymbolnumber = 4096;
-static Elf64_Sym allsymble[4096];//最多4096个
-char* strtab;//存储所有变量名
-int strstart;//记录strtab的起始地址
-
-//一个表格  对应记录pc 以及其调用的函数
-word_t pc_ftrace[256];
-char  funcname_ftrace[256][32];
 void init_ftrace(char* elf_file)
 {
   for (size_t i = 0; i < 256; i++)
@@ -405,7 +424,7 @@ void init_ftrace(char* elf_file)
 	}
   return;
 }
-int callcount = 0;
+
 void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1,word_t src1)
 {
   FILE *file;

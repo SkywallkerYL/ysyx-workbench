@@ -12,6 +12,7 @@
 #include "npc-exec.h"
 #include "monitor.h"
 #include "common.h"
+#include "raddr.h"
 #include "verilated_dpi.h"
 
 
@@ -21,6 +22,9 @@ extern "C" void set_gpr_ptr(const svOpenArrayHandle r){
   //printf("reg_addr: %d\n",r);
   cpu_gpr = ((uint64_t *)(((VerilatedDpiOpenVar*)r)->datap()));  
 }
+extern "C" void pmem_read(long long raddr, long long *rdata);
+
+extern "C" void pmem_write(long long waddr, long long *wdata,char wmask);
 
 void reset(int n ){
   top->reset = 0b1;
@@ -45,7 +49,7 @@ void engine_start() {
 
 int main(int argc , char* argv[]) {
 	sim_init();
-
+  //printf("jjjjj\n");
   //先读文件，再reset，不然第一条指令始终是0
   //Initial IMG
   //开了difftest要先reset一下，不然img有问题

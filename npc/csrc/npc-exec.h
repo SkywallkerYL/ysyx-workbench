@@ -16,12 +16,14 @@
 #include "macro.h"
 #include "trace.h"
 #include "npcsdb.h"
-#define instr_break 0b00000000000100000000000001110011
-#define MSIZE 1024 //this should be same with npc
+#include "common.h"
+
+
+
+
 
 VerilatedContext* contextp = NULL;
 VerilatedVcdC* tfp = NULL;
-
 //static VRiscvCpu* top;
 
 void step_and_dump_wave(){
@@ -72,7 +74,7 @@ void assert_fail_msg() {
   printiringbuf((iringbufind+iringbufsize-1)%iringbufsize);
   isa_reg_display();
 }
-uint32_t instr_mem[MSIZE/4-1];
+//uint32_t instr_mem[MSIZE/4-1];
 long load_prog(const char *bin){
   FILE *fp = fopen(bin,"r");
   //assert(fp!=NULL);
@@ -82,7 +84,7 @@ long load_prog(const char *bin){
   long size = ftell(fp);
   fseek(fp,0,SEEK_SET);
   //if(fread(&top->rootp->RiscvCpu__DOT__M,1,MSIZE,fp)==0) return 0;
-  if(fread(&instr_mem,1,MSIZE,fp)==0) return 0;
+  if(fread((uint8_t *)&p_mem,1,MSIZE,fp)==0) return 0;
   //printf("HHH\n");
   fclose(fp);
   return size;
@@ -90,22 +92,43 @@ long load_prog(const char *bin){
 
 long initial_default_img(){
   instr_mem[0] = 0b00000000011100000000000010010011;//0x00000297;
-  instr_mem[1] = 0b00000000001100000000000010010011;
+  instr_mem[1] = 0b00000001001100000000000010010011;
   instr_mem[2] = 0b00000000000100000000000010010011;
   instr_mem[3] = 0b00000000001100000000000010010011;
   instr_mem[4] = 0b00000000011100001000000100010011;
   instr_mem[5] = instr_break;
   instr_mem[6] = 0b00000000111100001000000100010011;
   instr_mem[7] = 0b00000001111100001000001100010011;
-  //chisel不同模式下生成的Mem的名字不一样，一个不行的时候换另一个
-  //RiscvCpu__DOT__M
-  //RiscvCpu__DOT__M_ext__DOT__Memory
-  /*
-  uint32_t* p = &top->rootp->RiscvCpu__DOT__M[0];
-  for (size_t i = 0; i < 6; i++)
+  //chisel不同模式下生成的Mem的名字不一样，一个不行的时候换另一个,这里是在cpu内部例化Mem的情况
+  //RiscvCpu__DOT__M[0]
+  //RiscvCpu__DOT__M_ext__DOT__Memory[0]
+  //自己写失败了，之间memcpy
+  //memcpy(&p_mem[0],(uint8_t*)&instr_mem,MSIZE);
+  for (size_t i = 0; i < MSIZE/4; i++)
   {
-    *p = instr_mem[i];
-    p++;
+    memcpy(&p_mem[4*i],(uint8_t*)&instr_mem[i],4);
+  }
+  /*
+  for (size_t i = 0; i < 7*4; i++)
+  {
+    printf("pmem 0x%02x\n",p_mem[i]);
+  }
+  */
+  /*
+  uint32_t* pinstr = (uint32_t*)&instr_mem[0];
+  printf("0x%02x\n", * pinstr);
+  uint8_t* ptmem = &p_mem[0];
+  for (size_t i = 0; i < MSIZE/4; i++)
+  {
+    for (size_t j = 0; j < 4; j++)
+    {
+          
+      *ptmem = *(pinstr);
+    }
+    ptmem++;
+    pinstr++;
+    //*p = instr_mem[i];
+    //p++;
   }
   */
   return MSIZE;

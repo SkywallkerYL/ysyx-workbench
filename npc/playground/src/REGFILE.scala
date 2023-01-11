@@ -3,7 +3,12 @@ package npc
 import chisel3._
 import chisel3.util._
 
-
+class REGFILEIO extends Bundle{
+    val wen = Output(Bool())
+    val waddr = Output(UInt(parm.REGADDRWIDTH.W))
+    val wdata = Output(UInt(parm.REGWIDTH.W))
+    //val rdata = Output(UInt(parm.REGWIDTH.W))
+}
 
 class RegFile extends Module{
     val io = IO(new Bundle {

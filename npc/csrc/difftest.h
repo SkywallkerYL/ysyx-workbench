@@ -1,3 +1,5 @@
+#ifndef DIFFTEST_H
+#define DIFFTEST_H
 
 
 #include <dlfcn.h>
@@ -73,8 +75,8 @@ void init_difftest(char *ref_so_file, long img_size, int port) {
   {
     refcpu.gpr[i] = cpu_gpr[i];
   }
-  refcpu.pc = 0x80000000;
-  printf("0x%08lx\n",refcpu.pc);
+  refcpu.pc = CONFIG_MBASE;0x80000000;
+  //printf("0x%08lx\n",refcpu.pc);
   assert(ref_so_file != NULL);
   printf("%s\n",ref_so_file);
   void *handle;
@@ -99,14 +101,14 @@ void init_difftest(char *ref_so_file, long img_size, int port) {
   Log("Differential testing: %s", ANSI_FMT("ON", ANSI_FG_GREEN));
   Log("The result of every instruction will be compared with %s. "
       "This will help you a lot for debugging, but also significantly reduce the performance. "
-      "If it is not necessary, you can turn it off in menuconfig.", ref_so_file);
+      "If it is not necessary, you can change the CONFIG_DIFFTEST macro in common.h!", ref_so_file);
 
   ref_difftest_init(port);
   //Log("nemu difftest init");
   //&top->rootp->RiscvCpu__DOT__M
-  //&&instr_mem
+  //&instr_mem
   //guest_to_host(RESET_VECTOR)
-  ref_difftest_memcpy(RESET_VECTOR, (uint8_t *)&instr_mem, img_size, DIFFTEST_TO_REF);
+  ref_difftest_memcpy(RESET_VECTOR, (uint8_t *)&p_mem, img_size, DIFFTEST_TO_REF);
   //Log("nemu memcpy init");
   ref_difftest_regcpy(&refcpu, DIFFTEST_TO_REF);
 }
@@ -141,7 +143,7 @@ void difftest_step(vaddr_t pc, vaddr_t npc) {
   if (is_skip_ref) {
     //这里可能有问题，还没搞明白
     // to skip the checking of an instruction, just copy the reg state to reference design
-    ref_difftest_regcpy(&ref_r, DIFFTEST_TO_REF);
+    ref_difftest_regcpy(&cpu_gpr, DIFFTEST_TO_REF);
     is_skip_ref = false;
     return;
   }
@@ -159,4 +161,8 @@ void difftest_step(vaddr_t pc, vaddr_t npc) {
 }
 #else
 void init_difftest(char *ref_so_file, long img_size, int port) { }
+#endif
+
+
+
 #endif
