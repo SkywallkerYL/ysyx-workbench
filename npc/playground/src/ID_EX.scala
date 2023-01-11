@@ -23,6 +23,7 @@ class IDEX extends Bundle{
     val rden = Output(Bool())
     val wflag = Output(Bool())
     val rflag = Output(Bool())
+    val wmask = Output(UInt(parm.BYTEWIDTH.W))
 }
 
 
