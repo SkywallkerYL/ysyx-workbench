@@ -24,10 +24,10 @@ extern "C" void set_gpr_ptr(const svOpenArrayHandle r){
 
 void reset(int n ){
   top->reset = 0b1;
-  top->io_PcFlag = 0b1;
-  top->io_PCIN = 0x80000000;
+  //top->io_PcFlag = 0b1;
+  //top->io_PCIN = 0x80000000;
   clockntimes(n);
-  top->io_PcFlag = 0b0;
+  //top->io_PcFlag = 0b0;
   top->reset = 0b0;
 }
 
@@ -48,7 +48,7 @@ int main(int argc , char* argv[]) {
 
   //先读文件，再reset，不然第一条指令始终是0
   //Initial IMG
-  reset(1);
+  //reset(1);
   init_monitor(argc, argv);
 
   reset(5);
