@@ -36,7 +36,7 @@ class LSUDPI extends BlackBox with HasBlackBoxInline{
     |
     |always@(*)begin
     |   if(wflag) pmem_write(waddr,wdata,wmask);
-    |   if(rflah) pmem_read(raddr,rdata1);
+    |   if(rflag) pmem_read(raddr,rdata1);
     |end
     |assign rdata = rdata1;
     |

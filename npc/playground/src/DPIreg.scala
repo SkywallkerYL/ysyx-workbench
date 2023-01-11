@@ -54,7 +54,7 @@ class regDPI extends BlackBox with HasBlackBoxInline{
     |   input [63:0] a_29,
     |   input [63:0] a_30,
     |   input [63:0] a_31,
-    |   input [63:0] pc,
+    |   input [63:0] pc
     |   //input reset,
     |   //input [63:0] a [31:0]
     |   //output [63:0] b
