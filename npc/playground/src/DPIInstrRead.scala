@@ -21,12 +21,12 @@ class InstrReadDPI extends BlackBox with HasBlackBoxInline{
     |
     |import "DPI-C" function void pmem_read(input longint raddr, output longint rdata);
     |
-    |wire [31:0] rdata;
+    |wire [63:0] rdata;
     |
     |always@(*)begin
     |   pmem_read(a,b);
     |end
-    |assign b = rdata;
+    |assign b = rdata[31:0];
     |
     |endmodule
     """.stripMargin
