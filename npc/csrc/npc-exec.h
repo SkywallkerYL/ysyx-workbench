@@ -86,7 +86,7 @@ long load_prog(const char *bin){
   fclose(fp);
   return size;
 }
-int instr_mem[MSIZE/4-1];
+uint32_t instr_mem[MSIZE/4-1];
 long initial_default_img(){
   instr_mem[0] = 0b00000000011100000000000010010011;//0x00000297;
   instr_mem[1] = 0b00000000001100000000000010010011;
@@ -99,7 +99,7 @@ long initial_default_img(){
   //chisel不同模式下生成的Mem的名字不一样，一个不行的时候换另一个
   //RiscvCpu__DOT__M
   //RiscvCpu__DOT__M_ext__DOT__Memory
-  uint* p = &top->rootp->RiscvCpu__DOT__M[0];
+  uint32_t* p = &top->rootp->RiscvCpu__DOT__M[0];
   for (size_t i = 0; i < 6; i++)
   {
     *p = instr_mem[i];
@@ -108,7 +108,7 @@ long initial_default_img(){
   return MSIZE;
 }
 void sim_once(uint64_t n){
-  clockntimes(1);
+  //clockntimes(1);
 #ifdef CONFIG_ITRACE
   instr_tracelog(n<=max_instr_printnum);
   uint64_t dnpc = Dnpc_Fetch();
@@ -121,7 +121,9 @@ void sim_once(uint64_t n){
 #endif
   if(checkebreak()||top->io_abort){
      npc_state.state = NPC_ABORT;
+     return;
   }
+  clockntimes(1);
 }
 static void execute(uint64_t n) {
 
@@ -133,17 +135,19 @@ static void execute(uint64_t n) {
     default: npc_state.state = NPC_RUNNING;
     }
     while (n--){
+    
       //这个n用来决定是否打印指令
-      sim_once(n);
+      //sim_once(n);
       //printf("hhhh\n");
       //注意这里由于单周期，下一条指令如果是ebreak，上面sim_once之后回
       //在sim_once只是更新波形，下一个周期的指令在上一个周期更新时就执行了
 #ifdef CONFIG_DIFFTEST
       uint64_t localpc = Pc_Fetch();
       uint64_t localnpc = Dnpc_Fetch();
-      //printf("hhhh\n");
+      printf("hhhh\n");
       difftest_step(localpc,localnpc);
 #endif
+      sim_once(n);
       if(npc_state.state!=NPC_RUNNING){
       //printf("%d\n",top->io_halt);
         //if(top->io_halt == 1) printf( ANSI_FMT("HIT GOOD TRAP\n", ANSI_FG_GREEN)) ;
@@ -181,7 +185,7 @@ static void execute(uint64_t n) {
         void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
         disassemble(p,  inst_buf + sizeof(inst_buf) - p,pc, inst , ilen);
         //assert_fail_msg();
-        printf("Instr not implement or other situation!\n");
+        printf(ANSI_FMT("Instr not implement or other situation!\n", ANSI_FG_RED));
         printf("pc: 0x%016lx Inst: %s\n",pc,inst_buf);
       }
       
