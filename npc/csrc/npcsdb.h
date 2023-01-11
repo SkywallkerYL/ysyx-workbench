@@ -99,7 +99,7 @@ static int cmd_x(char *args){
   sscanf(EXPR,"%lx",&addexpr);
   //printf ("%x\t",addexpr);
   int init = (addexpr-0x80000000)/4;
-  uint* p = &top->rootp->RiscvCpu__DOT__M[init];
+  uint* p = &instr_mem[init];//&top->rootp->RiscvCpu__DOT__M[init];
   for (size_t i = 0; i < addrn; i++)
   {
     printf("0x%08lx\t 0x%08x\n",addexpr,*p);

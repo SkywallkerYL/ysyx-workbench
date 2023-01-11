@@ -48,7 +48,10 @@ int main(int argc , char* argv[]) {
 
   //先读文件，再reset，不然第一条指令始终是0
   //Initial IMG
-  //reset(1);
+  //开了difftest要先reset一下，不然img有问题
+#ifdef CONFIG_DIFFTEST
+  reset(1);
+#endif
   init_monitor(argc, argv);
 
   reset(5);

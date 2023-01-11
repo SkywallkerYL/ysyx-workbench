@@ -87,10 +87,10 @@ static int parse_args(int argc, char *argv[])
 void init_monitor(int argc, char *argv[])
 {
   /* Perform some global initialization. */
-
+  //printf("hhhh\n");
   /* Parse arguments. */
   parse_args(argc, argv);
-
+  //printf("hhhh\n");
   /* Open the log file. */
   init_log(log_file);
 #ifdef CONFIG_ITRACE
@@ -115,8 +115,9 @@ void init_monitor(int argc, char *argv[])
   else img_size = initial_default_img();
 
   /* Initialize differential testing. */
+   //printf("hhhh\n");
   init_difftest(diff_so_file, img_size, difftest_port);
-
+  //printf("hhhh\n");
   /* Initialize the simple debugger. */
   //init_sdb();
    init_disasm("riscv64-pc-linux-gnu");

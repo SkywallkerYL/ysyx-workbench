@@ -72,7 +72,7 @@ void assert_fail_msg() {
   printiringbuf((iringbufind+iringbufsize-1)%iringbufsize);
   isa_reg_display();
 }
-
+uint32_t instr_mem[MSIZE/4-1];
 long load_prog(const char *bin){
   FILE *fp = fopen(bin,"r");
   //assert(fp!=NULL);
@@ -81,12 +81,13 @@ long load_prog(const char *bin){
   fseek(fp, 0, SEEK_END);
   long size = ftell(fp);
   fseek(fp,0,SEEK_SET);
-  if(fread(&top->rootp->RiscvCpu__DOT__M,1,MSIZE,fp)==0) return 0;
+  //if(fread(&top->rootp->RiscvCpu__DOT__M,1,MSIZE,fp)==0) return 0;
+  if(fread(&instr_mem,1,MSIZE,fp)==0) return 0;
   //printf("HHH\n");
   fclose(fp);
   return size;
 }
-uint32_t instr_mem[MSIZE/4-1];
+
 long initial_default_img(){
   instr_mem[0] = 0b00000000011100000000000010010011;//0x00000297;
   instr_mem[1] = 0b00000000001100000000000010010011;
@@ -99,12 +100,14 @@ long initial_default_img(){
   //chisel不同模式下生成的Mem的名字不一样，一个不行的时候换另一个
   //RiscvCpu__DOT__M
   //RiscvCpu__DOT__M_ext__DOT__Memory
+  /*
   uint32_t* p = &top->rootp->RiscvCpu__DOT__M[0];
   for (size_t i = 0; i < 6; i++)
   {
     *p = instr_mem[i];
     p++;
   }
+  */
   return MSIZE;
 }
 void sim_once(uint64_t n){
@@ -137,23 +140,26 @@ static void execute(uint64_t n) {
     while (n--){
     
       //这个n用来决定是否打印指令
-      //sim_once(n);
+      sim_once(n);
+      
       //printf("hhhh\n");
       //注意这里由于单周期，下一条指令如果是ebreak，上面sim_once之后回
       //在sim_once只是更新波形，下一个周期的指令在上一个周期更新时就执行了
-#ifdef CONFIG_DIFFTEST
-      uint64_t localpc = Pc_Fetch();
-      uint64_t localnpc = Dnpc_Fetch();
-      printf("hhhh\n");
-      difftest_step(localpc,localnpc);
-#endif
-      sim_once(n);
+      //difftest在sim_once后面进行，因为这样子sim之后clock更新，npc的pc才会更新
+      //并且单周期正好寄存器的写入是在下一个周期，pc和reg的更新正好和nemu同步
+      //sim_once(n);
       if(npc_state.state!=NPC_RUNNING){
       //printf("%d\n",top->io_halt);
         //if(top->io_halt == 1) printf( ANSI_FMT("HIT GOOD TRAP\n", ANSI_FG_GREEN)) ;
         //else printf(ANSI_FMT("HIT BAD TRAP\n", ANSI_FG_RED));
         break;
       }
+#ifdef CONFIG_DIFFTEST
+      uint64_t localpc = Pc_Fetch();
+      uint64_t localnpc = Dnpc_Fetch();
+      //printf("hhhh\n");
+      difftest_step(localpc,localnpc);
+#endif
       //sim_once();
     }
     switch (npc_state.state) {
@@ -165,6 +171,7 @@ static void execute(uint64_t n) {
       {
         if(top->io_halt == 1) printf( ANSI_FMT("HIT GOOD TRAP\n", ANSI_FG_GREEN)) ;
         else printf(ANSI_FMT("HIT BAD TRAP\n", ANSI_FG_RED));
+        break;
       }
       if (top->io_abort == 1) {
         int ilen = 4;
@@ -187,6 +194,7 @@ static void execute(uint64_t n) {
         //assert_fail_msg();
         printf(ANSI_FMT("Instr not implement or other situation!\n", ANSI_FG_RED));
         printf("pc: 0x%016lx Inst: %s\n",pc,inst_buf);
+        break;
       }
       
       // fall through

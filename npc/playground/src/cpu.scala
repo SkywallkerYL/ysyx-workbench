@@ -28,8 +28,8 @@ class  RiscvCpu extends Module{
     val exu = Module(new EXU())
 //pc   
     val PcRegOut = Wire(UInt(parm.PCWIDTH.W))
-    val addr  = (PcRegOut-parm.INITIAL_PC.U)>>2
-    val instr = M(addr)//因为M/4，所以PC要把低两位去掉
+    //val addr  = (PcRegOut-parm.INITIAL_PC.U)>>2
+    //val instr = M(addr)//因为M/4，所以PC要把低两位去掉
     //printf(p"addr=${addr} instr=0x${Hexadecimal(M(addr))} \n")
     //printf(p"pc=0x${Hexadecimal(PcRegOut)} instr=0x${Hexadecimal(instr)}\n")
     NpcMux.io.jal := Idu.io.jal
@@ -44,8 +44,12 @@ class  RiscvCpu extends Module{
     //val IfU = Module(new IFU())
 
     IfU.io.pc_i := PcReg.io.pc_o
-    IfU.io.instr_i := instr
-    
+    //IfU.io.instr_i := instr
+    if(parm.DPI){
+        val instrread = Module(new InstrReadDPI)
+        instrread.io.a = PcReg.io.pc_o
+        IfU.io.instr_i := instrread.io.b
+    }
 //if_id
     //val If_Id = Module(new IF_ID())
 

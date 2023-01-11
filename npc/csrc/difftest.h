@@ -104,8 +104,9 @@ void init_difftest(char *ref_so_file, long img_size, int port) {
   ref_difftest_init(port);
   //Log("nemu difftest init");
   //&top->rootp->RiscvCpu__DOT__M
+  //&&instr_mem
   //guest_to_host(RESET_VECTOR)
-  ref_difftest_memcpy(RESET_VECTOR, (uint8_t *)&top->rootp->RiscvCpu__DOT__M, img_size, DIFFTEST_TO_REF);
+  ref_difftest_memcpy(RESET_VECTOR, (uint8_t *)&instr_mem, img_size, DIFFTEST_TO_REF);
   //Log("nemu memcpy init");
   ref_difftest_regcpy(&refcpu, DIFFTEST_TO_REF);
 }
@@ -138,20 +139,21 @@ void difftest_step(vaddr_t pc, vaddr_t npc) {
   }
   //printf("is_skip_ref:%d \n",is_skip_ref);
   if (is_skip_ref) {
+    //这里可能有问题，还没搞明白
     // to skip the checking of an instruction, just copy the reg state to reference design
-    ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
+    ref_difftest_regcpy(&ref_r, DIFFTEST_TO_REF);
     is_skip_ref = false;
     return;
   }
   //Log("ref_pc: 0x%016lx npc_pc:0x%016lx ",ref_r->pc,pc);
   //printf("hhhhhh\n");
-  uint64_t pcnow = Pc_Fetch();
-  ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
-   Log("ref_pc: 0x%016lx npc_pc:0x%016lx ",ref_r.pc,pc);
+  //uint64_t pcnow = Pc_Fetch();
+  //ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
+   //Log("ref_pc: 0x%016lx npc_pc:0x%016lx ",ref_r.pc,pc);
   ref_difftest_exec(1);
   //printf("ref_r_pc:%08lx \n",ref_r.pc);
   ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
-  Log("ref_pc: 0x%016lx npc_pc:0x%016lx ",ref_r.pc,pcnow);
+  //Log("ref_pc: 0x%016lx npc_pc:0x%016lx ",ref_r.pc,pcnow);
   //printf("ref_r_pc:%08lx \n",ref_r.pc);
   checkregs(&ref_r, pc);
 }
