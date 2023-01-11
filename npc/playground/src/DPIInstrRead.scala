@@ -23,7 +23,7 @@ class InstrReadDPI extends BlackBox with HasBlackBoxInline{
     |
     |wire [31:0] rdata;
     |
-    |always(*)begin
+    |always@(*)begin
     |   pmem_read(a,b);
     |end
     |assign b = rdata;
