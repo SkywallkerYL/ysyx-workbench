@@ -78,8 +78,6 @@ class EXU extends Module{
 
   io.ls.wflag := io.id.wflag
   io.ls.rflag := io.id.rflag
-  io.ls.writeaddr :=  AluRes
-  io.ls.readaddr := AluRes
   io.ls.writedata := io.id.rs2
   //val src1 = Wire(UInt(parm.REGWIDTH.W))
   //val src2 = Wire(UInt(parm.REGWIDTH.W))
@@ -99,6 +97,9 @@ class EXU extends Module{
     OpType.ADD -> (src1+src2)
   ))
   io.ex.rddata:= AluRes
+  io.ex.alures:= AluRes
+  io.ls.writeaddr :=  AluRes
+  io.ls.readaddr := AluRes
   /*
   switch(io.opcode_i){
     is(parm.INST_ADDI.U) {
