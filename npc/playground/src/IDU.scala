@@ -43,7 +43,7 @@ class IDU extends Module{
     io.idex.rs2 := io.rs_data2
     io.idex.rflag := 0.U
     io.idex.wflag := 0.U
-    io.idex.wmask := 3.U
+    io.idex.wmask := 3.U(parm.BYTEWIDTH.W)
     //io.func7 := io.instr_i(31,25)
     //io.func3 := io.instr_i(14,12)
     //io.opcode := io.instr_i(6,0)
