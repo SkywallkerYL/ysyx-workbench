@@ -119,7 +119,7 @@ runnvboard: $(BIN)
 	@$^
 
 NPCMODE=-d
-
+BATCHMODE ?= 
 DIFFTESTNEMUFILE=/home/yangli/ysyx-workbench/nemu/build/riscv64-nemu-interpreter-so
 NPCMODE+=$(DIFFTESTNEMUFILE)
 run: 
@@ -136,7 +136,7 @@ run:
 	@echo "-------------------RUN-------------------"
 	@echo $(IMG)
 	@echo $(NPCMODE)
-	./obj_dir/V$(TOPNAMETEST) $(NPCMODE) $(IMG)
+	./obj_dir/V$(TOPNAMETEST) $(BATCHMODE) $(NPCMODE) $(IMG)
 
 #gtkwave wave.vcd
 wave:
