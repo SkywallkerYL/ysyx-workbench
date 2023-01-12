@@ -1,7 +1,7 @@
 #include "common.h"
 #include <assert.h>
 #include "npcsdb.h"
-
+#include "trace.h"
 static void out_of_bound(paddr_t addr) {
   panic("address = " FMT_PADDR " is out of bound of pmem [" FMT_PADDR ", " FMT_PADDR "] at pc = " FMT_WORD,
       addr, PMEM_LEFT, PMEM_RIGHT, cpu_gpr[32]);
@@ -10,10 +10,16 @@ static void out_of_bound(paddr_t addr) {
 extern "C" void pmem_read(long long raddr, long long *rdata){
     if ((uint64_t)raddr == 0){
         *rdata = 0;
+#ifdef CONFIG_MTRACE
+        mtrace(0,raddr,8,*rdata);
+#endif
     }
     else if ((uint64_t)raddr>=(uint64_t)0x80000000){
         uint64_t init = (raddr-CONFIG_MBASE);
         *rdata = *(uint64_t *)(&p_mem[init]);
+#ifdef CONFIG_MTRACE
+        mtrace(0,raddr,8,*rdata);
+#endif
         //printf("addr:0x%016x \t rdata: 0x%016x\n",raddr,*rdata );
     }
     else {
@@ -39,6 +45,9 @@ extern "C" void pmem_write(long long waddr, long long wdata,char wmask){
             {
                 //默认对齐低位
                p_mem[pmem_addr+i]= write_data&0xffull;
+#ifdef CONFIG_MTRACE
+               mtrace(1,waddr+i,1,p_mem[pmem_addr+i]);
+#endif
             } 
             //进入下一位。
             write_data >> 8;

@@ -17,6 +17,8 @@
 #define vaddr_t uint64_t
 #define CONFIG_DIFFTEST
 #define CONFIG_ITRACE
+#define CONFIG_MTRACE
+
 #define DIFFTEST_REG_SIZE (sizeof(uint64_t) * 33) // GRPs + pc
 #define CONFIG_MBASE 0x80000000
 #define CONFIG_MSIZE 0x8000000

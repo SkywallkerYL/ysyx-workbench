@@ -79,6 +79,7 @@ static int parse_args(int argc, char *argv[])
       printf("\t-d,--diff=REF_SO        run DiffTest with reference REF_SO\n");
       printf("\t-p,--port=PORT          run DiffTest with port PORT\n");
       printf("\t-f,--port=FILE          run with ftrace");
+      printf("\t-v,--port=FILE          run with ftrace and it is its logfile");
       printf("\n");
       exit(0);
     }
@@ -101,6 +102,9 @@ void init_monitor(int argc, char *argv[])
   //elf_filein = "/home/yangli/ysyx-workbench/am-kernels/tests/cpu-tests/build/recursion-riscv64-nemu.elf";
   if (elf_file!=NULL) init_ftrace(elf_file);
   else printf("No elf file\n");
+#endif
+#ifdef CONFIG_MTRACE
+  init_mtrace();
 #endif
   //if (elf_filein!=NULL) init_ftrace(elf_filein);
   /* Initialize memory. */
