@@ -61,7 +61,7 @@ class IDU extends Module{
     io.idex.AluOp.rd1 := 0.U
     io.idex.AluOp.rd2 := 0.U
     io.idex.AluOp.op  := 0.U
-    io.idex.imm := 0.U
+    io.idex.imm := 0.S
     val DecodeRes = ListLookup(io.instr_i,InstrTable.Default,InstrTable.InstrMap)
     val InstType = DecodeRes(InstrTable.InstrT)
     io.idex.AluOp.op := DecodeRes(InstrTable.OpT)
