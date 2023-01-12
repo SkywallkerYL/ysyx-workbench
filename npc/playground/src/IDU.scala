@@ -109,7 +109,7 @@ class IDU extends Module{
             val stype = DecodeRes(InstrTable.OpT)
             val lsuflag = MuxLookup(stype, "b0000_0_0_0_0000_0000".U(15.W),Seq(
                                         //choose_rden_wflag_rflag_wmask
-                OpSType.SD ->"b0000_0_1_0_1111_1111".U
+                OpSType.SD ->"b0000_0_1_0_1111_1111".U(15.W)
             ))
             //val lsuflag = MuxCase(
               //  List(0.U,0.U,0x00000000.U),

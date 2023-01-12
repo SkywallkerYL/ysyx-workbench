@@ -22,5 +22,6 @@ class LSU extends Module{
     LsuDPI.io.wmask := io.EXLS_i.wmask 
     io.LsuRes := LsuDPI.io.rdata
   }
+  io.choose := io.EXLS_i.choose
 
 }
