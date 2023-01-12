@@ -547,11 +547,11 @@ void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1,word_t s
 #endif
 #ifdef CONFIG_MTRACE
 char mtracefilepath[] = "/home/yangli/ysyx-workbench/nemu/build/mtrace-log.txt";
-char mtracelog[128] = NULL;
+char mtracelog[128];
 void init_mtrace()
 {
   FILE *file;
-  if (elf_file == NULL);  file = fopen(mtracefilepath,"w+");
+  if (elf_file == NULL)  file = fopen(mtracefilepath,"w+");
   else {
     char *tempelffile;
     strcpy(tempelffile,elf_file);
@@ -579,13 +579,13 @@ void mtrace(bool wrrd,paddr_t addr, int len,word_t data)
 {
   FILE *file;
   if (elf_file == NULL) file = fopen(mtracefilepath,"a");
-  else if (mtracelog != NULL) file = fopen(mtracelog,"a");
-  else file = fopen(mtracefilepath,"a");
+  else file = fopen(mtracelog,"a");
+  if (file == NULL)file = fopen(mtracefilepath,"a");
   char wrflag;
   //1是写 0是读
   wrflag = wrrd?'w':'r';
   if (file == NULL) {printf("No file!!!!\n");}
-  fprintf(file,"pc:%lx: Addr:%x len:%x %c value:%lx\n",cpu.pc,addr,len,wrflag,data);
+  fprintf(file,"pc:%lx: Addr:%lx len:%x %c value:%lx\n",cpu.pc,addr,len,wrflag,data);
   //printf("pc:%lx Addr:%x len:%x %c value:%lx\n",cpu.pc,addr,len,wrflag,data);
   fclose(file); 
 }

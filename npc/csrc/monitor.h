@@ -87,6 +87,7 @@ static int parse_args(int argc, char *argv[])
   return 0;
 }
 void init_ftrace(char* elf_file);
+void init_mtrace();
 void init_monitor(int argc, char *argv[])
 {
   /* Perform some global initialization. */
