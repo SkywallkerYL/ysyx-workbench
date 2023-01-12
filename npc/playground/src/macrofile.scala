@@ -49,6 +49,7 @@ object RV64IInstr {
     def SUB    = BitPat("b0100000_?????_?????_000_?????_0110011")
     //B 
     def BEQ    = BitPat("b???????_?????_?????_000_?????_1100011")
+    def BNE    = BitPat("b???????_?????_?????_001_?????_1100011")
 }
 
 object InstrType{
@@ -102,12 +103,14 @@ object  OpSType{
     //val JALR    = 2.U(OPSNUMWIDTH.W)
 }
 object  OpBType{
-    val OPBNUMWIDTH = 4
+    val OPBNUMWIDTH = 5
     //4位，最低位 0位指示有无符号 1表示无符号 0表示有符号  
     //倒数第二位指示是否是<    1<  
     //2指示是否是>
     //3指示是否是=== 
-    val BEQ     = "b1000".U(OPBNUMWIDTH.W)
+    //4指示是否是=/=
+    val BEQ     = "b01000".U(OPBNUMWIDTH.W)
+    val BNE     = "b10000".U(OPBNUMWIDTH.W)
 }
 object  OpRType{
     val OPRNUMWIDTH = 4
@@ -151,6 +154,7 @@ object InstrTable{
         RV64IInstr.SUB      -> List(InstrType.R,OpRType.SUB,OpType.SUB),
         //B
         RV64IInstr.BEQ      -> List(InstrType.B,OpBType.BEQ,OpType.ADD),
+        RV64IInstr.BNE      -> List(InstrType.B,OpBType.BNE,OpType.ADD)
     )
     val InstrT = 0
     val InstrN = 1
