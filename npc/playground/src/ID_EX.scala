@@ -7,7 +7,7 @@ import chisel3.util.HasBlackBoxInline
 class ALUOP extends Bundle{
   val rd1 = Output(UInt(parm.REGWIDTH.W))
   val rd2 = Output(UInt(parm.REGWIDTH.W))
-  val op = Output(UInt(OpType.OPINUMWIDTH.W))
+  val op = Output(UInt(OpType.OPNUMWIDTH.W))
 }
 
 class IDEX extends Bundle{
