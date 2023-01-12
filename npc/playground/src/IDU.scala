@@ -73,11 +73,21 @@ class IDU extends Module{
             io.idex.imm := I_imm
             io.idex.AluOp.rd1 := io.rs_data1
             io.idex.AluOp.rd2 := I_imm
-            when(DecodeRes(InstrTable.OpT) === OpType.JALR)
+            val stype = DecodeRes(InstrTable.InstrN)
+            val lsuflag = MuxLookup(stype, "b0000_1_0_0_0000_0000".U(15.W),Seq(
+                                        //choose_rden_wflag_rflag_wmask
+                OpIType.LD ->"b0001_1_0_1_0000_0000".U(15.W)
+            ))
+            io.idex.wflag := lsuflag(9)
+            io.idex.rflag := lsuflag(8)
+            io.idex.wmask := lsuflag(7,0)
+            io.idex.rden := lsuflag(10)
+            io.idex.choose := lsuflag(14,11)
+            when(DecodeRes(InstrTable.InstrN) === OpIType.JALR)
             {
                 io.idex.AluOp.rd1 := io.pc_i
                 io.idex.AluOp.rd2 := 4.U
-                io.idex.AluOp.op  := OpType.ADD
+                //io.idex.AluOp.op  := OpType.ADD
                 io.jal := 2.U
             }
         }
@@ -89,34 +99,28 @@ class IDU extends Module{
         is(InstrType.U){
             io.idex.imm := U_imm
             io.idex.AluOp.rd1 := U_imm
-            val Uty = DecodeRes(InstrTable.OpT)
+            val Uty = DecodeRes(InstrTable.InstrN)
             // 0->lui->0.U  1->auipc->pc
             io.idex.AluOp.rd2 := Mux(Uty(0),io.pc_i,0.U)
-            io.idex.AluOp.op := OpType.ADD
+            //io.idex.AluOp.op := OpType.ADD
         }
         is(InstrType.J){
             io.idex.imm := J_imm
             io.idex.AluOp.rd1 := io.pc_i
             io.idex.AluOp.rd2 := 4.U
-            io.idex.AluOp.op  := OpType.ADD
+            //io.idex.AluOp.op  := OpType.ADD
             io.jal := 1.U
         }
         is (InstrType.S){
             io.idex.imm := S_imm
             io.idex.AluOp.rd1 := io.rs_data1
             io.idex.AluOp.rd2 := S_imm.asUInt
-            io.idex.AluOp.op  := OpType.ADD
-            val stype = DecodeRes(InstrTable.OpT)
+            //io.idex.AluOp.op  := OpType.ADD
+            val stype = DecodeRes(InstrTable.InstrN)
             val lsuflag = MuxLookup(stype, "b0000_0_0_0_0000_0000".U(15.W),Seq(
                                         //choose_rden_wflag_rflag_wmask
                 OpSType.SD ->"b0000_0_1_0_1111_1111".U(15.W)
             ))
-            //val lsuflag = MuxCase(
-              //  List(0.U,0.U,0x00000000.U),
-                //Array(
-                  //  (stype === OpSType.SD) -> List(1.U,0.U,0x11111111.U)
-            //))                
-                //ListLookup(stype,StypeTable.Default,StypeTable.WRMmap)
             io.idex.wflag := lsuflag(9)
             io.idex.rflag := lsuflag(8)
             io.idex.wmask := lsuflag(7,0)

@@ -33,6 +33,7 @@ object RV64IInstr {
     def ADDI   = BitPat("b???????_?????_?????_000_?????_0010011")
     def JALR   = BitPat("b???????_?????_?????_000_?????_1100111")
 
+    def LD     = BitPat("b???????_?????_?????_011_?????_0000011")
 
 
     def EBREAK = BitPat("b0000000_00001_00000_000_00000_1110011")    
@@ -59,9 +60,18 @@ object InstrType{
 
 //这个op是决定ALU的操作
 object  OpType{
+    val OPNUMWIDTH = 4
+    val ADD  = 0.U(OPNUMWIDTH.W)
+    //val JALR = 10.U(OPNUMWIDTH.W)
+    //val LD = 11.U(OPINUMWIDTH.W)
+}
+object  OpIType{
     val OPINUMWIDTH = 6
-    val ADD  = 0.U(OPINUMWIDTH.W)
-    val JALR = 10.U(OPINUMWIDTH.W)
+    val ADDI  = 0.U(OPINUMWIDTH.W)
+    val EBREAK = 1.U(OPINUMWIDTH.W)
+    val JALR= 2.U(OPINUMWIDTH.W)
+    val LD = 3.U(OPINUMWIDTH.W)
+    //val LD = 11.U(OPINUMWIDTH.W)
 }
 //这个对操作数进行具体的区分 以便决定操作数
 object  OpUType{
@@ -93,20 +103,22 @@ object  StypeTable{
 //val instrtype = map(0)
 //val optype = map(1)
 object InstrTable{
-    val Default = List(InstrType.BAD,OpType.ADD)
+    val Default = List(InstrType.BAD,0.U,OpType.ADD)
     val InstrMap = Array(
         //I
-        RV64IInstr.ADDI     -> List(InstrType.I,OpType.ADD),
-        RV64IInstr.EBREAK   -> List(InstrType.I,OpType.ADD),
-        RV64IInstr.JALR     -> List(InstrType.I,OpType.JALR),
+        RV64IInstr.ADDI     -> List(InstrType.I,OpIType.ADDI,OpType.ADD),
+        RV64IInstr.EBREAK   -> List(InstrType.I,OPIType.EBREAK,OpType.ADD),
+        RV64IInstr.LD       -> List(InstrType.I,OpIType.LD,OpType.ADD),
+        RV64IInstr.JALR     -> List(InstrType.I,OpIType.JALR,OpType.ADD),
         //U
-        RV64IInstr.AUIPC    -> List(InstrType.U,OpUType.AUIPC),
-        RV64IInstr.LUI      -> List(InstrType.U,OpUType.LUI),
+        RV64IInstr.AUIPC    -> List(InstrType.U,OpUType.AUIPC,OpType.ADD),
+        RV64IInstr.LUI      -> List(InstrType.U,OpUType.LUI,OpType.ADD),
         //J
-        RV64IInstr.JAL      -> List(InstrType.J,OpJType.JAL),
+        RV64IInstr.JAL      -> List(InstrType.J,OpJType.JAL,OpType.ADD),
         //S
-        RV64IInstr.SD       -> List(InstrType.S,OpSType.SD)
+        RV64IInstr.SD       -> List(InstrType.S,OpSType.SD,OpType.ADD)
     )
     val InstrT = 0
-    val OpT = 1
+    val InstrN = 1
+    val OpT = 2
 }
