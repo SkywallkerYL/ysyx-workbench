@@ -3,6 +3,7 @@
 #include "npcsdb.h"
 #include "trace.h"
 static void out_of_bound(paddr_t addr) {
+    instr_tracelog(1);
   panic("address = " FMT_PADDR " is out of bound of pmem [" FMT_PADDR ", " FMT_PADDR "] at pc = " FMT_WORD,
       addr, PMEM_LEFT, PMEM_RIGHT, cpu_gpr[32]);
 }
@@ -24,7 +25,7 @@ extern "C" void pmem_read(long long raddr, long long *rdata){
         //printf("addr:0x%016x \t rdata: 0x%016x\n",raddr,*rdata );
     }
     else {
-        printf("pc 0x%08x r\n",cpu_gpr[32]);
+        //printf("pc 0x%08x r\n",cpu_gpr[32]);
         out_of_bound(raddr);
     }       
 }
@@ -57,7 +58,7 @@ extern "C" void pmem_write(long long waddr, long long wdata,char wmask){
         }
     }
     else {
-        printf("pc 0x%08x w\n",cpu_gpr[32]);
+        //printf("pc 0x%08x w\n",cpu_gpr[32]);
         out_of_bound(waddr);
     }  
 }
