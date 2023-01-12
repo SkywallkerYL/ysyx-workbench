@@ -16,7 +16,7 @@ extern "C" void pmem_read(long long raddr, long long *rdata){
         mtrace(0,raddr,8,*rdata);
 #endif
     }
-    else if ((uint64_t)raddr>=(uint64_t)0x80000000){
+    else if ((uint64_t)raddr>=(uint64_t)0x80000000&&(uint64_t)waddr<=PMEM_RIGHT){
         uint64_t init = (raddr-CONFIG_MBASE);
         *rdata = *(uint64_t *)(&p_mem[init]);
 #ifdef CONFIG_MTRACE
@@ -32,6 +32,7 @@ extern "C" void pmem_read(long long raddr, long long *rdata){
 
 
 extern "C" void pmem_write(long long waddr, long long wdata,char wmask){
+    printf("addr:0x%016x data:0x%016x mask:0b%08b \n",waddr,wdata,wmask);
     if ((uint64_t)waddr == 0){
         return;
         //*rdata = 0;
@@ -41,6 +42,7 @@ extern "C" void pmem_write(long long waddr, long long wdata,char wmask){
         //mask为1的写入，为0的保持原来的内存
         //mask = 0x3 表示只写入最低两个字节，其他的保持不变
         //*wdata = *(uint64_t *)(&instr_mem[pmem_addr]);
+        
         uint64_t write_data = wdata;
         for (char i = 0; i < 8; i++)
         {
