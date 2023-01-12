@@ -98,7 +98,7 @@ class IDU extends Module{
         }
         is(InstrType.U){
             io.idex.imm := U_imm//.asSInt
-            io.idex.AluOp.rd1 := U_imm.asSInt
+            io.idex.AluOp.rd1 := U_imm.asUInt
             val Uty = DecodeRes(InstrTable.InstrN)
             // 0->lui->0.U  1->auipc->pc
             io.idex.AluOp.rd2 := Mux(Uty(0),io.pc_i,0.U)
