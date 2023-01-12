@@ -116,6 +116,7 @@ class IDU extends Module{
             io.idex.wflag := lsuflag(9)
             io.idex.rflag := lsuflag(8)
             io.idex.wmask := lsuflag(7,0)
+            io.idex.rden := 0.U
          }
         is (InstrType.BAD){
             io.instrnoimpl := true.B 

@@ -96,10 +96,10 @@ long initial_default_img(){
   instr_mem[2] = 0b00000000000100000000000010010011;
   instr_mem[3] = 0b00000000001100000000000010010011;
   instr_mem[4] = 0b00000000011100001000000100010011;
-  instr_mem[5] = 0x00113423;
-  instr_mem[6] = instr_break;
-  instr_mem[7] = 0b00000000111100001000000100010011;
-  instr_mem[8] = 0b00000001111100001000001100010011;
+  //instr_mem[5] = 0x00113423;
+  instr_mem[5] = instr_break;
+  instr_mem[6] = 0b00000000111100001000000100010011;
+  instr_mem[7] = 0b00000001111100001000001100010011;
   //chisel不同模式下生成的Mem的名字不一样，一个不行的时候换另一个,这里是在cpu内部例化Mem的情况
   //RiscvCpu__DOT__M[0]
   //RiscvCpu__DOT__M_ext__DOT__Memory[0]
