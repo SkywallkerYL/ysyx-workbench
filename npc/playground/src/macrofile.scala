@@ -41,7 +41,7 @@ object RV64IInstr {
     //J
     def JAL    = BitPat("b???????_?????_?????_???_?????_1101111")
     //S
-    def SD     = BitPat("b???????_?????_?????_010_?????_0100011")
+    def SD     = BitPat("b???????_?????_?????_011_?????_0100011")
     
 }
 
@@ -78,6 +78,15 @@ object  OpSType{
     val SD     = 0.U(OPSNUMWIDTH.W)
     //val JALR    = 2.U(OPSNUMWIDTH.W)
 }
+object  StypeTable{
+    val Default = List(0.U,0.U,0x00000000.U)
+    val WRMmap = Array(
+        OpSType.SD -> List(1.U,0.U,0x11111111.U)
+    )
+    val wen = 0
+    val ren = 1
+    val mask = 2
+}
 //val map =ListLookup(inst,InstrTable.Default,InstrTable.InstrMap)
 //val instrtype = map(0)
 //val optype = map(1)
@@ -94,7 +103,7 @@ object InstrTable{
         //J
         RV64IInstr.JAL      -> List(InstrType.J,OpJType.JAL),
         //S
-        RV64IInstr.SD       -> List(InstrType.J,OpSType.SD)
+        RV64IInstr.SD       -> List(InstrType.S,OpSType.SD)
     )
     val InstrT = 0
     val OpT = 1

@@ -154,6 +154,7 @@ void sim_once(uint64_t n){
 static void execute(uint64_t n) {
 
     switch (npc_state.state) {
+    case NPC_QUIT : exit(0);break;
     case NPC_END: case NPC_ABORT:
       //printf("Program execution has ended. To restart the program, exit NPC and run again.\n");
       Log("Program execution has ended. To restart the program, exit NPC and run again.");
@@ -221,7 +222,7 @@ static void execute(uint64_t n) {
       }
       
       // fall through
-    case NPC_QUIT: break;
+    case NPC_QUIT: exit(0);break;
     }
     //if (npc_state.state != NPC_RUNNING) {break;}
     //IFDEF(CONFIG_DEVICE, device_update());

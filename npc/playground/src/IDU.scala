@@ -43,7 +43,7 @@ class IDU extends Module{
     io.idex.rs2 := io.rs_data2
     io.idex.rflag := 0.U
     io.idex.wflag := 0.U
-    io.idex.wmask := 3.U(parm.BYTEWIDTH.W)
+    io.idex.wmask := 0.U(parm.BYTEWIDTH.W)
     //io.func7 := io.instr_i(31,25)
     //io.func3 := io.instr_i(14,12)
     //io.opcode := io.instr_i(6,0)
@@ -102,8 +102,12 @@ class IDU extends Module{
             io.idex.imm := S_imm
             io.idex.AluOp.rd1 := io.rs_data1
             io.idex.AluOp.rd2 := S_imm.asUInt
-            
-        }
+            io.idex.AluOp.op  := OpType.ADD
+            val lsuflag = ListLookup(DecodeRes(InstrTable.OpT),StypeTable.Default,StypeTable.WRMmap)
+            io.idex.wflag := lsuflag(StypeTable.wen)
+            io.idex.rflag := lsuflag(StypeTable.ren)
+            io.idex.wmask := lsuflag(StypeTable.mask)
+         }
         is (InstrType.BAD){
             io.instrnoimpl := true.B 
             io.idex.rden := 0.U
