@@ -24,6 +24,7 @@ class IDEX extends Bundle{
     val wflag = Output(Bool())
     val rflag = Output(Bool())
     val wmask = Output(UInt(parm.BYTEWIDTH.W))
+    val choose = Output(UInt(parm.RegFileChooseWidth.W))
 }
 
 

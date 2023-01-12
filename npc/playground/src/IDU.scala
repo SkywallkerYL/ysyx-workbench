@@ -44,6 +44,7 @@ class IDU extends Module{
     io.idex.rflag := 0.U
     io.idex.wflag := 0.U
     io.idex.wmask := 0.U(parm.BYTEWIDTH.W)
+    io.idex.choose := 0.U
     //io.func7 := io.instr_i(31,25)
     //io.func3 := io.instr_i(14,12)
     //io.opcode := io.instr_i(6,0)
@@ -64,6 +65,8 @@ class IDU extends Module{
     val DecodeRes = ListLookup(io.instr_i,InstrTable.Default,InstrTable.InstrMap)
     val InstType = DecodeRes(InstrTable.InstrT)
     io.idex.AluOp.op := DecodeRes(InstrTable.OpT)
+    //注意每一条指令对内存 以及寄存器堆的读写使能 这样子在执行别的指令时，其他的结果仍然是被计算的，这样子就会造成对内存
+    //或者寄存器的错误写入和读取 对寄存器的写默认拉高 对内存的读写默认拉低
     switch(InstType){
         is(InstrType.I){
             //printf(p"TYPE=${(InstType)} \n")
@@ -104,8 +107,9 @@ class IDU extends Module{
             io.idex.AluOp.rd2 := S_imm.asUInt
             io.idex.AluOp.op  := OpType.ADD
             val stype = DecodeRes(InstrTable.OpT)
-            val lsuflag = MuxLookup(stype, "b0_0_0000_0000".U,Seq(
-                OpSType.SD ->"b1_0_1111_1111".U
+            val lsuflag = MuxLookup(stype, "b0000_0_0_0_0000_0000".U,Seq(
+                                        //choose_rden_wflag_rflag_wmask
+                OpSType.SD ->"b0000_0_1_0_1111_1111".U
             ))
             //val lsuflag = MuxCase(
               //  List(0.U,0.U,0x00000000.U),
@@ -116,7 +120,8 @@ class IDU extends Module{
             io.idex.wflag := lsuflag(9)
             io.idex.rflag := lsuflag(8)
             io.idex.wmask := lsuflag(7,0)
-            io.idex.rden := 0.U
+            io.idex.rden := lsuflag(10)
+            io.idex.choose := lsuflag(14,11)
          }
         is (InstrType.BAD){
             io.instrnoimpl := true.B 

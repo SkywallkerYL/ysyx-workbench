@@ -13,6 +13,7 @@ class EXLSIO extends Bundle{
     val writeaddr = Output(UInt(parm.REGWIDTH.W))
     val writedata = Output(UInt(parm.REGWIDTH.W))
     val wmask = Output(UInt(parm.BYTEWIDTH.W))
+    val choose = Output(UInt(parm.RegFileChooseWidth.W))
     //val rdata = Output(UInt(parm.REGWIDTH.W))
 }
 

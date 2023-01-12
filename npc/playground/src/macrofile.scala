@@ -16,6 +16,7 @@ object  parm{
     val OPCODEWIDTH : Int = 7
     val MSIZE : Int = 1024
     
+    val RegFileChooseWidth : Int = 4
 // initial value
     val INITIAL_PC  : String = "x80000000"
     val INITIAL_INST: String = "x00000000"

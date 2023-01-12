@@ -80,6 +80,7 @@ class EXU extends Module{
   io.ls.rflag := io.id.rflag
   io.ls.writedata := io.id.rs2
   io.ls.wmask := io.id.wmask
+  io.ls.choose := io.id.choose
   //val src1 = Wire(UInt(parm.REGWIDTH.W))
   //val src2 = Wire(UInt(parm.REGWIDTH.W))
 

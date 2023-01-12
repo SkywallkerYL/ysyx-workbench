@@ -10,6 +10,7 @@ class LSU extends Module{
       val EXLS_i = Flipped(new EXLSIO)
       //val Regfile_i = Flipped(new REGFILEIO)
       val LsuRes = Output(UInt(parm.REGWIDTH.W))
+      val choose = Output (UInt(parm.RegFileChooseWidth.W))
   })
   if(parm.DPI){
     val LsuDPI = Module(new LSUDPI) 
