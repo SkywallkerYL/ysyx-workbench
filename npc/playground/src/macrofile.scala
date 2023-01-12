@@ -34,7 +34,7 @@ object RV64IInstr {
     def JALR   = BitPat("b???????_?????_?????_000_?????_1100111")
 
     def LD     = BitPat("b???????_?????_?????_011_?????_0000011")
-
+    def SLTIU  = BitPat("b???????_?????_?????_011_?????_0010011")
 
     def EBREAK = BitPat("b0000000_00001_00000_000_00000_1110011")    
     //U
@@ -68,6 +68,7 @@ object  OpType{
     val OPNUMWIDTH = 4
     val ADD  = 0.U(OPNUMWIDTH.W)
     val SUB  = 1.U(OPNUMWIDTH.W)
+    val SLTU = 2.U(OPNUMWIDTH.W) //小于置位，比较时设为无符号数
     //val JALR = 10.U(OPNUMWIDTH.W)
     //val LD = 11.U(OPINUMWIDTH.W)
 }
@@ -77,6 +78,7 @@ object  OpIType{
     val EBREAK = 1.U(OPINUMWIDTH.W)
     val JALR= 2.U(OPINUMWIDTH.W)
     val LD = 3.U(OPINUMWIDTH.W)
+    val SLTIU = 4.U(OPINUMWIDTH.W)
     //val LD = 11.U(OPINUMWIDTH.W)
 }
 //这个对操作数进行具体的区分 以便决定操作数
@@ -124,6 +126,7 @@ object InstrTable{
         RV64IInstr.EBREAK   -> List(InstrType.I,OpIType.EBREAK,OpType.ADD),
         RV64IInstr.LD       -> List(InstrType.I,OpIType.LD,OpType.ADD),
         RV64IInstr.JALR     -> List(InstrType.I,OpIType.JALR,OpType.ADD),
+        RV64IInstr.SLTIU    -> List(InstrType.I,OpIType.SLTIU,OpType.SLTU),
         //U
         RV64IInstr.AUIPC    -> List(InstrType.U,OpUType.AUIPC,OpType.ADD),
         RV64IInstr.LUI      -> List(InstrType.U,OpUType.LUI,OpType.ADD),

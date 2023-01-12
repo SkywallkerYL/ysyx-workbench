@@ -96,8 +96,9 @@ class EXU extends Module{
   val op = io.id.AluOp.op
   val shamt = src2(4,0)
   val AluRes = MuxLookup(op, src1+src2,Seq(
-    OpType.ADD -> (src1+src2),
-    OpType.SUB -> (src1-src2)
+    OpType.ADD  -> (src1+src2),
+    OpType.SUB  -> (src1-src2),
+    OpType.SLTU -> (src1.asUInt < src2.asUInt)
   ))
   //printf(p"AluRes=0x${Hexadecimal(AluRes)} wflag:  ${io.id.wflag}\n")
   io.ex.rddata:= AluRes
