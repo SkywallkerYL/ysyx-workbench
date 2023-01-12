@@ -75,6 +75,7 @@ object  OpJType{
 }
 object  OpSType{
     val OPSNUMWIDTH = 4
+    //val BAD    = 0.U(OPSNUMWIDTH.W)
     val SD     = 0.U(OPSNUMWIDTH.W)
     //val JALR    = 2.U(OPSNUMWIDTH.W)
 }
