@@ -104,8 +104,8 @@ class IDU extends Module{
             io.idex.AluOp.rd2 := S_imm.asUInt
             io.idex.AluOp.op  := OpType.ADD
             val stype = DecodeRes(InstrTable.OpT)
-            val lsuflag = MuxLookup(stype, List(0.U,0.U,0x00000000.U),Array(
-                OpSType.SD -> List(1.U,0.U,0x11111111.U)
+            val lsuflag = MuxLookup(stype, 0.U##0.U##0x00000000.U,Array(
+                OpSType.SD -> 1.U##0.U##0x11111111.U
             ))
             //val lsuflag = MuxCase(
               //  List(0.U,0.U,0x00000000.U),
