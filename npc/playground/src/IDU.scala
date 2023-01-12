@@ -123,7 +123,7 @@ class IDU extends Module{
             io.idex.rden := 0.U
             val jump = (less&byte(1)) | (bigger&(!byte(1))) | (eq & byte(2))
             //io.idex.AluOp.op  := OpType.ADD
-            io.jal := Mux(jump.B,3.U,0.U)
+            io.jal := Mux(jump,3.U,0.U)
         }
         is (InstrType.S){
             io.idex.imm := S_imm.asSInt
