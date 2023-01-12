@@ -84,7 +84,7 @@ object  OpIType{
     val JALR= 2.U(OPINUMWIDTH.W)
     val LD = 3.U(OPINUMWIDTH.W)
     val SLTIU = 4.U(OPINUMWIDTH.W)
-    val ADDI = 5.U(OPINUMWIDTH.W)
+    val ADDW = 5.U(OPINUMWIDTH.W)
     //val LD = 11.U(OPINUMWIDTH.W)
 }
 //这个对操作数进行具体的区分 以便决定操作数
@@ -166,6 +166,6 @@ object InstrTable{
 
 object func{
     def SignExt(imm : UInt , bit : Int) = Cat(Fill(parm.REGWIDTH-bit,imm(bit-1)),imm(bit-1,0))
-    def UsignExt(imm : UInt , bit : Int) = Cat(Fill(parm.REGWIDTH-bit,0),imm(bit-1,0))
+    def UsignExt(imm : UInt , bit : Int) = Cat(Fill(parm.REGWIDTH-bit,"b0".U),imm(bit-1,0))
     def Mask (imm: UInt, mask : UInt) = imm & mask
 }
