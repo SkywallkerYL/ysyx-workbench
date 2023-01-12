@@ -24,6 +24,7 @@ extern "C" void pmem_read(long long raddr, long long *rdata){
         //printf("addr:0x%016x \t rdata: 0x%016x\n",raddr,*rdata );
     }
     else {
+        printf("pc 0x%08x r\n",cpu_gpr[32]);
         out_of_bound(raddr);
     }       
 }
@@ -56,6 +57,7 @@ extern "C" void pmem_write(long long waddr, long long wdata,char wmask){
         }
     }
     else {
+        printf("pc 0x%08x w\n",cpu_gpr[32]);
         out_of_bound(waddr);
     }  
 }

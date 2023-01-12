@@ -97,6 +97,7 @@ class EXU extends Module{
   val AluRes = MuxLookup(op, src1+src2,Seq(
     OpType.ADD -> (src1+src2)
   ))
+  printf(p"AluRes=0x${Hexadecimal(AluRes)}\n")
   io.ex.rddata:= AluRes
   io.ex.alures:= AluRes
   io.ls.writeaddr :=  AluRes
