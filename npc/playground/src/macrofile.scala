@@ -46,7 +46,7 @@ object RV64IInstr {
     def SD     = BitPat("b???????_?????_?????_011_?????_0100011")
     //R
     def ADD    = BitPat("b0000000_?????_?????_000_?????_0110011")
-    
+    def SUB    = BitPat("b0100000_?????_?????_000_?????_0110011")
 }
 
 object InstrType{
@@ -61,9 +61,13 @@ object InstrType{
 }
 
 //这个op是决定ALU的操作
+//没加后缀S的默认无符号运算
+//前面加前缀U 或者S的 表示还要进行有符号或者无符号扩展
+//后面加参数的表示截断
 object  OpType{
     val OPNUMWIDTH = 4
     val ADD  = 0.U(OPNUMWIDTH.W)
+    val SUB  = 1.U(OPNUMWIDTH.W)
     //val JALR = 10.U(OPNUMWIDTH.W)
     //val LD = 11.U(OPINUMWIDTH.W)
 }
@@ -96,6 +100,7 @@ object  OpRType{
     val OPRNUMWIDTH = 4
     //val BAD    = 0.U(OPSNUMWIDTH.W)
     val ADD     = 0.U(OPRNUMWIDTH.W)
+    val SUB     = 1.U(OPRNUMWIDTH.W)
     //val JALR    = 2.U(OPSNUMWIDTH.W)
 }
 
@@ -127,7 +132,8 @@ object InstrTable{
         //S
         RV64IInstr.SD       -> List(InstrType.S,OpSType.SD,OpType.ADD),
         //R
-        RV64IInstr.ADD      -> List(InstrType.R,OpRType.ADD,OpType.ADD)
+        RV64IInstr.ADD      -> List(InstrType.R,OpRType.ADD,OpType.ADD),
+        RV64IInstr.SUB      -> List(InstrType.R,OpRType.SUB,OpType.SUB)
     )
     val InstrT = 0
     val InstrN = 1
