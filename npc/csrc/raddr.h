@@ -10,6 +10,7 @@ static void out_of_bound(paddr_t addr) {
 extern "C" void pmem_read(long long raddr, long long *rdata){
     if ((uint64_t)raddr == 0){
         *rdata = 0;
+        return;
 #ifdef CONFIG_MTRACE
         mtrace(0,raddr,8,*rdata);
 #endif
@@ -30,6 +31,7 @@ extern "C" void pmem_read(long long raddr, long long *rdata){
 
 extern "C" void pmem_write(long long waddr, long long wdata,char wmask){
     if ((uint64_t)waddr == 0){
+        return;
         //*rdata = 0;
     }
     else if ((uint64_t)waddr>=(uint64_t)0x80000000){
