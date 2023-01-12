@@ -97,7 +97,7 @@ class EXU extends Module{
   val shamt = src2(4,0)
   val AluRes = MuxLookup(op, src1+src2,Seq(
     OpType.ADD  -> (src1+src2),
-    OpType.ADDW -> func.SignExt(func.Mask((src1+src2),"0x0000ffff".U),32),
+    OpType.ADDW -> func.SignExt(func.Mask((src1+src2),"x0000ffff".U),32),
     OpType.SUB  -> (src1-src2),
     OpType.SLTU -> (src1.asUInt < src2.asUInt)
   ))
