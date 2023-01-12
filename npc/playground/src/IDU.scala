@@ -108,7 +108,7 @@ class IDU extends Module{
             io.idex.imm := J_imm//.asSInt
             io.idex.AluOp.rd1 := io.pc_i
             io.idex.AluOp.rd2 := 4.U
-            io.idex.rden := 0.U
+            //io.idex.rden := 0.U
             //io.idex.AluOp.op  := OpType.ADD
             io.jal := 1.U
         }

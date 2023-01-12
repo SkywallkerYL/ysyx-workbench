@@ -23,8 +23,8 @@ class NPCMUX extends Module{
   val jumppc = MuxLookup(io.jal,pc_4,Seq(
     0.U -> pc_4   ,
     1.U -> jalpc  ,
-    2.U -> jalrpc 
-    //3.U -> jalpc
+    2.U -> jalrpc ,
+    3.U -> jalpc
   ))
   io.NOP := io.jal=/=0.U
   io.NPC := Mux(io.NOP,jumppc,pc_4)
