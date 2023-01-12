@@ -107,7 +107,7 @@ object InstrTable{
     val InstrMap = Array(
         //I
         RV64IInstr.ADDI     -> List(InstrType.I,OpIType.ADDI,OpType.ADD),
-        RV64IInstr.EBREAK   -> List(InstrType.I,OPIType.EBREAK,OpType.ADD),
+        RV64IInstr.EBREAK   -> List(InstrType.I,OpIType.EBREAK,OpType.ADD),
         RV64IInstr.LD       -> List(InstrType.I,OpIType.LD,OpType.ADD),
         RV64IInstr.JALR     -> List(InstrType.I,OpIType.JALR,OpType.ADD),
         //U
