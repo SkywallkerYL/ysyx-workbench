@@ -95,7 +95,7 @@ object  OpSType{
 object  OpRType{
     val OPRNUMWIDTH = 4
     //val BAD    = 0.U(OPSNUMWIDTH.W)
-    val ADD     = 0.U(OPSNUMWIDTH.W)
+    val ADD     = 0.U(OPRNUMWIDTH.W)
     //val JALR    = 2.U(OPSNUMWIDTH.W)
 }
 
