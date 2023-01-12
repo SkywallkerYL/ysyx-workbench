@@ -32,7 +32,7 @@ object RV64IInstr {
     //I
     def ADDI   = BitPat("b???????_?????_?????_000_?????_0010011")
     def JALR   = BitPat("b???????_?????_?????_000_?????_1100111")
-
+    def ADDIW  = BitPat("b???????_?????_?????_000_?????_0011011")
     def LD     = BitPat("b???????_?????_?????_011_?????_0000011")
     def SLTIU  = BitPat("b???????_?????_?????_011_?????_0010011")
 
@@ -72,7 +72,8 @@ object  OpType{
     val ADD  = 0.U(OPNUMWIDTH.W)
     val SUB  = 1.U(OPNUMWIDTH.W)
     val SLTU = 2.U(OPNUMWIDTH.W) //小于置位，比较时设为无符号数
-    val BEQ  = 3.U(OPNUMWIDTH.W)
+    //val BEQ  = 3.U(OPNUMWIDTH.W)
+    val ADDW = 3.U(OPNUMWIDTH.W)
     //val JALR = 10.U(OPNUMWIDTH.W)
     //val LD = 11.U(OPINUMWIDTH.W)
 }
@@ -83,6 +84,7 @@ object  OpIType{
     val JALR= 2.U(OPINUMWIDTH.W)
     val LD = 3.U(OPINUMWIDTH.W)
     val SLTIU = 4.U(OPINUMWIDTH.W)
+    val ADDI = 5.U(OPINUMWIDTH.W)
     //val LD = 11.U(OPINUMWIDTH.W)
 }
 //这个对操作数进行具体的区分 以便决定操作数
@@ -138,6 +140,7 @@ object InstrTable{
     val InstrMap = Array(
         //I
         RV64IInstr.ADDI     -> List(InstrType.I,OpIType.ADDI,OpType.ADD),
+        RV64IInstr.ADDIW    -> List(InstrType.I,OpIType.ADDI,OpType.ADDW),
         RV64IInstr.EBREAK   -> List(InstrType.I,OpIType.EBREAK,OpType.ADD),
         RV64IInstr.LD       -> List(InstrType.I,OpIType.LD,OpType.ADD),
         RV64IInstr.JALR     -> List(InstrType.I,OpIType.JALR,OpType.ADD),
@@ -159,4 +162,10 @@ object InstrTable{
     val InstrT = 0
     val InstrN = 1
     val OpT = 2
+}
+
+object func{
+    def SignExt(imm : UInt , bit : Int) = Cat(Fill(parm.REGWIDTH-bit,imm(bit-1)),imm(bit-1,0))
+    def UsignExt(imm : UInt , bit : Int) = Cat(Fill(parm.REGWIDTH-bit,0),imm(bit-1,0))
+    def Mask (imm: UInt, mask : UInt) = imm & mask
 }
