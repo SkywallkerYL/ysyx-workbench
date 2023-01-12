@@ -104,9 +104,10 @@ object  OpSType{
 object  OpBType{
     val OPBNUMWIDTH = 4
     //4位，最低位 0位指示有无符号 1表示无符号 0表示有符号  
-    //倒数第二位指示是否是< >    1<  0>
-    //2指示是否是== 
-    val BEQ     = "b0100".U(OPBNUMWIDTH.W)
+    //倒数第二位指示是否是<    1<  
+    //2指示是否是>
+    //3指示是否是=== 
+    val BEQ     = "b1000".U(OPBNUMWIDTH.W)
 }
 object  OpRType{
     val OPRNUMWIDTH = 4

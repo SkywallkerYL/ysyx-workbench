@@ -121,7 +121,7 @@ class IDU extends Module{
             val bigger = Mux(byte(0),io.rs_data1.asUInt > io.rs_data2.asUInt, io.rs_data1.asSInt > io.rs_data2.asSInt)
             val eq = io.rs_data1 === io.rs_data2
             io.idex.rden := 0.U
-            val jump = (less&byte(1)) | (bigger&(!byte(1))) | (eq & byte(2))
+            val jump = (less&byte(1)) | (bigger&(byte(2))) | (eq & byte(3))
             //io.idex.AluOp.op  := OpType.ADD
             io.jal := Mux(jump,3.U,0.U)
         }
