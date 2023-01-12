@@ -47,6 +47,8 @@ object RV64IInstr {
     //R
     def ADD    = BitPat("b0000000_?????_?????_000_?????_0110011")
     def SUB    = BitPat("b0100000_?????_?????_000_?????_0110011")
+    //B 
+    def BEQ    = BitPat("b???????_?????_?????_000_?????_1100011")
 }
 
 object InstrType{
@@ -69,6 +71,7 @@ object  OpType{
     val ADD  = 0.U(OPNUMWIDTH.W)
     val SUB  = 1.U(OPNUMWIDTH.W)
     val SLTU = 2.U(OPNUMWIDTH.W) //小于置位，比较时设为无符号数
+    val BEQ  = 3.U(OPNUMWIDTH.W)
     //val JALR = 10.U(OPNUMWIDTH.W)
     //val LD = 11.U(OPINUMWIDTH.W)
 }
@@ -88,7 +91,7 @@ object  OpUType{
     val AUIPC   = 1.U(OPUNUMWIDTH.W)
 }
 object  OpJType{
-    val OPJNUMWIDTH = 2
+    val OPJNUMWIDTH = 4 // 这里其实是所有具有跳转类型的指令的数量
     val JAL     = 1.U(OPJNUMWIDTH.W)
     //val JALR    = 2.U(OPJNUMWIDTH.W)
 }
@@ -98,6 +101,13 @@ object  OpSType{
     val SD     = 0.U(OPSNUMWIDTH.W)
     //val JALR    = 2.U(OPSNUMWIDTH.W)
 }
+object  OpBType{
+    val OPBNUMWIDTH = 4
+    //4位，最低位 0位指示有无符号 1表示无符号 0表示有符号  
+    //倒数第二位指示是否是< >    1<  0>
+    //2指示是否是== 
+    val BEQ     = b0100.U(OPBNUMWIDTH.W)
+}
 object  OpRType{
     val OPRNUMWIDTH = 4
     //val BAD    = 0.U(OPSNUMWIDTH.W)
@@ -105,6 +115,7 @@ object  OpRType{
     val SUB     = 1.U(OPRNUMWIDTH.W)
     //val JALR    = 2.U(OPSNUMWIDTH.W)
 }
+
 
 object  StypeTable{
     val Default = List(0.U,0.U,0x00000000.U)
@@ -136,7 +147,9 @@ object InstrTable{
         RV64IInstr.SD       -> List(InstrType.S,OpSType.SD,OpType.ADD),
         //R
         RV64IInstr.ADD      -> List(InstrType.R,OpRType.ADD,OpType.ADD),
-        RV64IInstr.SUB      -> List(InstrType.R,OpRType.SUB,OpType.SUB)
+        RV64IInstr.SUB      -> List(InstrType.R,OpRType.SUB,OpType.SUB),
+        //B
+        RV64IInstr.BEQ      -> List(InstrType.B,OpBType.BEQ,OpType.ADD),
     )
     val InstrT = 0
     val InstrN = 1

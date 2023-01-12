@@ -70,9 +70,9 @@ class IDU extends Module{
     switch(InstType){
         is(InstrType.I){
             //printf(p"TYPE=${(InstType)} \n")
-            io.idex.imm := I_imm
+            io.idex.imm := I_imm.asSInt
             io.idex.AluOp.rd1 := io.rs_data1
-            io.idex.AluOp.rd2 := I_imm
+            io.idex.AluOp.rd2 := I_imm.asUInt
             val stype = DecodeRes(InstrTable.InstrN)
             val lsuflag = MuxLookup(stype, "b0000_1_0_0_0000_0000".U(15.W),Seq(
                                         //choose_rden_wflag_rflag_wmask
@@ -97,22 +97,36 @@ class IDU extends Module{
             io.idex.AluOp.rd2 := io.rs_data2
         }
         is(InstrType.U){
-            io.idex.imm := U_imm
-            io.idex.AluOp.rd1 := U_imm
+            io.idex.imm := U_imm.asSInt
+            io.idex.AluOp.rd1 := U_imm.asSInt
             val Uty = DecodeRes(InstrTable.InstrN)
             // 0->lui->0.U  1->auipc->pc
             io.idex.AluOp.rd2 := Mux(Uty(0),io.pc_i,0.U)
             //io.idex.AluOp.op := OpType.ADD
         }
         is(InstrType.J){
-            io.idex.imm := J_imm
+            io.idex.imm := J_imm.asSInt
             io.idex.AluOp.rd1 := io.pc_i
             io.idex.AluOp.rd2 := 4.U
+            io.idex.rden := 0.U
             //io.idex.AluOp.op  := OpType.ADD
             io.jal := 1.U
         }
+        is(InstrType.B){
+            io.idex.imm := B_imm.asSInt
+            //io.idex.AluOp.rd1 := io.pc_i
+            //io.idex.AluOp.rd2 := B_imm.asUInt
+            val byte = DecodeRes(InstrTable.InstrN)
+            val less = Mux(byte(0),io.rs_data1.asUInt < io.rs_data2.asUInt, io.rs_data1.asSInt < io.rs_data2.asSInt)
+            val bigger = Mux(byte(0),io.rs_data1.asUInt > io.rs_data2.asUInt, io.rs_data1.asSInt > io.rs_data2.asSInt)
+            val eq = io.rs_data1 === io.rs_data2
+            io.idex.rden := 0.U
+            val jump = (less&byte(1)) | (bigger&(!byte(1))) | (eq & byte(2))
+            //io.idex.AluOp.op  := OpType.ADD
+            io.jal := Mux(jump.B,3.U,0.U)
+        }
         is (InstrType.S){
-            io.idex.imm := S_imm
+            io.idex.imm := S_imm.asSInt
             io.idex.AluOp.rd1 := io.rs_data1
             io.idex.AluOp.rd2 := S_imm.asUInt
             //io.idex.AluOp.op  := OpType.ADD
