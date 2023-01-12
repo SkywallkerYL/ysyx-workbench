@@ -26,16 +26,18 @@ static int skip_dut_nr_inst = 0;
 bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc);
 bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
   if (ref_r->pc!=pc) {Log("%s ref_pc: 0x%016lx npc_pc:0x%016lx ",ANSI_FMT("PC DIIF", ANSI_FG_RED) ,ref_r->pc,pc);return false;}
+  bool regflag = true;
   for (size_t i = 0; i < 32; i++)
   {
     if (ref_r->gpr[i]!=cpu_gpr[i])
     {
+      regflag = false;
       Log("%s reg:%s ref: 0x%016lx npc:0x%016lx ",ANSI_FMT("REG DIIF", ANSI_FG_RED),regs[i],ref_r->gpr[i],cpu_gpr[i]);
-      return false;
+      //return false;
     }
     
   }
-  return true;
+  return regflag;
 }
 
 void isa_difftest_attach();

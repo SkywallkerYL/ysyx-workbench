@@ -31,7 +31,7 @@ enum { DIFFTEST_TO_DUT, DIFFTEST_TO_REF };
 #define RESET_VECTOR (PMEM_LEFT + CONFIG_PC_RESET_OFFSET)
 #define FMT_PADDR "0x%016lx"
 #define instr_break 0b00000000000100000000000001110011
-#define MSIZE 1024 //this should be same with npc
+#define MSIZE 65536 //this should be same with npc
 uint32_t instr_mem[MSIZE/4];
 uint8_t p_mem[MSIZE];
 

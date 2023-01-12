@@ -14,7 +14,7 @@ object  parm{
     val RegNumber   : Int = 32
     val RegFileReadPorts: Int = 2
     val OPCODEWIDTH : Int = 7
-    val MSIZE : Int = 1024
+    val MSIZE : Int = 65536
     
     val RegFileChooseWidth : Int = 4
 // initial value
