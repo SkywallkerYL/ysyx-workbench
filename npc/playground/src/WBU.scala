@@ -16,7 +16,7 @@ class WBU extends Module{
       val wbRes_o = Output(UInt(parm.REGWIDTH.W))
   })
     io.Regfile_o :=  io.Regfile_i
-    io.wbRes_o = MuxLookup(io.choose,0.U,Seq(
+    io.wbRes_o := MuxLookup(io.choose,0.U,Seq(
       0.U -> io.Regfile_i.wdata,
       1.U -> io.LsuRes_i
     ))
