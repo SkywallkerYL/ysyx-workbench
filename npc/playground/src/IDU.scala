@@ -70,7 +70,7 @@ class IDU extends Module{
     switch(InstType){
         is(InstrType.I){
             //printf(p"TYPE=${(InstType)} \n")
-            io.idex.imm := I_imm.asSInt
+            io.idex.imm := I_imm//.asSInt
             io.idex.AluOp.rd1 := io.rs_data1
             io.idex.AluOp.rd2 := I_imm.asUInt
             val stype = DecodeRes(InstrTable.InstrN)
@@ -97,7 +97,7 @@ class IDU extends Module{
             io.idex.AluOp.rd2 := io.rs_data2
         }
         is(InstrType.U){
-            io.idex.imm := U_imm.asSInt
+            io.idex.imm := U_imm//.asSInt
             io.idex.AluOp.rd1 := U_imm.asSInt
             val Uty = DecodeRes(InstrTable.InstrN)
             // 0->lui->0.U  1->auipc->pc
@@ -105,7 +105,7 @@ class IDU extends Module{
             //io.idex.AluOp.op := OpType.ADD
         }
         is(InstrType.J){
-            io.idex.imm := J_imm.asSInt
+            io.idex.imm := J_imm//.asSInt
             io.idex.AluOp.rd1 := io.pc_i
             io.idex.AluOp.rd2 := 4.U
             io.idex.rden := 0.U
@@ -113,7 +113,7 @@ class IDU extends Module{
             io.jal := 1.U
         }
         is(InstrType.B){
-            io.idex.imm := B_imm.asSInt
+            io.idex.imm := B_imm//.asSInt
             //io.idex.AluOp.rd1 := io.pc_i
             //io.idex.AluOp.rd2 := B_imm.asUInt
             val byte = DecodeRes(InstrTable.InstrN)
@@ -126,7 +126,7 @@ class IDU extends Module{
             io.jal := Mux(jump,3.U,0.U)
         }
         is (InstrType.S){
-            io.idex.imm := S_imm.asSInt
+            io.idex.imm := S_imm//.asSInt
             io.idex.AluOp.rd1 := io.rs_data1
             io.idex.AluOp.rd2 := S_imm.asUInt
             //io.idex.AluOp.op  := OpType.ADD
