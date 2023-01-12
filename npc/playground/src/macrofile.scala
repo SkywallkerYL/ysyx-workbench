@@ -80,9 +80,9 @@ object  OpSType{
 }
 object  StypeTable{
     val Default = List(0.U,0.U,0x00000000.U)
-    val WRMmap = Array(
-        OpSType.SD -> List(1.U,0.U,0x11111111.U)
-    )
+    //val WRMmap = Array(
+       //OpSType.SD -> List(1.U,0.U,0x11111111.U)
+   // )
     val wen = 0
     val ren = 1
     val mask = 2
