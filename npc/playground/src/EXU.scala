@@ -103,7 +103,7 @@ class EXU extends Module{
     //OpType.ADDW -> func.SignExt(func.Mask((src1+src2),"x0000ffff".U),32),
     OpType.SUB  -> (src1-src2),
     OpType.SLTU -> (src1.asUInt < src2.asUInt),
-    OpType.SRA  -> (src1 >> src2),
+    OpType.SRA  -> (src1.asSInt >> src2),
     OpType.SLL  -> (src1 << src2(5,0)),
     OpType.AND  -> (src1 & src2),
     OpType.XOR  -> (src1 ^ src2)
@@ -123,19 +123,5 @@ class EXU extends Module{
   io.ex.alures:= maskRes
   io.ls.writeaddr :=  maskRes
   io.ls.readaddr := maskRes
-  /*
-  switch(io.opcode_i){
-    is(parm.INST_ADDI.U) {
-        src1 := io.rs1_i
-        src2 := io.imm_i
-        io.rddata := io.expres
-    }
-    is(parm.INST_EBREAK.U) {
-        src1 := 0.U
-        src2 := 0.U
-        io.rddata := io.expres
-    }
-  }
-  */
 
 }
