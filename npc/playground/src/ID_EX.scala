@@ -15,7 +15,7 @@ class IDEX extends Bundle{
     //val instr = Output(UInt(parm.INSTWIDTH.W))//这个instr可能不需要继续传递了
     val rs1 = Output(UInt(parm.REGWIDTH.W))
     val rs2 = Output(UInt(parm.REGWIDTH.W))
-    val shamt =  Output(UInt(6.W))
+    //val shamt =  Output(UInt(6.W))
     val imm = Output(UInt(parm.REGWIDTH.W))
     val AluOp = Output(new ALUOP)
     //val func3 = Output(UInt(3.W))
