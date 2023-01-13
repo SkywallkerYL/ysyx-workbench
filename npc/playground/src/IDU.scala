@@ -72,6 +72,8 @@ class IDU extends Module{
     io.idex.AluOp.op := DecodeRes(InstrTable.OpT)
     val rd1 = Wire(UInt(parm.REGWIDTH.W))
     val rd2 = Wire(UInt(parm.REGWIDTH.W))
+    rd1 := 0.U
+    rd2 := 0.U
     //注意每一条指令对内存 以及寄存器堆的读写使能 这样子在执行别的指令时，其他的结果仍然是被计算的，这样子就会造成对内存
     //或者寄存器的错误写入和读取 对寄存器的写默认拉高 对内存的读写默认拉低
     switch(InstType){
