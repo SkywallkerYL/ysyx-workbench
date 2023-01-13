@@ -25,10 +25,10 @@ class LSU extends Module{
     //io.LsuRes := LsuDPI.io.rdata
   }
   val maskRes = MuxLookup(io.EXLS_i.lsumask, readdata,Seq(
-    "b11111.U"   -> readdata,
-    "b10111.U"   ->func.SignExt(func.Mask((readdata),"xffffffff".U),32),
-    "b10011.U"   ->func.SignExt(func.Mask((readdata),"x0000ffff".U),16),
-    "b10001.U"   ->func.SignExt(func.Mask((readdata),"x000000ff".U),8)
+    "b11111".U   -> readdata,
+    "b10111".U   ->func.SignExt(func.Mask((readdata),"xffffffff".U),32),
+    "b10011".U   ->func.SignExt(func.Mask((readdata),"x0000ffff".U),16),
+    "b10001".U   ->func.SignExt(func.Mask((readdata),"x000000ff".U),8)
     //OpType.ADDW -> func.SignExt(func.Mask((src1+src2),"x0000ffff".U),32),
   ))
   io.LsuRes := maskRes
