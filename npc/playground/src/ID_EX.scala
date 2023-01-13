@@ -15,6 +15,7 @@ class IDEX extends Bundle{
     //val instr = Output(UInt(parm.INSTWIDTH.W))//这个instr可能不需要继续传递了
     val rs1 = Output(UInt(parm.REGWIDTH.W))
     val rs2 = Output(UInt(parm.REGWIDTH.W))
+    val shamt =  Output(UInt(6.W))
     val imm = Output(UInt(parm.REGWIDTH.W))
     val AluOp = Output(new ALUOP)
     //val func3 = Output(UInt(3.W))
@@ -27,6 +28,8 @@ class IDEX extends Bundle{
     val choose = Output(UInt(parm.RegFileChooseWidth.W))
     val alumask = Output(UInt(parm.MaskWidth.W))
     val lsumask = Output(UInt(parm.MaskWidth.W))
+    val src1mask = Output(UInt(parm.MaskWidth.W))
+    val src2mask = Output(UInt(parm.MaskWidth.W))
 }
 
 

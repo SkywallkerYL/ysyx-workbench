@@ -14,11 +14,12 @@ object  parm{
     val RegNumber   : Int = 32
     val RegFileReadPorts: Int = 2
     val OPCODEWIDTH : Int = 7
-    val MSIZE : Int = 65536
+    val MSIZE : Int = 4096
     
     val RegFileChooseWidth : Int = 4
     val MaskWidth   : Int = 5//第四位决定掩模的位数  1111-64 0111-32 0011-16 0001-8 
     //最高位指示掩模后作有符号还是无符号拓展 1 有符号 0 无符号
+
 // initial value
     val INITIAL_PC  : String = "x80000000"
     val INITIAL_INST: String = "x00000000"
@@ -38,7 +39,7 @@ object RV64IInstr {
     def LW     = BitPat("b???????_?????_?????_010_?????_0000011")
     def LD     = BitPat("b???????_?????_?????_011_?????_0000011")
     def SLTIU  = BitPat("b???????_?????_?????_011_?????_0010011")
-
+    def SRAI   = BitPat("b0100000_?????_?????_101_?????_0010011")
     def EBREAK = BitPat("b0000000_00001_00000_000_00000_1110011")    
     //U
     def AUIPC  = BitPat("b???????_?????_?????_???_?????_0010111")
@@ -77,6 +78,7 @@ object  OpType{
     val ADD  = 0.U(OPNUMWIDTH.W)
     val SUB  = 1.U(OPNUMWIDTH.W)
     val SLTU = 2.U(OPNUMWIDTH.W) //小于置位，比较时设为无符号数
+    val SRA  = 3.U(OPNUMWIDTH.W)
     //val BEQ  = 3.U(OPNUMWIDTH.W)
     //val ADDW = 3.U(OPNUMWIDTH.W)
     //val JALR = 10.U(OPNUMWIDTH.W)
@@ -91,6 +93,7 @@ object  OpIType{
     val SLTIU = 4.U(OPINUMWIDTH.W)
     val ADDIW = 5.U(OPINUMWIDTH.W)
     val LW = 6.U(OPINUMWIDTH.W)
+    val SRAI = 7.U(OPINUMWIDTH.W)
     //val LD = 11.U(OPINUMWIDTH.W)
 }
 //这个对操作数进行具体的区分 以便决定操作数
@@ -154,6 +157,7 @@ object InstrTable{
         RV64IInstr.LW       -> List(InstrType.I,OpIType.LW,OpType.ADD),
         RV64IInstr.JALR     -> List(InstrType.I,OpIType.JALR,OpType.ADD),
         RV64IInstr.SLTIU    -> List(InstrType.I,OpIType.SLTIU,OpType.SLTU),
+        RV64IInstr.SRAI     -> List(InstrType.I,OpIType.SRAI,OpType.SRA),
         //U
         RV64IInstr.AUIPC    -> List(InstrType.U,OpUType.AUIPC,OpType.ADD),
         RV64IInstr.LUI      -> List(InstrType.U,OpUType.LUI,OpType.ADD),
@@ -176,7 +180,7 @@ object InstrTable{
 }
 
 object func{
-    def SignExt(imm : UInt , bit : Int) = Cat(Fill(parm.REGWIDTH-bit,imm(bit-1)),imm(bit-1,0))
+    def SignExt(imm : UInt , bit : Int)  = Cat(Fill(parm.REGWIDTH-bit,imm(bit-1)),imm(bit-1,0))
     def UsignExt(imm : UInt , bit : Int) = Cat(Fill(parm.REGWIDTH-bit,"b0".U),imm(bit-1,0))
     def Mask (imm: UInt, mask : UInt) = imm & mask
 }

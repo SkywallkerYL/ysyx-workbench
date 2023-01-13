@@ -38,6 +38,7 @@ class IDU extends Module{
     io.jal := 0.U
     io.rs_addr1 := io.instr_i(19,15)
     io.rs_addr2 := io.instr_i(24,20)
+    val shamt = io.instr_i(25,20)
     io.idex.rdaddr := io.instr_i(11,7)
     io.idex.rs1 := io.rs_data1
     io.idex.rs2 := io.rs_data2
@@ -46,6 +47,8 @@ class IDU extends Module{
     io.idex.wmask := 0.U(parm.BYTEWIDTH.W)
     io.idex.alumask := "b11111".U(parm.MaskWidth.W)
     io.idex.lsumask := "b11111".U(parm.MaskWidth.W)
+    io.idex.src1mask := "b11111".U(parm.MaskWidth.W)
+    io.idex.src2mask := "b11111".U(parm.MaskWidth.W)
     io.idex.choose := 0.U
     //io.func7 := io.instr_i(31,25)
     //io.func3 := io.instr_i(14,12)
@@ -67,20 +70,23 @@ class IDU extends Module{
     val DecodeRes = ListLookup(io.instr_i,InstrTable.Default,InstrTable.InstrMap)
     val InstType = DecodeRes(InstrTable.InstrT)
     io.idex.AluOp.op := DecodeRes(InstrTable.OpT)
+    val rd1 = Wire(UInt(parm.REGWIDTH.W))
+    val rd2 = Wire(UInt(parm.REGWIDTH.W))
     //注意每一条指令对内存 以及寄存器堆的读写使能 这样子在执行别的指令时，其他的结果仍然是被计算的，这样子就会造成对内存
     //或者寄存器的错误写入和读取 对寄存器的写默认拉高 对内存的读写默认拉低
     switch(InstType){
         is(InstrType.I){
             //printf(p"TYPE=${(InstType)} \n")
             io.idex.imm := I_imm//.asSInt
-            io.idex.AluOp.rd1 := io.rs_data1
-            io.idex.AluOp.rd2 := I_imm.asUInt
+            rd1 := io.rs_data1
+            rd2 := I_imm.asUInt
             val stype = DecodeRes(InstrTable.InstrN)
-            val lsuflag = MuxLookup(stype, "b11111_11111_0000_1_0_0_0000_0000".U(25.W),Seq(
-                                        //alumask_lsumask_choose_rden_wflag_rflag_wmask
-                OpIType.LD      ->"b11111_11111_0001_1_0_1_0000_0000".U(25.W),
-                OpIType.LW      ->"b11111_10111_0001_1_0_1_0000_0000".U(25.W),
-                OpIType.ADDIW   ->"b10111_11111_0000_1_0_0_0000_0000".U(25.W)
+            val lsuflag = MuxLookup(stype, "b11111_11111_11111_11111_0000_1_0_0_0000_0000".U(35.W),Seq(
+                                    //src1mask_src2mask_alumask_lsumask_choose_rden_wflag_rflag_wmask
+                OpIType.LD      ->"b11111_11111_11111_11111_0001_1_0_1_0000_0000".U(35.W),
+                OpIType.LW      ->"b11111_11111_11111_10111_0001_1_0_1_0000_0000".U(35.W),
+                OpIType.ADDIW   ->"b11111_11111_10111_11111_0000_1_0_0_0000_0000".U(35.W),
+                OpIType.SRAI    ->"b11111_10000_10111_11111_0000_1_0_0_0000_0000".U(35.W)
             ))
             io.idex.wflag := lsuflag(9)
             io.idex.rflag := lsuflag(8)
@@ -89,22 +95,24 @@ class IDU extends Module{
             io.idex.choose := lsuflag(14,11)
             io.idex.lsumask := lsuflag(19,15)
             io.idex.alumask := lsuflag(24,20)
+            io.idex.src1mask := lsuflag(29,25)
+            io.idex.src2mask := lsuflag(34,30)
             when(DecodeRes(InstrTable.InstrN) === OpIType.JALR)
             {
-                io.idex.AluOp.rd1 := io.pc_i
-                io.idex.AluOp.rd2 := 4.U
+                rd1 := io.pc_i
+                rd2 := 4.U
                 //io.idex.AluOp.op  := OpType.ADD
                 io.jal := 2.U
             }
         }
         is(InstrType.R){
             //io.idex.imm := R_imm
-            io.idex.AluOp.rd1 := io.rs_data1
-            io.idex.AluOp.rd2 := io.rs_data2
+            rd1 := io.rs_data1
+            rd2 := io.rs_data2
             val rtype = DecodeRes(InstrTable.InstrN)
-            val lsuflag = MuxLookup(rtype, "b11111_11111_0000_1_0_0_0000_0000".U(25.W),Seq(
-                                        //alumask_lsumask_choose_rden_wflag_rflag_wmask
-                OpRType.ADDW ->"b10111_11111_0000_1_0_0_0000_0000".U(25.W)
+            val lsuflag = MuxLookup(rtype, "b11111_11111_11111_0000_1_0_0_0000_0000".U(35.W),Seq(
+                                    //src1mask_src2mask__alumask_lsumask_choose_rden_wflag_rflag_wmask
+                OpRType.ADDW ->"b11111_10111_11111_0000_1_0_0_0000_0000".U(35.W)
             ))
             io.idex.wflag := lsuflag(9)
             io.idex.rflag := lsuflag(8)
@@ -113,19 +121,21 @@ class IDU extends Module{
             io.idex.choose := lsuflag(14,11)
             io.idex.lsumask := lsuflag(19,15)
             io.idex.alumask := lsuflag(24,20)
+            io.idex.src1mask := lsuflag(29,25)
+            io.idex.src2mask := lsuflag(34,30)
         }
         is(InstrType.U){
             io.idex.imm := U_imm//.asSInt
-            io.idex.AluOp.rd1 := U_imm.asUInt
+            rd1 := U_imm.asUInt
             val Uty = DecodeRes(InstrTable.InstrN)
             // 0->lui->0.U  1->auipc->pc
-            io.idex.AluOp.rd2 := Mux(Uty(0),io.pc_i,0.U)
+            rd2 := Mux(Uty(0),io.pc_i,0.U)
             //io.idex.AluOp.op := OpType.ADD
         }
         is(InstrType.J){
             io.idex.imm := J_imm//.asSInt
-            io.idex.AluOp.rd1 := io.pc_i
-            io.idex.AluOp.rd2 := 4.U
+            rd1 := io.pc_i
+            rd2 := 4.U
             //io.idex.rden := 0.U
             //io.idex.AluOp.op  := OpType.ADD
             io.jal := 1.U
@@ -146,14 +156,14 @@ class IDU extends Module{
         }
         is (InstrType.S){
             io.idex.imm := S_imm//.asSInt
-            io.idex.AluOp.rd1 := io.rs_data1
-            io.idex.AluOp.rd2 := S_imm.asUInt
+            rd1 := io.rs_data1
+            rd2 := S_imm.asUInt
             //io.idex.AluOp.op  := OpType.ADD
             val stype = DecodeRes(InstrTable.InstrN)
-            val lsuflag = MuxLookup(stype, "b11111_11111_0000_0_0_0_0000_0000".U(25.W),Seq(
-                                        //alumask_lsumask_choose_rden_wflag_rflag_wmask
-                OpSType.SD ->"b11111_11111_0000_0_1_0_1111_1111".U(25.W),
-                OpSType.SH ->"b11111_11111_0000_0_1_0_0000_0011".U(25.W)
+            val lsuflag = MuxLookup(stype, "b11111_11111_11111_11111_0000_0_0_0_0000_0000".U(35.W),Seq(
+                                    //src1mask_src2mask_alumask_lsumask_choose_rden_wflag_rflag_wmask
+                OpSType.SD ->"b11111_11111_11111_11111_0000_0_1_0_1111_1111".U(35.W),
+                OpSType.SH ->"b11111_11111_11111_11111_0000_0_1_0_0000_0011".U(35.W)
             ))
             io.idex.wflag := lsuflag(9)
             io.idex.rflag := lsuflag(8)
@@ -162,12 +172,30 @@ class IDU extends Module{
             io.idex.choose := lsuflag(14,11)
             io.idex.lsumask := lsuflag(19,15)
             io.idex.alumask := lsuflag(24,20)
-         }
+            io.idex.src1mask := lsuflag(29,25)
+            io.idex.src2mask := lsuflag(34,30)
+        }
         is (InstrType.BAD){
             io.instrnoimpl := true.B 
             io.idex.rden := 0.U
         }
     }
+    io.idex.AluOp.rd1 = MuxLookup(io.idex.src1mask, rd1,Seq(
+    "b11111".U   -> rd1,
+    "b10111".U   ->func.Mask((rd1),"x00000000ffffffff".U)
+    //"b10011".U   ->func.SignExt(func.Mask((AluRes),"x000000000000ffff".U),16),
+    //"b10001".U   ->func.SignExt(func.Mask((AluRes),"x00000000000000ff".U),8),
+    ))
+    io.idex.AluOp.rd2 = MuxLookup(io.idex.src2mask, rd2,Seq(
+    "b11111".U   -> rd2,
+    "b10111".U   ->func.Mask((rd2),"x00000000ffffffff".U),
+    "b10000".U   -> shamt
+    //"b10011".U   ->func.SignExt(func.Mask((AluRes),"x000000000000ffff".U),16),
+    //"b10001".U   ->func.SignExt(func.Mask((AluRes),"x00000000000000ff".U),8),
+    ))
+
+
+
     io.ebreak := Mux(io.instr_i === "x00100073".U,1.B,0.B)
 
 }
