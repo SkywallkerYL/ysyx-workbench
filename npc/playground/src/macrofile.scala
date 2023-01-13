@@ -47,6 +47,7 @@ object RV64IInstr {
     def JAL    = BitPat("b???????_?????_?????_???_?????_1101111")
     //S
     def SD     = BitPat("b???????_?????_?????_011_?????_0100011")
+    def SH     = BitPat("b???????_?????_?????_001_?????_0100011")
     //R
     def ADD    = BitPat("b0000000_?????_?????_000_?????_0110011")
     def SUB    = BitPat("b0100000_?????_?????_000_?????_0110011")
@@ -107,6 +108,7 @@ object  OpSType{
     val OPSNUMWIDTH = 4
     //val BAD    = 0.U(OPSNUMWIDTH.W)
     val SD     = 0.U(OPSNUMWIDTH.W)
+    val SH     = 1.U(OPSNUMWIDTH.W)
     //val JALR    = 2.U(OPSNUMWIDTH.W)
 }
 object  OpBType{
@@ -159,6 +161,7 @@ object InstrTable{
         RV64IInstr.JAL      -> List(InstrType.J,OpJType.JAL,OpType.ADD),
         //S
         RV64IInstr.SD       -> List(InstrType.S,OpSType.SD,OpType.ADD),
+        RV64IInstr.SH       -> List(InstrType.S,OpSType.SH,OpType.ADD),
         //R
         RV64IInstr.ADD      -> List(InstrType.R,OpRType.ADD,OpType.ADD),
         RV64IInstr.ADDW     -> List(InstrType.R,OpRType.ADDW,OpType.ADD),
