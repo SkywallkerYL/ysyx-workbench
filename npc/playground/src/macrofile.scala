@@ -50,6 +50,7 @@ object RV64IInstr {
     //R
     def ADD    = BitPat("b0000000_?????_?????_000_?????_0110011")
     def SUB    = BitPat("b0100000_?????_?????_000_?????_0110011")
+    def ADDW   = BitPat("b0000000_?????_?????_000_?????_0111011")
     //B 
     def BEQ    = BitPat("b???????_?????_?????_000_?????_1100011")
     def BNE    = BitPat("b???????_?????_?????_001_?????_1100011")
@@ -123,6 +124,7 @@ object  OpRType{
     //val BAD    = 0.U(OPSNUMWIDTH.W)
     val ADD     = 0.U(OPRNUMWIDTH.W)
     val SUB     = 1.U(OPRNUMWIDTH.W)
+    val ADDW    = 2.U(OPRNUMWIDTH.W)
     //val JALR    = 2.U(OPSNUMWIDTH.W)
 }
 
@@ -159,6 +161,7 @@ object InstrTable{
         RV64IInstr.SD       -> List(InstrType.S,OpSType.SD,OpType.ADD),
         //R
         RV64IInstr.ADD      -> List(InstrType.R,OpRType.ADD,OpType.ADD),
+        RV64IInstr.ADDW     -> List(InstrType.R,OpRType.ADDW,OpType.ADD),
         RV64IInstr.SUB      -> List(InstrType.R,OpRType.SUB,OpType.SUB),
         //B
         RV64IInstr.BEQ      -> List(InstrType.B,OpBType.BEQ,OpType.ADD),
