@@ -106,6 +106,7 @@ class EXU extends Module{
     OpType.SRA  -> (src1.asSInt >> src2.asUInt).asUInt,
     OpType.SLL  -> (src1 << src2(5,0)),
     OpType.AND  -> (src1 & src2),
+    OpType.OR   -> (src1 | src2),
     OpType.XOR  -> (src1 ^ src2)
   ))
   val maskRes = MuxLookup(io.id.alumask, AluRes,Seq(
