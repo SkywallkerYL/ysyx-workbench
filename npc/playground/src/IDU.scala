@@ -180,13 +180,13 @@ class IDU extends Module{
             io.idex.rden := 0.U
         }
     }
-    io.idex.AluOp.rd1 = MuxLookup(io.idex.src1mask, rd1,Seq(
+    io.idex.AluOp.rd1 := MuxLookup(io.idex.src1mask, rd1,Seq(
     "b11111".U   -> rd1,
     "b10111".U   ->func.Mask((rd1),"x00000000ffffffff".U)
     //"b10011".U   ->func.SignExt(func.Mask((AluRes),"x000000000000ffff".U),16),
     //"b10001".U   ->func.SignExt(func.Mask((AluRes),"x00000000000000ff".U),8),
     ))
-    io.idex.AluOp.rd2 = MuxLookup(io.idex.src2mask, rd2,Seq(
+    io.idex.AluOp.rd2 := MuxLookup(io.idex.src2mask, rd2,Seq(
     "b11111".U   -> rd2,
     "b10111".U   ->func.Mask((rd2),"x00000000ffffffff".U),
     "b10000".U   -> shamt
