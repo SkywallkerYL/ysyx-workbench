@@ -104,6 +104,7 @@ class EXU extends Module{
     OpType.SUB  -> (src1-src2),
     OpType.SLTU -> (src1.asUInt < src2.asUInt),
     OpType.SRA  -> (src1.asSInt >> src2.asUInt).asUInt,
+    OpType.SRL  -> (src1.asUInt >> src2.asUInt).asUInt,
     OpType.SLL  -> (src1 << src2(5,0)),
     OpType.AND  -> (src1 & src2),
     OpType.OR   -> (src1 | src2),
