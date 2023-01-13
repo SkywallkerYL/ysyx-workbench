@@ -103,7 +103,7 @@ class EXU extends Module{
     //OpType.ADDW -> func.SignExt(func.Mask((src1+src2),"x0000ffff".U),32),
     OpType.SUB  -> (src1-src2),
     OpType.SLTU -> (src1.asUInt < src2.asUInt),
-    OpType.SRA  -> (src1.asSInt >> src2),
+    OpType.SRA  -> (src1.asSInt >> src2).asUInt,
     OpType.SLL  -> (src1 << src2(5,0)),
     OpType.AND  -> (src1 & src2),
     OpType.XOR  -> (src1 ^ src2)
