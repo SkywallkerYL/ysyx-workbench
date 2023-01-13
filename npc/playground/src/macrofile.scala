@@ -36,6 +36,7 @@ object RV64IInstr {
     def ADDI   = BitPat("b???????_?????_?????_000_?????_0010011")
     def JALR   = BitPat("b???????_?????_?????_000_?????_1100111")
     def ADDIW  = BitPat("b???????_?????_?????_000_?????_0011011")
+    def ANDI   = BitPat("b???????_?????_?????_111_?????_0010011")
     def LW     = BitPat("b???????_?????_?????_010_?????_0000011")
     def LD     = BitPat("b???????_?????_?????_011_?????_0000011")
     def LBU    = BitPat("b???????_?????_?????_100_?????_0000011")
@@ -80,6 +81,7 @@ object  OpType{
     val SUB  = 1.U(OPNUMWIDTH.W)
     val SLTU = 2.U(OPNUMWIDTH.W) //小于置位，比较时设为无符号数
     val SRA  = 3.U(OPNUMWIDTH.W)
+    val AND  = 4.U(OPNUMWIDTH.W)
     //val BEQ  = 3.U(OPNUMWIDTH.W)
     //val ADDW = 3.U(OPNUMWIDTH.W)
     //val JALR = 10.U(OPNUMWIDTH.W)
@@ -96,6 +98,7 @@ object  OpIType{
     val LW = 6.U(OPINUMWIDTH.W)
     val SRAI = 7.U(OPINUMWIDTH.W)
     val LBU = 8.U(OPINUMWIDTH.W)
+    val ANDI = 9.U(OPINUMWIDTH.W)
     //val LD = 11.U(OPINUMWIDTH.W)
 }
 //这个对操作数进行具体的区分 以便决定操作数
@@ -154,6 +157,7 @@ object InstrTable{
         //I
         RV64IInstr.ADDI     -> List(InstrType.I,OpIType.ADDI,OpType.ADD),
         RV64IInstr.ADDIW    -> List(InstrType.I,OpIType.ADDIW,OpType.ADD),
+        RV64IInstr.ANDI     -> List(InstrType.I,OpIType.ANDI,OpType.AND),
         RV64IInstr.EBREAK   -> List(InstrType.I,OpIType.EBREAK,OpType.ADD),
         RV64IInstr.LD       -> List(InstrType.I,OpIType.LD,OpType.ADD),
         RV64IInstr.LW       -> List(InstrType.I,OpIType.LW,OpType.ADD),
