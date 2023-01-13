@@ -144,6 +144,8 @@ void sim_once(uint64_t n){
   int rs1 = rs1_Fetch();
   uint64_t src1 = cpu_gpr[rs1];
   uint64_t imm = imm_Fetch();
+  //if (cpu_gpr[32] == 0x80000014)printf("jalr:%d rd:%d rs1:%d imm:0x%016lx\n",jalrflag,d,rs1,imm);
+  //if(jalrflag&(d==0)&(rs1==1)&(imm==0)) printf("pc:0x%016lx\n",cpu_gpr[32]);
   log_ftrace(dnpc,jalrflag,d,imm,rs1,src1);
 #endif
   if(checkebreak()||top->io_abort){

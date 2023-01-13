@@ -439,6 +439,7 @@ void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1,word_t s
   //printf("pc:%lx: Addr:%x func [%s] rd:%d rs1:%d imm:%ld jarl:%d\n",cpu.pc,addr,funcname,rd,rs1,imm,jarlflag);
   if (retflag)
   {
+    //printf("pc:%lx:\n",cpu_gpr[32]);
     //ret返回的是调用函数的后一个Pc地址
     vaddr_t realpc = src1-0x4;
     //读pc处的指令
