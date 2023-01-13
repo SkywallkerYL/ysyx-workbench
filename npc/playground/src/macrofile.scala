@@ -17,6 +17,8 @@ object  parm{
     val MSIZE : Int = 65536
     
     val RegFileChooseWidth : Int = 4
+    val MaskWidth   : Int = 5//第四位决定掩模的位数  1111-64 0111-32 0011-16 0001-8 
+    //最高位指示掩模后作有符号还是无符号拓展 1 有符号 0 无符号
 // initial value
     val INITIAL_PC  : String = "x80000000"
     val INITIAL_INST: String = "x00000000"
@@ -73,7 +75,7 @@ object  OpType{
     val SUB  = 1.U(OPNUMWIDTH.W)
     val SLTU = 2.U(OPNUMWIDTH.W) //小于置位，比较时设为无符号数
     //val BEQ  = 3.U(OPNUMWIDTH.W)
-    val ADDW = 3.U(OPNUMWIDTH.W)
+    //val ADDW = 3.U(OPNUMWIDTH.W)
     //val JALR = 10.U(OPNUMWIDTH.W)
     //val LD = 11.U(OPINUMWIDTH.W)
 }
@@ -84,7 +86,7 @@ object  OpIType{
     val JALR= 2.U(OPINUMWIDTH.W)
     val LD = 3.U(OPINUMWIDTH.W)
     val SLTIU = 4.U(OPINUMWIDTH.W)
-    val ADDW = 5.U(OPINUMWIDTH.W)
+    val ADDIW = 5.U(OPINUMWIDTH.W)
     //val LD = 11.U(OPINUMWIDTH.W)
 }
 //这个对操作数进行具体的区分 以便决定操作数
@@ -140,7 +142,7 @@ object InstrTable{
     val InstrMap = Array(
         //I
         RV64IInstr.ADDI     -> List(InstrType.I,OpIType.ADDI,OpType.ADD),
-        RV64IInstr.ADDIW    -> List(InstrType.I,OpIType.ADDI,OpType.ADDW),
+        RV64IInstr.ADDIW    -> List(InstrType.I,OpIType.ADDIW,OpType.ADD),
         RV64IInstr.EBREAK   -> List(InstrType.I,OpIType.EBREAK,OpType.ADD),
         RV64IInstr.LD       -> List(InstrType.I,OpIType.LD,OpType.ADD),
         RV64IInstr.JALR     -> List(InstrType.I,OpIType.JALR,OpType.ADD),

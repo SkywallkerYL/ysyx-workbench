@@ -58,7 +58,7 @@ extern "C" void pmem_write(long long waddr, long long wdata,char wmask){
 #endif
             } 
             //进入下一位。
-            write_data >> 8;
+            write_data  = write_data>> 8;
         }
     }
     else {

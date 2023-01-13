@@ -12,6 +12,7 @@ class LSU extends Module{
       val LsuRes = Output(UInt(parm.REGWIDTH.W))
       val choose = Output (UInt(parm.RegFileChooseWidth.W))
   })
+  val readdata = Wire(UInt(parm.REGWIDTH.W))
   if(parm.DPI){
     val LsuDPI = Module(new LSUDPI) 
     LsuDPI.io.wflag := io.EXLS_i.wflag
@@ -20,8 +21,17 @@ class LSU extends Module{
     LsuDPI.io.waddr := io.EXLS_i.writeaddr 
     LsuDPI.io.wdata := io.EXLS_i.writedata 
     LsuDPI.io.wmask := io.EXLS_i.wmask 
-    io.LsuRes := LsuDPI.io.rdata
+    readdata := LsuDPI.io.rdata
+    //io.LsuRes := LsuDPI.io.rdata
   }
+  val maskRes = MuxLookup(io.EXLS_i.lsumask, readdata,Seq(
+    "b11111.U"   -> readdata,
+    "b10111.U"   ->func.SignExt(func.Mask((readdata),"xffffffff".U),32),
+    "b10011.U"   ->func.SignExt(func.Mask((readdata),"x0000ffff".U),16),
+    "b10001.U"   ->func.SignExt(func.Mask((readdata),"x000000ff".U),8)
+    //OpType.ADDW -> func.SignExt(func.Mask((src1+src2),"x0000ffff".U),32),
+  ))
+  io.LsuRes := maskRes
   io.choose := io.EXLS_i.choose
 
 }

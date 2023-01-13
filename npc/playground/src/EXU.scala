@@ -81,6 +81,7 @@ class EXU extends Module{
   io.ls.writedata := io.id.rs2
   io.ls.wmask := io.id.wmask
   io.ls.choose := io.id.choose
+  io.ls.lsumask := io.id.lsumask
   //val src1 = Wire(UInt(parm.REGWIDTH.W))
   //val src2 = Wire(UInt(parm.REGWIDTH.W))
 
@@ -97,15 +98,22 @@ class EXU extends Module{
   val shamt = src2(4,0)
   val AluRes = MuxLookup(op, src1+src2,Seq(
     OpType.ADD  -> (src1+src2),
-    OpType.ADDW -> func.SignExt(func.Mask((src1+src2),"x0000ffff".U),32),
+    //OpType.ADDW -> func.SignExt(func.Mask((src1+src2),"x0000ffff".U),32),
     OpType.SUB  -> (src1-src2),
     OpType.SLTU -> (src1.asUInt < src2.asUInt)
   ))
+  val maskRes = MuxLookup(io.id.alumask, AluRes,Seq(
+    "b11111.U"   -> AluRes,
+    "b10111.U"   ->func.SignExt(func.Mask((AluRes),"xffffffff".U),32),
+    "b10011.U"   ->func.SignExt(func.Mask((AluRes),"x0000ffff".U),16),
+    "b10001.U"   ->func.SignExt(func.Mask((AluRes),"x000000ff".U),8)
+    //OpType.ADDW -> func.SignExt(func.Mask((src1+src2),"x0000ffff".U),32),
+  ))
   //printf(p"AluRes=0x${Hexadecimal(AluRes)} wflag:  ${io.id.wflag}\n")
-  io.ex.rddata:= AluRes
-  io.ex.alures:= AluRes
-  io.ls.writeaddr :=  AluRes
-  io.ls.readaddr := AluRes
+  io.ex.rddata:= maskRes
+  io.ex.alures:= maskRes
+  io.ls.writeaddr :=  maskRes
+  io.ls.readaddr := maskRes
   /*
   switch(io.opcode_i){
     is(parm.INST_ADDI.U) {
