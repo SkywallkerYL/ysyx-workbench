@@ -99,8 +99,8 @@ class IDU extends Module{
             io.idex.choose := lsuflag(14,11)
             io.idex.lsumask := lsuflag(19,15)
             io.idex.alumask := lsuflag(24,20)
-            io.idex.src1mask := lsuflag(29,25)
-            io.idex.src2mask := lsuflag(34,30)
+            io.idex.src2mask := lsuflag(29,25)
+            io.idex.src1mask := lsuflag(34,30)
             when(DecodeRes(InstrTable.InstrN) === OpIType.JALR)
             {
                 rd1 := io.pc_i
@@ -126,8 +126,8 @@ class IDU extends Module{
             io.idex.choose := lsuflag(14,11)
             io.idex.lsumask := lsuflag(19,15)
             io.idex.alumask := lsuflag(24,20)
-            io.idex.src1mask := lsuflag(29,25)
-            io.idex.src2mask := lsuflag(34,30)
+            io.idex.src2mask := lsuflag(29,25)
+            io.idex.src1mask := lsuflag(34,30)
         }
         is(InstrType.U){
             io.idex.imm := U_imm//.asSInt
@@ -177,8 +177,8 @@ class IDU extends Module{
             io.idex.choose := lsuflag(14,11)
             io.idex.lsumask := lsuflag(19,15)
             io.idex.alumask := lsuflag(24,20)
-            io.idex.src1mask := lsuflag(29,25)
-            io.idex.src2mask := lsuflag(34,30)
+            io.idex.src2mask := lsuflag(29,25)
+            io.idex.src1mask := lsuflag(34,30)
         }
         is (InstrType.BAD){
             io.instrnoimpl := true.B 
