@@ -104,7 +104,7 @@ class EXU extends Module{
   ))
   val maskRes = MuxLookup(io.id.alumask, AluRes,Seq(
     "b11111".U   -> AluRes,
-    "b10111".U   ->func.SignExt(func.Mask((AluRes),"x00000000ffffffff".U),32),
+    "b10111".U   ->func.SignExt(func.Mask((AluRes),"x000000000000ffff".U),32),
     "b10011".U   ->func.SignExt(func.Mask((AluRes),"x000000000000ffff".U),16),
     "b10001".U   ->func.SignExt(func.Mask((AluRes),"x00000000000000ff".U),8)
     //OpType.ADDW -> func.SignExt(func.Mask((src1+src2),"x0000ffff".U),32),
