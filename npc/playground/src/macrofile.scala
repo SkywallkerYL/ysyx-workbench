@@ -80,8 +80,9 @@ object  OpType{
     val ADD  = 0.U(OPNUMWIDTH.W)
     val SUB  = 1.U(OPNUMWIDTH.W)
     val SLTU = 2.U(OPNUMWIDTH.W) //小于置位，比较时设为无符号数
-    val SRA  = 3.U(OPNUMWIDTH.W)
+    val SRA  = 3.U(OPNUMWIDTH.W) // 逻辑右移
     val AND  = 4.U(OPNUMWIDTH.W)
+    val SLL  = 5.U(OPNUMWIDTH.W)//逻辑左移
     //val BEQ  = 3.U(OPNUMWIDTH.W)
     //val ADDW = 3.U(OPNUMWIDTH.W)
     //val JALR = 10.U(OPNUMWIDTH.W)
@@ -135,6 +136,7 @@ object  OpRType{
     val ADD     = 0.U(OPRNUMWIDTH.W)
     val SUB     = 1.U(OPRNUMWIDTH.W)
     val ADDW    = 2.U(OPRNUMWIDTH.W)
+    val SLLW    = 3.U(OPRNUMWIDTH.W)
     //val JALR    = 2.U(OPSNUMWIDTH.W)
 }
 
@@ -177,6 +179,7 @@ object InstrTable{
         RV64IInstr.ADD      -> List(InstrType.R,OpRType.ADD,OpType.ADD),
         RV64IInstr.ADDW     -> List(InstrType.R,OpRType.ADDW,OpType.ADD),
         RV64IInstr.SUB      -> List(InstrType.R,OpRType.SUB,OpType.SUB),
+        RV64IInstr.SLLW     -> List(InstrType.R,OpRType.SLLW,OpType.SLL),
         //B
         RV64IInstr.BEQ      -> List(InstrType.B,OpBType.BEQ,OpType.ADD),
         RV64IInstr.BNE      -> List(InstrType.B,OpBType.BNE,OpType.ADD)

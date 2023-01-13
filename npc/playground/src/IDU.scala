@@ -114,9 +114,10 @@ class IDU extends Module{
             rd1 := io.rs_data1
             rd2 := io.rs_data2
             val rtype = DecodeRes(InstrTable.InstrN)
-            val lsuflag = MuxLookup(rtype, "b11111_11111_11111_0000_1_0_0_0000_0000".U(35.W),Seq(
+            val lsuflag = MuxLookup(rtype, "b11111_11111_11111_11111_0000_1_0_0_0000_0000".U(35.W),Seq(
                                     //src1mask_src2mask__alumask_lsumask_choose_rden_wflag_rflag_wmask
-                OpRType.ADDW ->"b11111_10111_11111_0000_1_0_0_0000_0000".U(35.W)
+                OpRType.ADDW ->"b11111_11111_10111_11111_0000_1_0_0_0000_0000".U(35.W),
+                OpRType.SLLW ->"b11111_11000_10111_11111_0000_1_0_0_0000_0000".U(35.W)
             ))
             io.idex.wflag := lsuflag(9)
             io.idex.rflag := lsuflag(8)
@@ -193,7 +194,8 @@ class IDU extends Module{
     io.idex.AluOp.rd2 := MuxLookup(io.idex.src2mask, rd2,Seq(
     "b11111".U   -> rd2,
     "b10111".U   ->func.Mask((rd2),"x00000000ffffffff".U),
-    "b10000".U   -> shamt
+    "b10000".U   -> shamt,
+    "b11000".U   -> rd2(4,0)
     //"b10011".U   ->func.SignExt(func.Mask((AluRes),"x000000000000ffff".U),16),
     //"b10001".U   ->func.SignExt(func.Mask((AluRes),"x00000000000000ff".U),8),
     ))
