@@ -40,6 +40,7 @@ object RV64IInstr {
     def ANDI   = BitPat("b???????_?????_?????_111_?????_0010011")
     def LW     = BitPat("b???????_?????_?????_010_?????_0000011")
     def LD     = BitPat("b???????_?????_?????_011_?????_0000011")
+    def LH     = BitPat("b???????_?????_?????_001_?????_0000011")
     def LBU    = BitPat("b???????_?????_?????_100_?????_0000011")
     def SLTIU  = BitPat("b???????_?????_?????_011_?????_0010011")
     def SRAI   = BitPat("b010000?_?????_?????_101_?????_0010011")
@@ -125,6 +126,7 @@ object  OpIType{
     val XORI = 10.U(OPINUMWIDTH.W)
     val SLLI = 11.U(OPINUMWIDTH.W)
     val SRLI = 12.U(OPINUMWIDTH.W)
+    val LH   = 13.U(OPINUMWIDTH.W)
     //val LD = 11.U(OPINUMWIDTH.W)
 }
 //这个对操作数进行具体的区分 以便决定操作数
@@ -173,6 +175,7 @@ object  OpRType{
     val DIVW    = 8.U(OPRNUMWIDTH.W)
     val REMW    = 9.U(OPRNUMWIDTH.W)
     val SLT    = 10.U(OPRNUMWIDTH.W)
+    
     //val JALR    = 2.U(OPSNUMWIDTH.W)
 }
 
@@ -199,6 +202,7 @@ object InstrTable{
         RV64IInstr.EBREAK   -> List(InstrType.I,OpIType.EBREAK,OpType.ADD),
         RV64IInstr.LD       -> List(InstrType.I,OpIType.LD,OpType.ADD),
         RV64IInstr.LW       -> List(InstrType.I,OpIType.LW,OpType.ADD),
+        RV64IInstr.LH       -> List(InstrType.I,OpIType.LH,OpType.ADD),
         RV64IInstr.LBU      -> List(InstrType.I,OpIType.LBU,OpType.ADD),
         RV64IInstr.JALR     -> List(InstrType.I,OpIType.JALR,OpType.ADD),
         RV64IInstr.SLTIU    -> List(InstrType.I,OpIType.SLTIU,OpType.SLTU),
