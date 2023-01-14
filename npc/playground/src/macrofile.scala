@@ -47,6 +47,7 @@ object RV64IInstr {
     def SRAI   = BitPat("b010000?_?????_?????_101_?????_0010011")
     def SRLI   = BitPat("b000000?_?????_?????_101_?????_0010011")
     def SLLI   = BitPat("b000000?_?????_?????_001_?????_0010011")
+    def SLLIW  = BitPat("b000000?_?????_?????_001_?????_0011011")
     def EBREAK = BitPat("b0000000_00001_00000_000_00000_1110011")    
     //U
     def AUIPC  = BitPat("b???????_?????_?????_???_?????_0010111")
@@ -130,6 +131,7 @@ object  OpIType{
     val SRLI = 12.U(OPINUMWIDTH.W)
     val LH   = 13.U(OPINUMWIDTH.W)
     val LHU  = 14.U(OPINUMWIDTH.W)
+    val SLLIW= 15.U(OPINUMWIDTH.W)
     //val LD = 11.U(OPINUMWIDTH.W)
 }
 //这个对操作数进行具体的区分 以便决定操作数
@@ -212,6 +214,7 @@ object InstrTable{
         RV64IInstr.SLTIU    -> List(InstrType.I,OpIType.SLTIU,OpType.SLTU),
         RV64IInstr.SRAI     -> List(InstrType.I,OpIType.SRAI,OpType.SRA),
         RV64IInstr.SLLI     -> List(InstrType.I,OpIType.SLLI,OpType.SLL),
+        RV64IInstr.SLLIW    -> List(InstrType.I,OpIType.SLLIW,OpType.SLL),
         RV64IInstr.SRLI     -> List(InstrType.I,OpIType.SRLI,OpType.SRL),
         RV64IInstr.XORI     -> List(InstrType.I,OpIType.XORI,OpType.XOR),
         //U
