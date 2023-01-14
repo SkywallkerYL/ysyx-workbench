@@ -59,6 +59,7 @@ object RV64IInstr {
     //R
     def ADD    = BitPat("b0000000_?????_?????_000_?????_0110011")
     def SUB    = BitPat("b0100000_?????_?????_000_?????_0110011")
+    def SLT    = BitPat("b0000000_?????_?????_010_?????_0110011")
     def SLTU   = BitPat("b0000000_?????_?????_011_?????_0110011")
     def ADDW   = BitPat("b0000000_?????_?????_000_?????_0111011")   
     def MULW   = BitPat("b0000001_?????_?????_000_?????_0111011")
@@ -103,6 +104,7 @@ object  OpType{
     val MUL  = 9.U(OPNUMWIDTH.W)
     val DIVS = 10.U(OPNUMWIDTH.W)
     val REMS = 11.U(OPNUMWIDTH.W)
+    val SLT  = 12.U(OPNUMWIDTH.W)//有符号
     //val BEQ  = 3.U(OPNUMWIDTH.W)
     //val ADDW = 3.U(OPNUMWIDTH.W)
     //val JALR = 10.U(OPNUMWIDTH.W)
@@ -170,6 +172,7 @@ object  OpRType{
     val MULW    = 7.U(OPRNUMWIDTH.W)
     val DIVW    = 8.U(OPRNUMWIDTH.W)
     val REMW    = 9.U(OPRNUMWIDTH.W)
+    val SLT    = 10.U(OPRNUMWIDTH.W)
     //val JALR    = 2.U(OPSNUMWIDTH.W)
 }
 
