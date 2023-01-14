@@ -62,6 +62,7 @@ object RV64IInstr {
     def SLTU   = BitPat("b0000000_?????_?????_011_?????_0110011")
     def ADDW   = BitPat("b0000000_?????_?????_000_?????_0111011")   
     def MULW   = BitPat("b0000001_?????_?????_000_?????_0111011")
+    def DIVW   = BitPat("b0000001_?????_?????_100_?????_0111011")
     def SLLW   = BitPat("b0000000_?????_?????_001_?????_0111011")
     def AND    = BitPat("b0000000_?????_?????_111_?????_0110011")
     def OR     = BitPat("b0000000_?????_?????_110_?????_0110011")
@@ -98,6 +99,7 @@ object  OpType{
     val OR   = 7.U(OPNUMWIDTH.W)
     val SRL  = 8.U(OPNUMWIDTH.W)
     val MUL  = 9.U(OPNUMWIDTH.W)
+    val DIVS = 10.U(OPNUMWIDTH.W)
     //val BEQ  = 3.U(OPNUMWIDTH.W)
     //val ADDW = 3.U(OPNUMWIDTH.W)
     //val JALR = 10.U(OPNUMWIDTH.W)
@@ -162,6 +164,7 @@ object  OpRType{
     val SLTU    = 5.U(OPRNUMWIDTH.W)
     val OR      = 6.U(OPRNUMWIDTH.W)
     val MULW    = 7.U(OPRNUMWIDTH.W)
+    val DIVW    = 8.U(OPRNUMWIDTH.W)
     //val JALR    = 2.U(OPSNUMWIDTH.W)
 }
 
@@ -214,6 +217,7 @@ object InstrTable{
         RV64IInstr.SLTU     -> List(InstrType.R,OpRType.SLTU,OpType.SLTU),
         RV64IInstr.OR       -> List(InstrType.R,OpRType.OR,OpType.OR),
         RV64IInstr.MULW     -> List(InstrType.R,OpRType.MULW,OpType.MUL),
+        RV64IInstr.DIVW     -> List(InstrType.R,OpRType.DIVW,OpType.DIVS),
         //B
         RV64IInstr.BEQ      -> List(InstrType.B,OpBType.BEQ,OpType.ADD),
         RV64IInstr.BNE      -> List(InstrType.B,OpBType.BNE,OpType.ADD),

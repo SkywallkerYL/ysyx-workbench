@@ -120,6 +120,7 @@ class IDU extends Module{
                                     //src1mask_src2mask__alumask_lsumask_choose_rden_wflag_rflag_wmask
                 OpRType.ADDW ->"b11111_11111_10111_11111_0000_1_0_0_0000_0000".U(35.W),
                 OpRType.MULW ->"b11111_11111_10111_11111_0000_1_0_0_0000_0000".U(35.W),
+                OpRType.DIVW ->"b10111_10111_10111_11111_0000_1_0_0_0000_0000".U(35.W),
                 OpRType.SLLW ->"b11111_11000_10111_11111_0000_1_0_0_0000_0000".U(35.W)
             ))
             io.idex.wflag := lsuflag(9)
@@ -192,13 +193,23 @@ class IDU extends Module{
     }
     io.idex.AluOp.rd1 := MuxLookup(io.idex.src1mask, rd1,Seq(
     "b11111".U   -> rd1,
-    "b10111".U   ->func.Mask((rd1),"x00000000ffffffff".U)
+    "b10111".U   ->func.SignExt(func.Mask((rd1),"x00000000ffffffff".U),32),
+    "b10011".U   ->func.SignExt(func.Mask((rd1),"x000000000000ffff".U),16),
+    "b10001".U   ->func.SignExt(func.Mask((rd1),"x00000000000000ff".U),8),
+    "b00111".U   ->func.UsignExt(func.Mask((rd1),"x00000000ffffffff".U),32),
+    "b00011".U   ->func.UsignExt(func.Mask((rd1),"x000000000000ffff".U),16),
+    "b00001".U   ->func.UsignExt(func.Mask((rd1),"x00000000000000ff".U),8)
     //"b10011".U   ->func.SignExt(func.Mask((AluRes),"x000000000000ffff".U),16),
     //"b10001".U   ->func.SignExt(func.Mask((AluRes),"x00000000000000ff".U),8),
     ))
     io.idex.AluOp.rd2 := MuxLookup(io.idex.src2mask, rd2,Seq(
     "b11111".U   -> rd2,
-    "b10111".U   ->func.Mask((rd2),"x00000000ffffffff".U),
+    "b10111".U   ->func.SignExt(func.Mask((rd2),"x00000000ffffffff".U),32),
+    "b10011".U   ->func.SignExt(func.Mask((rd2),"x000000000000ffff".U),16),
+    "b10001".U   ->func.SignExt(func.Mask((rd2),"x00000000000000ff".U),8),
+    "b00111".U   ->func.UsignExt(func.Mask((rd2),"x00000000ffffffff".U),32),
+    "b00011".U   ->func.UsignExt(func.Mask((rd2),"x000000000000ffff".U),16),
+    "b00001".U   ->func.UsignExt(func.Mask((rd2),"x00000000000000ff".U),8),
     "b10000".U   -> shamt,
     "b11000".U   -> rd2(4,0)
     //"b10011".U   ->func.SignExt(func.Mask((AluRes),"x000000000000ffff".U),16),
