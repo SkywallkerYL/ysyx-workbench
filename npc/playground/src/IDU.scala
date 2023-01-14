@@ -121,6 +121,7 @@ class IDU extends Module{
             val lsuflag = MuxLookup(rtype, "b11111_11111_11111_11111_0000_1_0_0_0000_0000".U(35.W),Seq(
                                     //src1mask_src2mask__alumask_lsumask_choose_rden_wflag_rflag_wmask
                 OpRType.ADDW ->"b11111_11111_10111_11111_0000_1_0_0_0000_0000".U(35.W),
+                OpRType.SUBW ->"b11111_11111_10111_11111_0000_1_0_0_0000_0000".U(35.W),
                 OpRType.MULW ->"b11111_11111_10111_11111_0000_1_0_0_0000_0000".U(35.W),
                 OpRType.DIVW ->"b10111_10111_10111_11111_0000_1_0_0_0000_0000".U(35.W),
                 OpRType.REMW ->"b10111_10111_10111_11111_0000_1_0_0_0000_0000".U(35.W),
