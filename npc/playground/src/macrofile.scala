@@ -73,6 +73,7 @@ object RV64IInstr {
     def DIVW   = BitPat("b0000001_?????_?????_100_?????_0111011")
     def REMW   = BitPat("b0000001_?????_?????_110_?????_0111011")
     def SLLW   = BitPat("b0000000_?????_?????_001_?????_0111011")
+    def SRAW   = BitPat("b0100000_?????_?????_101_?????_0111011")
     def AND    = BitPat("b0000000_?????_?????_111_?????_0110011")
     def OR     = BitPat("b0000000_?????_?????_110_?????_0110011")
     //B 
@@ -187,6 +188,7 @@ object  OpRType{
     val SLT     = 10.U(OPRNUMWIDTH.W)
     val SUBW    = 11.U(OPRNUMWIDTH.W)
     val MUL     = 12.U(OPRNUMWIDTH.W)
+    val SRAW    = 13.U(OPRNUMWIDTH.W)
     //val JALR    = 2.U(OPSNUMWIDTH.W)
 }
 
@@ -241,6 +243,7 @@ object InstrTable{
         RV64IInstr.ADDW     -> List(InstrType.R,OpRType.ADDW,OpType.ADD),
         RV64IInstr.SUB      -> List(InstrType.R,OpRType.SUB,OpType.SUB),
         RV64IInstr.SLLW     -> List(InstrType.R,OpRType.SLLW,OpType.SLL),
+        RV64IInstr.SRAW     -> List(InstrType.R,OpRType.SRAW,OpType.SRA),
         RV64IInstr.SLTU     -> List(InstrType.R,OpRType.SLTU,OpType.SLTU),
         RV64IInstr.SLT      -> List(InstrType.R,OpRType.SLT,OpType.SLT),
         RV64IInstr.OR       -> List(InstrType.R,OpRType.OR,OpType.OR),
