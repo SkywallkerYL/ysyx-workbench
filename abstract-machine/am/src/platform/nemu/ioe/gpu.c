@@ -29,15 +29,18 @@ void __am_gpu_config(AM_GPU_CONFIG_T *cfg) {
 #include <klib.h>
 void __am_gpu_fbdraw(AM_GPU_FBDRAW_T *ctl) {
   //int x = ctl->x, y = ctl->y, w = ctl->w, h = ctl->h;
+  
   uint16_t W = 400;
   uint16_t H = 300;
   int x = ctl->x, y = ctl->y, w = ctl->w, h = ctl->h;
+  //在x y处绘制w*h的图像，行优先存储在pixels中
   uint32_t *fb=(uint32_t *)(uintptr_t)FB_ADDR;
   uint32_t * base = (uint32_t *)ctl->pixels;
   int cp_bytes = sizeof(uint32_t)* ((w<W-x)?w:W-x);
   for (int j = 0; j<h&&y+j<H; j++)
   {
     memcpy(&fb[(y+j)*W+x],base,cp_bytes);
+    //base跳到下一行，因此总是+w
     base+=w;
   }
   
