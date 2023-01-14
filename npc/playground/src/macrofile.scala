@@ -71,6 +71,7 @@ object RV64IInstr {
     def BEQ    = BitPat("b???????_?????_?????_000_?????_1100011")
     def BNE    = BitPat("b???????_?????_?????_001_?????_1100011")
     def BGE    = BitPat("b???????_?????_?????_101_?????_1100011")
+    def BLT    = BitPat("b???????_?????_?????_100_?????_1100011")
 }
 
 object InstrType{
@@ -154,6 +155,7 @@ object  OpBType{
     val BEQ     = "b01000".U(OPBNUMWIDTH.W)
     val BNE     = "b10000".U(OPBNUMWIDTH.W)
     val BGE     = "b01100".U(OPBNUMWIDTH.W)
+    val BLT     = "b00010".U(OPBNUMWIDTH.W)
 }
 object  OpRType{
     val OPRNUMWIDTH = 4
@@ -225,6 +227,7 @@ object InstrTable{
         //B
         RV64IInstr.BEQ      -> List(InstrType.B,OpBType.BEQ,OpType.ADD),
         RV64IInstr.BNE      -> List(InstrType.B,OpBType.BNE,OpType.ADD),
+        RV64IInstr.BLT      -> List(InstrType.B,OpBType.BLT,OpType.ADD),
         RV64IInstr.BGE      -> List(InstrType.B,OpBType.BGE,OpType.ADD)
     )
     val InstrT = 0
