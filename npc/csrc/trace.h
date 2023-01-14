@@ -468,7 +468,7 @@ void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1,word_t s
     uint64_t localpc = Pc_Fetch();
     fprintf(file,"pc:%lx:\t funpc:%lx\t",localpc,realpc);
     for (int i = 0;i<callcount;i++)  fprintf(file," ");
-    fprintf(file,"ret [%s]\n",funcname);
+    fprintf(file,"ret  [%s]\n",funcname);
     //ret[%s] \n
     //fprintf(file,"pc:%lx: Addr:%x ret \n",cpu.pc,addr);
   }
