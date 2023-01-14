@@ -223,6 +223,7 @@ object InstrTable{
         RV64IInstr.SUB      -> List(InstrType.R,OpRType.SUB,OpType.SUB),
         RV64IInstr.SLLW     -> List(InstrType.R,OpRType.SLLW,OpType.SLL),
         RV64IInstr.SLTU     -> List(InstrType.R,OpRType.SLTU,OpType.SLTU),
+        RV64IInstr.SLT      -> List(InstrType.R,OpRType.SLT,OpType.SLT),
         RV64IInstr.OR       -> List(InstrType.R,OpRType.OR,OpType.OR),
         RV64IInstr.MULW     -> List(InstrType.R,OpRType.MULW,OpType.MUL),
         RV64IInstr.DIVW     -> List(InstrType.R,OpRType.DIVW,OpType.DIVS),
