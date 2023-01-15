@@ -28,8 +28,8 @@ if(parm.DIFFTEST){
     //io.LsuRes := LsuDPI.io.rdata
   }
   if(parm.DIFFTEST){
-      val readskip = (io.EXLS_i.readaddr< parm.PMEM_RIGHT) && (io.EXLS_i.readaddr>=parm.PMEM_LEFT)
-      val writeskip= (io.EXLS_i.writeaddr< parm.PMEM_RIGHT) && (io.EXLS_i.writeaddr>=parm.PMEM_LEFT)
+      val readskip = (io.EXLS_i.readaddr< parm.PMEM_RIGHT.U) && (io.EXLS_i.readaddr>=parm.PMEM_LEFT.U)
+      val writeskip= (io.EXLS_i.writeaddr< parm.PMEM_RIGHT.U) && (io.EXLS_i.writeaddr>=parm.PMEM_LEFT.U)
       io.SkipRef := readskip & writeskip
 }
   val maskRes = MuxLookup(io.EXLS_i.lsumask, readdata,Seq(
