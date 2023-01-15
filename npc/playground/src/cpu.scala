@@ -11,9 +11,9 @@ class  RiscvCpu extends Module{
         val halt = Output(Bool())
         val abort = Output(Bool())
         val jalr = Output(Bool())
-if (parm.DIFFTEST){
+//if (parm.DIFFTEST){
         val SkipRef = Output(Bool())
-}
+//}
         //val pc = Input(UInt(parm.PCWIDTH.W))
         //val instr = Input(UInt(parm.INSTWIDTH.W)) // instr暂时拉到顶层
         //val PcRegOut = Output(UInt(parm.PCWIDTH.W)) //根据pc_reg的out来取指
@@ -141,7 +141,7 @@ if (parm.DIFFTEST){
     io.jalr := Idu.io.jal === 2.U
     if (parm.DIFFTEST){
     io.SkipRef := Lsu.io.SkipRef
-}
+}   else io.SkipRef := false.B
     //io.res := exu.io.expres
 
 }
