@@ -234,7 +234,7 @@ static void execute(uint64_t n) {
     case NPC_ABORT:
       if (checkebreak())
       {
-        if(top->io_halt == 1) printf( ANSI_FMT("HIT GOOD TRAP\n", ANSI_FG_GREEN)) ;
+        if(top->io_halt == 1) printf( ANSI_FMT("HIT GOOD TRAP at pc:0x%016lx\n", ANSI_FG_GREEN),Pc_Fetch()) ;
         else printf(ANSI_FMT("HIT BAD TRAP\n", ANSI_FG_RED));
         break;
       }
