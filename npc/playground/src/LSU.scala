@@ -27,7 +27,7 @@ class LSU extends Module{
     readdata := LsuDPI.io.rdata
     //io.LsuRes := LsuDPI.io.rdata
   }
-  io.SkipRef := false
+  io.SkipRef := false.B
   if(parm.DIFFTEST){
       val readskip = (io.EXLS_i.readaddr< parm.PMEM_RIGHT.U) && (io.EXLS_i.readaddr>=parm.PMEM_LEFT.U)
       val writeskip= (io.EXLS_i.writeaddr< parm.PMEM_RIGHT.U) && (io.EXLS_i.writeaddr>=parm.PMEM_LEFT.U)
