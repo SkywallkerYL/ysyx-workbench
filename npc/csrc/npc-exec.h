@@ -35,13 +35,17 @@ void step_and_dump_wave(){
 }
 //初始化
 void sim_init(){
-  top = new VRiscvCpu;
+  //top = new VRiscvCpu;
   //contextp = new VerilatedContext;
+  //printf("hhh\n");
 #ifdef WAVE
+  //printf("hhh\n");
   contextp = new VerilatedContext;
   //top = new VRiscvCpu;
   tfp = new VerilatedVcdC;
-  //top = new VRiscvCpu;
+#endif
+  top = new VRiscvCpu;
+#ifdef WAVE
   contextp->traceEverOn(true);
   top->trace(tfp, 0);
   tfp->open("wave.vcd");

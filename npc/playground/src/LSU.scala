@@ -31,7 +31,7 @@ class LSU extends Module{
   if(parm.DIFFTEST){
       val readskip = (io.EXLS_i.readaddr< parm.PMEM_RIGHT.U) && (io.EXLS_i.readaddr>=parm.PMEM_LEFT.U)
       val writeskip= (io.EXLS_i.writeaddr< parm.PMEM_RIGHT.U) && (io.EXLS_i.writeaddr>=parm.PMEM_LEFT.U)
-      io.SkipRef := readskip & writeskip
+      io.SkipRef := !readskip & !writeskip
 }
 
   val maskRes = MuxLookup(io.EXLS_i.lsumask, readdata,Seq(

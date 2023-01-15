@@ -127,6 +127,7 @@ static void checkregs(CPU_state *ref, vaddr_t pc) {
 
 void difftest_step(vaddr_t pc, vaddr_t npc) {
   CPU_state ref_r;
+  //if (top->io_SkipRef) difftest_skip_ref();
   //printf("pc:%08lx npc:%08lx\n",pc,npc);
   //printf("skip_dut_nr_inst:%d \n",skip_dut_nr_inst);
   if (skip_dut_nr_inst > 0) {
