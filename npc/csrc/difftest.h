@@ -77,7 +77,7 @@ void init_difftest(char *ref_so_file, long img_size, int port) {
   {
     refcpu.gpr[i] = cpu_gpr[i];
   }
-  refcpu.pc = CONFIG_MBASE;0x80000000;
+  refcpu.pc = CONFIG_MBASE;//0x80000000;
   //printf("0x%08lx\n",refcpu.pc);
   assert(ref_so_file != NULL);
   printf("%s\n",ref_so_file);
@@ -127,10 +127,11 @@ static void checkregs(CPU_state *ref, vaddr_t pc) {
 
 void difftest_step(vaddr_t pc, vaddr_t npc) {
   CPU_state ref_r;
-  printf("pc: 0x%016x \n",cpu_gpr[32]);
+  CPU_state npc_r;
+  //printf("pc: 0x%016x \n",cpu_gpr[32]);
   if (top->io_SkipRef && cpu_gpr[32]!=0x00000000) {
     difftest_skip_ref();
-    printf("pc: hhh\n");
+    //printf("pc: hhh\n");
   }
   //printf("pc:%08lx npc:%08lx\n",pc,npc);
   //printf("skip_dut_nr_inst:%d \n",skip_dut_nr_inst);
@@ -150,19 +151,29 @@ void difftest_step(vaddr_t pc, vaddr_t npc) {
   //printf("is_skip_ref:%d \n",is_skip_ref);
   if (is_skip_ref) {
     //这里可能有问题，还没搞明白
+    //printf("npc_pc: 0x%016x \n",cpu_gpr[32]);
+    //ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
+    for (size_t i = 0; i < 32; i++)
+    {
+      npc_r.gpr[i]= cpu_gpr[i];
+    }
+    npc_r.pc = cpu_gpr[32];
     // to skip the checking of an instruction, just copy the reg state to reference design
-    ref_difftest_regcpy(&cpu_gpr, DIFFTEST_TO_REF);
+    ref_difftest_regcpy(&npc_r, DIFFTEST_TO_REF);
     is_skip_ref = false;
     return;
   }
   //Log("ref_pc: 0x%016lx npc_pc:0x%016lx ",ref_r->pc,pc);
   //printf("hhhhhh\n");
-  //uint64_t pcnow = Pc_Fetch();
-  //ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
+  uint64_t pcnow = Pc_Fetch();
+  ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
+  printf("before exe ref_r_pc:%08lx \n",ref_r.pc);
+  printf("npc_pc:%08lx \n",pcnow);
    //Log("ref_pc: 0x%016lx npc_pc:0x%016lx ",ref_r.pc,pc);
   ref_difftest_exec(1);
   //printf("ref_r_pc:%08lx \n",ref_r.pc);
   ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
+  printf("ref_r_pc:%08lx \n",ref_r.pc);
   //Log("ref_pc: 0x%016lx npc_pc:0x%016lx ",ref_r.pc,pcnow);
   //printf("ref_r_pc:%08lx \n",ref_r.pc);
   checkregs(&ref_r, pc);
