@@ -28,22 +28,31 @@ VerilatedVcdC* tfp = NULL;
 
 void step_and_dump_wave(){
   top->eval();
+#ifdef WAVE
   contextp->timeInc(1);
   tfp->dump(contextp->time());
+#endif
 }
 //初始化
 void sim_init(){
-  contextp = new VerilatedContext;
-  tfp = new VerilatedVcdC;
   top = new VRiscvCpu;
+  //contextp = new VerilatedContext;
+#ifdef WAVE
+  contextp = new VerilatedContext;
+  //top = new VRiscvCpu;
+  tfp = new VerilatedVcdC;
+  //top = new VRiscvCpu;
   contextp->traceEverOn(true);
   top->trace(tfp, 0);
   tfp->open("wave.vcd");
+#endif 
 }
 
 void sim_exit(){
   step_and_dump_wave();
+#ifdef WAVE
   tfp->close();
+#endif
   delete top;
   delete contextp;
 }
