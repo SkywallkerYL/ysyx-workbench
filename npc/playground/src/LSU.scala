@@ -11,9 +11,6 @@ class LSU extends Module{
       //val Regfile_i = Flipped(new REGFILEIO)
       val LsuRes = Output(UInt(parm.REGWIDTH.W))
       val choose = Output (UInt(parm.RegFileChooseWidth.W))
-//if(parm.DIFFTEST){
-      val SkipRef = Output(Bool())
-//}
   })
   val readdata = Wire(UInt(parm.REGWIDTH.W))
   if(parm.DPI){
@@ -27,13 +24,6 @@ class LSU extends Module{
     readdata := LsuDPI.io.rdata
     //io.LsuRes := LsuDPI.io.rdata
   }
-  io.SkipRef := false.B
-  if(parm.DIFFTEST){
-      val readskip = (io.EXLS_i.readaddr< parm.PMEM_RIGHT.U) && (io.EXLS_i.readaddr>=parm.PMEM_LEFT.U)
-      val writeskip= (io.EXLS_i.writeaddr< parm.PMEM_RIGHT.U) && (io.EXLS_i.writeaddr>=parm.PMEM_LEFT.U)
-      io.SkipRef := (!readskip& io.EXLS_i.rflag)| (!writeskip&io.EXLS_i.wflag)
-}
-
   val maskRes = MuxLookup(io.EXLS_i.lsumask, readdata,Seq(
     "b11111".U   -> readdata,
     "b10111".U   ->func.SignExt(func.Mask((readdata),"x00000000ffffffff".U),32),

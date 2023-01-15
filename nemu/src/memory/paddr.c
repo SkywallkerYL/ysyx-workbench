@@ -336,7 +336,7 @@ void init_ftrace(char* elf_file)
 	}
   return;
 }
-int callcount = 0;
+
 void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1,word_t src1)
 {
   FILE *file;
@@ -372,10 +372,7 @@ void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1,word_t s
     char* newp = funcname_ftrace[tableind];
     strncpy(funcname,newp,len);
     funcname[len] = '\0';
-    callcount--;
-    fprintf(file,"pc:%lx:\t funpc:%lx\t",cpu.pc,realpc);
-    for (int i = 0;i<callcount;i++)  fprintf(file," ");
-    fprintf(file,"ret  [%s]\n",funcname);
+    fprintf(file,"pc:%lx: funpc:%lx ret[%s] \n",cpu.pc,realpc,funcname);
     
     //fprintf(file,"pc:%lx: Addr:%x ret \n",cpu.pc,addr);
   }
@@ -440,11 +437,7 @@ void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1,word_t s
         
         //printf(" %s",funcname); printf("\n");
         //printf("pc:%lx: Addr:%x func [%s] rd:%d rs1:%d imm:%ld jarl:%d\n",cpu.pc,addr,funcname,rd,rs1,imm,jarlflag);
-        //fprintf(file,"pc:%lx: Addr:%x call [%s]\n",localpc,addr,funcname);
-        fprintf(file,"pc:%lx:\t Addr:%x\t",localpc,addr);
-        for (int i = 0;i<callcount;i++)  fprintf(file," ");
-        fprintf(file,"call [%s]\n",funcname);
-        callcount++;
+        fprintf(file,"pc:%lx: Addr:%x call [%s]\n",localpc,addr,funcname);
       }
     } 
   } 

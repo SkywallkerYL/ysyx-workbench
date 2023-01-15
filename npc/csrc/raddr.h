@@ -2,8 +2,6 @@
 #include <assert.h>
 #include "npcsdb.h"
 #include "trace.h"
-
-
 static void out_of_bound(paddr_t addr) {
     instr_tracelog(1);
   panic("address = " FMT_PADDR " is out of bound of pmem [" FMT_PADDR ", " FMT_PADDR "] at pc = " FMT_WORD,
@@ -37,9 +35,7 @@ extern "C" void pmem_read(long long raddr, long long *rdata){
 
 extern "C" void pmem_write(long long waddr, long long wdata,char wmask){
     //printf("addr:0x%016x data:0x%016x mask:0b%02b \n",waddr,wdata,wmask);
-    char c = wdata&0xff;
     if ((uint64_t)waddr == 0){
-        
         return;
         //*rdata = 0;
     }
@@ -64,9 +60,6 @@ extern "C" void pmem_write(long long waddr, long long wdata,char wmask){
             //进入下一位。
             write_data  = write_data>> 8;
         }
-    }
-    else if(waddr == 0xa00003f8){
-        printf("%c",c);
     }
     else {
         //printf("pc 0x%08x w\n",cpu_gpr[32]);

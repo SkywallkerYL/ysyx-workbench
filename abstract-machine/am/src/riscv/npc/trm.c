@@ -1,6 +1,6 @@
 #include <am.h>
 #include <klib-macros.h>
-#include "npc.h"
+
 # define nemu_trap(code) asm volatile("mv a0, %0; ebreak" : :"r"(code))
 
 extern char _heap_start;
@@ -16,9 +16,7 @@ Area heap = RANGE(&_heap_start, PMEM_END);
 #endif
 static const char mainargs[] = MAINARGS;
 
-//就相当于npc的接口
 void putch(char ch) {
-  *(volatile uint8_t *) SERIAL_PORT = ch;
 }
 
 void halt(int code) {

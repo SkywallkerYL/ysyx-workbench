@@ -1,10 +1,10 @@
-# 0 "src/cpu/difftest/ref.c"
+# 0 "src/memory/vaddr.c"
 # 0 "<built-in>"
 # 0 "<command-line>"
 # 1 "/usr/include/stdc-predef.h" 1 3 4
 # 0 "<command-line>" 2
-# 1 "src/cpu/difftest/ref.c"
-# 16 "src/cpu/difftest/ref.c"
+# 1 "src/memory/vaddr.c"
+# 16 "src/memory/vaddr.c"
 # 1 "/home/yangli/ysyx-workbench/nemu/include/isa.h" 1
 # 20 "/home/yangli/ysyx-workbench/nemu/include/isa.h"
 # 1 "/home/yangli/ysyx-workbench/nemu/src/isa/riscv64/include/isa-def.h" 1
@@ -3003,21 +3003,7 @@ _Bool
 # 55 "/home/yangli/ysyx-workbench/nemu/include/isa.h"
     isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc);
 void isa_difftest_attach();
-# 17 "src/cpu/difftest/ref.c" 2
-# 1 "/home/yangli/ysyx-workbench/nemu/include/cpu/cpu.h" 1
-# 21 "/home/yangli/ysyx-workbench/nemu/include/cpu/cpu.h"
-void cpu_exec(uint64_t n);
-
-void set_nemu_state(int state, vaddr_t pc, int halt_ret);
-void invalid_inst(vaddr_t thispc);
-# 18 "src/cpu/difftest/ref.c" 2
-# 1 "/home/yangli/ysyx-workbench/nemu/include/difftest-def.h" 1
-# 20 "/home/yangli/ysyx-workbench/nemu/include/difftest-def.h"
-# 1 "/home/yangli/ysyx-workbench/nemu/include/generated/autoconf.h" 1
-# 21 "/home/yangli/ysyx-workbench/nemu/include/difftest-def.h" 2
-
-enum { DIFFTEST_TO_DUT, DIFFTEST_TO_REF };
-# 19 "src/cpu/difftest/ref.c" 2
+# 17 "src/memory/vaddr.c" 2
 # 1 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h" 1
 # 26 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h"
 uint8_t* guest_to_host(paddr_t paddr);
@@ -3070,104 +3056,16 @@ void log_ftrace(paddr_t addr,
                             _Bool 
 # 67 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h"
                                  jarlflag, int rd ,word_t imm, int rs1,word_t src1);
-# 20 "src/cpu/difftest/ref.c" 2
+# 18 "src/memory/vaddr.c" 2
 
-
-
-
-
-void difftest_memcpy(paddr_t addr, void *buf, size_t n, 
-# 25 "src/cpu/difftest/ref.c" 3 4
-                                                       _Bool 
-# 25 "src/cpu/difftest/ref.c"
-                                                            direction) {
-
-  if (direction == DIFFTEST_TO_REF)
-  {
-    for (size_t i = 0; i < n; i++)
-    {
-      paddr_write(addr+i,1,((uint8_t *)buf)[i]);
-    }
-
-  }
-  else 
-# 35 "src/cpu/difftest/ref.c" 3 4
-      ((void) sizeof ((
-# 35 "src/cpu/difftest/ref.c"
-      0
-# 35 "src/cpu/difftest/ref.c" 3 4
-      ) ? 1 : 0), __extension__ ({ if (
-# 35 "src/cpu/difftest/ref.c"
-      0
-# 35 "src/cpu/difftest/ref.c" 3 4
-      ) ; else __assert_fail (
-# 35 "src/cpu/difftest/ref.c"
-      "0"
-# 35 "src/cpu/difftest/ref.c" 3 4
-      , "src/cpu/difftest/ref.c", 35, __extension__ __PRETTY_FUNCTION__); }))
-# 35 "src/cpu/difftest/ref.c"
-               ;
+word_t vaddr_ifetch(vaddr_t addr, int len) {
+  return paddr_read(addr, len);
 }
 
-void difftest_regcpy(void *dut, 
-# 38 "src/cpu/difftest/ref.c" 3 4
-                               _Bool 
-# 38 "src/cpu/difftest/ref.c"
-                                    direction) {
-  if(direction == DIFFTEST_TO_REF){
-
-    for (size_t i = 0; i < 32; i++)
-    {
-      cpu.gpr[i] = ((uint64_t *)dut)[i];
-    }
-
-
-    cpu.pc = ((uint64_t *)dut)[32];
-
-
-
-
-
-  }
-  else {
-    for (size_t i = 0; i < 32; i++)
-    {
-      ((uint64_t *)dut)[i]= cpu.gpr[i];
-    }
-    ((uint64_t *)dut)[32] = cpu.pc;
-  }
-
+word_t vaddr_read(vaddr_t addr, int len) {
+  return paddr_read(addr, len);
 }
 
-void difftest_exec(uint64_t n) {
-
-  cpu_exec(n);
-
-}
-
-void difftest_raise_intr(word_t NO) {
-  
-# 71 "src/cpu/difftest/ref.c" 3 4
- ((void) sizeof ((
-# 71 "src/cpu/difftest/ref.c"
- 0
-# 71 "src/cpu/difftest/ref.c" 3 4
- ) ? 1 : 0), __extension__ ({ if (
-# 71 "src/cpu/difftest/ref.c"
- 0
-# 71 "src/cpu/difftest/ref.c" 3 4
- ) ; else __assert_fail (
-# 71 "src/cpu/difftest/ref.c"
- "0"
-# 71 "src/cpu/difftest/ref.c" 3 4
- , "src/cpu/difftest/ref.c", 71, __extension__ __PRETTY_FUNCTION__); }))
-# 71 "src/cpu/difftest/ref.c"
-          ;
-}
-
-void difftest_init(int port) {
-
-
-
-  init_isa();
+void vaddr_write(vaddr_t addr, int len, word_t data) {
+  paddr_write(addr, len, data);
 }
