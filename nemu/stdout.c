@@ -5733,7 +5733,7 @@ word_t paddr_read(paddr_t addr, int len) {
 
 
 return value;}
- 
+  word_t value =mmio_read(addr, len); return value
 
 
 
@@ -5749,7 +5749,7 @@ void paddr_write(paddr_t addr, int len, word_t data) {
 
 
   return; }
- 
+  mmio_write(addr, len, data); return
 
 
 
