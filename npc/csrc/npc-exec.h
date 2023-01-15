@@ -17,6 +17,7 @@
 #include "trace.h"
 #include "npcsdb.h"
 #include "common.h"
+#include "difftest.h"
 
 
 
@@ -147,6 +148,9 @@ long initial_default_img(){
   */
   return MSIZE;
 }
+#ifdef CONFIG_DIFFTEST
+CPU_state npc_r;
+#endif
 void sim_once(uint64_t n){
   //clockntimes(1);
 #ifdef CONFIG_ITRACE
@@ -166,7 +170,15 @@ void sim_once(uint64_t n){
      return;
   }
   clockntimes(1);
+#ifdef CONFIG_DIFFTEST
+  for (size_t i = 0; i < 32; i++)
+  {
+    npc_r.gpr[i]= cpu_gpr[i];
+  }
+  npc_r.pc = cpu_gpr[32];
+#endif
 }
+
 static void execute(uint64_t n) {
 
     switch (npc_state.state) {
@@ -178,10 +190,10 @@ static void execute(uint64_t n) {
     default: npc_state.state = NPC_RUNNING;
     }
     while (n--){
-    
+
       //这个n用来决定是否打印指令
       sim_once(n);
-      
+
       //printf("hhhh\n");
       //注意这里由于单周期，下一条指令如果是ebreak，上面sim_once之后回
       //在sim_once只是更新波形，下一个周期的指令在上一个周期更新时就执行了
@@ -195,10 +207,23 @@ static void execute(uint64_t n) {
         break;
       }
 #ifdef CONFIG_DIFFTEST
+      if (is_skip_ref) {
+        //printf("hhhh\n");
+        ref_difftest_regcpy(&npc_r, DIFFTEST_TO_REF);
+        is_skip_ref = false;
+        continue;
+      }
+
+    if (top->io_SkipRef ) {
+      difftest_skip_ref();
+      //printf("pc:check hhh\n");
+    }
+    else {
       uint64_t localpc = Pc_Fetch();
       uint64_t localnpc = Dnpc_Fetch();
       //printf("hhhh\n");
       difftest_step(localpc,localnpc);
+    }
 #endif
       //sim_once();
     }
