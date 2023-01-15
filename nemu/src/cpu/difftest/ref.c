@@ -45,7 +45,7 @@ void difftest_regcpy(void *dut, bool direction) {
     //看riscv64-nemu.h的实现还有几个寄存器，目前还没实现，先写在这里
     //为了地址的连续性，把pc放在dut的第32个
     cpu.pc = ((uint64_t *)dut)[32];
-    //printf("cpu.pc : 0x%08x\n",cpu.pc );
+    //printf("cpu.pc : 0x%016lx\n",cpu.pc );
     //cpu.mepc = ((uint64_t *)dut)[33];
     //cpu.mcause = ((uint64_t *)dut)[34];
     //cpu.mtvec = ((uint64_t *)dut)[35];

@@ -23,10 +23,14 @@ object  parm{
 // initial value
     val INITIAL_PC  : String = "x80000000"
     val INITIAL_INST: String = "x00000000"
+    val PMEM_LEFT   : String = "x80000000"
+    val PMEM_RIGHT  : String = "x87ffffff"
 //pip 
     val pip : Boolean = false
 //DPI-C
     val DPI : Boolean = true
+//DIFFTEST
+    val DIFFTEST : Boolean = true
 }
 //每一次添加一条新的指令，需要在这里添加指令，Table内添加匹配规则,然后在IDU和EXU内实现
 //IDU内部只要识别操作数和操作类型即可
@@ -65,6 +69,8 @@ object RV64IInstr {
     def ADD    = BitPat("b0000000_?????_?????_000_?????_0110011")
     def SUB    = BitPat("b0100000_?????_?????_000_?????_0110011")
     def MUL    = BitPat("b0000001_?????_?????_000_?????_0110011")
+    def DIVU   = BitPat("b0000001_?????_?????_101_?????_0110011")
+    def REMU   = BitPat("b0000001_?????_?????_111_?????_0110011")
     def SLT    = BitPat("b0000000_?????_?????_010_?????_0110011")
     def SLTU   = BitPat("b0000000_?????_?????_011_?????_0110011")
     def ADDW   = BitPat("b0000000_?????_?????_000_?????_0111011")   
@@ -115,6 +121,8 @@ object  OpType{
     val DIVS = 10.U(OPNUMWIDTH.W)
     val REMS = 11.U(OPNUMWIDTH.W)
     val SLT  = 12.U(OPNUMWIDTH.W)//有符号
+    val DIV  = 13.U(OPNUMWIDTH.W)
+    val REM  = 14.U(OPNUMWIDTH.W)
     //val BEQ  = 3.U(OPNUMWIDTH.W)
     //val ADDW = 3.U(OPNUMWIDTH.W)
     //val JALR = 10.U(OPNUMWIDTH.W)
@@ -176,7 +184,7 @@ object  OpBType{
     val BLTU    = "b00011".U(OPBNUMWIDTH.W)
 }
 object  OpRType{
-    val OPRNUMWIDTH = 4
+    val OPRNUMWIDTH = 5
     //val BAD    = 0.U(OPSNUMWIDTH.W)
     val ADD     = 0.U(OPRNUMWIDTH.W)
     val SUB     = 1.U(OPRNUMWIDTH.W)
@@ -193,6 +201,8 @@ object  OpRType{
     val MUL     = 12.U(OPRNUMWIDTH.W)
     val SRAW    = 13.U(OPRNUMWIDTH.W)
     val SRLW    = 14.U(OPRNUMWIDTH.W)
+    val DIVU    = 15.U(OPRNUMWIDTH.W)
+    val REMU    = 16.U(OPRNUMWIDTH.W)
     //val JALR    = 2.U(OPSNUMWIDTH.W)
 }
 
@@ -255,7 +265,9 @@ object InstrTable{
         RV64IInstr.MULW     -> List(InstrType.R,OpRType.MULW,OpType.MUL),
         RV64IInstr.MUL      -> List(InstrType.R,OpRType.MUL,OpType.MUL),
         RV64IInstr.DIVW     -> List(InstrType.R,OpRType.DIVW,OpType.DIVS),
+        RV64IInstr.DIVU     -> List(InstrType.R,OpRType.DIVU,OpType.DIV),
         RV64IInstr.REMW     -> List(InstrType.R,OpRType.REMW,OpType.REMS),
+        RV64IInstr.REMU     -> List(InstrType.R,OpRType.REMU,OpType.REM),
         RV64IInstr.SUBW     -> List(InstrType.R,OpRType.SUBW,OpType.SUB),
         //B
         RV64IInstr.BEQ      -> List(InstrType.B,OpBType.BEQ,OpType.ADD),

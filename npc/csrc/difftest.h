@@ -21,8 +21,8 @@ uint8_t* pmembase(){
 
 #ifdef CONFIG_DIFFTEST
 
-static bool is_skip_ref = false;
-static int skip_dut_nr_inst = 0;
+bool is_skip_ref = false;
+int skip_dut_nr_inst = 0;
 bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc);
 bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
   if (ref_r->pc!=pc) {Log("%s ref_pc: 0x%016lx npc_pc:0x%016lx ",ANSI_FMT("PC DIIF", ANSI_FG_RED) ,ref_r->pc,pc);return false;}
@@ -77,7 +77,7 @@ void init_difftest(char *ref_so_file, long img_size, int port) {
   {
     refcpu.gpr[i] = cpu_gpr[i];
   }
-  refcpu.pc = CONFIG_MBASE;0x80000000;
+  refcpu.pc = CONFIG_MBASE;//0x80000000;
   //printf("0x%08lx\n",refcpu.pc);
   assert(ref_so_file != NULL);
   printf("%s\n",ref_so_file);
@@ -127,8 +127,15 @@ static void checkregs(CPU_state *ref, vaddr_t pc) {
 
 void difftest_step(vaddr_t pc, vaddr_t npc) {
   CPU_state ref_r;
+  //CPU_state npc_r;
+  //printf("pc: 0x%016x \n",cpu_gpr[32]);
+  //if (top->io_SkipRef ) {
+    //difftest_skip_ref();
+    //printf("pc: hhh\n");
+  //}
   //printf("pc:%08lx npc:%08lx\n",pc,npc);
   //printf("skip_dut_nr_inst:%d \n",skip_dut_nr_inst);
+  //这一段可能也要移出去，目前还没发现这个用途，暂时不动
   if (skip_dut_nr_inst > 0) {
     ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
     printf("ref_r_pc:%08lx \n",ref_r.pc);
@@ -143,21 +150,39 @@ void difftest_step(vaddr_t pc, vaddr_t npc) {
     return;
   }
   //printf("is_skip_ref:%d \n",is_skip_ref);
-  if (is_skip_ref) {
+  //if (is_skip_ref) {
     //这里可能有问题，还没搞明白
+    //printf("npc_pc: 0x%016x \n",cpu_gpr[32]);
+    //ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
+    //for (size_t i = 0; i < 32; i++)
+    //{
+      //npc_r.gpr[i]= cpu_gpr[i];
+    //}
+    //这里应该把npc拷贝给ref，因为当前指令要跳转的话就是目前的指令跳过了
+    //这是由仿真环境决定的，仿真环境取到的pc是cpu真正的pc，
+    //对单周期cpu而言，该pc指令对应的寄存器堆的写回是在下一个周期完成的
+    //而nemu  在该pc指令执行后，寄存器等也写入完成了,pc更新到下一个,但实际上下一个pc还未执行.
+    //而对于npc来说 更新后，pc也是下一个，regfile也是该条指令对应的，但实际情况是，此时的其他操作已经完成了。
+    //这样子正好可以和nemu对上。即pc和nemu执行后的pc 以及寄存器的状态都对应。
+    //但如果识别到当前指令要跳过，则应该在当前周期更新后，再将寄存器和pc等拷贝给nemu
+    //这件事不应该在这里面做，应该在外层执行时做。
+    //npc_r.pc = cpu_gpr[32];
     // to skip the checking of an instruction, just copy the reg state to reference design
-    ref_difftest_regcpy(&cpu_gpr, DIFFTEST_TO_REF);
-    is_skip_ref = false;
-    return;
-  }
+    //ref_difftest_regcpy(&npc_r, DIFFTEST_TO_REF);
+    //is_skip_ref = false;
+    //return;
+  //}
   //Log("ref_pc: 0x%016lx npc_pc:0x%016lx ",ref_r->pc,pc);
   //printf("hhhhhh\n");
-  //uint64_t pcnow = Pc_Fetch();
-  //ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
+  uint64_t pcnow = Pc_Fetch();
+  ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
+  //printf("before exe ref_r_pc:%08lx \n",ref_r.pc);
+  //printf("npc_pc:%08lx \n",pcnow);
    //Log("ref_pc: 0x%016lx npc_pc:0x%016lx ",ref_r.pc,pc);
   ref_difftest_exec(1);
   //printf("ref_r_pc:%08lx \n",ref_r.pc);
   ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
+  //printf("ref_r_pc:%08lx \n",ref_r.pc);
   //Log("ref_pc: 0x%016lx npc_pc:0x%016lx ",ref_r.pc,pcnow);
   //printf("ref_r_pc:%08lx \n",ref_r.pc);
   checkregs(&ref_r, pc);
