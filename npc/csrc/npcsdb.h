@@ -83,8 +83,10 @@ static int cmd_c(char *args) {
   execute(-1);
   return 0;
 }
+void sim_exit();
 static int cmd_q(char *args) {
   npc_state.state= NPC_QUIT;
+  sim_exit();
   exit(0);
   //exit(0);
   //printf("hhhh\n");

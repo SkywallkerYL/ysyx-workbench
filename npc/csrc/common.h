@@ -18,7 +18,7 @@
 #define CONFIG_DIFFTEST
 #define CONFIG_ITRACE
 #define CONFIG_MTRACE
-//#define WAVE
+#define WAVE
 
 #define DIFFTEST_REG_SIZE (sizeof(uint64_t) * 33) // GRPs + pc
 #define CONFIG_MBASE 0x80000000
