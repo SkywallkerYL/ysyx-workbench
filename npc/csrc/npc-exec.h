@@ -189,7 +189,7 @@ static void execute(uint64_t n) {
       return;
     default: npc_state.state = NPC_RUNNING;
     }
-  while (n--){
+    while (n--){
 
       //这个n用来决定是否打印指令
       sim_once(n);
@@ -207,15 +207,16 @@ static void execute(uint64_t n) {
         break;
       }
 #ifdef CONFIG_DIFFTEST
-    if (is_skip_ref) {
+      if (is_skip_ref) {
         //printf("hhhh\n");
-      ref_difftest_regcpy(&npc_r, DIFFTEST_TO_REF);
-      is_skip_ref = false;
-       if (!top->io_SkipRef ) continue;
-    }
+        ref_difftest_regcpy(&npc_r, DIFFTEST_TO_REF);
+        is_skip_ref = false;
+        continue;
+      }
+
     if (top->io_SkipRef ) {
       difftest_skip_ref();
-      //printf("pc:0x%016lx \n",cpu_gpr[32]);
+      //printf("pc:check hhh\n");
     }
     else {
       uint64_t localpc = Pc_Fetch();
@@ -225,7 +226,7 @@ static void execute(uint64_t n) {
     }
 #endif
       //sim_once();
-  }
+    }
     switch (npc_state.state) {
     case NPC_RUNNING: npc_state.state = NPC_STOP; break;
 

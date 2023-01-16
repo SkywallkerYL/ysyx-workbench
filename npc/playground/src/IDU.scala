@@ -87,7 +87,6 @@ class IDU extends Module{
                                     //src1mask_src2mask_alumask_lsumask_choose_rden_wflag_rflag_wmask
                 OpIType.LD      ->"b11111_11111_11111_11111_0001_1_0_1_0000_0000".U(35.W),
                 OpIType.LW      ->"b11111_11111_11111_10111_0001_1_0_1_0000_0000".U(35.W),
-                OpIType.LWU     ->"b11111_11111_11111_00111_0001_1_0_1_0000_0000".U(35.W),
                 OpIType.LH      ->"b11111_11111_11111_10011_0001_1_0_1_0000_0000".U(35.W),
                 OpIType.LHU     ->"b11111_11111_11111_00011_0001_1_0_1_0000_0000".U(35.W),
                 OpIType.LBU     ->"b11111_11111_11111_00001_0001_1_0_1_0000_0000".U(35.W),
@@ -130,7 +129,6 @@ class IDU extends Module{
                 OpRType.DIVW ->"b10111_10111_10111_11111_0000_1_0_0_0000_0000".U(35.W),
                 OpRType.REMW ->"b10111_10111_10111_11111_0000_1_0_0_0000_0000".U(35.W),
                 OpRType.SLLW ->"b11111_11000_10111_11111_0000_1_0_0_0000_0000".U(35.W),
-                //OpRType.SLL  ->"b11111_11100_11111_11111_0000_1_0_0_0000_0000".U(35.W),
                 OpRType.SRLW ->"b00111_11000_10111_11111_0000_1_0_0_0000_0000".U(35.W),
                 OpRType.SRAW ->"b10111_11000_10111_11111_0000_1_0_0_0000_0000".U(35.W),
             ))
@@ -222,7 +220,6 @@ class IDU extends Module{
     "b00011".U   ->func.UsignExt(func.Mask((rd2),"x000000000000ffff".U),16),
     "b00001".U   ->func.UsignExt(func.Mask((rd2),"x00000000000000ff".U),8),
     "b10000".U   -> shamt,
-    //"b11100".U   -> rd2(5,0),
     "b11000".U   -> rd2(4,0)
     //"b10011".U   ->func.SignExt(func.Mask((AluRes),"x000000000000ffff".U),16),
     //"b10001".U   ->func.SignExt(func.Mask((AluRes),"x00000000000000ff".U),8),
