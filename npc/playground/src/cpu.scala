@@ -19,7 +19,7 @@ class  RiscvCpu extends Module{
         //val PcRegOut = Output(UInt(parm.PCWIDTH.W)) //根据pc_reg的out来取指
         //val res = Output(UInt(parm.REGWIDTH.W))
     })
-    val M = Mem(parm.MSIZE/4,UInt(parm.INSTWIDTH.W))
+    //val M = Mem(parm.MSIZE/4,UInt(parm.INSTWIDTH.W))
     //chisel里变量还未命名好像不能直接用
     val PcReg = Module(new PC_REG()) 
     val NpcMux = Module(new NPCMUX())

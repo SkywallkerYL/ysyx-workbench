@@ -19,11 +19,12 @@ extern "C" void pmem_read(long long raddr, long long *rdata){
 #endif
     }
     else if (raddr ==RTC_ADDR ){//rtc addr
-        *rdata = (get_time()) &0xff;
+        *rdata = get_time();//(uint32_t)(get_time()) &0xff;
+        //printf("time%d\n",get_time());
     }
-    else if (raddr == (RTC_ADDR+0x4)){
-        *rdata = ((uint32_t)(get_time()>>32))&0xff;
-    }
+    //else if (raddr == (RTC_ADDR+0x4)){
+      //  *rdata = ((uint32_t)(get_time()>>32))&0xff;
+    //}
     else if ((uint64_t)raddr>=(uint64_t)PMEM_LEFT&&(uint64_t)raddr<=PMEM_RIGHT){
         uint64_t init = (raddr-CONFIG_MBASE);
 
