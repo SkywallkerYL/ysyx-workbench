@@ -14,7 +14,7 @@ object  parm{
     val RegNumber   : Int = 32
     val RegFileReadPorts: Int = 2
     val OPCODEWIDTH : Int = 7
-    val MSIZE : Int = 4096
+    val MSIZE : Int = 65536
     
     val RegFileChooseWidth : Int = 4
     val MaskWidth   : Int = 5//第四位决定掩模的位数  1111-64 0111-32 0011-16 0001-8 
