@@ -47,6 +47,7 @@ object RV64IInstr {
     def LWU    = BitPat("b???????_?????_?????_110_?????_0000011")
     def LD     = BitPat("b???????_?????_?????_011_?????_0000011")
     def LH     = BitPat("b???????_?????_?????_001_?????_0000011")
+    def LB     = BitPat("b???????_?????_?????_000_?????_0000011")
     def LHU    = BitPat("b???????_?????_?????_101_?????_0000011")
     def LBU    = BitPat("b???????_?????_?????_100_?????_0000011")
     def SLTIU  = BitPat("b???????_?????_?????_011_?????_0010011")
@@ -80,6 +81,7 @@ object RV64IInstr {
     def SUBW   = BitPat("b0100000_?????_?????_000_?????_0111011") 
     def MULW   = BitPat("b0000001_?????_?????_000_?????_0111011")
     def DIVW   = BitPat("b0000001_?????_?????_100_?????_0111011")
+    def DIVUW  = BitPat("b0000001_?????_?????_101_?????_0111011")
     def REMW   = BitPat("b0000001_?????_?????_110_?????_0111011")
     def SLLW   = BitPat("b0000000_?????_?????_001_?????_0111011")
     def SLL    = BitPat("b0000000_?????_?????_001_?????_0110011")
@@ -155,6 +157,7 @@ object  OpIType{
     val SRLIW= 17.U(OPINUMWIDTH.W)
     val LWU  = 18.U(OPINUMWIDTH.W)
     val ORI  = 19.U(OPINUMWIDTH.W)
+    val LB   = 20.U(OPINUMWIDTH.W)
     //val LD = 11.U(OPINUMWIDTH.W)
 }
 //这个对操作数进行具体的区分 以便决定操作数
@@ -213,6 +216,7 @@ object  OpRType{
     val REMU    = 16.U(OPRNUMWIDTH.W)
     val XOR     = 17.U(OPRNUMWIDTH.W)
     val SLL     = 18.U(OPRNUMWIDTH.W)
+    val DIVUW   = 19.U(OPRNUMWIDTH.W)
     //val JALR    = 2.U(OPSNUMWIDTH.W)
 }
 
@@ -239,6 +243,7 @@ object InstrTable{
         RV64IInstr.ORI      -> List(InstrType.I,OpIType.ORI,OpType.OR),
         RV64IInstr.EBREAK   -> List(InstrType.I,OpIType.EBREAK,OpType.ADD),
         RV64IInstr.LD       -> List(InstrType.I,OpIType.LD,OpType.ADD),
+        RV64IInstr.LB       -> List(InstrType.I,OpIType.LB,OpType.ADD),
         RV64IInstr.LW       -> List(InstrType.I,OpIType.LW,OpType.ADD),
         RV64IInstr.LWU      -> List(InstrType.I,OpIType.LWU,OpType.ADD),
         RV64IInstr.LH       -> List(InstrType.I,OpIType.LH,OpType.ADD),
@@ -280,6 +285,7 @@ object InstrTable{
         RV64IInstr.MUL      -> List(InstrType.R,OpRType.MUL,OpType.MUL),
         RV64IInstr.DIVW     -> List(InstrType.R,OpRType.DIVW,OpType.DIVS),
         RV64IInstr.DIVU     -> List(InstrType.R,OpRType.DIVU,OpType.DIV),
+        RV64IInstr.DIVUW    -> List(InstrType.R,OpRType.DIVUW,OpType.DIV),
         RV64IInstr.REMW     -> List(InstrType.R,OpRType.REMW,OpType.REMS),
         RV64IInstr.REMU     -> List(InstrType.R,OpRType.REMU,OpType.REM),
         RV64IInstr.SUBW     -> List(InstrType.R,OpRType.SUBW,OpType.SUB),
