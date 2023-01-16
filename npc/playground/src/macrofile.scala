@@ -276,7 +276,8 @@ object InstrTable{
         RV64IInstr.BNE      -> List(InstrType.B,OpBType.BNE,OpType.ADD),
         RV64IInstr.BLT      -> List(InstrType.B,OpBType.BLT,OpType.ADD),
         RV64IInstr.BLTU     -> List(InstrType.B,OpBType.BLTU,OpType.ADD),
-        RV64IInstr.BGE      -> List(InstrType.B,OpBType.BGE,OpType.ADD)
+        RV64IInstr.BGE      -> List(InstrType.B,OpBType.BGE,OpType.ADD),
+        RV64IInstr.BGEU      -> List(InstrType.B,OpBType.BGEU,OpType.ADD)
     )
     val InstrT = 0
     val InstrN = 1
