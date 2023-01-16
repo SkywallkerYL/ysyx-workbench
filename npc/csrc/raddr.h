@@ -22,6 +22,12 @@ extern "C" void pmem_read(long long raddr, long long *rdata){
         *rdata = get_time();//(uint32_t)(get_time()) &0xff;
         //printf("time%d\n",get_time());
     }
+    else if (raddr == VGACTL_ADDR){ //vga H W
+        *rdata = ((uint64_t)vgactl_port_base[1]<<32) | vgactl_port_base[0];
+    }
+    else if (raddr >= FB_ADDR && raddr < (FB_ADDR+0x00100000)){//vga addr
+        *rdata = *(uint64_t *)((uint8_t *)vmem + raddr - FB_ADDR);
+    }
     //else if (raddr == (RTC_ADDR+0x4)){
       //  *rdata = ((uint32_t)(get_time()>>32))&0xff;
     //}
@@ -49,6 +55,29 @@ extern "C" void pmem_write(long long waddr, long long wdata,char wmask){
         
         return;
         //*rdata = 0;
+    }
+    else if ((uint64_t)waddr == VGACTL_ADDR){
+        //assert(wmask&0xff == 0x0f || wmask&0xff == 0xf0);
+        if (wmask&0xff == 0xf0){
+            vgactl_port_base[1] = wdata;
+        }
+        else if(wmask&0xff == 0x0f){
+            vgactl_port_base[0] = wdata;
+        }
+        else {
+            panic("wmask = " "0x%08x" " is not valid while write W and H at pc = " FMT_WORD,wmask, cpu_gpr[32]);
+        }
+    }
+    else if (waddr >= FB_ADDR && waddr < (FB_ADDR+0x00100000)){
+        if (wmask&0xff == 0xf0){
+            *(uint32_t *)((uint8_t *)vmem + raddr - FB_ADDR+0x4)= wdata;
+        }
+        else if(wmask&0xff == 0x0f){
+            *(uint32_t *)((uint8_t *)vmem + raddr - FB_ADDR)= wdata;
+        }
+        else {
+            panic("wmask = " "0x%08x" " is not valid while write screen at pc = " FMT_WORD,wmask, cpu_gpr[32]);
+        }
     }
     else if ((uint64_t)waddr>=(uint64_t)PMEM_LEFT&&(uint64_t)waddr<=PMEM_RIGHT){
         uint64_t pmem_addr = (waddr-CONFIG_MBASE);

@@ -224,6 +224,9 @@ static void execute(uint64_t n) {
       difftest_step(localpc,localnpc);
     }
 #endif
+#ifdef VGA
+  device_update();
+#endif
       //sim_once();
   }
     switch (npc_state.state) {

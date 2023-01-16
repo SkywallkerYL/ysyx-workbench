@@ -9,6 +9,7 @@
 #include "npc-exec.h"
 #include "macro.h"
 #include "state.h"
+#include "vga.h"
 using namespace std;
 static VRiscvCpu* top;
 #define max_instr_printnum 10
@@ -199,6 +200,9 @@ void sdb_set_batch_mode() {
 
 
 void sdb_mainloop() {
+#ifdef VGA
+  init_vga();
+#endif
   if (is_batch_mode) {
     cmd_c(NULL);
     return;
