@@ -16,8 +16,8 @@
 #define paddr_t uint64_t
 #define vaddr_t uint64_t
 //#define CONFIG_DIFFTEST
-#define CONFIG_ITRACE
-#define CONFIG_MTRACE
+//#define CONFIG_ITRACE
+//#define CONFIG_MTRACE
 #define VGA
 //#define WAVE
 

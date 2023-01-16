@@ -85,7 +85,9 @@ bool checkebreak ()
 
 
 void assert_fail_msg() {
+#ifdef CONFIG_ITRACE
   printiringbuf((iringbufind+iringbufsize-1)%iringbufsize);
+#endif
   isa_reg_display();
 }
 //uint32_t instr_mem[MSIZE/4-1];

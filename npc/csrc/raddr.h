@@ -5,7 +5,9 @@
 #include "timer.h"
 
 static void out_of_bound(paddr_t addr) {
+#ifdef CONFIG_ITRACE
     instr_tracelog(1);
+#endif
   panic("address = " FMT_PADDR " is out of bound of pmem [" FMT_PADDR ", " FMT_PADDR "] at pc = " FMT_WORD,
       addr, PMEM_LEFT, PMEM_RIGHT, cpu_gpr[32]);
 }
@@ -58,17 +60,37 @@ extern "C" void pmem_write(long long waddr, long long wdata,char wmask){
     }
     else if ((uint64_t)waddr == VGACTL_ADDR){
         //assert(wmask&0xff == 0x0f || wmask&0xff == 0xf0);
-        if (wmask&0xff == 0xf0){
-            vgactl_port_base[1] = wdata;
-        }
-        else if(wmask&0xff == 0x0f){
+        //if (wmask&0xff == 0xf0){
+           // vgactl_port_base[1] = wdata;
+        //}
+        //else if(wmask&0xff == 0x0f){
             vgactl_port_base[0] = wdata;
-        }
-        else {
-            panic("wmask = " "0x%08x" " is not valid while write W and H at pc = " FMT_WORD,wmask, cpu_gpr[32]);
-        }
+        //}
+        //else {
+            //panic("wmask = " "0x%08x" " is not valid while write W and H at pc = " FMT_WORD,wmask, cpu_gpr[32]);
+        //}
+    }
+    else if ((uint64_t)waddr == VGACTL_ADDR + 0x4){
+        vgactl_port_base[1] = wdata;
     }
     else if (waddr >= FB_ADDR && waddr < (FB_ADDR+0x00100000)){
+        uint64_t write_data = wdata;
+        //if ()
+        for (char i = 0; i < 8; i++)
+        {
+            //判断mask的i位是否为1,从地到高。
+            if (wmask & (0x1<<i))
+            {
+                //默认对齐低位
+               *(uint8_t *)((uint8_t *)vmem + waddr - FB_ADDR+i)= write_data&0xffull;
+#ifdef CONFIG_MTRACE
+               mtrace(1,waddr+i,1,write_data&0xffull);
+#endif
+            } 
+            //进入下一位。
+            write_data  = write_data>> 8;
+        }
+        /*
         if (wmask&0xff == 0xf0){
             *(uint32_t *)((uint8_t *)vmem + waddr - FB_ADDR+0x4)= wdata;
         }
@@ -78,6 +100,7 @@ extern "C" void pmem_write(long long waddr, long long wdata,char wmask){
         else {
             panic("wmask = " "0x%08x" " is not valid while write screen at pc = " FMT_WORD,wmask, cpu_gpr[32]);
         }
+        */
     }
     else if ((uint64_t)waddr>=(uint64_t)PMEM_LEFT&&(uint64_t)waddr<=PMEM_RIGHT){
         uint64_t pmem_addr = (waddr-CONFIG_MBASE);
