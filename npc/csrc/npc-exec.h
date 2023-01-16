@@ -85,9 +85,7 @@ bool checkebreak ()
 
 
 void assert_fail_msg() {
-#ifdef CONFIG_ITRACE
   printiringbuf((iringbufind+iringbufsize-1)%iringbufsize);
-#endif
   isa_reg_display();
 }
 //uint32_t instr_mem[MSIZE/4-1];
@@ -225,9 +223,6 @@ static void execute(uint64_t n) {
       //printf("hhhh\n");
       difftest_step(localpc,localnpc);
     }
-#endif
-#ifdef VGA
-  device_update();
 #endif
       //sim_once();
   }

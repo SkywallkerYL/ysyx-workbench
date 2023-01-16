@@ -27,7 +27,6 @@ typedef struct Decode {
   char logbuf[128];
   //char logbuf[128];
 } Decode;
-extern "C" void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
 #ifdef  CONFIG_ITRACE
 //itrace 
 #define iringbufsize 16
@@ -35,7 +34,7 @@ char iringbuf[iringbufsize][128];
 int iringbufind = 0;
 void printiringbuf(int finalinst);
 
-
+extern "C" void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
 char default_log[100] = "/home/yangli/ysyx-workbench/npc/build/npc-flog.txt" ;
 #endif
 
