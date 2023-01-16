@@ -3123,7 +3123,7 @@ void difftest_regcpy(void *dut,
 
 
     cpu.pc = ((uint64_t *)dut)[32];
-
+    printf("cpu.pc : 0x%016lx\n",cpu.pc );
 
 
 
