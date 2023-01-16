@@ -9,6 +9,7 @@
 #include "npc-exec.h"
 #include "macro.h"
 #include "state.h"
+#include "vga.h"
 using namespace std;
 static VRiscvCpu* top;
 #define max_instr_printnum 10
