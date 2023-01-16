@@ -36,6 +36,20 @@ enum { DIFFTEST_TO_DUT, DIFFTEST_TO_REF };
 uint32_t instr_mem[MSIZE/4];
 uint8_t p_mem[MSIZE];
 
+
+#define DEVICE_BASE 0xa0000000
+#define MMIO_BASE 0xa0000000
+
+
+#define SERIAL_PORT     (DEVICE_BASE + 0x00003f8)
+#define KBD_ADDR        (DEVICE_BASE + 0x0000060)
+#define RTC_ADDR        (DEVICE_BASE + 0x0000048)
+#define VGACTL_ADDR     (DEVICE_BASE + 0x0000100)
+#define AUDIO_ADDR      (DEVICE_BASE + 0x0000200)
+#define DISK_ADDR       (DEVICE_BASE + 0x0000300)
+#define FB_ADDR         (MMIO_BASE   + 0x1000000)
+#define AUDIO_SBUF_ADDR (MMIO_BASE   + 0x1200000)
+
 /* convert the guest physical address in the guest program to host virtual address in NEMU */
 uint8_t* guest_to_host(paddr_t paddr);
 /* convert the host virtual address in NEMU to guest physical address in the guest program */

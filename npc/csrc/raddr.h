@@ -2,7 +2,7 @@
 #include <assert.h>
 #include "npcsdb.h"
 #include "trace.h"
-
+#include "timer.h"
 
 static void out_of_bound(paddr_t addr) {
     instr_tracelog(1);
@@ -17,6 +17,9 @@ extern "C" void pmem_read(long long raddr, long long *rdata){
 #ifdef CONFIG_MTRACE
         mtrace(0,raddr,8,*rdata);
 #endif
+    }
+    else if (raddr ==RTC_ADDR ){//rtc addr
+        *data = get_time();
     }
     else if ((uint64_t)raddr>=(uint64_t)PMEM_LEFT&&(uint64_t)raddr<=PMEM_RIGHT){
         uint64_t init = (raddr-CONFIG_MBASE);
@@ -65,7 +68,7 @@ extern "C" void pmem_write(long long waddr, long long wdata,char wmask){
             write_data  = write_data>> 8;
         }
     }
-    else if(waddr == 0xa00003f8){
+    else if(waddr == 0xa00003f8){ // serial port
         printf("%c",c);
     }
     else {
