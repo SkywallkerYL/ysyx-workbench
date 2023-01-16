@@ -15,10 +15,10 @@
 #define word_t uint64_t
 #define paddr_t uint64_t
 #define vaddr_t uint64_t
-#define CONFIG_DIFFTEST
+//#define CONFIG_DIFFTEST
 #define CONFIG_ITRACE
 #define CONFIG_MTRACE
-#define WAVE
+//#define WAVE
 
 #define DIFFTEST_REG_SIZE (sizeof(uint64_t) * 33) // GRPs + pc
 #define CONFIG_MBASE 0x80000000
@@ -32,9 +32,23 @@ enum { DIFFTEST_TO_DUT, DIFFTEST_TO_REF };
 #define RESET_VECTOR (PMEM_LEFT + CONFIG_PC_RESET_OFFSET)
 #define FMT_PADDR "0x%016lx"
 #define instr_break 0b00000000000100000000000001110011
-#define MSIZE 4096 //this should be same with npc
+#define MSIZE 6553600 //this should be same with npc
 uint32_t instr_mem[MSIZE/4];
 uint8_t p_mem[MSIZE];
+
+
+#define DEVICE_BASE 0xa0000000
+#define MMIO_BASE 0xa0000000
+
+
+#define SERIAL_PORT     (DEVICE_BASE + 0x00003f8)
+#define KBD_ADDR        (DEVICE_BASE + 0x0000060)
+#define RTC_ADDR        (DEVICE_BASE + 0x0000048)
+#define VGACTL_ADDR     (DEVICE_BASE + 0x0000100)
+#define AUDIO_ADDR      (DEVICE_BASE + 0x0000200)
+#define DISK_ADDR       (DEVICE_BASE + 0x0000300)
+#define FB_ADDR         (MMIO_BASE   + 0x1000000)
+#define AUDIO_SBUF_ADDR (MMIO_BASE   + 0x1200000)
 
 /* convert the guest physical address in the guest program to host virtual address in NEMU */
 uint8_t* guest_to_host(paddr_t paddr);
