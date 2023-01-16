@@ -70,10 +70,10 @@ extern "C" void pmem_write(long long waddr, long long wdata,char wmask){
     }
     else if (waddr >= FB_ADDR && waddr < (FB_ADDR+0x00100000)){
         if (wmask&0xff == 0xf0){
-            *(uint32_t *)((uint8_t *)vmem + raddr - FB_ADDR+0x4)= wdata;
+            *(uint32_t *)((uint8_t *)vmem + waddr - FB_ADDR+0x4)= wdata;
         }
         else if(wmask&0xff == 0x0f){
-            *(uint32_t *)((uint8_t *)vmem + raddr - FB_ADDR)= wdata;
+            *(uint32_t *)((uint8_t *)vmem + waddr - FB_ADDR)= wdata;
         }
         else {
             panic("wmask = " "0x%08x" " is not valid while write screen at pc = " FMT_WORD,wmask, cpu_gpr[32]);

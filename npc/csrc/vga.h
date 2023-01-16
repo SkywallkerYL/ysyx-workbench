@@ -1,6 +1,6 @@
 #ifndef VGA_H
 #define VGA_H
-#include <common.h>
+#include "common.h"
 #include <time.h>
 #include "timer.h"
 #include "state.h"
@@ -122,9 +122,11 @@ void init_vga() {
   //vgactl_port_base = (uint32_t *)new_space(8);
   vgactl_port_base[0] = (screen_width() << 16) | screen_height();
   vgactl_port_base[1] = 0;
+  printf("VGA Initialized1\n");
   //vmem = new_space(screen_size());
   //add_mmio_map("vmem", CONFIG_FB_ADDR, vmem, screen_size(), NULL);
   init_screen();
+  printf("VGA Initialized2\n");
   memset(vmem, 0, screen_size());
   printf("VGA Initialized\n");
 }
