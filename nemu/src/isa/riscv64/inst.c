@@ -194,7 +194,7 @@ static int decode_exec(Decode *s) {
   INSTPAT("0000001 ????? ????? 111 ????? 01110 11", remuw  , RI, src1 = SEXT(src1,32);src2 = SEXT(src2,32);word_t rs1 = src1;word_t rs2 = src2;int32_t val=rs1%rs2;R(dest) = SEXT(val,32));
   INSTPAT("1111001 00000 ????? 000 ????? 10100 11", fmv.d.x, RI, src1 = SEXT(src1,32);int rs1 = src1;R(dest) = rs1);
   INSTPAT("0011000 00010 00000 000 00000 11100 11", mret   , RI, s->dnpc = cpu.mepc;
-  if(cpu.mstatus&(MPIE))cpu.mstatus = cpu.mstatus|(MIE);
+  if(cpu.mstatus&(MPIE)) cpu.mstatus = cpu.mstatus|(MIE);
   else cpu.mstatus = cpu.mstatus&(~(MIE));
   cpu.mstatus = cpu.mstatus|((MPIE));
   #ifdef CONFIG_TARGET_SHARE

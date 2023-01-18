@@ -3181,7 +3181,7 @@ void difftest_skip_dut(int nr_ref, int nr_dut) {
 }
 
 void init_difftest(char *ref_so_file, long img_size, int port) {
-  cpu.mstatus = 0xa00000080;
+  cpu.mstatus = 0xa00001800;
   
 # 64 "src/cpu/difftest/dut.c" 3 4
  ((void) sizeof ((
