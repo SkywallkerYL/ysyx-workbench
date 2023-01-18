@@ -197,9 +197,9 @@ static int decode_exec(Decode *s) {
   if(cpu.mstatus&(MPIE)) cpu.mstatus = cpu.mstatus|(MIE);
   else cpu.mstatus = cpu.mstatus&(~(MIE));
   cpu.mstatus = cpu.mstatus|((MPIE));
-  #ifdef CONFIG_TARGET_SHARE
+  //#ifdef CONFIG_TARGET_SHARE
   cpu.mstatus = cpu.mstatus&0xFFFFFFFFFFFFE7FF;
-  #endif
+  //#endif
   );
 //B
   //beqz 是=0分支    src2 = 0
