@@ -43,7 +43,7 @@ enum {
 //目前感觉是cut操作出了问题，因为截断会导致符号位被截掉，采用移位的操作进行截断，原来的负数会变成正数，再理解以下位域的表示，
 //通过位于操作来进行截断 其实SEXT直接进行了截断操作以及符号位扩展，直接使用即可，不要用CUT,这样自可以过load-store
 #define low32(a) (a&0x00000000FFFFFFFF)   // 返回一个数的低32位
-
+word_t isa_raise_intr(word_t NO, vaddr_t epc);
 void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1,word_t src1);
 static void decode_operand(Decode *s, int *dest, word_t *src1, word_t *src2, word_t *imm, int type) {
   uint32_t i = s->isa.inst.val;
@@ -86,6 +86,7 @@ static int decode_exec(Decode *s) {
 //I
 
 //mv 被解释为addi 0
+  INSTPAT("0000000 00000 00000 000 00000 11100 11", ecall  , I, isa_raise_intr(1,s->pc));
   INSTPAT("0000000 00000 ????? 000 ????? 00100 11", mv     , I, R(dest) = src1);
   INSTPAT("??????? ????? ????? 000 ????? 00100 11", addi   , I, R(dest) = SEXT(imm,12)+src1);
   INSTPAT("??????? ????? ????? 000 ????? 00000 11", lb     , I, R(dest) = SEXT((Mr(src1 + imm, 8)),8));
