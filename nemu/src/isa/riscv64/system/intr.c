@@ -14,13 +14,32 @@
 ***************************************************************************************/
 
 #include <isa.h>
-
+#define MIE  (1<<3)
+#define MPIE (1<<7)
 word_t isa_raise_intr(word_t NO, vaddr_t epc) {
   /* TODO: Trigger an interrupt/exception with ``NO''.
    * Then return the address of the interrupt/exception vector.
    */
-
-  return 0;
+  //NO  = cpu.pc;
+  //cpu.mtvec = NO;
+  //cpu.mtvec = epc;
+  if(NO <=19 || NO==-1){
+    cpu.mcause = 11;
+  }
+  if(cpu.mstatus&MIE) {
+    cpu.mstatus = cpu.mstatus|MPIE;
+  }
+  else {
+    cpu.mstatus = cpu.mstatus & (~ (MPIE));
+  }
+  cpu.mstatus = cpu.mstatus&(~(MIE));
+#ifndef CONFIG_TARGET_SHARE
+  cpu.mstatus = cpu.mstatus|0x1800;
+#endif 
+  //printf("pc:0x%016lx mstatus: 0x%016lx\n",cpu.pc,cpu.mstatus);
+  word_t mtvec = cpu.mtvec; 
+  cpu.mepc = epc;
+  return mtvec;
 }
 
 word_t isa_query_intr() {

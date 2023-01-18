@@ -18,6 +18,12 @@
 #include <cpu/ifetch.h>
 #include <cpu/decode.h>
 
+#define MTVEC   0x305
+#define MCAUSE  0x342
+#define MSTATUS 0x300
+#define MEPC    0x341
+#define MIE  (1<<3)
+#define MPIE (1<<7)
 #define R(i) gpr(i)
 #define Mr vaddr_read
 #define Mw vaddr_write
@@ -43,7 +49,7 @@ enum {
 //目前感觉是cut操作出了问题，因为截断会导致符号位被截掉，采用移位的操作进行截断，原来的负数会变成正数，再理解以下位域的表示，
 //通过位于操作来进行截断 其实SEXT直接进行了截断操作以及符号位扩展，直接使用即可，不要用CUT,这样自可以过load-store
 #define low32(a) (a&0x00000000FFFFFFFF)   // 返回一个数的低32位
-
+word_t isa_raise_intr(word_t NO, vaddr_t epc);
 void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1,word_t src1);
 static void decode_operand(Decode *s, int *dest, word_t *src1, word_t *src2, word_t *imm, int type) {
   uint32_t i = s->isa.inst.val;
@@ -63,7 +69,33 @@ static void decode_operand(Decode *s, int *dest, word_t *src1, word_t *src2, wor
   }
   //printf("%lx\n",*imm);
 }
-
+void csrrw_inst(word_t csr, word_t src1,Decode *s,bool z_imm,bool read) {
+  uint32_t i = s->isa.inst.val;
+  uint64_t zimm = SEXTU(BITS(i, 19, 15), 5);
+  int rd = BITS(i,11,7);
+  word_t t;
+  word_t realsrc = z_imm?zimm:src1;
+  switch (csr)
+  {
+    case MTVEC  :   t = cpu.mtvec  ;cpu.mtvec = read?(realsrc|t):realsrc;  R(rd) = t;break;
+    case MSTATUS:   t = cpu.mstatus;cpu.mstatus = read?(realsrc|t):realsrc;R(rd) = t;break;
+    case MEPC   :   t = cpu.mepc   ;cpu.mepc = read?(realsrc|t):realsrc;   R(rd) = t;break;
+    case MCAUSE :   t = cpu.mcause ;cpu.mcause = read?(realsrc|t):realsrc; R(rd) = t;break;
+    default:
+      break;
+  }
+}
+word_t mret_inst(){
+  if(cpu.mstatus&(MPIE)) cpu.mstatus = cpu.mstatus|(MIE);
+  else cpu.mstatus = cpu.mstatus&(~(MIE));
+  cpu.mstatus = cpu.mstatus|((MPIE));
+#ifndef CONFIG_TARGET_SHARE
+  //printf("mstatus: 0x%016lx\n",cpu.mstatus);
+  cpu.mstatus = cpu.mstatus&0xFFFFFFFFFFFFE7FF;
+  //printf("mstatus: 0x%016lx\n",cpu.mstatus);
+#endif
+  return cpu.mepc;
+}
 static int decode_exec(Decode *s) {
   int dest = 0;
   word_t src1 = 0, src2 = 0, imm = 0;
@@ -86,6 +118,9 @@ static int decode_exec(Decode *s) {
 //I
 
 //mv 被解释为addi 0
+  INSTPAT("??????? ????? ????? 001 ????? 11100 11", csrrw  , I, csrrw_inst(imm,src1,s,0,0));
+  INSTPAT("??????? ????? ????? 010 ????? 11100 11", csrr   , I, csrrw_inst(imm,src1,s,0,1));
+  INSTPAT("0000000 00000 00000 000 00000 11100 11", ecall  , I, s->dnpc = isa_raise_intr(R(17),s->pc));
   INSTPAT("0000000 00000 ????? 000 ????? 00100 11", mv     , I, R(dest) = src1);
   INSTPAT("??????? ????? ????? 000 ????? 00100 11", addi   , I, R(dest) = SEXT(imm,12)+src1);
   INSTPAT("??????? ????? ????? 000 ????? 00000 11", lb     , I, R(dest) = SEXT((Mr(src1 + imm, 8)),8));
@@ -160,6 +195,7 @@ static int decode_exec(Decode *s) {
   //slt 目前有问题 // 还是不理解为什么用Int 进行强制类型转化就对的， 用int64_t就步行
   INSTPAT("0000000 ????? ????? 010 ????? 01100 11", slt   , RI, int rs1= src1;int rs2 = src2 ;R(dest) = rs1<rs2);
   INSTPAT("0000001 ????? ????? 000 ????? 01100 11", mul   , RI, word_t val = src1*src2;R(dest)= val);
+  INSTPAT("0000001 ????? ????? 100 ????? 01100 11", div   , RI, if(src2 == 0) R(dest)=0;else {word_t val = (int64_t)src1/(int64_t)src2;R(dest)= val;});
   INSTPAT("0000001 ????? ????? 000 ????? 01110 11", mulw  , RI, word_t val = src1*src2;val = SEXT(val,32);R(dest)= val);//截断为32
   INSTPAT("0000001 ????? ????? 100 ????? 01110 11", divw  , RI, src1 = SEXT(src1,32);src2 = SEXT(src2,32);int32_t rs1 = src1;int32_t rs2 = src2;int32_t val=rs1/rs2;R(dest) = SEXT(val,32));
   INSTPAT("0000001 ????? ????? 101 ????? 01100 11", divu  , RI, word_t rs1 = src1;word_t rs2 = src2;word_t val=rs1/rs2;R(dest) = val);
@@ -168,6 +204,7 @@ static int decode_exec(Decode *s) {
   INSTPAT("0000001 ????? ????? 110 ????? 01110 11", remw  , RI, src1 = SEXT(src1,32);src2 = SEXT(src2,32);int32_t rs1 = src1;int32_t rs2 = src2;int32_t val=rs1%rs2;R(dest) = SEXT(val,32));
   INSTPAT("0000001 ????? ????? 111 ????? 01110 11", remuw  , RI, src1 = SEXT(src1,32);src2 = SEXT(src2,32);word_t rs1 = src1;word_t rs2 = src2;int32_t val=rs1%rs2;R(dest) = SEXT(val,32));
   INSTPAT("1111001 00000 ????? 000 ????? 10100 11", fmv.d.x, RI, src1 = SEXT(src1,32);int rs1 = src1;R(dest) = rs1);
+  INSTPAT("0011000 00010 00000 000 00000 11100 11", mret   , RI, s->dnpc = mret_inst();/*printf("dnpc:%lx\n",s->dnpc)*/);
 //B
   //beqz 是=0分支    src2 = 0
   INSTPAT("??????? ????? ????? 000 ????? 11000 11", beq    , B, s->dnpc = (src1==src2)?s->pc+imm:s->pc+0x4);
