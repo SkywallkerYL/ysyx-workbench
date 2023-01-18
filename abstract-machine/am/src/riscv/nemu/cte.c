@@ -8,7 +8,13 @@ Context* __am_irq_handle(Context *c) {
   if (user_handler) {
     Event ev = {0};
     switch (c->mcause) {
-      case 11: ev.event = EVENT_SYSCALL;break;
+      case 11: 
+        ev.event = EVENT_SYSCALL;
+        printf("mepc \t %08lx \n",c->mepc);
+        printf("mcause \t %08lx \n",c->mcause);
+        //printf("mtvec \t %08lx \n",c->mtvec);
+        printf("mstatus \t %08lx \n",c->mstatus);
+        break;
       default: ev.event = EVENT_ERROR; break;
     }
 
