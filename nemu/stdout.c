@@ -5226,13 +5226,8 @@ static int decode_exec(Decode *s) {
   do { uint64_t key, mask, shift; pattern_decode("0000001 ????? ????? 110 ????? 01110 11", (sizeof("0000001 ????? ????? 110 ????? 01110 11") - 1), &key, &mask, &shift); if (((((s)->isa.inst.val) >> shift) & mask) == key) { { decode_operand(s, &dest, &src1, &src2, &imm, TYPE_RI); src1 = ({ struct { int64_t n : 32; } __x = { .n = src1 }; (uint64_t)__x.n; });src2 = ({ struct { int64_t n : 32; } __x = { .n = src2 }; (uint64_t)__x.n; });int32_t rs1 = src1;int32_t rs2 = src2;int32_t val=rs1%rs2;(cpu.gpr[check_reg_idx(dest)]) = ({ struct { int64_t n : 32; } __x = { .n = val }; (uint64_t)__x.n; }) ; }; goto *(__instpat_end); } } while (0);
   do { uint64_t key, mask, shift; pattern_decode("0000001 ????? ????? 111 ????? 01110 11", (sizeof("0000001 ????? ????? 111 ????? 01110 11") - 1), &key, &mask, &shift); if (((((s)->isa.inst.val) >> shift) & mask) == key) { { decode_operand(s, &dest, &src1, &src2, &imm, TYPE_RI); src1 = ({ struct { int64_t n : 32; } __x = { .n = src1 }; (uint64_t)__x.n; });src2 = ({ struct { int64_t n : 32; } __x = { .n = src2 }; (uint64_t)__x.n; });word_t rs1 = src1;word_t rs2 = src2;int32_t val=rs1%rs2;(cpu.gpr[check_reg_idx(dest)]) = ({ struct { int64_t n : 32; } __x = { .n = val }; (uint64_t)__x.n; }) ; }; goto *(__instpat_end); } } while (0);
   do { uint64_t key, mask, shift; pattern_decode("1111001 00000 ????? 000 ????? 10100 11", (sizeof("1111001 00000 ????? 000 ????? 10100 11") - 1), &key, &mask, &shift); if (((((s)->isa.inst.val) >> shift) & mask) == key) { { decode_operand(s, &dest, &src1, &src2, &imm, TYPE_RI); src1 = ({ struct { int64_t n : 32; } __x = { .n = src1 }; (uint64_t)__x.n; });int rs1 = src1;(cpu.gpr[check_reg_idx(dest)]) = rs1 ; }; goto *(__instpat_end); } } while (0);
-  do { uint64_t key, mask, shift; pattern_decode("0011000 00010 00000 000 00000 11100 11", (sizeof("0011000 00010 00000 000 00000 11100 11") - 1), &key, &mask, &shift); if (((((s)->isa.inst.val) >> shift) & mask) == key) { { decode_operand(s, &dest, &src1, &src2, &imm, TYPE_RI); s->dnpc = cpu.mepc; if(cpu.mstatus&((1<<7))) cpu.mstatus = cpu.mstatus|((1<<3)); else cpu.mstatus = cpu.mstatus&(~((1<<3))); cpu.mstatus = cpu.mstatus|(((1<<7))); cpu.mstatus = cpu.mstatus&0xFFFFFFFFFFFFE7FF; ; }; goto *(__instpat_end); } } while (0)
-
-
-
-
-
-
+  do { uint64_t key, mask, shift; pattern_decode("0011000 00010 00000 000 00000 11100 11", (sizeof("0011000 00010 00000 000 00000 11100 11") - 1), &key, &mask, &shift); if (((((s)->isa.inst.val) >> shift) & mask) == key) { { decode_operand(s, &dest, &src1, &src2, &imm, TYPE_RI); s->dnpc = cpu.mepc; if(cpu.mstatus&((1<<7))) cpu.mstatus = cpu.mstatus|((1<<3)); else cpu.mstatus = cpu.mstatus&(~((1<<3))); cpu.mstatus = cpu.mstatus|(((1<<7))); printf("mstatus: 0x%016lx\n",cpu.mstatus); cpu.mstatus = cpu.mstatus&0xFFFFFFFFFFFFE7FF; printf("mstatus: 0x%016lx\n",cpu.mstatus); ; }; goto *(__instpat_end); } } while (0)
+# 205 "src/isa/riscv64/inst.c"
    ;
 
 
