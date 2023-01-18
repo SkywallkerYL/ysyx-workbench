@@ -67,7 +67,7 @@ int printf(const char *fmt, ...) {
             continue;
           case 'd':
             system_ = 10;
-            intval = va_arg(ap,int64_t);
+            intval = va_arg(ap,int);
             if (intval < 0)
             {
               intval = -intval;
