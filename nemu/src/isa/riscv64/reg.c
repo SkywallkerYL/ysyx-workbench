@@ -24,10 +24,15 @@ const char *regs[] = {
 };
 
 void isa_reg_display() {
+  printf ("pc: 0x%08lx \n",cpu.pc);
   for (size_t i = 0; i < 32; i++)
   {
-    printf ("pc: 0x%08lx \t %s \t  info: 0x%08lx\t \n",cpu.pc,regs[i],cpu.gpr[i]); 
+    printf ("%s \t  info: 0x%08lx\t \n",regs[i],cpu.gpr[i]); 
   }
+  printf("mepc %08lx \n",cpu.mepc);
+  printf("mcause %08lx \n",cpu.mcause);
+  printf("mtvec %08lx \n",cpu.mtvec);
+  printf("mstatus %08lx \n",cpu.mstatus);
 }
 
 word_t isa_reg_str2val(const char *s, bool *success) {
