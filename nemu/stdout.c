@@ -1,10 +1,10 @@
-# 0 "src/isa/riscv64/system/intr.c"
+# 0 "src/memory/vaddr.c"
 # 0 "<built-in>"
 # 0 "<command-line>"
 # 1 "/usr/include/stdc-predef.h" 1 3 4
 # 0 "<command-line>" 2
-# 1 "src/isa/riscv64/system/intr.c"
-# 16 "src/isa/riscv64/system/intr.c"
+# 1 "src/memory/vaddr.c"
+# 16 "src/memory/vaddr.c"
 # 1 "/home/yangli/ysyx-workbench/nemu/include/isa.h" 1
 # 20 "/home/yangli/ysyx-workbench/nemu/include/isa.h"
 # 1 "/home/yangli/ysyx-workbench/nemu/src/isa/riscv64/include/isa-def.h" 1
@@ -2950,10 +2950,10 @@ uint64_t get_time();
 typedef struct {
   word_t gpr[32];
   vaddr_t pc;
-  word_t mtvec;
-  word_t mepc;
-  word_t mstatus;
-  word_t mcause;
+
+  word_t mepc,mcause,mtvec,mstatus;
+
+
 } riscv64_CPU_state;
 
 
@@ -3007,32 +3007,69 @@ _Bool
 # 55 "/home/yangli/ysyx-workbench/nemu/include/isa.h"
     isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc);
 void isa_difftest_attach();
-# 17 "src/isa/riscv64/system/intr.c" 2
+# 17 "src/memory/vaddr.c" 2
+# 1 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h" 1
+# 26 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h"
+uint8_t* guest_to_host(paddr_t paddr);
 
+paddr_t host_to_guest(uint8_t *haddr);
 
-word_t isa_raise_intr(word_t NO, vaddr_t epc) {
-
-
-
-
-
-
-  if(NO <=19 || NO==-1){
-    cpu.mcause = 11;
-  }
-  if(cpu.mstatus&(1<<3)) {
-    cpu.mstatus = cpu.mstatus|(1<<7);
-  }
-  else {
-    cpu.mstatus = cpu.mstatus & (~ ((1<<7)));
-  }
-  cpu.mstatus = cpu.mstatus&(~((1<<3)));
-  printf("pc:0x%016lx mstatus: 0x%016lx\n",cpu.pc,cpu.mstatus);
-  word_t mtvec = cpu.mtvec;
-  cpu.mepc = epc;
-  return mtvec;
+static inline 
+# 30 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h" 3 4
+             _Bool 
+# 30 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h"
+                  in_pmem(paddr_t addr) {
+  return addr - 0x80000000 < 0x8000000;
 }
 
-word_t isa_query_intr() {
-  return ((word_t)-1);
+
+
+
+
+word_t paddr_read(paddr_t addr, int len);
+void paddr_write(paddr_t addr, int len, word_t data);
+
+
+union var8
+{
+    char p[8];
+    int64_t i;
+};
+union var4
+{
+    char p[4];
+    int32_t i;
+};
+union var2
+{
+    char p[2];
+    int16_t i;
+};
+union var1
+{
+    char p;
+    int8_t i;
+};
+
+
+
+void init_ftrace(char * elf_file);
+
+void log_ftrace(paddr_t addr,
+# 67 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h" 3 4
+                            _Bool 
+# 67 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h"
+                                 jarlflag, int rd ,word_t imm, int rs1,word_t src1);
+# 18 "src/memory/vaddr.c" 2
+
+word_t vaddr_ifetch(vaddr_t addr, int len) {
+  return paddr_read(addr, len);
+}
+
+word_t vaddr_read(vaddr_t addr, int len) {
+  return paddr_read(addr, len);
+}
+
+void vaddr_write(vaddr_t addr, int len, word_t data) {
+  paddr_write(addr, len, data);
 }

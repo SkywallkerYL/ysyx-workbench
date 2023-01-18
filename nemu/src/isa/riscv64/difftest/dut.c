@@ -27,17 +27,34 @@ const char *regs0[] = {
 
 bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
   if (ref_r->pc!=cpu.pc) {printf("refpc:%08lx nemupc:%08lx lastpc:%08lx\n",ref_r->pc,cpu.pc,pc);return false;}
+  bool regflag = true;
   for (size_t i = 0; i < 32; i++)
   {
     //printf("jjjjj\n");
     if (ref_r->gpr[i]!=cpu.gpr[i])
     {
       printf("reg: %s ref:%08lx nemu:%08lx lastpc:%08lx\n",regs0[i],ref_r->gpr[i],cpu.gpr[i],pc);
-      return false;
+      //return regflag;
+      regflag = false;
     }
-    
   }
-  return true;
+  if (ref_r->mepc !=cpu.mepc){
+      printf("mepc ref:%08lx nemu:%08lx lastpc:%08lx\n",ref_r->mepc,cpu.mepc,pc);
+      regflag = false;
+  }
+  if (ref_r->mcause !=cpu.mcause){
+      printf("mcause ref:%08lx nemu:%08lx lastpc:%08lx\n",ref_r->mcause,cpu.mcause,pc);
+      regflag = false;
+  }
+  if (ref_r->mtvec !=cpu.mtvec){
+      printf("mtvec ref:%08lx nemu:%08lx lastpc:%08lx\n",ref_r->mtvec,cpu.mtvec,pc);
+      regflag = false;
+  }
+  if (ref_r->mstatus !=cpu.mstatus){
+      printf("mstatus ref:%08lx nemu:%08lx lastpc:%08lx\n",ref_r->mstatus,cpu.mstatus,pc);
+      regflag = false;
+  }
+  return regflag;
 }
 
 void isa_difftest_attach() {
