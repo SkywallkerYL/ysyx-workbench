@@ -17,6 +17,14 @@
 #include <cpu/difftest.h>
 #include "../local-include/reg.h"
 
+const char *regs0[] = {
+  "$0", "ra", "sp", "gp", "tp", "t0", "t1", "t2",
+  "s0", "s1", "a0", "a1", "a2", "a3", "a4", "a5",
+  "a6", "a7", "s2", "s3", "s4", "s5", "s6", "s7",
+  "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6"
+};
+
+
 bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
   if (ref_r->pc!=cpu.pc) {printf("refpc:%08lx nemupc:%08lx lastpc:%08lx\n",ref_r->pc,cpu.pc,pc);return false;}
   for (size_t i = 0; i < 32; i++)
@@ -24,7 +32,7 @@ bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
     //printf("jjjjj\n");
     if (ref_r->gpr[i]!=cpu.gpr[i])
     {
-      printf("i: %ld ref:%08lx nemu:%08lx lastpc:%08lx\n",i,ref_r->gpr[i],cpu.gpr[i],pc);
+      printf("reg: %s ref:%08lx nemu:%08lx lastpc:%08lx\n",regs0[i],ref_r->gpr[i],cpu.gpr[i],pc);
       return false;
     }
     
