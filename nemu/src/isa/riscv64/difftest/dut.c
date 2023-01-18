@@ -35,7 +35,7 @@ bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
     {
       printf("reg: %s ref:%08lx nemu:%08lx lastpc:%08lx\n",regs0[i],ref_r->gpr[i],cpu.gpr[i],pc);
       //return regflag;
-      printf("mstatus ref:%08lx nemu:%08lx lastpc:%08lx\n",ref_r->mstatus,cpu.mstatus,pc);
+      //printf("mstatus ref:%08lx nemu:%08lx lastpc:%08lx\n",ref_r->mstatus,cpu.mstatus,pc);
       regflag = false;
     }
   }
