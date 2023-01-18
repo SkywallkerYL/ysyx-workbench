@@ -30,7 +30,7 @@ int printf(const char *fmt, ...) {
   unsigned long hexval = 0;
   //double floatval = 0.0;
   int lencnt = 0;
-  int tempval ;//对于整数等需要计算每一位打印，这个变量用来临时赋值
+  int64_t tempval ;//对于整数等需要计算每一位打印，这个变量用来临时赋值
   int system_;
   char* strval = NULL;
 
