@@ -182,6 +182,7 @@ static int decode_exec(Decode *s) {
   //slt 目前有问题 // 还是不理解为什么用Int 进行强制类型转化就对的， 用int64_t就步行
   INSTPAT("0000000 ????? ????? 010 ????? 01100 11", slt   , RI, int rs1= src1;int rs2 = src2 ;R(dest) = rs1<rs2);
   INSTPAT("0000001 ????? ????? 000 ????? 01100 11", mul   , RI, word_t val = src1*src2;R(dest)= val);
+  INSTPAT("0000001 ????? ????? 100 ????? 01100 11", div   , RI, word_t val = (int64_t)src1*(int64_t)src2;R(dest)= val);
   INSTPAT("0000001 ????? ????? 000 ????? 01110 11", mulw  , RI, word_t val = src1*src2;val = SEXT(val,32);R(dest)= val);//截断为32
   INSTPAT("0000001 ????? ????? 100 ????? 01110 11", divw  , RI, src1 = SEXT(src1,32);src2 = SEXT(src2,32);int32_t rs1 = src1;int32_t rs2 = src2;int32_t val=rs1/rs2;R(dest) = SEXT(val,32));
   INSTPAT("0000001 ????? ????? 101 ????? 01100 11", divu  , RI, word_t rs1 = src1;word_t rs2 = src2;word_t val=rs1/rs2;R(dest) = val);
