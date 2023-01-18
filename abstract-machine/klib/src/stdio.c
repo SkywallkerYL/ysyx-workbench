@@ -87,8 +87,12 @@ int printf(const char *fmt, ...) {
             resnum += lencnt;
             while (lencnt)
             {
-              tempval = intval/(mpown(system_,lencnt-1));
-              intval = intval%(mpown(system_,lencnt-1));
+              unsigned long pow_n = mpown(system_,lencnt-1);
+              if(pow_n == 0) {lencnt--;continue;}
+              tempval = hexval/(pow_n);
+              hexval = hexval%(pow_n);
+              //tempval = intval/(mpown(system_,lencnt-1));
+              //intval = intval%(mpown(system_,lencnt-1));
               myputch((char)tempval+'0');
               lencnt--;
             }
