@@ -29,10 +29,10 @@ void isa_reg_display() {
   {
     printf ("%s \t  info: 0x%08lx\t \n",regs[i],cpu.gpr[i]); 
   }
-  printf("mepc %08lx \n",cpu.mepc);
-  printf("mcause %08lx \n",cpu.mcause);
-  printf("mtvec %08lx \n",cpu.mtvec);
-  printf("mstatus %08lx \n",cpu.mstatus);
+  printf("mepc \t %08lx \n",cpu.mepc);
+  printf("mcause \t %08lx \n",cpu.mcause);
+  printf("mtvec \t %08lx \n",cpu.mtvec);
+  printf("mstatus \t %08lx \n",cpu.mstatus);
 }
 
 word_t isa_reg_str2val(const char *s, bool *success) {
