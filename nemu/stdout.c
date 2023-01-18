@@ -2951,6 +2951,7 @@ typedef struct {
   word_t gpr[32];
   vaddr_t pc;
   word_t mtvec;
+  word_t mepc;
 } riscv64_CPU_state;
 
 

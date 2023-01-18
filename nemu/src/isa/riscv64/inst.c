@@ -18,6 +18,7 @@
 #include <cpu/ifetch.h>
 #include <cpu/decode.h>
 
+#define MTVEC 0x305
 #define R(i) gpr(i)
 #define Mr vaddr_read
 #define Mw vaddr_write
@@ -63,7 +64,17 @@ static void decode_operand(Decode *s, int *dest, word_t *src1, word_t *src2, wor
   }
   //printf("%lx\n",*imm);
 }
-
+void csrrs (word_t csr, word_t src1,word_t rd) {
+  word_t t;
+  switch (csr)
+  {
+  case MTVEC: t = cpu.mtvec;cpu.mtvec = t|src1;R(rd) = t;
+    break;
+  
+  default:
+    break;
+  }
+}
 static int decode_exec(Decode *s) {
   int dest = 0;
   word_t src1 = 0, src2 = 0, imm = 0;
@@ -86,7 +97,8 @@ static int decode_exec(Decode *s) {
 //I
 
 //mv 被解释为addi 0
-  INSTPAT("0000000 00000 00000 000 00000 11100 11", ecall  , I, isa_raise_intr(1,s->pc));
+  INSTPAT("??????? ????? ????? 010 00000 11100 11", csrrs  , I, csrrs(imm,src1,dest));
+  INSTPAT("0000000 00000 00000 000 00000 11100 11", ecall  , I, s->dnpc = isa_raise_intr(R(17),s->pc));
   INSTPAT("0000000 00000 ????? 000 ????? 00100 11", mv     , I, R(dest) = src1);
   INSTPAT("??????? ????? ????? 000 ????? 00100 11", addi   , I, R(dest) = SEXT(imm,12)+src1);
   INSTPAT("??????? ????? ????? 000 ????? 00000 11", lb     , I, R(dest) = SEXT((Mr(src1 + imm, 8)),8));
