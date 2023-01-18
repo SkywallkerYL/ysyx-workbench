@@ -2953,7 +2953,7 @@ typedef struct {
   word_t mtvec;
   word_t mepc;
   word_t mstatus;
-  word_t mcasue;
+  word_t mcause;
 } riscv64_CPU_state;
 
 

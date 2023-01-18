@@ -67,16 +67,20 @@ static void decode_operand(Decode *s, int *dest, word_t *src1, word_t *src2, wor
   }
   //printf("%lx\n",*imm);
 }
-void csrrw_inst(word_t csr, word_t src1,word_t zimm,word_t rd,bool z_imm,bool read) {
+void csrrw_inst(word_t csr, word_t src1,Decode *s,bool z_imm,bool read) {
+  uint32_t i = s->isa.inst.val;
+  uint64_t zimm = SEXTU(BITS(i, 19, 15), 5);
+  int rd = BITS(i,11,7);
   word_t t;
   word_t realsrc = z_imm?zimm:src1;
   switch (csr)
   {
-  case MTVEC: t = cpu.mtvec;cpu.mtvec = read?(realsrc|t):realsrc;R(rd) = t;
-    break;
-  
-  default:
-    break;
+    case MTVEC  :   t = cpu.mtvec  ;cpu.mtvec = read?(realsrc|t):realsrc;  R(rd) = t;break;
+    case MSTATUS:   t = cpu.mstatus;cpu.mstatus = read?(realsrc|t):realsrc;R(rd) = t;break;
+    case MEPC   :   t = cpu.mepc   ;cpu.mepc = read?(realsrc|t):realsrc;   R(rd) = t;break;
+    case MCAUSE :   t = cpu.mcause ;cpu.mcause = read?(realsrc|t):realsrc; R(rd) = t;break;
+    default:
+      break;
   }
 }
 static int decode_exec(Decode *s) {
@@ -101,7 +105,7 @@ static int decode_exec(Decode *s) {
 //I
 
 //mv 被解释为addi 0
-  //INSTPAT("??????? ????? ????? 001 ????? 11100 11", csrrw  , I, csrrw(imm,src1,dest));
+  INSTPAT("??????? ????? ????? 001 ????? 11100 11", csrrw  , I, csrrw_inst(imm,src1,s,0,0));
   INSTPAT("0000000 00000 00000 000 00000 11100 11", ecall  , I, s->dnpc = isa_raise_intr(R(17),s->pc));
   INSTPAT("0000000 00000 ????? 000 ????? 00100 11", mv     , I, R(dest) = src1);
   INSTPAT("??????? ????? ????? 000 ????? 00100 11", addi   , I, R(dest) = SEXT(imm,12)+src1);
