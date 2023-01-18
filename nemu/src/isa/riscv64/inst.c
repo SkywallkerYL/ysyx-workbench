@@ -200,7 +200,7 @@ static int decode_exec(Decode *s) {
   //#ifdef CONFIG_TARGET_SHARE
   printf("mstatus: 0x%016lx\n",cpu.mstatus);
   cpu.mstatus = cpu.mstatus&0xFFFFFFFFFFFFE7FF;
-  printf("mstatus: 0x%016lx\n",cpu.mstatus);
+  printf("mstatus: 0x%016lx\n",cpu.mstatus)
   //#endif
   );
 //B
