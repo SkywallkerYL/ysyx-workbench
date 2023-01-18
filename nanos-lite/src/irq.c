@@ -1,5 +1,6 @@
 #include <common.h>
 
+//事件分发
 static Context* do_event(Event e, Context* c) {
   switch (e.event) {
     case EVENT_YIELD : printf("Event Yeild\n");break;//EVENT_YIELD
