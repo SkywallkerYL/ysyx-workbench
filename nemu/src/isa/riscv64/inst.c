@@ -198,7 +198,7 @@ static int decode_exec(Decode *s) {
   else cpu.mstatus = cpu.mstatus&(~(MIE));
   cpu.mstatus = cpu.mstatus|((MPIE));
   //#ifdef CONFIG_TARGET_SHARE
-  cpu.mstatus = cpu.mstatus&0xFFFFFFFFFFFFE7FF;
+  cpu.mstatus = cpu.mstatus&0xFFFFFFFFFFFF7EFF;
   //#endif
   
   );
