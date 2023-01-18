@@ -30,9 +30,9 @@ word_t isa_raise_intr(word_t NO, vaddr_t epc) {
     cpu.mstatus = cpu.mstatus|MPIE;
   }
   else {
-    cpu.mstatus = cpu.mstatus & (~ MPIE);
+    cpu.mstatus = cpu.mstatus & (~ (MPIE));
   }
-  cpu.mstatus = cpu.mstatus&(~MIE);
+  cpu.mstatus = cpu.mstatus&(~(MIE));
   printf("pc:0x%016lx mstatus: 0x%016lx\n",cpu.pc,cpu.mstatus);
   word_t mtvec = cpu.mtvec; 
   cpu.mepc = epc;

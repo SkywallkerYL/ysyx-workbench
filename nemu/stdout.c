@@ -3024,9 +3024,9 @@ word_t isa_raise_intr(word_t NO, vaddr_t epc) {
     cpu.mstatus = cpu.mstatus|(1<<7);
   }
   else {
-    cpu.mstatus = cpu.mstatus & (~ (1<<7));
+    cpu.mstatus = cpu.mstatus & (~ ((1<<7)));
   }
-  cpu.mstatus = cpu.mstatus&(~(1<<3));
+  cpu.mstatus = cpu.mstatus&(~((1<<3)));
   printf("pc:0x%016lx mstatus: 0x%016lx\n",cpu.pc,cpu.mstatus);
   word_t mtvec = cpu.mtvec;
   cpu.mepc = epc;
