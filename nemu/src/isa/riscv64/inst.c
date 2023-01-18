@@ -64,11 +64,11 @@ static void decode_operand(Decode *s, int *dest, word_t *src1, word_t *src2, wor
   }
   //printf("%lx\n",*imm);
 }
-void csrrs (word_t csr, word_t src1,word_t rd) {
+void csrrw(word_t csr, word_t src1,word_t rd) {
   word_t t;
   switch (csr)
   {
-  case MTVEC: t = cpu.mtvec;cpu.mtvec = t|src1;R(rd) = t;
+  case MTVEC: t = cpu.mtvec;cpu.mtvec = src1;R(rd) = t;
     break;
   
   default:
@@ -97,7 +97,7 @@ static int decode_exec(Decode *s) {
 //I
 
 //mv 被解释为addi 0
-  INSTPAT("??????? ????? ????? 001 ????? 11100 11", csrrs  , I, csrrs(imm,src1,dest));
+  INSTPAT("??????? ????? ????? 001 ????? 11100 11", csrrw  , I, csrrw(imm,src1,dest));
   INSTPAT("0000000 00000 00000 000 00000 11100 11", ecall  , I, s->dnpc = isa_raise_intr(R(17),s->pc));
   INSTPAT("0000000 00000 ????? 000 ????? 00100 11", mv     , I, R(dest) = src1);
   INSTPAT("??????? ????? ????? 000 ????? 00100 11", addi   , I, R(dest) = SEXT(imm,12)+src1);
