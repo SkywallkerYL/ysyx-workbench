@@ -26,11 +26,11 @@ int printf(const char *fmt, ...) {
   //panic("Not implemented");
   assert (fmt!=NULL);
   char *pstr = (char*) fmt;
-  int intval = 0;
-  unsigned long hexval = 0;
+  uint64_t intval = 0;
+  uint64_t hexval = 0;
   //double floatval = 0.0;
   int lencnt = 0;
-  int tempval ;//对于整数等需要计算每一位打印，这个变量用来临时赋值
+  uint64_t tempval ;//对于整数等需要计算每一位打印，这个变量用来临时赋值
   int system_;
   char* strval = NULL;
 
