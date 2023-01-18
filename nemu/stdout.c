@@ -3162,14 +3162,15 @@ _Bool
     {
       printf("reg: %s ref:%08lx nemu:%08lx lastpc:%08lx\n",regs0[i],ref_r->gpr[i],cpu.gpr[i],pc);
 
+      printf("mstatus ref:%08lx nemu:%08lx lastpc:%08lx\n",ref_r->mstatus,cpu.mstatus,pc);
       regflag = 
-# 38 "src/isa/riscv64/difftest/dut.c" 3 4
+# 39 "src/isa/riscv64/difftest/dut.c" 3 4
                0
-# 38 "src/isa/riscv64/difftest/dut.c"
+# 39 "src/isa/riscv64/difftest/dut.c"
                     ;
     }
   }
-# 59 "src/isa/riscv64/difftest/dut.c"
+# 60 "src/isa/riscv64/difftest/dut.c"
   return regflag;
 }
 
