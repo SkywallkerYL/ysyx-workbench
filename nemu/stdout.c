@@ -3001,6 +3001,6 @@ void init_log(const char *log_file) {
 _Bool 
 # 31 "src/utils/log.c"
     log_enable() {
-  return (g_nr_guest_inst >= 0) && (g_nr_guest_inst <= 100000)
+  return (g_nr_guest_inst >= 0) && (g_nr_guest_inst <= 10000)
                                                       ;
 }
