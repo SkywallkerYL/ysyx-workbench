@@ -196,11 +196,10 @@ static int decode_exec(Decode *s) {
   INSTPAT("0011000 00010 00000 000 00000 11100 11", mret   , RI, s->dnpc = cpu.mepc;
   if(cpu.mstatus&(MPIE))cpu.mstatus = cpu.mstatus|(MIE);
   else cpu.mstatus = cpu.mstatus&(~(MIE));
-  cpu.mstatus = cpu.mstatus&(~(MPIE));
+  cpu.mstatus = cpu.mstatus|((MPIE));
   #ifdef CONFIG_TARGET_SHARE
   cpu.mstatus = cpu.mstatus&0xFFFFFFFFFFFFE7FF;
   #endif
-  
   );
 //B
   //beqz 是=0分支    src2 = 0
