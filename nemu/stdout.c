@@ -3009,6 +3009,7 @@ _Bool
 void isa_difftest_attach();
 # 17 "src/isa/riscv64/system/intr.c" 2
 
+
 word_t isa_raise_intr(word_t NO, vaddr_t epc) {
 
 
@@ -3019,6 +3020,14 @@ word_t isa_raise_intr(word_t NO, vaddr_t epc) {
   if(NO <=19 || NO==-1){
     cpu.mcause = 11;
   }
+  if(cpu.mstatus&(1<<3)) {
+    cpu.mstatus = cpu.mstatus|(1<<7);
+  }
+  else {
+    cpu.mstatus = cpu.mstatus & (~ (1<<7));
+  }
+  cpu.mstatus = cpu.mstatus&(~(1<<3));
+
   word_t mtvec = cpu.mtvec;
   cpu.mepc = epc;
   return mtvec;
