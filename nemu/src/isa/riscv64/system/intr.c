@@ -33,6 +33,9 @@ word_t isa_raise_intr(word_t NO, vaddr_t epc) {
     cpu.mstatus = cpu.mstatus & (~ (MPIE));
   }
   cpu.mstatus = cpu.mstatus&(~(MIE));
+#ifndef CONFIG_TARGET_SHARE
+  cpu.mstatus = cpu.mstatus|0x1800;
+#endif 
   //printf("pc:0x%016lx mstatus: 0x%016lx\n",cpu.pc,cpu.mstatus);
   word_t mtvec = cpu.mtvec; 
   cpu.mepc = epc;
