@@ -9,11 +9,12 @@ Context* __am_irq_handle(Context *c) {
     Event ev = {0};
     switch (c->mcause) {
       case 11: 
-        ev.event = EVENT_SYSCALL;
+        ev.event = EVENT_YIELD;
+        //printf();
         //printf("mepc \t %x \n",c->mepc);
         //printf("mcause \t %x \n",c->mcause);
         //printf("mtvec \t %08lx \n",c->mtvec);
-        printf("mstatus \t %x \n",c->mstatus);
+        //printf("mstatus \t %x \n",c->mstatus);
         break;
       default: ev.event = EVENT_ERROR; break;
     }

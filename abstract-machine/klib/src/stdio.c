@@ -30,7 +30,9 @@ int printf(const char *fmt, ...) {
   unsigned long hexval = 0;
   //double floatval = 0.0;
   int lencnt = 0;
-  int64_t tempval ;//对于整数等需要计算每一位打印，这个变量用来临时赋值
+  int tempval ;//对于整数等需要计算每一位打印，这个变量用来临时赋值
+  //这个用int没事，用int64_t会触发段错误，但是用Int的话，就不能对64位的16进制进行打印
+  //目前暂时不要动这个，这样子mstatus不能正确打印
   int system_;
   char* strval = NULL;
 
@@ -110,8 +112,7 @@ int printf(const char *fmt, ...) {
             resnum += lencnt;
             while (lencnt)
             {
-              
-              if(mpown(system_,lencnt-1)==0){lencnt--;continue;}
+              //if(mpown(system_,lencnt-1)==0){lencnt--;continue;}
               tempval = hexval/(mpown(system_,lencnt-1));
               hexval = hexval%(mpown(system_,lencnt-1));
               if (tempval<=9)
