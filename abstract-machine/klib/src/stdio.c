@@ -30,7 +30,7 @@ int printf(const char *fmt, ...) {
   unsigned long hexval = 0;
   //double floatval = 0.0;
   int lencnt = 0;
-  uint64_t tempval ;//对于整数等需要计算每一位打印，这个变量用来临时赋值
+  int tempval ;//对于整数等需要计算每一位打印，这个变量用来临时赋值
   int system_;
   char* strval = NULL;
 
@@ -111,7 +111,7 @@ int printf(const char *fmt, ...) {
             while (lencnt)
             {
               
-              //if(mpown(system_,lencnt-1))
+              if(mpown(system_,lencnt-1)==0){lencnt--;continue;}
               tempval = hexval/(mpown(system_,lencnt-1));
               hexval = hexval%(mpown(system_,lencnt-1));
               if (tempval<=9)
