@@ -59,6 +59,8 @@ void init_mem() {
   Log("physical memory area [" FMT_PADDR ", " FMT_PADDR "]", PMEM_LEFT, PMEM_RIGHT);
 }
 #ifdef CONFIG_MTRACE
+int mtracenum= 0;
+int maxmtrace = 10000;
 char mtracefilepath[] = "/home/yangli/ysyx-workbench/nemu/build/mtrace-log.txt";
 void init_mtrace()
 {
@@ -76,6 +78,8 @@ void init_mtrace()
 }
 void mtrace(bool wrrd,paddr_t addr, int len,word_t data)
 {
+  mtracenum++;
+  if(mtracenum > maxmtrace) return;
   FILE *file;
   file = fopen(mtracefilepath,"a");
   char wrflag;
@@ -336,6 +340,8 @@ void init_ftrace(char* elf_file)
 	}
   return;
 }
+int ftracenum = 0;
+int maxftrace = 10000;
 int callcount = 0;
 void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1,word_t src1)
 {
@@ -348,6 +354,8 @@ void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1,word_t s
   //printf("pc:%lx: Addr:%x func [%s] rd:%d rs1:%d imm:%ld jarl:%d\n",cpu.pc,addr,funcname,rd,rs1,imm,jarlflag);
   if (retflag)
   {
+    ftracenum++;
+    if(ftracenum>maxftrace) return;
     //ret返回的是调用函数的后一个Pc地址
     vaddr_t realpc = src1-0x4;
     //读pc处的指令
@@ -390,6 +398,8 @@ void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1,word_t s
       //printf("info:%02x\n",allsymble[j].st_info);
       if((allsymble[j].st_info&0x0f) == STT_FUNC)
       {
+        ftracenum++;
+        if(ftracenum>maxftrace) return;
         int len = 0;
         int ind = allsymble[j].st_name;
         char* start = strtab;
@@ -487,6 +497,8 @@ void paddr_write(paddr_t addr, int len, word_t data) {
 
 
 #ifdef CONFIG_ETRACE
+int etracenum = 0;
+int maxetrace = 10000;
 char Etracefilepath[] = "/home/yangli/ysyx-workbench/nemu/build/Etrace-log.txt";
 void init_Etrace()
 {
@@ -504,6 +516,8 @@ void init_Etrace()
 }
 void Etrace(word_t mstatus, word_t mcause ,word_t mepc, word_t mtvec,bool ecall)
 {
+  etracenum++;
+  if(etracenum>maxetrace) return;
   FILE *file;
   file = fopen(Etracefilepath,"a");
   if (file == NULL) {printf("No file!!!!\n");}
