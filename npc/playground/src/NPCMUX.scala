@@ -11,7 +11,8 @@ class NPCMUX extends Module{
         val IdPc    = Input(UInt(parm.PCWIDTH.W))
         val imm = Input(UInt(parm.REGWIDTH.W))
         val rs1 = Input(UInt(parm.REGWIDTH.W))
-        
+        val ecallpc = Input(UInt(parm.PCWIDTH.W))
+
         val NPC = Output(UInt(parm.PCWIDTH.W))
         val NOP = Output(Bool())
   })
@@ -24,7 +25,8 @@ class NPCMUX extends Module{
     0.U -> pc_4   ,
     1.U -> jalpc  ,
     2.U -> jalrpc ,
-    3.U -> jalpc
+    3.U -> jalpc  ,
+    4.U -> io.ecallpc
   ))
   io.NOP := io.jal=/=0.U
   io.NPC := Mux(io.NOP,jumppc,pc_4)

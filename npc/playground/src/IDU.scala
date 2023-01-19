@@ -18,6 +18,11 @@ class IDU extends Module{
     val rs_addr1 = Output(UInt(parm.REGADDRWIDTH.W))
     val rs_addr2 = Output(UInt(parm.REGADDRWIDTH.W))
     val idex = new IDEX
+// CSR //输出已经包含在idex中
+    val CsrIn = Flipped(new CSRIO)
+    //val CSR = new CSRIO
+    //val CsrAddr = Output(UInt(parm.CSRNUMBER.W))
+    //val CSRs = Output(UInt(parm.REGWIDTH.W))
     //val rd_addr = Output(UInt(parm.REGADDRWIDTH.W))
     //val rd_en = Output(Bool())
     //val imm = Output(UInt(parm.REGWIDTH.W))
@@ -54,6 +59,9 @@ class IDU extends Module{
     //io.func3 := io.instr_i(14,12)
     //io.opcode := io.instr_i(6,0)
     io.idex.rden := 1.U
+
+    io.idex.CsrWb.CsrAddr := "b0000".U
+    io.idex.CsrWb.CSR <> io.CsrIn
     val sign = io.instr_i(31)
     
     val I_imm = Fill((parm.REGWIDTH-12),sign) ## (io.instr_i(31,20))
@@ -61,7 +69,12 @@ class IDU extends Module{
     val J_imm = Fill((parm.REGWIDTH-20),sign) ## io.instr_i(19,12) ## io.instr_i(20) ## io.instr_i(30,21) ## 0.U
     val B_imm = Fill((parm.REGWIDTH-12),sign) ## io.instr_i(7) ## io.instr_i(30,25) ## io.instr_i(11,8) ##0.U
     val S_imm = Fill((parm.REGWIDTH-12),sign) ## io.instr_i(31,25) ## io.instr_i(11,7)
-
+//CSR
+    val zimm    = func.UsignExt(io.instr_i(19,15),5)
+    val CSRTYPE = func.UsignExt(io.instr_i(31,20),12)
+    val CSRs = Wire(UInt(parm.REGWIDTH.W))
+    CSRs := 0.U
+    io.idex.CsrWb.CSRs := CSRs
     //default
     io.idex.AluOp.rd1 := 0.U
     io.idex.AluOp.rd2 := 0.U
@@ -99,7 +112,10 @@ class IDU extends Module{
                 OpIType.SRLIW   ->"b00111_10000_10111_11111_0000_1_0_0_0000_0000".U(35.W),
                 OpIType.SRLI    ->"b11111_10000_11111_11111_0000_1_0_0_0000_0000".U(35.W),
                 OpIType.SLLI    ->"b11111_10000_11111_11111_0000_1_0_0_0000_0000".U(35.W),
-                OpIType.SLLIW   ->"b11111_10000_10111_11111_0000_1_0_0_0000_0000".U(35.W)
+                OpIType.SLLIW   ->"b11111_10000_10111_11111_0000_1_0_0_0000_0000".U(35.W),
+                //CSR
+                OpIType.CSRR    ->"b11111_11100_11111_11111_0010_1_0_0_0000_0000".U(35.W),
+                OpIType.CSRRW   ->"b11111_11110_11111_11111_0010_1_0_0_0000_0000".U(35.W)
             ))
             io.idex.wflag := lsuflag(9)
             io.idex.rflag := lsuflag(8)
@@ -109,13 +125,41 @@ class IDU extends Module{
             io.idex.lsumask := lsuflag(19,15)
             io.idex.alumask := lsuflag(24,20)
             io.idex.src2mask := lsuflag(29,25)
-            io.idex.src1mask := lsuflag(34,30)
+            io.idex.src1mask := lsuflag(34,30) 
+            //CSR
+            val csrflag =  MuxLookup(stype, false.B,Seq(                 
+                OpIType.CSRR     ->true.B,
+                OpIType.CSRRW   ->true.B
+            ))
+            val csraddr = MuxLookup(CSRTYPE, "b0000".U(parm.CSRNUMBER.W),Seq(
+                                    
+                parm.MEPC.U     ->"b0001".U(parm.CSRNUMBER.W),
+                parm.MCAUSE.U   ->"b0010".U(parm.CSRNUMBER.W),
+                parm.MTVEC.U    ->"b0100".U(parm.CSRNUMBER.W),
+                parm.MSTATUS.U  ->"b1000".U(parm.CSRNUMBER.W)
+            ))
+            CSRs := MuxLookup(CSRTYPE, 0.U(parm.REGWIDTH.W),Seq(    
+                parm.MEPC.U     ->io.CsrIn.mepc,
+                parm.MCAUSE.U   ->io.CsrIn.mcause,
+                parm.MTVEC.U    ->io.CsrIn.mtvec,
+                parm.MSTATUS.U  ->io.CsrIn.mstatus
+            ))
+            //io.idex.CsrWb.CSRs := CSRs
+            io.idex.CsrWb.CsrAddr := Mux(csrflag,csraddr,"b0000".U)
             when(DecodeRes(InstrTable.InstrN) === OpIType.JALR)
             {
                 rd1 := io.pc_i
                 rd2 := 4.U
                 //io.idex.AluOp.op  := OpType.ADD
                 io.jal := 2.U
+            }
+            when(DecodeRes(InstrTable.InstrN) === OpIType.ECALL)
+            {
+                io.jal := 4.U
+                io.idex.CsrWb.CSR.mstatus := func.EcallMstatus(io.CsrIn.mstatus)
+                io.rs_addr2 := 17.U
+                io.idex.CsrWb.CSR.mcause := func.Mcause(io.rs_data2,io.CsrIn.mcause)
+                io.idex.CsrWb.CSR.mepc := io.pc_i
             }
         }
         is(InstrType.R){
@@ -206,6 +250,7 @@ class IDU extends Module{
     }
     io.idex.AluOp.rd1 := MuxLookup(io.idex.src1mask, rd1,Seq(
     "b11111".U   -> rd1,
+    "b11000".U   -> zimm,
     "b10111".U   ->func.SignExt(func.Mask((rd1),"x00000000ffffffff".U),32),
     "b10011".U   ->func.SignExt(func.Mask((rd1),"x000000000000ffff".U),16),
     "b10001".U   ->func.SignExt(func.Mask((rd1),"x00000000000000ff".U),8),
@@ -217,6 +262,8 @@ class IDU extends Module{
     ))
     io.idex.AluOp.rd2 := MuxLookup(io.idex.src2mask, rd2,Seq(
     "b11111".U   -> rd2,
+    "b11100".U   -> CSRs,
+    "b11110".U   -> 0.U,
     "b10111".U   ->func.SignExt(func.Mask((rd2),"x00000000ffffffff".U),32),
     "b10011".U   ->func.SignExt(func.Mask((rd2),"x000000000000ffff".U),16),
     "b10001".U   ->func.SignExt(func.Mask((rd2),"x00000000000000ff".U),8),

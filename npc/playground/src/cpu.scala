@@ -42,8 +42,10 @@ class  RiscvCpu extends Module{
     NpcMux.io.jal := Idu.io.jal
     NpcMux.io.PcRegPc := PcReg.io.pc_o
     NpcMux.io.IdPc := Idu.io.pc_o
+    NpcMux.io.ecallpc := Idu.io.idex.CsrWb.CSR.mepc
     NpcMux.io.imm := Idu.io.idex.imm
     NpcMux.io.rs1 := Idu.io.idex.rs1
+
     //val resetflag = PcReg.io.pc_o === 0.U
     PcReg.io.pc_i := NpcMux.io.NPC
     PcRegOut := PcReg.io.pc_o
@@ -72,6 +74,8 @@ class  RiscvCpu extends Module{
     Regfile.io.waddr := Wbu.io.Regfile_o.waddr//exu.io.ex.rdaddr
     Regfile.io.wdata := Wbu.io.wbRes_o//exu.io.ex.rddata
     Regfile.io.pc := If_Id.io.idpc
+    Regfile.io.csraddr := Wbu.io.CsrWb_o.CsrAddr
+    Regfile.io.CSRInput <> Wbu.io.CsrWb_o.CSR
     //Regfile.io.
 //id
     //val Idu = Module(new IDU())
@@ -80,6 +84,7 @@ class  RiscvCpu extends Module{
     Idu.io.instr_i := If_Id.io.idinstr
     Idu.io.rs_data1 := Regfile.io.rdata1
     Idu.io.rs_data2 := Regfile.io.rdata2
+    Idu.io.CsrIn <> Regfile.io.CSR
 //ID_EX
     //val Id_Ex = Module(new ID_EX())
     //Idu.io.
@@ -118,10 +123,12 @@ class  RiscvCpu extends Module{
     Ls_Wb.io.Regfile_i <> Ex_Ls.io.Regfile_o
     Ls_Wb.io.LsuRes_i := Lsu.io.LsuRes
     Ls_Wb.io.choose_i := Lsu.io.choose
+    Ls_Wb.io.CsrWb_i <> Ex_Ls.io.EXLS_o.CsrWb
 //WB
     Wbu.io.Regfile_i <> Ls_Wb.io.Regfile_o
     Wbu.io.LsuRes_i := Ls_Wb.io.LsuRes_o
     Wbu.io.choose := Ls_Wb.io.choose_o
+    Wbu.io.CsrWb_i <> Ls_Wb.io.CsrWb_o
 //out
     if(parm.DPI){
         val ebrdpi = Module(new ebreakDPI)
