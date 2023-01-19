@@ -30,7 +30,6 @@ class IDEX extends Bundle{
     val lsumask = Output(UInt(parm.MaskWidth.W))
     val src1mask = Output(UInt(parm.MaskWidth.W))
     val src2mask = Output(UInt(parm.MaskWidth.W))
-    val CsrWb = new CSRWB
 }
 
 

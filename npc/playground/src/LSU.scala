@@ -5,9 +5,6 @@ import chisel3.util._
 
 import chisel3.util.HasBlackBoxInline
 
-
-
-
 class LSU extends Module{
     val io = IO(new Bundle {
       val EXLS_i = Flipped(new EXLSIO)
@@ -17,7 +14,6 @@ class LSU extends Module{
 //if(parm.DIFFTEST){
       val SkipRef = Output(Bool())
 //}
-      val CsrWb = new CSRWB
   })
   val readdata = Wire(UInt(parm.REGWIDTH.W))
   if(parm.DPI){
@@ -50,6 +46,5 @@ class LSU extends Module{
   ))
   io.LsuRes := maskRes
   io.choose := io.EXLS_i.choose
-  io.CsrWb <> io.EXLS_i.CsrWb
 
 }
