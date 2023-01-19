@@ -85,10 +85,6 @@ void csrrw_inst(word_t csr, word_t src1,Decode *s,bool z_imm,bool read) {
       break;
   }
 }
-
-#ifdef CONFIG_ETRACE
-void Etrace(word_t mstatus, word_t mcause ,word_t mepc,word_t mtvec, bool ecall);
-#endif
 word_t mret_inst(){
   if(cpu.mstatus&(MPIE)) cpu.mstatus = cpu.mstatus|(MIE);
   else cpu.mstatus = cpu.mstatus&(~(MIE));
@@ -97,9 +93,6 @@ word_t mret_inst(){
   //printf("mstatus: 0x%016lx\n",cpu.mstatus);
   cpu.mstatus = cpu.mstatus&0xFFFFFFFFFFFFE7FF;
   //printf("mstatus: 0x%016lx\n",cpu.mstatus);
-#endif
-#ifdef CONFIG_ETRACE
-  Etrace(cpu.mstatus, cpu.mcause ,cpu.pc,cpu.mtvec,0);
 #endif
   return cpu.mepc;
 }
