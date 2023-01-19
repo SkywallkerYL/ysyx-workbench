@@ -80,7 +80,7 @@ class RegFile extends Module{
     when (io.waddr =/= 0.U) {reg(io.waddr) := io.wdata}
   }
   //生成出来的verilog文件似乎不会解决冲突的问题
-  /*
+
   if(io.raddr1 == 0.U){
       io.rdata1 := 0.U(parm.REGWIDTH.W)
   }else if (io.raddr1 == io.waddr ){
@@ -92,7 +92,8 @@ class RegFile extends Module{
   }else if (io.raddr2 == io.waddr ){
       io.rdata2 := io.wdata
   }else io.rdata2 := reg(io.raddr2)
-  */
+  //这样写会有combinational loop
+  /*
   when(io.raddr1 === 0.U){
       io.rdata1 := 0.U(parm.REGWIDTH.W)
   }.elsewhen (io.raddr1 === io.waddr ){
@@ -104,6 +105,7 @@ class RegFile extends Module{
   }.elsewhen(io.raddr2 === io.waddr ){
       io.rdata2 := io.wdata
   }.otherwise {io.rdata2 := reg(io.raddr2)}
+  */
   //CSR
   val mepcen   =  (io.csraddr(0))
   val mcauseen =  (io.csraddr(1))
