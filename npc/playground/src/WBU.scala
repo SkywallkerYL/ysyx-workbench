@@ -24,5 +24,6 @@ class WBU extends Module{
       "b0001".U -> io.LsuRes_i,
       "b0010".U -> io.CsrWb_i.CSRs
     ))
+    io.CsrWb_o := io.CsrWb_i
     //io.LsuRes_o :=  io.LsuRes_i  
 }
