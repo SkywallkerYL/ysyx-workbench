@@ -327,15 +327,16 @@ object func{
     def Mask (imm: UInt, mask : UInt) = imm & mask
     def EcallMstatus (localmstatus : UInt) : UInt ={
         val mstatus:UInt = localmstatus
-        if ((mstatus & (parm.MIE.U))) mstatus := mstatus|pram.MPIE.U
-        else mstatus := mstatus &(~ pram.MPIE.U)
+        //mstatus & (parm.MIE.U)
+        if ((mstatus == (parm.MIE.U))) mstatus := mstatus|parm.MPIE.U
+        else mstatus := mstatus &(~ parm.MPIE.U)
         mstatus := mstatus & (~ parm.MIE.U)
         mstatus := mstatus | "x1800".U
         return mstatus
     } 
     def Mcause (NO: UInt, localmcause : UInt): UInt ={
         val mcause : UInt = localmcause
-        if((NO <= 19 | NO == "xffffffffffffffff".U)) mcause  :=  localmcause
+        if((NO <= 19 || NO == "xffffffffffffffff".U)) mcause  :=  localmcause
         return mcause
     }
 }
