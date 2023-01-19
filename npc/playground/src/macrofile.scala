@@ -326,12 +326,12 @@ object func{
     def UsignExt(imm : UInt , bit : Int) = Cat(Fill(parm.REGWIDTH-bit,"b0".U),imm(bit-1,0))
     def Mask (imm: UInt, mask : UInt) = imm & mask
     def EcallMstatus (localmstatus : UInt) : UInt ={
-        val mastatus:UInt = localmstatus
+        val mstatus:UInt = localmstatus
         if (mstatus & (parm.MIE.U)) mstatus = mstatus|pram.MPIE.U
         else mstatus = mstatus &(~ pram.MPIE.U)
         mstatus = mstatus & (~ parm.MIE.U)
         mstatus = mstatus | "x1800".U
-        return mastatus
+        return mstatus
     } 
     def Mcause (NO: UInt, localmcause : UInt): UInt ={
         val mcause : UInt = localmcause

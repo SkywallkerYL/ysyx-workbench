@@ -127,9 +127,9 @@ class IDU extends Module{
             io.idex.src2mask := lsuflag(29,25)
             io.idex.src1mask := lsuflag(34,30) 
             //CSR
-            val csrflag =  MuxLookup(stype, false(1.W),Seq(                 
-                OpIType.CSRR     ->true(1.W),
-                OpIType.CSRRW   ->true(1.W)
+            val csrflag =  MuxLookup(stype, false.B,Seq(                 
+                OpIType.CSRR     ->true.B,
+                OpIType.CSRRW   ->true.B
             ))
             val csraddr = MuxLookup(CSRTYPE, "b0000".U(parm.CSRNUMBER.W),Seq(
                                     

@@ -70,7 +70,7 @@ class RegFile extends Module{
     regdpi.io.mepc      := io.CSR.mepc    
     regdpi.io.mcause    := io.CSR.mcause  
     regdpi.io.mtvec     := io.CSR.mtvec   
-    regdpi.io.mastatus  := io.CSR.mastatus
+    regdpi.io.mstatus  := io.CSR.mstatus
     //regdpi.io.a(1) := reg(1)
     //regdpi.io.clock := io.clock
     //regdpi.io.reset := io.reset
