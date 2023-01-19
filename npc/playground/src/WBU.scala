@@ -14,6 +14,9 @@ class WBU extends Module{
       val CsrWb_i = Flipped(new CSRWB)
       val Regfile_o = new REGFILEIO
       val wbRes_o = Output(UInt(parm.REGWIDTH.W))
+      val CsrWb_o = (new CSRWB)
+      //val csraddr = Input(UInt(parm.CSRNUMBER.W))
+      //val CSRInput= Flipped(new CSRIO)
   })
     io.Regfile_o :=  io.Regfile_i
     io.wbRes_o := MuxLookup(io.choose,0.U,Seq(

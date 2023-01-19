@@ -73,6 +73,7 @@ class IDU extends Module{
     val zimm    = func.UsignExt(io.instr_i(19,15),5)
     val CSRTYPE = func.UsignExt(io.instr_i(31,20),12)
     val CSRs = Wire(UInt(parm.REGWIDTH.W))
+    CSRs := 0.U
     io.idex.CsrWb.CSRs := CSRs
     //default
     io.idex.AluOp.rd1 := 0.U
