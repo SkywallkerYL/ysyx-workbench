@@ -16,6 +16,11 @@
 #include <isa.h>
 #define MIE  (1<<3)
 #define MPIE (1<<7)
+
+
+#ifdef CONFIG_ETRACE
+void Etrace(word_t mstatus, word_t mcause ,word_t mepc,word_t mtvec, bool ecall);
+#endif
 word_t isa_raise_intr(word_t NO, vaddr_t epc) {
   /* TODO: Trigger an interrupt/exception with ``NO''.
    * Then return the address of the interrupt/exception vector.
@@ -38,6 +43,9 @@ word_t isa_raise_intr(word_t NO, vaddr_t epc) {
 #endif 
   //printf("pc:0x%016lx mstatus: 0x%016lx\n",cpu.pc,cpu.mstatus);
   word_t mtvec = cpu.mtvec; 
+#ifdef CONFIG_ETRACE
+  Etrace(cpu.mstatus, cpu.mcause ,epc,mtvec,1);
+#endif
   cpu.mepc = epc;
   return mtvec;
 }

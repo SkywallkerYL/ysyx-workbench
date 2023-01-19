@@ -43,6 +43,12 @@ menu "Watchpoint"
     default y 
 endmenu
 
+menu "Etrace"
+  config  ETRACE
+    bool "etrace for nemu"
+    default y 
+endmenu
+
 
 choice
   prompt "NEMU execution engine"

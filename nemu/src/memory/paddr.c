@@ -484,3 +484,34 @@ void paddr_write(paddr_t addr, int len, word_t data) {
   return);
   out_of_bound(addr);
 }
+
+
+#ifdef CONFIG_ETRACE
+char Etracefilepath[] = "/home/yangli/ysyx-workbench/nemu/build/Etrace-log.txt";
+void init_Etrace()
+{
+  FILE *file;
+  file = fopen(Etracefilepath,"w+");
+  //char str[] = "mtrace file ";
+  if (file == NULL)
+  {
+    printf("Fail to creat Etracefile!\n");
+  }
+  
+  //fwrite(str,sizeof(str),1,file);
+  //assert(file!=NULL);
+  return;
+}
+void Etrace(word_t mstatus, word_t mcause ,word_t mepc, word_t mtvec,bool ecall)
+{
+  FILE *file;
+  file = fopen(Etracefilepath,"a");
+  if (file == NULL) {printf("No file!!!!\n");}
+  if (ecall)
+  fprintf(file,"mepc:%lx:  ecall mastatus:0x%lx mcause:0x%lx mtvec:%lx\n",mepc,mstatus,mcause,mtvec);
+  else 
+  fprintf(file,"cpupc:%lx: mret  mastatus:0x%lx mcause:0x%lx mtvec:%lx\n",mepc,mstatus,mcause,mtvec);
+  //printf("pc:%lx Addr:%x len:%x %c value:%lx\n",cpu.pc,addr,len,wrflag,data);
+  fclose(file); 
+}
+#endif
