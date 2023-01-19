@@ -326,17 +326,23 @@ object func{
     def UsignExt(imm : UInt , bit : Int) = Cat(Fill(parm.REGWIDTH-bit,"b0".U),imm(bit-1,0))
     def Mask (imm: UInt, mask : UInt) = imm & mask
     def EcallMstatus (localmstatus : UInt) : UInt ={
-        val mstatus:UInt = localmstatus
+        val mstatus = localmstatus
+        val mstatusMIE = mstatus|parm.MPIE.U
+        val mstatusNMIe = mstatus &(~ parm.MPIE.U)
+        val MieFlag = (mstatus & (parm.MIE.U) =/= 0)
+        val chosemstatus = Mux(MieFlag,mstatusMIE,mstatusNMIe)
         //mstatus & (parm.MIE.U)
-        if ((mstatus == (parm.MIE.U))) mstatus := mstatus|parm.MPIE.U
-        else mstatus := mstatus &(~ parm.MPIE.U)
-        mstatus := mstatus & (~ parm.MIE.U)
-        mstatus := mstatus | "x1800".U
-        return mstatus
+        val finalmstatus = chosemstatus & (~ parm.MIE.U)
+        val realfinal = finalmstatus | "x1800".U
+        //mstatus := mstatus & (~ parm.MIE.U)
+        //mstatus := mstatus | "x1800".U
+        return realfinal
     } 
     def Mcause (NO: UInt, localmcause : UInt): UInt ={
-        val mcause : UInt = localmcause
-        if(((NO <= 19.U) || (NO == "xffffffffffffffff".U))) mcause  :=  11.U
-        return mcause
+        val mcause  = localmcause
+        val eflag = ((NO <= 19.U) || (NO === "xffffffffffffffff".U))
+        val eflagmcause=11.U
+        val finalmcause = Mux(eflag,eflagmcause,mcause)
+        return finalmcause
     }
 }
