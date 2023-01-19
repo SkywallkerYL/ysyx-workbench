@@ -62,7 +62,6 @@ class IDU extends Module{
 
     io.idex.CsrWb.CsrAddr := "b0000".U
     io.idex.CsrWb.CSR <> io.CsrIn
-
     val sign = io.instr_i(31)
     
     val I_imm = Fill((parm.REGWIDTH-12),sign) ## (io.instr_i(31,20))
@@ -74,7 +73,7 @@ class IDU extends Module{
     val zimm    = func.UsignExt(io.instr_i(19,15),5)
     val CSRTYPE = func.UsignExt(io.instr_i(31,20),12)
     val CSRs = Wire(UInt(parm.REGWIDTH.W))
-    io.idex.CsrWb.CSR := CSRs
+    io.idex.CsrWb.CSRs := CSRs
     //default
     io.idex.AluOp.rd1 := 0.U
     io.idex.AluOp.rd2 := 0.U
@@ -144,6 +143,7 @@ class IDU extends Module{
                 parm.MTVEC.U    ->io.CsrIn.mtvec,
                 parm.MSTATUS.U  ->io.CsrIn.mstatus
             ))
+            //io.idex.CsrWb.CSRs := CSRs
             io.idex.CsrWb.CsrAddr := Mux(csrflag,csraddr,"b0000".U)
             when(DecodeRes(InstrTable.InstrN) === OpIType.JALR)
             {
