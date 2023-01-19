@@ -328,7 +328,7 @@ object func{
     def EcallMstatus (localmstatus : UInt) : UInt ={
         val mstatus:UInt = localmstatus
         //mstatus & (parm.MIE.U)
-        if ((mstatus === (parm.MIE.U))) mstatus := mstatus|parm.MPIE.U
+        if ((mstatus == (parm.MIE.U))) mstatus := mstatus|parm.MPIE.U
         else mstatus := mstatus &(~ parm.MPIE.U)
         mstatus := mstatus & (~ parm.MIE.U)
         mstatus := mstatus | "x1800".U
@@ -336,7 +336,7 @@ object func{
     } 
     def Mcause (NO: UInt, localmcause : UInt): UInt ={
         val mcause : UInt = localmcause
-        if((NO <= 19.U || NO === "xffffffffffffffff".U)) mcause  :=  localmcause
+        if(((NO <= 19.U) || (NO == "xffffffffffffffff".U))) mcause  :=  localmcause
         return mcause
     }
 }
