@@ -127,9 +127,9 @@ class IDU extends Module{
             io.idex.src2mask := lsuflag(29,25)
             io.idex.src1mask := lsuflag(34,30) 
             //CSR
-            val csrflag =  MuxLookup(stype, false.B(1.W),Seq(                 
-                OpIType.CSRR     ->true.B(1.W),
-                OpIType.CSRRW   ->true.B(1.W)
+            val csrflag =  MuxLookup(stype, false(1.W),Seq(                 
+                OpIType.CSRR     ->true(1.W),
+                OpIType.CSRRW   ->true(1.W)
             ))
             val csraddr = MuxLookup(CSRTYPE, "b0000".U(parm.CSRNUMBER.W),Seq(
                                     
@@ -155,10 +155,10 @@ class IDU extends Module{
             when(DecodeRes(InstrTable.InstrN) === OpIType.ECALL)
             {
                 io.jal := 4.U
-                io.CSR.mstatus := func.EcallMstatus(io.CsrIn.mstatus)
-                io.rs_addr2 := 17
-                io.CSR.mcause := func.Mcause(io.rs_data2,io.CsrIn.mcause)
-                io.CSR.mepc := io.pc_i
+                io.idex.CsrWb.CSR.mstatus := func.EcallMstatus(io.CsrIn.mstatus)
+                io.rs_addr2 := 17.U
+                io.idex.CsrWb.CSR.mcause := func.Mcause(io.rs_data2,io.CsrIn.mcause)
+                io.idex.CsrWb.CSR.mepc := io.pc_i
             }
         }
         is(InstrType.R){

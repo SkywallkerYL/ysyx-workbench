@@ -11,6 +11,10 @@ class RegInOut extends Bundle{
     //val a = RegInit(VecInit(Seq.fill(parm.RegNumber)(0.U(parm.REGWIDTH.W))))
     val a = Input(Vec(parm.RegNumber,UInt(parm.REGWIDTH.W)))
     val pc = Input(UInt(parm.PCWIDTH.W))
+    val mepc = Input(UInt(parm.PCWIDTH.W))
+    val mcause = Input(UInt(parm.REGWIDTH.W))
+    val mtvec = Input(UInt(parm.REGWIDTH.W))
+    val mstatus = Input(UInt(parm.REGWIDTH.W))
     //val b = Output(UInt(parm.REGWIDTH.W))
 }
 
