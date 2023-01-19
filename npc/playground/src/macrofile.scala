@@ -336,7 +336,7 @@ object func{
     } 
     def Mcause (NO: UInt, localmcause : UInt): UInt ={
         val mcause : UInt = localmcause
-        if(((NO <= 19.U) || (NO == "xffffffffffffffff".U))) mcause  :=  localmcause
+        if(((NO <= 19.U) || (NO == xffffffffffffffff.U))) mcause  :=  localmcause
         return mcause
     }
 }
