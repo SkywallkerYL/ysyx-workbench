@@ -118,10 +118,12 @@ class  RiscvCpu extends Module{
     Ls_Wb.io.Regfile_i <> Ex_Ls.io.Regfile_o
     Ls_Wb.io.LsuRes_i := Lsu.io.LsuRes
     Ls_Wb.io.choose_i := Lsu.io.choose
+    Ls_Wb.io.CsrWb_i <> Ex_Ls.io.CsrWb
 //WB
     Wbu.io.Regfile_i <> Ls_Wb.io.Regfile_o
     Wbu.io.LsuRes_i := Ls_Wb.io.LsuRes_o
     Wbu.io.choose := Ls_Wb.io.choose_o
+    Wbu.io.CsrWb_i <> Ls_Wb.io.CsrWb_o
 //out
     if(parm.DPI){
         val ebrdpi = Module(new ebreakDPI)

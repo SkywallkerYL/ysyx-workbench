@@ -12,6 +12,7 @@ object  parm{
     val BYTEWIDTH   : Int = 8
     val REGADDRWIDTH: Int = 5
     val RegNumber   : Int = 32
+    val CSRNUMBER   : Int = 4
     val RegFileReadPorts: Int = 2
     val OPCODEWIDTH : Int = 7
     val MSIZE : Int = 6553600
@@ -25,6 +26,15 @@ object  parm{
     val INITIAL_INST: String = "x00000000"
     val PMEM_LEFT   : String = "x80000000"
     val PMEM_RIGHT  : String = "x87ffffff"
+    val INITIAL_MSTATUS: String = "xa00001800"
+
+    val MIE         : String = "x00000008" // (1<<3)
+    val MPIE        : String = "x00000080" // (1<<7)
+    
+    val MTVEC       : String = "x305"
+    val MCAUSE      : String = "x342"
+    val MSTATUS     : String = "x300"
+    val MEPC        : String = "x341"
 //pip 
     val pip : Boolean = false
 //DPI-C
@@ -57,7 +67,10 @@ object RV64IInstr {
     def SRLI   = BitPat("b000000?_?????_?????_101_?????_0010011")
     def SLLI   = BitPat("b000000?_?????_?????_001_?????_0010011")
     def SLLIW  = BitPat("b000000?_?????_?????_001_?????_0011011")
-    def EBREAK = BitPat("b0000000_00001_00000_000_00000_1110011")    
+    def EBREAK = BitPat("b0000000_00001_00000_000_00000_1110011")   
+    def ECALL  = BitPat("b0000000_00000_00000_000_00000_1110011")
+    def CSRRW  = BitPat("b???????_?????_?????_001_?????_1110011")
+    def CSRR   = BitPat("b???????_?????_?????_010_?????_1110011") 
     //U
     def AUIPC  = BitPat("b???????_?????_?????_???_?????_0010111")
     def LUI    = BitPat("b???????_?????_?????_???_?????_0110111")
@@ -158,6 +171,9 @@ object  OpIType{
     val LWU  = 18.U(OPINUMWIDTH.W)
     val ORI  = 19.U(OPINUMWIDTH.W)
     val LB   = 20.U(OPINUMWIDTH.W)
+    val ECALL= 21.U(OPINUMWIDTH.W)
+    val CSRR = 22.U(OPINUMWIDTH.W)
+    val CSRRW= 23.U(OPINUMWIDTH.W)
     //val LD = 11.U(OPINUMWIDTH.W)
 }
 //这个对操作数进行具体的区分 以便决定操作数
@@ -258,6 +274,9 @@ object InstrTable{
         RV64IInstr.SRLIW    -> List(InstrType.I,OpIType.SRLIW,OpType.SRL),
         RV64IInstr.SRLI     -> List(InstrType.I,OpIType.SRLI,OpType.SRL),
         RV64IInstr.XORI     -> List(InstrType.I,OpIType.XORI,OpType.XOR),
+        RV64IInstr.ECALL    -> List(InstrType.I,OpIType.ECALL,OpType.ADD),
+        RV64IInstr.CSRR     -> List(InstrType.I,OpIType.CSRR,OpType.OR),
+        RV64IInstr.CSRRW    -> List(InstrType.I,OpIType.CSRRW,OpType.OR),
         //U
         RV64IInstr.AUIPC    -> List(InstrType.U,OpUType.AUIPC,OpType.ADD),
         RV64IInstr.LUI      -> List(InstrType.U,OpUType.LUI,OpType.ADD),
@@ -306,4 +325,17 @@ object func{
     def SignExt(imm : UInt , bit : Int)  = Cat(Fill(parm.REGWIDTH-bit,imm(bit-1)),imm(bit-1,0))
     def UsignExt(imm : UInt , bit : Int) = Cat(Fill(parm.REGWIDTH-bit,"b0".U),imm(bit-1,0))
     def Mask (imm: UInt, mask : UInt) = imm & mask
+    def EcallMstatus (localmstatus : UInt) : UInt ={
+        val mastatus:UInt = localmstatus
+        if (mstatus & (parm.MIE.U)) mstatus = mstatus|pram.MPIE.U
+        else mstatus = mstatus &(~ pram.MPIE.U)
+        mstatus = mstatus & (~ parm.MIE.U)
+        mstatus = mstatus | "x1800".U
+        return mastatus
+    } 
+    def Mcause (NO: UInt, localmcause : UInt): UInt ={
+        val mcause : UInt = localmcause
+        if(NO <= 19 | NO == "xffffffffffffffff".U) mcause =  localmcause
+        return mcause
+    }
 }

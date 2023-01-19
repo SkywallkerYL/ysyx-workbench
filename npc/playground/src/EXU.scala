@@ -58,6 +58,7 @@ class EXU extends Module{
     //val expres = Output(UInt(parm.REGWIDTH.W))
     val ex =new EX
     val ls = new EXLSIO
+
     //val rddata = Output(UInt(parm.REGWIDTH.W))//按理说rddata不应该在这里，目前是三级流水，暂且这样
     //val rs2_o = Output(UInt(parm.REGWIDTH.W))
     //val imm_o = Output(UInt(parm.REGWIDTH.W))
@@ -82,6 +83,7 @@ class EXU extends Module{
   io.ls.wmask := io.id.wmask
   io.ls.choose := io.id.choose
   io.ls.lsumask := io.id.lsumask
+  io.ls.CsrWb <> io.id.CsrWb
   //val src1 = Wire(UInt(parm.REGWIDTH.W))
   //val src2 = Wire(UInt(parm.REGWIDTH.W))
 
