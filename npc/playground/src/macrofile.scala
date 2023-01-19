@@ -329,7 +329,7 @@ object func{
         val mstatus = localmstatus
         val mstatusMIE = mstatus|parm.MPIE.U
         val mstatusNMIe = mstatus &(~ parm.MPIE.U)
-        val MieFlag = (mstatus & (parm.MIE.U) =/= 0.U)
+        val MieFlag = ((mstatus & (parm.MIE.U)) =/= 0.U)
         val chosemstatus = Mux(MieFlag,mstatusMIE,mstatusNMIe)
         //mstatus & (parm.MIE.U)
         val finalmstatus = chosemstatus & (~ parm.MIE.U)
