@@ -119,7 +119,10 @@ static int parse_args(int argc, char *argv[])
   }
   return 0;
 }
-
+#ifdef CONFIG_ETRACE
+void Etrace(word_t mstatus, word_t mcause ,word_t mepc,word_t mtvec, bool ecall);
+void init_Etrace();
+#endif
 void init_monitor(int argc, char *argv[])
 {
   /* Perform some global initialization. */
@@ -138,6 +141,9 @@ void init_monitor(int argc, char *argv[])
   //elf_filein = "/home/yangli/ysyx-workbench/am-kernels/tests/cpu-tests/build/recursion-riscv64-nemu.elf";
   if (elf_filein!=NULL) init_ftrace(elf_filein);
   else printf("No elf file\n");
+#endif
+#ifdef CONFIG_ETRACE
+  init_Etrace();
 #endif
   //if (elf_filein!=NULL) init_ftrace(elf_filein);
   /* Initialize memory. */

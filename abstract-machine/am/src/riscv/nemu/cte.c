@@ -48,6 +48,9 @@ Context *kcontext(Area kstack, void (*entry)(void *), void *arg) {
 }
 
 void yield() {
+  //调用yield时，其跳转到mepc指令，即在cte_init内设置的asm_trap函数的pc
+  //然后看trap.S。内  在t2内部存了mepc的数值后，再加4,再将其赋给mepc,让其跳出ecall指令
+  //然后mret指令返回+4之后的mepc，以跳出ecall
   asm volatile("li a7, -1; ecall");
 }
 
