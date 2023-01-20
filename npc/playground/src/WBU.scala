@@ -39,7 +39,8 @@ class WBU extends Module{
       "b0001".U -> io.LsuRes_i,
       "b0010".U -> CSR
     ))
-    io.CsrAddr := Mux(io.CsrWb_i.csrflag,io.CsrWb_i.CsrAddr,"b0000".U)
+    val csrwen =io.CsrWb_i.csrflag | io.CsrWb_i.ecall | io.CsrWb_i.mret
+    io.CsrAddr := Mux(csrwen,io.CsrWb_i.CsrAddr,"b0000".U)
     //io.CsrWb_o := io.CsrWb_i
     val mstatus = Wire(UInt(parm.REGWIDTH.W))
     val mcause = Wire(UInt(parm.REGWIDTH.W))
