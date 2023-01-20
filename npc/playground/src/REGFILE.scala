@@ -26,10 +26,14 @@ class CSRWB extends Bundle{
     //val wen = Output(Bool())
     //val waddr = Output(UInt(parm.REGADDRWIDTH.W))
     //val wdata = Output(UInt(parm.REGWIDTH.W))
-    val CSR = new CSRIO
-    val CsrAddr = Output(UInt(parm.CSRNUMBER.W))//寄存器写使能
-    val CSRs = Output(UInt(parm.REGWIDTH.W))
-    
+    //val CSR = new CSRIO
+    //val CsrAddr = Output(UInt(parm.CSRNUMBER.W))//寄存器写使能
+    //val CSRs = Output(UInt(parm.REGWIDTH.W))
+    val CsrAddr = Output(UInt(parm.CSRNUMBER.W))
+    val CsrExuChoose = Output(UInt(parm.CSRNUMBER.W))
+    val ecall = Output(Bool())
+    val mret  = Output(Bool())
+    val csrflag = Output(Bool())
     //val rdata = Output(UInt(parm.REGWIDTH.W))
 }
 

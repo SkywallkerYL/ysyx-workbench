@@ -83,9 +83,13 @@ class EXU extends Module{
   io.ls.wmask := io.id.wmask
   io.ls.choose := io.id.choose
   io.ls.lsumask := io.id.lsumask
-  io.ls.CsrWb.CsrAddr :=  io.id.CsrWb.CsrAddr
-  io.ls.CsrWb.CSRs    := io.id.CsrWb.CSRs
-
+  io.ls.CsrWb <> io.id.CsrWb
+  /*
+  io.ls.CsrAddr :=  io.id.CsrAddr
+  io.ls.CsrExuChoose := io.id.CsrExuChoose
+  io.ls.ecall := io.id.ecall
+  io.ls.mret  := io.id.mret
+  */
   //val src1 = Wire(UInt(parm.REGWIDTH.W))
   //val src2 = Wire(UInt(parm.REGWIDTH.W))
 
@@ -133,10 +137,11 @@ class EXU extends Module{
   //printf(p"AluRes=0x${Hexadecimal(AluRes)} wflag:  ${io.id.wflag}\n")
   io.ex.rddata:= maskRes
   io.ex.alures:= maskRes
+  io.ls.alures := maskRes
   io.ls.writeaddr :=  maskRes
   io.ls.readaddr := maskRes
-  io.ls.CsrWb.CSR.mepc := Mux(io.id.CsrExuChoose(0),maskRes,io.id.CsrWb.CSR.mepc)
-  io.ls.CsrWb.CSR.mcause := Mux(io.id.CsrExuChoose(1),maskRes,io.id.CsrWb.CSR.mcause)
-  io.ls.CsrWb.CSR.mtvec := Mux(io.id.CsrExuChoose(2),maskRes,io.id.CsrWb.CSR.mtvec)
-  io.ls.CsrWb.CSR.mstatus := Mux(io.id.CsrExuChoose(3),maskRes,io.id.CsrWb.CSR.mstatus)
+  //io.ls.CsrWb.CSR.mepc := Mux(io.id.CsrExuChoose(0),maskRes,io.id.CsrWb.CSR.mepc)
+  //io.ls.CsrWb.CSR.mcause := Mux(io.id.CsrExuChoose(1),maskRes,io.id.CsrWb.CSR.mcause)
+  //io.ls.CsrWb.CSR.mtvec := Mux(io.id.CsrExuChoose(2),maskRes,io.id.CsrWb.CSR.mtvec)
+  //io.ls.CsrWb.CSR.mstatus := Mux(io.id.CsrExuChoose(3),maskRes,io.id.CsrWb.CSR.mstatus)
 }

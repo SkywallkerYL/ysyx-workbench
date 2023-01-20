@@ -13,7 +13,9 @@ class LSU extends Module{
       val EXLS_i = Flipped(new EXLSIO)
       //val Regfile_i = Flipped(new REGFILEIO)
       val LsuRes = Output(UInt(parm.REGWIDTH.W))
+      val AluRes = Output(UInt(parm.REGWIDTH.W))
       val choose = Output (UInt(parm.RegFileChooseWidth.W))
+      val pc  = Output(UInt(parm.PCWidth.W))
 //if(parm.DIFFTEST){
       val SkipRef = Output(Bool())
 //}
@@ -49,7 +51,8 @@ class LSU extends Module{
     //OpType.ADDW -> func.SignExt(func.Mask((src1+src2),"x0000ffff".U),32),
   ))
   io.LsuRes := maskRes
+  io.AluRes := io.EXLS_i.alures
   io.choose := io.EXLS_i.choose
   io.CsrWb <> io.EXLS_i.CsrWb
-
+  io.pc := io.EXLS_i.pc
 }

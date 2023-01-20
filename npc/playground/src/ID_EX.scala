@@ -31,7 +31,12 @@ class IDEX extends Bundle{
     val src1mask = Output(UInt(parm.MaskWidth.W))
     val src2mask = Output(UInt(parm.MaskWidth.W))
     val CsrWb = new CSRWB
+    /*
+    val CsrAddr = Output(UInt(parm.CSRNUMBER.W))
     val CsrExuChoose = Output(UInt(parm.CSRNUMBER.W))
+    val ecall = Output(Bool())
+    val mret  = Output(Bool())
+    */
 }
 
 
