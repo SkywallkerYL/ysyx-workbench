@@ -102,6 +102,7 @@ object RV64IInstr {
     def SRLW   = BitPat("b0000000_?????_?????_101_?????_0111011")
     def AND    = BitPat("b0000000_?????_?????_111_?????_0110011")
     def OR     = BitPat("b0000000_?????_?????_110_?????_0110011")
+    def MRET   = BitPat("b0011000_00010_00000_000_00000_1110011")
     //B 
     def BEQ    = BitPat("b???????_?????_?????_000_?????_1100011")
     def BNE    = BitPat("b???????_?????_?????_001_?????_1100011")
@@ -233,6 +234,7 @@ object  OpRType{
     val XOR     = 17.U(OPRNUMWIDTH.W)
     val SLL     = 18.U(OPRNUMWIDTH.W)
     val DIVUW   = 19.U(OPRNUMWIDTH.W)
+    val MRET    = 20.U(OPRNUMWIDTH.W)
     //val JALR    = 2.U(OPSNUMWIDTH.W)
 }
 
@@ -308,7 +310,8 @@ object InstrTable{
         RV64IInstr.REMW     -> List(InstrType.R,OpRType.REMW,OpType.REMS),
         RV64IInstr.REMU     -> List(InstrType.R,OpRType.REMU,OpType.REM),
         RV64IInstr.SUBW     -> List(InstrType.R,OpRType.SUBW,OpType.SUB),
-        //B
+        RV64IInstr.MRET     -> List(InstrType.R,OpRType.MRET,OpType.ADD),
+        //B 
         RV64IInstr.BEQ      -> List(InstrType.B,OpBType.BEQ,OpType.ADD),
         RV64IInstr.BNE      -> List(InstrType.B,OpBType.BNE,OpType.ADD),
         RV64IInstr.BLT      -> List(InstrType.B,OpBType.BLT,OpType.ADD),
@@ -327,13 +330,41 @@ object func{
     def Mask (imm: UInt, mask : UInt) = imm & mask
     def EcallMstatus (localmstatus : UInt) : UInt ={
         val mstatus = localmstatus
-        val mstatusMIE = mstatus|parm.MPIE.U
-        val mstatusNMIe = mstatus &(~ parm.MPIE.U)
+        //printf(p"mstatus=0x${Hexadecimal(mstatus)} \n")
+        val mstatusMIE = mstatus|parm.MPIE.U(parm.REGWIDTH.W)
+        //printf(p"mstatus=0x${Hexadecimal(mstatusMIE)} \n")
+        val mstatusNMIe = mstatus &(~ (parm.MPIE.U(parm.REGWIDTH.W)))
+        //val nparmMPIE = ~ parm.MPIE.U
+        //printf(p"mstatus=0x${Hexadecimal(mstatusNMIe)} \n")
         val MieFlag = ((mstatus & (parm.MIE.U)) =/= 0.U)
         val chosemstatus = Mux(MieFlag,mstatusMIE,mstatusNMIe)
         //mstatus & (parm.MIE.U)
-        val finalmstatus = chosemstatus & (~ parm.MIE.U)
-        val realfinal = finalmstatus | "x1800".U
+        //printf(p"mstatus=0x${Hexadecimal(chosemstatus)} \n")
+        val finalmstatus = chosemstatus & (~ parm.MIE.U(parm.REGWIDTH.W))
+        //printf(p"mstatus=0x${Hexadecimal(finalmstatus)} \n")
+        val realfinal = finalmstatus //| "x1800".U // 这一部也是nemu自己运行时需要的
+        //printf(p"mstatus=0x${Hexadecimal(realfinal)} \n")
+        //mstatus := mstatus & (~ parm.MIE.U)
+        //mstatus := mstatus | "x1800".U
+        return realfinal
+    }  
+    def MretMstatus (localmstatus : UInt) : UInt ={
+        val mstatus = localmstatus
+        //printf(p"mstatus=0x${Hexadecimal(mstatus)} \n")
+        val mstatusMIE = mstatus|parm.MIE.U(parm.REGWIDTH.W)
+        //printf(p"mstatus=0x${Hexadecimal(mstatusMIE)} \n")
+        val mstatusNMIe = mstatus &(~ (parm.MIE.U(parm.REGWIDTH.W)))
+        //val nparmMPIE = ~ parm.MPIE.U
+        //printf(p"mstatus=0x${Hexadecimal(mstatusNMIe)} \n")
+        val MieFlag = ((mstatus & (parm.MPIE.U(parm.REGWIDTH.W))) =/= 0.U)
+        val chosemstatus = Mux(MieFlag,mstatusMIE,mstatusNMIe)
+        //mstatus & (parm.MIE.U)
+        //printf(p"mstatus=0x${Hexadecimal(chosemstatus)} \n")
+        val finalmstatus = chosemstatus | ( parm.MPIE.U(parm.REGWIDTH.W))
+        //printf(p"mstatus=0x${Hexadecimal(finalmstatus)} \n")
+        val realfinal = finalmstatus //& "xFFFFFFFFFFFFE7FF".U   // 这里的实现与nemu不一样，去掉这一个可以通过diff
+        //而nemu自己运行时，需要进行该操作
+        //printf(p"mstatus=0x${Hexadecimal(realfinal)} \n")
         //mstatus := mstatus & (~ parm.MIE.U)
         //mstatus := mstatus | "x1800".U
         return realfinal

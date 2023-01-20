@@ -178,6 +178,10 @@ void sim_once(uint64_t n){
     npc_r.gpr[i]= cpu_gpr[i];
   }
   npc_r.pc = cpu_gpr[32];
+  npc_r.mepc = cpu_gpr[33];
+  npc_r.mcause = cpu_gpr[34];
+  npc_r.mtvec = cpu_gpr[35];
+  npc_r.mstatus = cpu_gpr[36];
 #endif
 }
 
@@ -239,7 +243,7 @@ static void execute(uint64_t n) {
       if (checkebreak())
       {
         if(top->io_halt == 1) printf( ANSI_FMT("HIT GOOD TRAP at pc:0x%016lx\n", ANSI_FG_GREEN),Pc_Fetch()) ;
-        else printf(ANSI_FMT("HIT BAD TRAP at pc:0x%016lx\n\n", ANSI_FG_RED),Pc_Fetch());
+        else printf(ANSI_FMT("HIT BAD TRAP at pc:0x%016lx\n", ANSI_FG_RED),Pc_Fetch());
         break;
       }
       if (top->io_abort == 1) {

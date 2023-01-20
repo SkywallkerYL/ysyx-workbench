@@ -9,6 +9,7 @@ import chisel3.util.HasBlackBoxInline
 class EXLSIO extends Bundle{
     val wflag = Output(Bool())
     val rflag = Output(Bool())
+    val alures = Output(UInt(parm.REGWIDTH.W))
     val readaddr = Output(UInt(parm.REGWIDTH.W))
     val writeaddr = Output(UInt(parm.REGWIDTH.W))
     val writedata = Output(UInt(parm.REGWIDTH.W))
@@ -16,7 +17,14 @@ class EXLSIO extends Bundle{
     val choose = Output(UInt(parm.RegFileChooseWidth.W))
     val lsumask = Output(UInt(parm.MaskWidth.W))
     val CsrWb = new CSRWB
+    val pc  = Output(UInt(parm.PCWIDTH.W))
     //val rdata = Output(UInt(parm.REGWIDTH.W))
+    /*
+    val CsrAddr = Output(UInt(parm.CSRNUMBER.W))
+    val CsrExuChoose = Output(UInt(parm.CSRNUMBER.W))
+    val ecall = Output(Bool())
+    val mret  = Output(Bool())
+    */
 }
 
 

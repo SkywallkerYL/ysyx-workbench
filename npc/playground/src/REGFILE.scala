@@ -27,9 +27,13 @@ class CSRWB extends Bundle{
     //val waddr = Output(UInt(parm.REGADDRWIDTH.W))
     //val wdata = Output(UInt(parm.REGWIDTH.W))
     val CSR = new CSRIO
+    //val CsrAddr = Output(UInt(parm.CSRNUMBER.W))//寄存器写使能
+    //val CSRs = Output(UInt(parm.REGWIDTH.W))
     val CsrAddr = Output(UInt(parm.CSRNUMBER.W))
-    val CSRs = Output(UInt(parm.REGWIDTH.W))
-
+    val CsrExuChoose = Output(UInt(parm.CSRNUMBER.W))
+    val ecall = Output(Bool())
+    val mret  = Output(Bool())
+    val csrflag = Output(Bool())
     //val rdata = Output(UInt(parm.REGWIDTH.W))
 }
 
@@ -43,6 +47,8 @@ class RegFile extends Module{
     val pc = Input(UInt(parm.PCWIDTH.W))
     val rdata1 = Output(UInt(parm.REGWIDTH.W))
     val rdata2 = Output(UInt(parm.REGWIDTH.W))
+    val a0data = Output(UInt(parm.REGWIDTH.W))
+    val Reg17  = Output(UInt(parm.REGWIDTH.W))
     //val raddr = Input(Vec(parm.RegFileReadPorts,UInt(parm.REGADDRWIDTH.W)))
     //val rdata = Output(Vec(parm.RegFileReadPorts,UInt(parm.REGWIDTH.W)))
     //CSR
@@ -139,4 +145,8 @@ class RegFile extends Module{
     }.otherwise (io.rdata(i) := reg(io.raddr(i)))
   }
   */
+  //for io_halt it can be removed when it is not need
+  io.a0data := reg(10)
+  //REG 17 STORE THE no FOR csrs
+  io.Reg17 := reg(17)
 }

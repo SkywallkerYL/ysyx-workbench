@@ -42,7 +42,8 @@ class  RiscvCpu extends Module{
     NpcMux.io.jal := Idu.io.jal
     NpcMux.io.PcRegPc := PcReg.io.pc_o
     NpcMux.io.IdPc := Idu.io.pc_o
-    NpcMux.io.ecallpc := Idu.io.idex.CsrWb.CSR.mepc
+    NpcMux.io.ecallpc := Idu.io.ecallpc
+    NpcMux.io.mretpc := Idu.io.mretpc
     NpcMux.io.imm := Idu.io.idex.imm
     NpcMux.io.rs1 := Idu.io.idex.rs1
 
@@ -74,8 +75,8 @@ class  RiscvCpu extends Module{
     Regfile.io.waddr := Wbu.io.Regfile_o.waddr//exu.io.ex.rdaddr
     Regfile.io.wdata := Wbu.io.wbRes_o//exu.io.ex.rddata
     Regfile.io.pc := If_Id.io.idpc
-    Regfile.io.csraddr := Wbu.io.CsrWb_o.CsrAddr
-    Regfile.io.CSRInput <> Wbu.io.CsrWb_o.CSR
+    Regfile.io.csraddr := Wbu.io.CsrAddr
+    Regfile.io.CSRInput <> Wbu.io.CsrRegfile
     //Regfile.io.
 //id
     //val Idu = Module(new IDU())
@@ -121,14 +122,20 @@ class  RiscvCpu extends Module{
     Lsu.io.EXLS_i <> Ex_Ls.io.EXLS_o
 //LS_WB
     Ls_Wb.io.Regfile_i <> Ex_Ls.io.Regfile_o
+    Ls_Wb.io.pc_i :=  Lsu.io.pc
     Ls_Wb.io.LsuRes_i := Lsu.io.LsuRes
+    Ls_Wb.io.AluRes_i := Lsu.io.AluRes
     Ls_Wb.io.choose_i := Lsu.io.choose
     Ls_Wb.io.CsrWb_i <> Ex_Ls.io.EXLS_o.CsrWb
 //WB
     Wbu.io.Regfile_i <> Ls_Wb.io.Regfile_o
     Wbu.io.LsuRes_i := Ls_Wb.io.LsuRes_o
+    Wbu.io.AluRes_i := Ls_Wb.io.AluRes_o
     Wbu.io.choose := Ls_Wb.io.choose_o
     Wbu.io.CsrWb_i <> Ls_Wb.io.CsrWb_o
+    Wbu.io.pc := Ls_Wb.io.pc_o
+    //Wbu.io.CsrIn <>Regfile.io.CSR
+    Wbu.io.Reg17 := Regfile.io.Reg17
 //out
     if(parm.DPI){
         val ebrdpi = Module(new ebreakDPI)
@@ -143,7 +150,8 @@ class  RiscvCpu extends Module{
         srcdpi.io.rd := Idu.io.idex.rdaddr
         srcdpi.io.imm := Idu.io.idex.imm
     }
-    io.halt := Idu.io.ebreak&&(Idu.io.rs_data1===0.U)
+    //when it is not need ,it can be removed
+    io.halt := Idu.io.ebreak&&(Regfile.io.a0data===0.U)
     io.abort := Idu.io.instrnoimpl
     io.jalr := Idu.io.jal === 2.U
     if (parm.DIFFTEST){
