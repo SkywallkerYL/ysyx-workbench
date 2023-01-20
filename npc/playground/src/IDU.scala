@@ -20,8 +20,6 @@ class IDU extends Module{
     val idex = new IDEX
 // CSR //输出已经包含在idex中
     val CsrIn = Flipped(new CSRIO)
-    val ecallpc = Output(UInt(parm.PCWIDTH.W))
-    val mretpc = Output(UInt(parm.PCWIDTH.W))
     //val CSR = new CSRIO
     //val CsrAddr = Output(UInt(parm.CSRNUMBER.W))
     //val CSRs = Output(UInt(parm.REGWIDTH.W))
@@ -57,22 +55,13 @@ class IDU extends Module{
     io.idex.src1mask := "b11111".U(parm.MaskWidth.W)
     io.idex.src2mask := "b11111".U(parm.MaskWidth.W)
     io.idex.choose := 0.U
-    io.mretpc := 0.U
-    io.ecallpc := 0.U
-    //io.ls.pc := 0.U
-
     //io.func7 := io.instr_i(31,25)
     //io.func3 := io.instr_i(14,12)
     //io.opcode := io.instr_i(6,0)
     io.idex.rden := 1.U
 
     io.idex.CsrWb.CsrAddr := "b0000".U
-    io.idex.CsrWb.ecall := 0.U
-    io.idex.CsrWb.mret  := 0.U
     io.idex.CsrWb.CSR <> io.CsrIn
-    io.idex.CsrWb.CsrExuChoose := "b0000".U
-    io.idex.CsrWb.csrflag :=0.U
-
     val sign = io.instr_i(31)
     
     val I_imm = Fill((parm.REGWIDTH-12),sign) ## (io.instr_i(31,20))
@@ -85,8 +74,7 @@ class IDU extends Module{
     val CSRTYPE = func.UsignExt(io.instr_i(31,20),12)
     val CSRs = Wire(UInt(parm.REGWIDTH.W))
     CSRs := 0.U
-    //io.idex.CsrWb.CSRs := CSRs
-
+    io.idex.CsrWb.CSRs := CSRs
     //default
     io.idex.AluOp.rd1 := 0.U
     io.idex.AluOp.rd2 := 0.U
@@ -150,7 +138,6 @@ class IDU extends Module{
                 parm.MTVEC.U    ->"b0100".U(parm.CSRNUMBER.W),
                 parm.MSTATUS.U  ->"b1000".U(parm.CSRNUMBER.W)
             ))
-            
             CSRs := MuxLookup(CSRTYPE, 0.U(parm.REGWIDTH.W),Seq(    
                 parm.MEPC.U     ->io.CsrIn.mepc,
                 parm.MCAUSE.U   ->io.CsrIn.mcause,
@@ -158,9 +145,7 @@ class IDU extends Module{
                 parm.MSTATUS.U  ->io.CsrIn.mstatus
             ))
             //io.idex.CsrWb.CSRs := CSRs
-            io.idex.CsrWb.csrflag := csrflag
-            io.idex.CsrWb.CsrAddr := csraddr//Mux(csrflag,csraddr,"b0000".U)
-            io.idex.CsrWb.CsrExuChoose := csraddr //正好要写入的Csr时，就使用EXU的计算结果，因此直接接过来
+            io.idex.CsrWb.CsrAddr := Mux(csrflag,csraddr,"b0000".U)
             when(DecodeRes(InstrTable.InstrN) === OpIType.JALR)
             {
                 rd1 := io.pc_i
@@ -171,15 +156,10 @@ class IDU extends Module{
             when(DecodeRes(InstrTable.InstrN) === OpIType.ECALL)
             {
                 io.jal := 4.U
-                rd1 := io.pc_i
-                io.ecallpc := io.CsrIn.mtvec
-              // io.idex.CsrWb.CSR.mstatus := func.EcallMstatus(io.CsrIn.mstatus)
-               // io.rs_addr2 := 17.U
-                //io.idex.CsrWb.CSR.mcause := func.Mcause(io.rs_data2,io.CsrIn.mcause)
-                //io.idex.CsrWb.CSR.mepc := io.pc_i
-                io.idex.CsrWb.CsrAddr := "b1011".U
-                io.idex.CsrWb.ecall := 1.U
-                io.idex.CsrWb.CsrExuChoose :="b0000".U // 为1的寄存器选择ALU结果写入，否则选择这里的ecall结果
+                io.idex.CsrWb.CSR.mstatus := func.EcallMstatus(io.CsrIn.mstatus)
+                io.rs_addr2 := 17.U
+                io.idex.CsrWb.CSR.mcause := func.Mcause(io.rs_data2,io.CsrIn.mcause)
+                io.idex.CsrWb.CSR.mepc := io.pc_i
             }
         }
         is(InstrType.R){
@@ -209,15 +189,6 @@ class IDU extends Module{
             io.idex.alumask := lsuflag(24,20)
             io.idex.src2mask := lsuflag(29,25)
             io.idex.src1mask := lsuflag(34,30)
-            when(DecodeRes(InstrTable.InstrN) === OpRType.MRET)
-            {
-                io.jal := 5.U
-                //io.idex.CsrWb.CSR.mstatus := func.MretMstatus(io.CsrIn.mstatus)
-                io.idex.CsrWb.CsrAddr := "b1000".U
-                io.idex.CsrWb.mret := 1.U
-                io.idex.CsrWb.CsrExuChoose :="b0000".U // 为1的寄存器选择ALU结果写入，否则选择这里的ecall结果
-                io.mretpc := io.CsrIn.mepc
-            }
         }
         is(InstrType.U){
             io.idex.imm := U_imm//.asSInt
