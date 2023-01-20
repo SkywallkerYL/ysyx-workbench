@@ -43,6 +43,7 @@ class RegFile extends Module{
     val pc = Input(UInt(parm.PCWIDTH.W))
     val rdata1 = Output(UInt(parm.REGWIDTH.W))
     val rdata2 = Output(UInt(parm.REGWIDTH.W))
+    val a0data = Output(UInt(parm.REGWIDTH.W))
     //val raddr = Input(Vec(parm.RegFileReadPorts,UInt(parm.REGADDRWIDTH.W)))
     //val rdata = Output(Vec(parm.RegFileReadPorts,UInt(parm.REGWIDTH.W)))
     //CSR
@@ -139,4 +140,5 @@ class RegFile extends Module{
     }.otherwise (io.rdata(i) := reg(io.raddr(i)))
   }
   */
+  io.a0data := reg(10)
 }
