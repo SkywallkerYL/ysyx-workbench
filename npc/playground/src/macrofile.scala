@@ -327,6 +327,7 @@ object func{
     def Mask (imm: UInt, mask : UInt) = imm & mask
     def EcallMstatus (localmstatus : UInt) : UInt ={
         val mstatus = localmstatus
+        printf(p"mstatus=0x${Hexadecimal(mstatus)} \n")
         val mstatusMIE = mstatus|parm.MPIE.U
         val mstatusNMIe = mstatus &(~ parm.MPIE.U)
         val MieFlag = ((mstatus & (parm.MIE.U)) =/= 0.U)
