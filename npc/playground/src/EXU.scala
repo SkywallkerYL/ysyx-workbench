@@ -83,7 +83,9 @@ class EXU extends Module{
   io.ls.wmask := io.id.wmask
   io.ls.choose := io.id.choose
   io.ls.lsumask := io.id.lsumask
-  io.ls.CsrWb <> io.id.CsrWb
+  io.ls.CsrWb.CsrAddr :=  io.id.CsrWb.CsrAddr
+  io.ls.CsrWb.CSRs    := io.id.CsrWb.CSRs
+
   //val src1 = Wire(UInt(parm.REGWIDTH.W))
   //val src2 = Wire(UInt(parm.REGWIDTH.W))
 
@@ -133,5 +135,8 @@ class EXU extends Module{
   io.ex.alures:= maskRes
   io.ls.writeaddr :=  maskRes
   io.ls.readaddr := maskRes
-
+  io.CsrWb.CSR.mepc := maskRes
+  io.CsrWb.CSR.mcause := maskRes
+  io.CsrWb.CSR.mtvec := maskRes
+  io.CsrWb.CSR.mstatus := maskRes
 }
