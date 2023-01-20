@@ -94,10 +94,10 @@ void init_difftest(char *ref_so_file, long img_size, int port) {
     refcpu.gpr[i] = cpu_gpr[i];
   }
   refcpu.pc = CONFIG_MBASE;//0x80000000;
-  refcpu.mepc = cpu_gpr[33];
-  refcpu.mcause = cpu_gpr[34];
-  refcpu.mtvec = cpu_gpr[35];
-  refcpu.mstatus = cpu_gpr[36];
+  refcpu.mepc = 0;//cpu_gpr[33];
+  refcpu.mcause = 0;//cpu_gpr[34];
+  refcpu.mtvec = 0;//cpu_gpr[35];
+  refcpu.mstatus = 0xa00001800;//cpu_gpr[36];
   //printf("0x%08lx\n",refcpu.pc);
   assert(ref_so_file != NULL);
   printf("%s\n",ref_so_file);
@@ -194,8 +194,8 @@ void difftest_step(vaddr_t pc, vaddr_t npc) {
   //}
   //Log("ref_pc: 0x%016lx npc_pc:0x%016lx ",ref_r->pc,pc);
   //printf("hhhhhh\n");
-  uint64_t pcnow = Pc_Fetch();
-  ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
+  //uint64_t pcnow = Pc_Fetch();
+  //ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
   //printf("before exe ref_r_pc:%08lx \n",ref_r.pc);
   //printf("npc_pc:%08lx \n",pcnow);
    //Log("ref_pc: 0x%016lx npc_pc:0x%016lx ",ref_r.pc,pc);

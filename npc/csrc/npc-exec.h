@@ -178,6 +178,10 @@ void sim_once(uint64_t n){
     npc_r.gpr[i]= cpu_gpr[i];
   }
   npc_r.pc = cpu_gpr[32];
+  npc_r.mepc = cpu_gpr[33];
+  npc_r.mcause = cpu_gpr[34];
+  npc_r.mtvec = cpu_gpr[35];
+  npc_r.mstatus = cpu_gpr[36];
 #endif
 }
 

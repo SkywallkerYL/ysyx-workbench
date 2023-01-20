@@ -60,7 +60,7 @@ void difftest_regcpy(void *dut, bool direction) {
     ((uint64_t *)dut)[33] = cpu.mepc ;
     ((uint64_t *)dut)[34] = cpu.mcause ;
     ((uint64_t *)dut)[35] = cpu.mtvec ;
-    ((uint64_t *)dut)[36] = cpu.mstatus = ;
+    ((uint64_t *)dut)[36] = cpu.mstatus ;
   }
   //assert(0);
 }
