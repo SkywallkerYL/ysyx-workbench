@@ -135,8 +135,8 @@ class EXU extends Module{
   io.ex.alures:= maskRes
   io.ls.writeaddr :=  maskRes
   io.ls.readaddr := maskRes
-  io.ls.CsrWb.CSR.mepc := maskRes
-  io.ls.CsrWb.CSR.mcause := maskRes
-  io.ls.CsrWb.CSR.mtvec := maskRes
-  io.ls.CsrWb.CSR.mstatus := maskRes
+  io.ls.CsrWb.CSR.mepc := Mux(io.id.CsrWb.CsrAddr(0),maskRes,io.id.CsrWb.CSR.mepc)
+  io.ls.CsrWb.CSR.mcause := Mux(io.id.CsrWb.CsrAddr(1),maskRes,io.id.CsrWb.CSR.mcause)
+  io.ls.CsrWb.CSR.mtvec := Mux(io.id.CsrWb.CsrAddr(2),maskRes,io.id.CsrWb.CSR.mtvec)
+  io.ls.CsrWb.CSR.mstatus := Mux(io.id.CsrWb.CsrAddr(3),maskRes,io.id.CsrWb.CSR.mstatus)
 }
