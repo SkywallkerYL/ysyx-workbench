@@ -135,8 +135,8 @@ class EXU extends Module{
   io.ex.alures:= maskRes
   io.ls.writeaddr :=  maskRes
   io.ls.readaddr := maskRes
-  io.CsrWb.CSR.mepc := maskRes
-  io.CsrWb.CSR.mcause := maskRes
-  io.CsrWb.CSR.mtvec := maskRes
-  io.CsrWb.CSR.mstatus := maskRes
+  io.ls.CsrWb.CSR.mepc := maskRes
+  io.ls.CsrWb.CSR.mcause := maskRes
+  io.ls.CsrWb.CSR.mtvec := maskRes
+  io.ls.CsrWb.CSR.mstatus := maskRes
 }
