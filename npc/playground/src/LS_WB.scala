@@ -8,7 +8,7 @@ import chisel3.util.HasBlackBoxInline
 
 class LS_WB extends Module{
     val io = IO(new Bundle {
-      val pc_i  = Input(UInt(parm.PCWidth.W))  
+      val pc_i  = Input(UInt(parm.PCWIDTH.W))  
       val choose_i = Input(UInt(parm.RegFileChooseWidth.W))
       val Regfile_i = Flipped(new REGFILEIO)
       val CsrWb_i = Flipped(new CSRWB)
@@ -19,7 +19,7 @@ class LS_WB extends Module{
       val LsuRes_o = Output(UInt(parm.REGWIDTH.W))
       val AluRes_o = Output(UInt(parm.REGWIDTH.W))
       val CsrWb_o = (new CSRWB)
-      val pc_o  = Output(UInt(parm.PCWidth.W))
+      val pc_o  = Output(UInt(parm.PCWIDTH.W))
   })
   if(parm.pip){
       io.Regfile_o :=  RegNext(io.Regfile_i,0.U.asTypeOf(new REGFILEIO))

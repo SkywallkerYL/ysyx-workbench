@@ -15,7 +15,7 @@ class LSU extends Module{
       val LsuRes = Output(UInt(parm.REGWIDTH.W))
       val AluRes = Output(UInt(parm.REGWIDTH.W))
       val choose = Output (UInt(parm.RegFileChooseWidth.W))
-      val pc  = Output(UInt(parm.PCWidth.W))
+      val pc  = Output(UInt(parm.PCWIDTH.W))
 //if(parm.DIFFTEST){
       val SkipRef = Output(Bool())
 //}

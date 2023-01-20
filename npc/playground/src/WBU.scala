@@ -8,7 +8,7 @@ import chisel3.util.HasBlackBoxInline
 
 class WBU extends Module{
     val io = IO(new Bundle {
-      val pc  = Input(UInt(parm.PCWidth.W))
+      val pc  = Input(UInt(parm.PCWIDTH.W))
       val choose = Input(UInt(parm.RegFileChooseWidth.W))
       val Regfile_i = Flipped(new REGFILEIO)
       val LsuRes_i = Input(UInt(parm.REGWIDTH.W))
@@ -38,16 +38,28 @@ class WBU extends Module{
       "b0001".U -> io.LsuRes_i,
       "b0010".U -> CSR
     ))
-    io.CsrWb_o.CsrAddr = Mux(io.CsrWb_i.csrflag,io.CsrWb_i.CsrAddr,"b0000".U)
+    io.CsrWb_o.CsrAddr := Mux(io.CsrWb_i.csrflag,io.CsrWb_i.CsrAddr,"b0000".U)
     //io.CsrWb_o := io.CsrWb_i
+    val mstatus = Wire(UInt(parm.REGWIDTH.W))
+    val mcause = Wire(UInt(parm.REGWIDTH.W))
+    val mepc = Wire(UInt(parm.REGWIDTH.W))
     when(io.CsrWb_i.ecall){
-      io.CsrRegfile.mstatus := func.EcallMstatus(io.CsrIn.mstatus)
+      //io.CsrRegfile.
+      mstatus := func.EcallMstatus(io.CsrIn.mstatus)
       //io.rs_addr2 := 17.U
-      io.CsrRegfile.mcause := func.Mcause(io.Reg17,io.CsrIn.mcause)
-      io.CsrRegfile.mepc := io.pc_i
+      //io.CsrRegfile.
+      mcause := func.Mcause(io.Reg17,io.CsrIn.mcause)
+      //io.CsrRegfile.
+      mepc := io.pc_i
     }
     when(io.CsrWb_i.mret){
-      io.CsrRegfile.mstatus := func.MretMstatus(io.CsrIn.mstatus)
+      //io.CsrRegfile.
+      mstatus := func.MretMstatus(io.CsrIn.mstatus)
     }
+    io.CsrRegfile.mepc := Mux(io.id.CsrWb_i.CsrExuChoose(0),io.AluRes_i,io.id.CsrWb.CSR.mepc)
+    io.CsrRegfile.mcause := Mux(io.id.CsrWb_i.CsrExuChoose(1),io.AluRes_i,io.id.CsrWb.CSR.mcause)
+    io.CsrRegfile.mtvec := Mux(io.id.CsrWb_i.CsrExuChoose(2),io.AluRes_i,io.id.CsrWb.CSR.mtvec)
+    io.CsrRegfile.mstatus := Mux(io.id.CsrWb_i.CsrExuChoose(3),io.AluRes_i,io.id.CsrWb.CSR.mstatus)
+
     //io.LsuRes_o :=  io.LsuRes_i  
 }

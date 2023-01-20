@@ -17,7 +17,7 @@ class EXLSIO extends Bundle{
     val choose = Output(UInt(parm.RegFileChooseWidth.W))
     val lsumask = Output(UInt(parm.MaskWidth.W))
     val CsrWb = new CSRWB
-    val pc  = Output(UInt(parm.PCWidth.W))
+    val pc  = Output(UInt(parm.PCWIDTH.W))
     //val rdata = Output(UInt(parm.REGWIDTH.W))
     /*
     val CsrAddr = Output(UInt(parm.CSRNUMBER.W))
