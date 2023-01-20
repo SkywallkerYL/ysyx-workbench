@@ -57,6 +57,10 @@ class IDU extends Module{
     io.idex.src1mask := "b11111".U(parm.MaskWidth.W)
     io.idex.src2mask := "b11111".U(parm.MaskWidth.W)
     io.idex.choose := 0.U
+    io.mretpc := 0.U
+    io.ecallpc := 0.U
+    //io.ls.pc := 0.U
+
     //io.func7 := io.instr_i(31,25)
     //io.func3 := io.instr_i(14,12)
     //io.opcode := io.instr_i(6,0)

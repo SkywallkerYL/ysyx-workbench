@@ -20,7 +20,8 @@ class WBU extends Module{
       val Regfile_o = new REGFILEIO
       val wbRes_o = Output(UInt(parm.REGWIDTH.W))
       val CsrRegfile = new CSRIO
-      val CsrWb_o = new CSRWB
+      //val CsrWb_o = new CSRWB
+      val CsrAddr = Output(UInt(parm.CSRNUMBER.W))
       //val pc_o  = Output(UInt(parm.PCWidth.W))
       //val CsrWb_o = (new CSRWB)
       //val csraddr = Input(UInt(parm.CSRNUMBER.W))
@@ -38,11 +39,14 @@ class WBU extends Module{
       "b0001".U -> io.LsuRes_i,
       "b0010".U -> CSR
     ))
-    io.CsrWb_o.CsrAddr := Mux(io.CsrWb_i.csrflag,io.CsrWb_i.CsrAddr,"b0000".U)
+    io.CsrAddr := Mux(io.CsrWb_i.csrflag,io.CsrWb_i.CsrAddr,"b0000".U)
     //io.CsrWb_o := io.CsrWb_i
     val mstatus = Wire(UInt(parm.REGWIDTH.W))
     val mcause = Wire(UInt(parm.REGWIDTH.W))
     val mepc = Wire(UInt(parm.REGWIDTH.W))
+    mstatus := 0.U
+    mcause := 0.U
+    mepc := 0.U
     when(io.CsrWb_i.ecall){
       //io.CsrRegfile.
       mstatus := func.EcallMstatus(io.CsrIn.mstatus)
@@ -56,10 +60,14 @@ class WBU extends Module{
       //io.CsrRegfile.
       mstatus := func.MretMstatus(io.CsrIn.mstatus)
     }
-    io.CsrRegfile.mepc := Mux(io.CsrWb_i.CsrExuChoose(0),io.AluRes_i,io.CsrIn.mepc)
-    io.CsrRegfile.mcause := Mux(io.CsrWb_i.CsrExuChoose(1),io.AluRes_i,io.CsrIn.mcause)
+    //io.CsrRegfile<>io.CsrIn
+    //io.CsrWb_o.csrflag := io.CsrWb_i.csrflag
+    //io.CsrWb_o.mret := io.CsrWb_i.mret
+    //io.CsrWb_o.ecall := 
+    io.CsrRegfile.mepc := Mux(io.CsrWb_i.CsrExuChoose(0),io.AluRes_i,mepc)
+    io.CsrRegfile.mcause := Mux(io.CsrWb_i.CsrExuChoose(1),io.AluRes_i,mcause)
     io.CsrRegfile.mtvec := Mux(io.CsrWb_i.CsrExuChoose(2),io.AluRes_i,io.CsrIn.mtvec)
-    io.CsrRegfile.mstatus := Mux(io.CsrWb_i.CsrExuChoose(3),io.AluRes_i,io.CsrIn.mstatus)
+    io.CsrRegfile.mstatus := Mux(io.CsrWb_i.CsrExuChoose(3),io.AluRes_i,mstatus)
 
     //io.LsuRes_o :=  io.LsuRes_i  
 }

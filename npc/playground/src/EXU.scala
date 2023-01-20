@@ -140,6 +140,7 @@ class EXU extends Module{
   io.ls.alures := maskRes
   io.ls.writeaddr :=  maskRes
   io.ls.readaddr := maskRes
+  io.ls.pc := io.pc_i
   //io.ls.CsrWb.CSR.mepc := Mux(io.id.CsrExuChoose(0),maskRes,io.id.CsrWb.CSR.mepc)
   //io.ls.CsrWb.CSR.mcause := Mux(io.id.CsrExuChoose(1),maskRes,io.id.CsrWb.CSR.mcause)
   //io.ls.CsrWb.CSR.mtvec := Mux(io.id.CsrExuChoose(2),maskRes,io.id.CsrWb.CSR.mtvec)
