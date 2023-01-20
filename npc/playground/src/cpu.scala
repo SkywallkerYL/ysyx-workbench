@@ -143,7 +143,7 @@ class  RiscvCpu extends Module{
         srcdpi.io.rd := Idu.io.idex.rdaddr
         srcdpi.io.imm := Idu.io.idex.imm
     }
-    io.halt := Idu.io.ebreak&&(RegFile.io.a0data===0.U)
+    io.halt := Idu.io.ebreak&&(Regfile.io.a0data===0.U)
     io.abort := Idu.io.instrnoimpl
     io.jalr := Idu.io.jal === 2.U
     if (parm.DIFFTEST){
