@@ -20,6 +20,8 @@ class IDU extends Module{
     val idex = new IDEX
 // CSR //输出已经包含在idex中
     val CsrIn = Flipped(new CSRIO)
+    val ecallpc = Output(UInt(parm.PCWIDTH.W))
+    val mretpc = Output(UInt(parm.PCWIDTH.W))
     //val CSR = new CSRIO
     //val CsrAddr = Output(UInt(parm.CSRNUMBER.W))
     //val CSRs = Output(UInt(parm.REGWIDTH.W))
@@ -166,6 +168,7 @@ class IDU extends Module{
             {
                 io.jal := 4.U
                 rd1 := io.pc_i
+                io.ecallpc := io.CsrIn.mtvec
                // io.idex.CsrWb.CSR.mstatus := func.EcallMstatus(io.CsrIn.mstatus)
                // io.rs_addr2 := 17.U
                // io.idex.CsrWb.CSR.mcause := func.Mcause(io.rs_data2,io.CsrIn.mcause)
@@ -209,6 +212,7 @@ class IDU extends Module{
                 io.idex.CsrWb.CsrAddr := "b1000".U
                 io.idex.CsrWb.mret := 1.U
                 io.idex.CsrWb.CsrExuChoose :="b0000".U // 为1的寄存器选择ALU结果写入，否则选择这里的ecall结果
+                io.mretpc := io.CsrIn.mepc
             }
         }
         is(InstrType.U){

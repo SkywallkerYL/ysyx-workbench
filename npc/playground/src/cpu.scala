@@ -42,8 +42,8 @@ class  RiscvCpu extends Module{
     NpcMux.io.jal := Idu.io.jal
     NpcMux.io.PcRegPc := PcReg.io.pc_o
     NpcMux.io.IdPc := Idu.io.pc_o
-    NpcMux.io.ecallpc := Idu.io.idex.CsrWb.CSR.mtvec
-    NpcMux.io.mretpc := Idu.io.idex.CsrWb.CSR.mepc
+    NpcMux.io.ecallpc := Idu.io.ecallpc
+    NpcMux.io.mretpc := Idu.io.mretpc
     NpcMux.io.imm := Idu.io.idex.imm
     NpcMux.io.rs1 := Idu.io.idex.rs1
 
