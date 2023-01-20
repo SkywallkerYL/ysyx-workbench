@@ -43,6 +43,7 @@ class  RiscvCpu extends Module{
     NpcMux.io.PcRegPc := PcReg.io.pc_o
     NpcMux.io.IdPc := Idu.io.pc_o
     NpcMux.io.ecallpc := Idu.io.idex.CsrWb.CSR.mtvec
+    NpcMux.io.mretpc := Idu.io.idex.CsrWb.CSR.mepc
     NpcMux.io.imm := Idu.io.idex.imm
     NpcMux.io.rs1 := Idu.io.idex.rs1
 
@@ -143,6 +144,7 @@ class  RiscvCpu extends Module{
         srcdpi.io.rd := Idu.io.idex.rdaddr
         srcdpi.io.imm := Idu.io.idex.imm
     }
+    //when it is not need ,it can be removed
     io.halt := Idu.io.ebreak&&(Regfile.io.a0data===0.U)
     io.abort := Idu.io.instrnoimpl
     io.jalr := Idu.io.jal === 2.U

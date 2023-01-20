@@ -140,5 +140,6 @@ class RegFile extends Module{
     }.otherwise (io.rdata(i) := reg(io.raddr(i)))
   }
   */
+  //for io_halt it can be removed when it is not need
   io.a0data := reg(10)
 }

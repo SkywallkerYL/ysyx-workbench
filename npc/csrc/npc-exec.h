@@ -243,7 +243,7 @@ static void execute(uint64_t n) {
       if (checkebreak())
       {
         if(top->io_halt == 1) printf( ANSI_FMT("HIT GOOD TRAP at pc:0x%016lx\n", ANSI_FG_GREEN),Pc_Fetch()) ;
-        else printf(ANSI_FMT("HIT BAD TRAP at pc:0x%016lx\n\n", ANSI_FG_RED),Pc_Fetch());
+        else printf(ANSI_FMT("HIT BAD TRAP at pc:0x%016lx\n", ANSI_FG_RED),Pc_Fetch());
         break;
       }
       if (top->io_abort == 1) {

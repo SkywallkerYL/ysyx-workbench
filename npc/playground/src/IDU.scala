@@ -196,6 +196,13 @@ class IDU extends Module{
             io.idex.alumask := lsuflag(24,20)
             io.idex.src2mask := lsuflag(29,25)
             io.idex.src1mask := lsuflag(34,30)
+            when(DecodeRes(InstrTable.InstrN) === OpRType.MRET)
+            {
+                io.jal := 5.U
+                io.idex.CsrWb.CSR.mstatus := func.MretMstatus(io.CsrIn.mstatus)
+                io.idex.CsrWb.CsrAddr := "b1000".U
+                io.idex.CsrExuChoose :="b0000".U // 为1的寄存器选择ALU结果写入，否则选择这里的ecall结果
+            }
         }
         is(InstrType.U){
             io.idex.imm := U_imm//.asSInt
