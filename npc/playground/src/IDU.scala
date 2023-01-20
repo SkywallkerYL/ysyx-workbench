@@ -69,7 +69,7 @@ class IDU extends Module{
     io.idex.CsrWb.CsrAddr := "b0000".U
     io.idex.CsrWb.ecall := 0.U
     io.idex.CsrWb.mret  := 0.U
-    //io.idex.CsrWb.CSR <> io.CsrIn
+    io.idex.CsrWb.CSR <> io.CsrIn
     io.idex.CsrWb.CsrExuChoose := "b0000".U
     io.idex.CsrWb.csrflag :=0.U
 
@@ -173,10 +173,10 @@ class IDU extends Module{
                 io.jal := 4.U
                 rd1 := io.pc_i
                 io.ecallpc := io.CsrIn.mtvec
-               // io.idex.CsrWb.CSR.mstatus := func.EcallMstatus(io.CsrIn.mstatus)
+              // io.idex.CsrWb.CSR.mstatus := func.EcallMstatus(io.CsrIn.mstatus)
                // io.rs_addr2 := 17.U
-               // io.idex.CsrWb.CSR.mcause := func.Mcause(io.rs_data2,io.CsrIn.mcause)
-              //  io.idex.CsrWb.CSR.mepc := io.pc_i
+                //io.idex.CsrWb.CSR.mcause := func.Mcause(io.rs_data2,io.CsrIn.mcause)
+                //io.idex.CsrWb.CSR.mepc := io.pc_i
                 io.idex.CsrWb.CsrAddr := "b1011".U
                 io.idex.CsrWb.ecall := 1.U
                 io.idex.CsrWb.CsrExuChoose :="b0000".U // 为1的寄存器选择ALU结果写入，否则选择这里的ecall结果

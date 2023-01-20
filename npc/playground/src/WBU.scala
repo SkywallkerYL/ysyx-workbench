@@ -16,7 +16,7 @@ class WBU extends Module{
       val AluRes_i = Input(UInt(parm.REGWIDTH.W))
       //val CSRs_i = Input(UInt(parm.REGWIDTH.W))
       val CsrWb_i = Flipped(new CSRWB)
-      val CsrIn = Flipped(new CSRIO)
+      //val CsrIn = Flipped(new CSRIO)
       val Regfile_o = new REGFILEIO
       val wbRes_o = Output(UInt(parm.REGWIDTH.W))
       val CsrRegfile = new CSRIO
@@ -49,16 +49,16 @@ class WBU extends Module{
     mepc := 0.U
     when(io.CsrWb_i.ecall){
       //io.CsrRegfile.
-      mstatus := func.EcallMstatus(io.CsrIn.mstatus)
+      mstatus := func.EcallMstatus(io.CsrWb_i.CSR.mstatus)
       //io.rs_addr2 := 17.U
       //io.CsrRegfile.
-      mcause := func.Mcause(io.Reg17,io.CsrIn.mcause)
+      mcause := func.Mcause(io.Reg17,io.CsrWb_i.CSR.mcause)
       //io.CsrRegfile.
       mepc := io.pc
     }
     when(io.CsrWb_i.mret){
       //io.CsrRegfile.
-      mstatus := func.MretMstatus(io.CsrIn.mstatus)
+      mstatus := func.MretMstatus(io.io.CsrWb_i.CSR.mstatus)
     }
     //io.CsrRegfile<>io.CsrIn
     //io.CsrWb_o.csrflag := io.CsrWb_i.csrflag
