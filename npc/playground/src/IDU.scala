@@ -160,6 +160,7 @@ class IDU extends Module{
                 io.rs_addr2 := 17.U
                 io.idex.CsrWb.CSR.mcause := func.Mcause(io.rs_data2,io.CsrIn.mcause)
                 io.idex.CsrWb.CSR.mepc := io.pc_i
+                io.idex.CsrWb.CsrAddr := "b1011".U
             }
         }
         is(InstrType.R){
