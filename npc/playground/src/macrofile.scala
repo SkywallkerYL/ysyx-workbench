@@ -327,20 +327,20 @@ object func{
     def Mask (imm: UInt, mask : UInt) = imm & mask
     def EcallMstatus (localmstatus : UInt) : UInt ={
         val mstatus = localmstatus
-        printf(p"mstatus=0x${Hexadecimal(mstatus)} \n")
-        val mstatusMIE = mstatus|parm.MPIE.U
-        printf(p"mstatus=0x${Hexadecimal(mstatusMIE)} \n")
+        //printf(p"mstatus=0x${Hexadecimal(mstatus)} \n")
+        val mstatusMIE = mstatus|parm.MPIE.U(parm.REGWIDTH.W)
+        //printf(p"mstatus=0x${Hexadecimal(mstatusMIE)} \n")
         val mstatusNMIe = mstatus &(~ parm.MPIE.U(parm.REGWIDTH.W))
         //val nparmMPIE = ~ parm.MPIE.U
-        printf(p"mstatus=0x${Hexadecimal(mstatusNMIe)} \n")
+        //printf(p"mstatus=0x${Hexadecimal(mstatusNMIe)} \n")
         val MieFlag = ((mstatus & (parm.MIE.U)) =/= 0.U)
         val chosemstatus = Mux(MieFlag,mstatusMIE,mstatusNMIe)
         //mstatus & (parm.MIE.U)
-        printf(p"mstatus=0x${Hexadecimal(chosemstatus)} \n")
-        val finalmstatus = chosemstatus & (~ parm.MIE.U)
-        printf(p"mstatus=0x${Hexadecimal(finalmstatus)} \n")
+        //printf(p"mstatus=0x${Hexadecimal(chosemstatus)} \n")
+        val finalmstatus = chosemstatus & (~ parm.MIE.U(parm.REGWIDTH.W))
+        //printf(p"mstatus=0x${Hexadecimal(finalmstatus)} \n")
         val realfinal = finalmstatus | "x1800".U
-        printf(p"mstatus=0x${Hexadecimal(realfinal)} \n")
+        //printf(p"mstatus=0x${Hexadecimal(realfinal)} \n")
         //mstatus := mstatus & (~ parm.MIE.U)
         //mstatus := mstatus | "x1800".U
         return realfinal
