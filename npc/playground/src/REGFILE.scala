@@ -48,6 +48,7 @@ class RegFile extends Module{
     val rdata1 = Output(UInt(parm.REGWIDTH.W))
     val rdata2 = Output(UInt(parm.REGWIDTH.W))
     val a0data = Output(UInt(parm.REGWIDTH.W))
+    val Reg17  = Output(UInt(parm.REGWIDTH.W))
     //val raddr = Input(Vec(parm.RegFileReadPorts,UInt(parm.REGADDRWIDTH.W)))
     //val rdata = Output(Vec(parm.RegFileReadPorts,UInt(parm.REGWIDTH.W)))
     //CSR
@@ -146,4 +147,6 @@ class RegFile extends Module{
   */
   //for io_halt it can be removed when it is not need
   io.a0data := reg(10)
+  //REG 17 STORE THE no FOR csrs
+  io.Reg17 := reg(17)
 }
