@@ -356,7 +356,7 @@ object func{
         val mstatusNMIe = mstatus &(~ parm.MIE.U(parm.REGWIDTH.W))
         //val nparmMPIE = ~ parm.MPIE.U
         //printf(p"mstatus=0x${Hexadecimal(mstatusNMIe)} \n")
-        val MieFlag = ((mstatus & (parm.MPIE.U)) =/= 0.U)
+        val MieFlag = ((mstatus & (parm.MPIE.U(parm.REGWIDTH.W))) =/= 0.U)
         val chosemstatus = Mux(MieFlag,mstatusMIE,mstatusNMIe)
         //mstatus & (parm.MIE.U)
         //printf(p"mstatus=0x${Hexadecimal(chosemstatus)} \n")
