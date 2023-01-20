@@ -56,10 +56,10 @@ class WBU extends Module{
       //io.CsrRegfile.
       mstatus := func.MretMstatus(io.CsrIn.mstatus)
     }
-    io.CsrRegfile.mepc := Mux(io.CsrWb_i.CsrExuChoose(0),io.AluRes_i,io.id.CsrWb.CSR.mepc)
-    io.CsrRegfile.mcause := Mux(io.CsrWb_i.CsrExuChoose(1),io.AluRes_i,io.id.CsrWb.CSR.mcause)
-    io.CsrRegfile.mtvec := Mux(io.CsrWb_i.CsrExuChoose(2),io.AluRes_i,io.id.CsrWb.CSR.mtvec)
-    io.CsrRegfile.mstatus := Mux(io.CsrWb_i.CsrExuChoose(3),io.AluRes_i,io.id.CsrWb.CSR.mstatus)
+    io.CsrRegfile.mepc := Mux(io.CsrWb_i.CsrExuChoose(0),io.AluRes_i,io.CsrIn.mepc)
+    io.CsrRegfile.mcause := Mux(io.CsrWb_i.CsrExuChoose(1),io.AluRes_i,io.CsrIn.mcause)
+    io.CsrRegfile.mtvec := Mux(io.CsrWb_i.CsrExuChoose(2),io.AluRes_i,io.CsrIn.mtvec)
+    io.CsrRegfile.mstatus := Mux(io.CsrWb_i.CsrExuChoose(3),io.AluRes_i,io.CsrIn.mstatus)
 
     //io.LsuRes_o :=  io.LsuRes_i  
 }
