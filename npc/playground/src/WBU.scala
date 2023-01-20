@@ -50,7 +50,7 @@ class WBU extends Module{
       //io.CsrRegfile.
       mcause := func.Mcause(io.Reg17,io.CsrIn.mcause)
       //io.CsrRegfile.
-      mepc := io.pc_i
+      mepc := io.pc
     }
     when(io.CsrWb_i.mret){
       //io.CsrRegfile.

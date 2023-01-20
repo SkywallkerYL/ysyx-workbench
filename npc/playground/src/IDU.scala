@@ -66,7 +66,7 @@ class IDU extends Module{
     //io.idex.CsrWb.CSR <> io.CsrIn
     io.idex.CsrWb.CsrExuChoose := "b0000".U
     io.idex.CsrWb.csrflag :=0.U
-    
+
     val sign = io.instr_i(31)
     
     val I_imm = Fill((parm.REGWIDTH-12),sign) ## (io.instr_i(31,20))
@@ -154,7 +154,7 @@ class IDU extends Module{
             //io.idex.CsrWb.CSRs := CSRs
             io.idex.CsrWb.csrflag := csrflag
             io.idex.CsrWb.CsrAddr := csraddr//Mux(csrflag,csraddr,"b0000".U)
-            io.idex.CsrExuChoose := csraddr //正好要写入的Csr时，就使用EXU的计算结果，因此直接接过来
+            io.idex.CsrWb.CsrExuChoose := csraddr //正好要写入的Csr时，就使用EXU的计算结果，因此直接接过来
             when(DecodeRes(InstrTable.InstrN) === OpIType.JALR)
             {
                 rd1 := io.pc_i
