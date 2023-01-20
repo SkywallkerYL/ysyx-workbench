@@ -122,12 +122,15 @@ class  RiscvCpu extends Module{
     Lsu.io.EXLS_i <> Ex_Ls.io.EXLS_o
 //LS_WB
     Ls_Wb.io.Regfile_i <> Ex_Ls.io.Regfile_o
+    Ls_Wb.io.pc_i :=  Lsu.io.pc
     Ls_Wb.io.LsuRes_i := Lsu.io.LsuRes
+    Ls_Wb.io.AluRes_i := Lsu.io.AluRes
     Ls_Wb.io.choose_i := Lsu.io.choose
     Ls_Wb.io.CsrWb_i <> Ex_Ls.io.EXLS_o.CsrWb
 //WB
     Wbu.io.Regfile_i <> Ls_Wb.io.Regfile_o
     Wbu.io.LsuRes_i := Ls_Wb.io.LsuRes_o
+    Wbu.io.AluRes_i := Ls_Wb.io.AluRes_o
     Wbu.io.choose := Ls_Wb.io.choose_o
     Wbu.io.CsrWb_i <> Ls_Wb.io.CsrWb_o
     Wbu.io.pc := Ls_Wb.io.pc_o
