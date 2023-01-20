@@ -337,7 +337,7 @@ object func{
         //mstatus := mstatus & (~ parm.MIE.U)
         //mstatus := mstatus | "x1800".U
         return realfinal
-    } 
+    }  
     def Mcause (NO: UInt, localmcause : UInt): UInt ={
         val mcause  = localmcause
         val eflag = ((NO <= 19.U) || (NO === "xffffffffffffffff".U))

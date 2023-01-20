@@ -62,6 +62,8 @@ class IDU extends Module{
 
     io.idex.CsrWb.CsrAddr := "b0000".U
     io.idex.CsrWb.CSR <> io.CsrIn
+    io.idex.CsrExuChoose := "b0000".U
+
     val sign = io.instr_i(31)
     
     val I_imm = Fill((parm.REGWIDTH-12),sign) ## (io.instr_i(31,20))
@@ -75,6 +77,7 @@ class IDU extends Module{
     val CSRs = Wire(UInt(parm.REGWIDTH.W))
     CSRs := 0.U
     io.idex.CsrWb.CSRs := CSRs
+
     //default
     io.idex.AluOp.rd1 := 0.U
     io.idex.AluOp.rd2 := 0.U
@@ -138,6 +141,7 @@ class IDU extends Module{
                 parm.MTVEC.U    ->"b0100".U(parm.CSRNUMBER.W),
                 parm.MSTATUS.U  ->"b1000".U(parm.CSRNUMBER.W)
             ))
+            
             CSRs := MuxLookup(CSRTYPE, 0.U(parm.REGWIDTH.W),Seq(    
                 parm.MEPC.U     ->io.CsrIn.mepc,
                 parm.MCAUSE.U   ->io.CsrIn.mcause,
@@ -146,6 +150,7 @@ class IDU extends Module{
             ))
             //io.idex.CsrWb.CSRs := CSRs
             io.idex.CsrWb.CsrAddr := Mux(csrflag,csraddr,"b0000".U)
+            io.idex.CsrExuChoose := csraddr //正好要写入的Csr时，就使用EXU的计算结果，因此直接接过来
             when(DecodeRes(InstrTable.InstrN) === OpIType.JALR)
             {
                 rd1 := io.pc_i
@@ -161,6 +166,7 @@ class IDU extends Module{
                 io.idex.CsrWb.CSR.mcause := func.Mcause(io.rs_data2,io.CsrIn.mcause)
                 io.idex.CsrWb.CSR.mepc := io.pc_i
                 io.idex.CsrWb.CsrAddr := "b1011".U
+                io.idex.CsrExuChoose :="b0000".U // 为1的寄存器选择ALU结果写入，否则选择这里的ecall结果
             }
         }
         is(InstrType.R){
