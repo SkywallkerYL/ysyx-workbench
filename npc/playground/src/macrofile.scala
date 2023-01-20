@@ -333,7 +333,7 @@ object func{
         //printf(p"mstatus=0x${Hexadecimal(mstatus)} \n")
         val mstatusMIE = mstatus|parm.MPIE.U(parm.REGWIDTH.W)
         //printf(p"mstatus=0x${Hexadecimal(mstatusMIE)} \n")
-        val mstatusNMIe = mstatus &(~ parm.MPIE.U(parm.REGWIDTH.W))
+        val mstatusNMIe = mstatus &(~ (parm.MPIE.U(parm.REGWIDTH.W)))
         //val nparmMPIE = ~ parm.MPIE.U
         //printf(p"mstatus=0x${Hexadecimal(mstatusNMIe)} \n")
         val MieFlag = ((mstatus & (parm.MIE.U)) =/= 0.U)
@@ -362,11 +362,11 @@ object func{
         //printf(p"mstatus=0x${Hexadecimal(chosemstatus)} \n")
         val finalmstatus = chosemstatus | ( parm.MPIE.U(parm.REGWIDTH.W))
         //printf(p"mstatus=0x${Hexadecimal(finalmstatus)} \n")
-        val realfinal = finalmstatus & "xFFFFFFFFFFFFE7FF".U
+        //val realfinal = finalmstatus & "xFFFFFFFFFFFFE7FF".U
         //printf(p"mstatus=0x${Hexadecimal(realfinal)} \n")
         //mstatus := mstatus & (~ parm.MIE.U)
         //mstatus := mstatus | "x1800".U
-        return realfinal
+        return finalmstatus
     } 
     def Mcause (NO: UInt, localmcause : UInt): UInt ={
         val mcause  = localmcause
