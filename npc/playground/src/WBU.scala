@@ -28,10 +28,10 @@ class WBU extends Module{
       //val CSRInput= Flipped(new CSRIO)
   })
     val CSR = MuxLookup(io.CsrWb_i.CsrAddr, 0.U(parm.REGWIDTH.W),Seq(    
-      "b0001".U    ->io.CsrIn.mepc,
-      "b0010".U    ->io.CsrIn.mcause,
-      "b0100".U    ->io.CsrIn.mtvec,
-      "b1000".U    ->io.CsrIn.mstatus
+      "b0001".U    ->io.CsrWb_i.CSR.mepc,
+      "b0010".U    ->io.CsrWb_i.CSR.mcause,
+      "b0100".U    ->io.CsrWb_i.CSR.mtvec,
+      "b1000".U    ->io.CsrWb_i.CSR.mstatus
     ))
     io.Regfile_o :=  io.Regfile_i
     io.wbRes_o := MuxLookup(io.choose,0.U,Seq(
@@ -58,7 +58,7 @@ class WBU extends Module{
     }
     when(io.CsrWb_i.mret){
       //io.CsrRegfile.
-      mstatus := func.MretMstatus(io.io.CsrWb_i.CSR.mstatus)
+      mstatus := func.MretMstatus(io.CsrWb_i.CSR.mstatus)
     }
     //io.CsrRegfile<>io.CsrIn
     //io.CsrWb_o.csrflag := io.CsrWb_i.csrflag
@@ -66,7 +66,7 @@ class WBU extends Module{
     //io.CsrWb_o.ecall := 
     io.CsrRegfile.mepc := Mux(io.CsrWb_i.CsrExuChoose(0),io.AluRes_i,mepc)
     io.CsrRegfile.mcause := Mux(io.CsrWb_i.CsrExuChoose(1),io.AluRes_i,mcause)
-    io.CsrRegfile.mtvec := Mux(io.CsrWb_i.CsrExuChoose(2),io.AluRes_i,io.CsrIn.mtvec)
+    io.CsrRegfile.mtvec := Mux(io.CsrWb_i.CsrExuChoose(2),io.AluRes_i,io.CsrWb_i.CSR.mtvec)
     io.CsrRegfile.mstatus := Mux(io.CsrWb_i.CsrExuChoose(3),io.AluRes_i,mstatus)
 
     //io.LsuRes_o :=  io.LsuRes_i  
