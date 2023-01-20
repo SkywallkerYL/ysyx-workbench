@@ -75,7 +75,7 @@ class  RiscvCpu extends Module{
     Regfile.io.waddr := Wbu.io.Regfile_o.waddr//exu.io.ex.rdaddr
     Regfile.io.wdata := Wbu.io.wbRes_o//exu.io.ex.rddata
     Regfile.io.pc := If_Id.io.idpc
-    Regfile.io.csraddr := Wbu.io.CsrWb_o.CsrAddr
+    Regfile.io.csraddr := Wbu.io.CsrAddr
     Regfile.io.CSRInput <> Wbu.io.CsrRegfile
     //Regfile.io.
 //id
