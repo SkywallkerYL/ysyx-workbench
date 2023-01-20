@@ -342,7 +342,7 @@ object func{
         //printf(p"mstatus=0x${Hexadecimal(chosemstatus)} \n")
         val finalmstatus = chosemstatus & (~ parm.MIE.U(parm.REGWIDTH.W))
         //printf(p"mstatus=0x${Hexadecimal(finalmstatus)} \n")
-        val realfinal = finalmstatus | "x1800".U
+        val realfinal = finalmstatus //| "x1800".U
         //printf(p"mstatus=0x${Hexadecimal(realfinal)} \n")
         //mstatus := mstatus & (~ parm.MIE.U)
         //mstatus := mstatus | "x1800".U
@@ -362,11 +362,11 @@ object func{
         //printf(p"mstatus=0x${Hexadecimal(chosemstatus)} \n")
         val finalmstatus = chosemstatus | ( parm.MPIE.U(parm.REGWIDTH.W))
         //printf(p"mstatus=0x${Hexadecimal(finalmstatus)} \n")
-        //val realfinal = finalmstatus & "xFFFFFFFFFFFFE7FF".U
+        val realfinal = finalmstatus //& "xFFFFFFFFFFFFE7FF".U   // 这里的实现与nemu不一样，去掉这一个可以通过diff
         //printf(p"mstatus=0x${Hexadecimal(realfinal)} \n")
         //mstatus := mstatus & (~ parm.MIE.U)
         //mstatus := mstatus | "x1800".U
-        return finalmstatus
+        return realfinal
     } 
     def Mcause (NO: UInt, localmcause : UInt): UInt ={
         val mcause  = localmcause
