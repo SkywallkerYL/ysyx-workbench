@@ -37,6 +37,22 @@ bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
     }
     
   }
+  if (ref_r->mepc !=cpu_gpr[33]){
+      printf("mepc ref:%08lx nemu:%08lx lastpc:%08lx\n",ref_r->mepc,cpu_gpr[33],pc);
+      regflag = false;
+  }
+  if (ref_r->mcause !=cpu_gpr[34]){
+      printf("mcause ref:%08lx nemu:%08lx lastpc:%08lx\n",ref_r->mcause,cpu_gpr[34],pc);
+      regflag = false;
+  }
+  if (ref_r->mtvec !=cpu_gpr[35]){
+      printf("mtvec ref:%08lx nemu:%08lx lastpc:%08lx\n",ref_r->mtvec ,cpu_gpr[35],pc);
+      regflag = false;
+  }
+  if (ref_r->mstatus !=cpu_gpr[36]){
+      printf("mstatus ref:%08lx nemu:%08lx lastpc:%08lx\n",ref_r->mstatus,cpu_gpr[36],pc);
+      regflag = false;
+  }
   return regflag;
 }
 
@@ -78,6 +94,10 @@ void init_difftest(char *ref_so_file, long img_size, int port) {
     refcpu.gpr[i] = cpu_gpr[i];
   }
   refcpu.pc = CONFIG_MBASE;//0x80000000;
+  refcpu.mepc = cpu_gpr[33];
+  refcpu.mcause = cpu_gpr[34];
+  refcpu.mtvec = cpu_gpr[35];
+  refcpu.mstatus = cpu_gpr[36];
   //printf("0x%08lx\n",refcpu.pc);
   assert(ref_so_file != NULL);
   printf("%s\n",ref_so_file);

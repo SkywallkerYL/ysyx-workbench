@@ -46,10 +46,10 @@ void difftest_regcpy(void *dut, bool direction) {
     //为了地址的连续性，把pc放在dut的第32个
     cpu.pc = ((uint64_t *)dut)[32];
     //printf("cpu.pc : 0x%016lx\n",cpu.pc );
-    //cpu.mepc = ((uint64_t *)dut)[33];
-    //cpu.mcause = ((uint64_t *)dut)[34];
-    //cpu.mtvec = ((uint64_t *)dut)[35];
-    //cpu.mstatus = ((uint64_t *)dut)[36];
+    cpu.mepc = ((uint64_t *)dut)[33];
+    cpu.mcause = ((uint64_t *)dut)[34];
+    cpu.mtvec = ((uint64_t *)dut)[35];
+    cpu.mstatus = ((uint64_t *)dut)[36];
   }
   else {
     for (size_t i = 0; i < 32; i++)
@@ -57,6 +57,10 @@ void difftest_regcpy(void *dut, bool direction) {
       ((uint64_t *)dut)[i]= cpu.gpr[i];
     }
     ((uint64_t *)dut)[32] = cpu.pc;
+    ((uint64_t *)dut)[33] = cpu.mepc ;
+    ((uint64_t *)dut)[34] = cpu.mcause ;
+    ((uint64_t *)dut)[35] = cpu.mtvec ;
+    ((uint64_t *)dut)[36] = cpu.mstatus = ;
   }
   //assert(0);
 }
