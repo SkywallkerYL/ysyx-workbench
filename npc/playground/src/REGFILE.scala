@@ -18,6 +18,8 @@ class CSRIO extends Bundle{
     val mtvec   = Output(UInt(parm.REGWIDTH.W))
     val mstatus = Output(UInt(parm.REGWIDTH.W))
 
+    val mie     = Output(UInt(parm.REGWIDTH.W))
+    val mip     = Output(UInt(parm.REGWIDTH.W))
     //val rdata = Output(UInt(parm.REGWIDTH.W))
 }
 
@@ -58,9 +60,13 @@ class RegFile extends Module{
     //val mtvecen  = Input(Bool())
     //val mstatusen= Input(Bool())
     //val NO      = Input(UInt(parm.REGWIDTH.W))
+  //CSR 
     val csraddr = Input(UInt(parm.CSRNUMBER.W))
     val CSRInput= Flipped(new CSRIO)
     val CSR = (new CSRIO)
+  //CLINT
+      
+
   })
   val reg = RegInit(VecInit(Seq.fill(parm.RegNumber)(0.U(parm.REGWIDTH.W))))
   val mepc    = RegInit(0.U(parm.REGWIDTH.W))
@@ -77,6 +83,8 @@ class RegFile extends Module{
     regdpi.io.mcause    := io.CSR.mcause  
     regdpi.io.mtvec     := io.CSR.mtvec   
     regdpi.io.mstatus  := io.CSR.mstatus
+    regdpi.io.mie      := io.CSR.mie
+    regdpi.io.mip      := io.CSR.mip
     //regdpi.io.a(1) := reg(1)
     //regdpi.io.clock := io.clock
     //regdpi.io.reset := io.reset
@@ -145,6 +153,21 @@ class RegFile extends Module{
     }.otherwise (io.rdata(i) := reg(io.raddr(i)))
   }
   */
+  //CLINT reg mie mip
+  val mieen = (io.csraddr(5))
+  val mipen = (io.csraddr(6))
+  val mie   = RegInit(0.U(parm.REGWIDTH.W))
+  val mip   = RegInit(0.U(parm.REGWIDTH.W))
+
+  when(mieen){
+    mie := io.CSRInput.mie
+  }
+  when(mipen){
+    mip := io.CSRInput.mip
+  }
+
+  io.CSR.mie := mie 
+  io.CSR.mip := mip
   //for io_halt it can be removed when it is not need
   io.a0data := reg(10)
   //REG 17 STORE THE no FOR csrs

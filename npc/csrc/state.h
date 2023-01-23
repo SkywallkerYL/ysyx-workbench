@@ -26,7 +26,8 @@ void set_npc_state(int state, uint64_t pc, int halt_ret) {
 typedef struct {
   word_t gpr[32];
   vaddr_t pc;
-  word_t mepc,mcause,mtvec,mstatus; // 
+  word_t mepc,mcause,mtvec,mstatus; //
+  word_t mie , mip; 
 } riscv64_CPU_state;
 
 typedef riscv64_CPU_state CPU_state;

@@ -53,6 +53,14 @@ bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
       printf("mstatus ref:%08lx nemu:%08lx lastpc:%08lx\n",ref_r->mstatus,cpu_gpr[36],pc);
       regflag = false;
   }
+  if (ref_r->mie !=cpu_gpr[37]){
+      printf("mie ref:%08lx nemu:%08lx lastpc:%08lx\n",ref_r->mie,cpu_gpr[37],pc);
+      regflag = false;
+  }
+  if (ref_r->mip !=cpu_gpr[38]){
+      printf("mip ref:%08lx nemu:%08lx lastpc:%08lx\n",ref_r->mip,cpu_gpr[38],pc);
+      regflag = false;
+  }
   return regflag;
 }
 
@@ -98,6 +106,8 @@ void init_difftest(char *ref_so_file, long img_size, int port) {
   refcpu.mcause = 0;//cpu_gpr[34];
   refcpu.mtvec = 0;//cpu_gpr[35];
   refcpu.mstatus = 0xa00001800;//cpu_gpr[36];
+  refcpu.mie = 0;
+  refcpu.mip = 0;
   //printf("0x%08lx\n",refcpu.pc);
   assert(ref_so_file != NULL);
   printf("%s\n",ref_so_file);
