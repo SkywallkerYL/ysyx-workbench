@@ -39,6 +39,7 @@ class WBU extends Module{
       "b0001".U -> io.LsuRes_i,
       "b0010".U -> CSR
     ))
+    //IRU模块也在这里实现   来处理异常，来自CLINT的信号不经过流水线，直接输入给这里的IRU部分
     val csrwen =io.CsrWb_i.csrflag | io.CsrWb_i.ecall | io.CsrWb_i.mret
     io.CsrAddr := Mux(csrwen,io.CsrWb_i.CsrAddr,"b0000".U)
     //io.CsrWb_o := io.CsrWb_i
@@ -65,9 +66,9 @@ class WBU extends Module{
     //io.CsrWb_o.csrflag := io.CsrWb_i.csrflag
     //io.CsrWb_o.mret := io.CsrWb_i.mret
     //io.CsrWb_o.ecall := 
-    io.CsrRegfile.mepc := Mux(io.CsrWb_i.CsrExuChoose(0),io.AluRes_i,mepc)
-    io.CsrRegfile.mcause := Mux(io.CsrWb_i.CsrExuChoose(1),io.AluRes_i,mcause)
-    io.CsrRegfile.mtvec := Mux(io.CsrWb_i.CsrExuChoose(2),io.AluRes_i,io.CsrWb_i.CSR.mtvec)
+    io.CsrRegfile.mepc    := Mux(io.CsrWb_i.CsrExuChoose(0),io.AluRes_i,mepc)
+    io.CsrRegfile.mcause  := Mux(io.CsrWb_i.CsrExuChoose(1),io.AluRes_i,mcause)
+    io.CsrRegfile.mtvec   := Mux(io.CsrWb_i.CsrExuChoose(2),io.AluRes_i,io.CsrWb_i.CSR.mtvec)
     io.CsrRegfile.mstatus := Mux(io.CsrWb_i.CsrExuChoose(3),io.AluRes_i,mstatus)
 
     //io.LsuRes_o :=  io.LsuRes_i  

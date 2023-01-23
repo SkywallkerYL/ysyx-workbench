@@ -31,6 +31,7 @@ class  RiscvCpu extends Module{
     val exu = Module(new EXU())
     val Ex_Ls = Module(new EX_LS())
     val Lsu = Module(new LSU())
+    val Clint = Module(new CLINT())
     val Ls_Wb = Module(new LS_WB())
     val Wbu = Module(new WBU())
 //pc   
@@ -120,6 +121,8 @@ class  RiscvCpu extends Module{
 
 // LSU
     Lsu.io.EXLS_i <> Ex_Ls.io.EXLS_o
+// CLINT
+    Clint.io.LsuIn <> Lsu.io.Clintls
 //LS_WB
     Ls_Wb.io.Regfile_i <> Ex_Ls.io.Regfile_o
     Ls_Wb.io.pc_i :=  Lsu.io.pc

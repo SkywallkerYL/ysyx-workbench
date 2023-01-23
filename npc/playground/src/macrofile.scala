@@ -26,6 +26,7 @@ object  parm{
     val INITIAL_INST: String = "x00000000"
     val PMEM_LEFT   : String = "x80000000"
     val PMEM_RIGHT  : String = "x87ffffff"
+    //CSR
     val INITIAL_MSTATUS: String = "xa00001800"
 
     val MIE         : String = "x00000008" // (1<<3)
@@ -35,6 +36,12 @@ object  parm{
     val MCAUSE      : String = "x342"
     val MSTATUS     : String = "x300"
     val MEPC        : String = "x341"
+    //CLINT
+    val CLINTBASE   : String = "x02000000"
+    val CLINTEND    : String = "x0200BFFF"
+    val MTIMECMPADDR: String = "x02004000"
+    val MTIMEADDR   : String = "x0200BFF8"
+    val MSIPADDR    : String = "x02000000"
 //pip 
     val pip : Boolean = false
 //DPI-C

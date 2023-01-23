@@ -58,9 +58,13 @@ class RegFile extends Module{
     //val mtvecen  = Input(Bool())
     //val mstatusen= Input(Bool())
     //val NO      = Input(UInt(parm.REGWIDTH.W))
+  //CSR 
     val csraddr = Input(UInt(parm.CSRNUMBER.W))
     val CSRInput= Flipped(new CSRIO)
     val CSR = (new CSRIO)
+  //CLINT
+      
+
   })
   val reg = RegInit(VecInit(Seq.fill(parm.RegNumber)(0.U(parm.REGWIDTH.W))))
   val mepc    = RegInit(0.U(parm.REGWIDTH.W))
