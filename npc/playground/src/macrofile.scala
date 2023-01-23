@@ -12,7 +12,7 @@ object  parm{
     val BYTEWIDTH   : Int = 8
     val REGADDRWIDTH: Int = 5
     val RegNumber   : Int = 32
-    val CSRNUMBER   : Int = 8
+    val CSRNUMBER   : Int = 4
     val RegFileReadPorts: Int = 2
     val OPCODEWIDTH : Int = 7
     val MSIZE : Int = 6553600
@@ -26,26 +26,15 @@ object  parm{
     val INITIAL_INST: String = "x00000000"
     val PMEM_LEFT   : String = "x80000000"
     val PMEM_RIGHT  : String = "x87ffffff"
-    //CSR
     val INITIAL_MSTATUS: String = "xa00001800"
 
     val MIE         : String = "x00000008" // (1<<3)
     val MPIE        : String = "x00000080" // (1<<7)
-    val MTIP        : String = "x00000080" // (1<<7)
-    val MTIE        : String = "x00000080" // (1<<7)
-
+    
     val MTVEC       : String = "x305"
     val MCAUSE      : String = "x342"
     val MSTATUS     : String = "x300"
     val MEPC        : String = "x341"
-    val CSRMIE      : String = "x304"
-    val CSRMIP      : String = "x344"
-    //CLINT
-    val CLINTBASE   : String = "x02000000"
-    val CLINTEND    : String = "x0200BFFF"
-    val MTIMECMPADDR: String = "x02004000"
-    val MTIMEADDR   : String = "x0200BFF8"
-    val MSIPADDR    : String = "x02000000"
 //pip 
     val pip : Boolean = false
 //DPI-C

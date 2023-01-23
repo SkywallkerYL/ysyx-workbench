@@ -66,11 +66,11 @@ class IDU extends Module{
     //io.opcode := io.instr_i(6,0)
     io.idex.rden := 1.U
 
-    io.idex.CsrWb.CsrAddr := "b00000000".U
+    io.idex.CsrWb.CsrAddr := "b0000".U
     io.idex.CsrWb.ecall := 0.U
     io.idex.CsrWb.mret  := 0.U
     io.idex.CsrWb.CSR <> io.CsrIn
-    io.idex.CsrWb.CsrExuChoose := "b00000000".U
+    io.idex.CsrWb.CsrExuChoose := "b0000".U
     io.idex.CsrWb.csrflag :=0.U
 
     val sign = io.instr_i(31)
@@ -143,23 +143,19 @@ class IDU extends Module{
                 OpIType.CSRR     ->true.B,
                 OpIType.CSRRW   ->true.B
             ))
-            val csraddr = MuxLookup(CSRTYPE, "b00000000".U(parm.CSRNUMBER.W),Seq(
+            val csraddr = MuxLookup(CSRTYPE, "b0000".U(parm.CSRNUMBER.W),Seq(
                                     
-                parm.MEPC.U     ->"b00000001".U(parm.CSRNUMBER.W),
-                parm.MCAUSE.U   ->"b00000010".U(parm.CSRNUMBER.W),
-                parm.MTVEC.U    ->"b00000100".U(parm.CSRNUMBER.W),
-                parm.MSTATUS.U  ->"b00001000".U(parm.CSRNUMBER.W),
-                parm.CSRMIE.U   ->"b00010000".U(parm.CSRNUMBER.W),
-                parm.CSRMIP.U   ->"b00100000".U(parm.CSRNUMBER.W)
+                parm.MEPC.U     ->"b0001".U(parm.CSRNUMBER.W),
+                parm.MCAUSE.U   ->"b0010".U(parm.CSRNUMBER.W),
+                parm.MTVEC.U    ->"b0100".U(parm.CSRNUMBER.W),
+                parm.MSTATUS.U  ->"b1000".U(parm.CSRNUMBER.W)
             ))
             
             CSRs := MuxLookup(CSRTYPE, 0.U(parm.REGWIDTH.W),Seq(    
                 parm.MEPC.U     ->io.CsrIn.mepc,
                 parm.MCAUSE.U   ->io.CsrIn.mcause,
                 parm.MTVEC.U    ->io.CsrIn.mtvec,
-                parm.MSTATUS.U  ->io.CsrIn.mstatus,
-                parm.CSRMIE.U   ->io.CsrIn.mie,
-                parm.CSRMIP.U   ->io.CsrIn.mip
+                parm.MSTATUS.U  ->io.CsrIn.mstatus
             ))
             //io.idex.CsrWb.CSRs := CSRs
             io.idex.CsrWb.csrflag := csrflag
@@ -181,9 +177,9 @@ class IDU extends Module{
                // io.rs_addr2 := 17.U
                 //io.idex.CsrWb.CSR.mcause := func.Mcause(io.rs_data2,io.CsrIn.mcause)
                 //io.idex.CsrWb.CSR.mepc := io.pc_i
-                io.idex.CsrWb.CsrAddr := "b00001011".U
+                io.idex.CsrWb.CsrAddr := "b1011".U
                 io.idex.CsrWb.ecall := 1.U
-                io.idex.CsrWb.CsrExuChoose :="b00000000".U // 为1的寄存器选择ALU结果写入，否则选择这里的ecall结果
+                io.idex.CsrWb.CsrExuChoose :="b0000".U // 为1的寄存器选择ALU结果写入，否则选择这里的ecall结果
             }
         }
         is(InstrType.R){
@@ -217,9 +213,9 @@ class IDU extends Module{
             {
                 io.jal := 5.U
                 //io.idex.CsrWb.CSR.mstatus := func.MretMstatus(io.CsrIn.mstatus)
-                io.idex.CsrWb.CsrAddr := "b00001000".U
+                io.idex.CsrWb.CsrAddr := "b1000".U
                 io.idex.CsrWb.mret := 1.U
-                io.idex.CsrWb.CsrExuChoose :="b00000000".U // 为1的寄存器选择ALU结果写入，否则选择这里的ecall结果
+                io.idex.CsrWb.CsrExuChoose :="b0000".U // 为1的寄存器选择ALU结果写入，否则选择这里的ecall结果
                 io.mretpc := io.CsrIn.mepc
             }
         }

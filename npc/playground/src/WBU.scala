@@ -22,17 +22,16 @@ class WBU extends Module{
       val CsrRegfile = new CSRIO
       //val CsrWb_o = new CSRWB
       val CsrAddr = Output(UInt(parm.CSRNUMBER.W))
-      
-      //CLINT
-      val Mtip = Input(Bool()) 
+      //val pc_o  = Output(UInt(parm.PCWidth.W))
+      //val CsrWb_o = (new CSRWB)
+      //val csraddr = Input(UInt(parm.CSRNUMBER.W))
+      //val CSRInput= Flipped(new CSRIO)
   })
     val CSR = MuxLookup(io.CsrWb_i.CsrAddr, 0.U(parm.REGWIDTH.W),Seq(    
-      "b00000001".U    ->io.CsrWb_i.CSR.mepc,
-      "b00000010".U    ->io.CsrWb_i.CSR.mcause,
-      "b00000100".U    ->io.CsrWb_i.CSR.mtvec,
-      "b00001000".U    ->io.CsrWb_i.CSR.mstatus,
-      "b00010000".U    ->io.CsrWb_i.CSR.mie,
-      "b00100000".U    ->io.CsrWb_i.CSR.mip
+      "b0001".U    ->io.CsrWb_i.CSR.mepc,
+      "b0010".U    ->io.CsrWb_i.CSR.mcause,
+      "b0100".U    ->io.CsrWb_i.CSR.mtvec,
+      "b1000".U    ->io.CsrWb_i.CSR.mstatus
     ))
     io.Regfile_o :=  io.Regfile_i
     io.wbRes_o := MuxLookup(io.choose,0.U,Seq(
@@ -40,16 +39,15 @@ class WBU extends Module{
       "b0001".U -> io.LsuRes_i,
       "b0010".U -> CSR
     ))
-    //IRU模块也在这里实现   来处理异常，来自CLINT的信号不经过流水线，直接输入给这里的IRU部分
-    val csrwen =io.CsrWb_i.csrflag | io.CsrWb_i.ecall | io.CsrWb_i.mret | io.Mtip
-    io.CsrAddr := Mux(csrwen,io.CsrWb_i.CsrAddr,"b00000000".U)
+    val csrwen =io.CsrWb_i.csrflag | io.CsrWb_i.ecall | io.CsrWb_i.mret
+    io.CsrAddr := Mux(csrwen,io.CsrWb_i.CsrAddr,"b0000".U)
     //io.CsrWb_o := io.CsrWb_i
     val mstatus = Wire(UInt(parm.REGWIDTH.W))
     val mcause = Wire(UInt(parm.REGWIDTH.W))
     val mepc = Wire(UInt(parm.REGWIDTH.W))
     mstatus := 0.U
-    mcause  := 0.U
-    mepc    := 0.U
+    mcause := 0.U
+    mepc := 0.U
     when(io.CsrWb_i.ecall){
       //io.CsrRegfile.
       mstatus := func.EcallMstatus(io.CsrWb_i.CSR.mstatus)
@@ -67,22 +65,10 @@ class WBU extends Module{
     //io.CsrWb_o.csrflag := io.CsrWb_i.csrflag
     //io.CsrWb_o.mret := io.CsrWb_i.mret
     //io.CsrWb_o.ecall := 
-    io.CsrRegfile.mepc    := Mux(io.CsrWb_i.CsrExuChoose(0),io.AluRes_i,mepc)
-    io.CsrRegfile.mcause  := Mux(io.CsrWb_i.CsrExuChoose(1),io.AluRes_i,mcause)
-    io.CsrRegfile.mtvec   := Mux(io.CsrWb_i.CsrExuChoose(2),io.AluRes_i,io.CsrWb_i.CSR.mtvec)
+    io.CsrRegfile.mepc := Mux(io.CsrWb_i.CsrExuChoose(0),io.AluRes_i,mepc)
+    io.CsrRegfile.mcause := Mux(io.CsrWb_i.CsrExuChoose(1),io.AluRes_i,mcause)
+    io.CsrRegfile.mtvec := Mux(io.CsrWb_i.CsrExuChoose(2),io.AluRes_i,io.CsrWb_i.CSR.mtvec)
     io.CsrRegfile.mstatus := Mux(io.CsrWb_i.CsrExuChoose(3),io.AluRes_i,mstatus)
+
     //io.LsuRes_o :=  io.LsuRes_i  
-    //CLINT
-
-    io.CsrRegfile.mie := Mux(io.CsrWb_i.CsrExuChoose(5),io.AluRes_i,io.CsrWb_i.CSR.mie)
-
-    val MieFlag  = (io.CsrWb_i.CSR.mstatus &parm.MIE.U(parm.REGWIDTH.W)) =/= 0.U
-    val MtieFlag = (io.CsrWb_i.CSR.mie & parm.MTIE.U(parm.REGWIDTH.W)) =/= 0.U 
-    val MtipFlag = MieFlag | MtieFlag | io.Mtip
-    val MtipHigh = io.CsrWb_i.CSR.mip | parm.MTIP.U(parm.REGWIDTH.W)
-    val MtipLow = io.CsrWb_i.CSR.mip & (~parm.MTIP.U(parm.REGWIDTH.W))
-    io.CsrRegfile.mip :=  Mux(io.CsrWb_i.CsrExuChoose(6),io.AluRes_i,Mux(MtipFlag,MtipHigh,MtipLow))
-
-    
-    
 }
