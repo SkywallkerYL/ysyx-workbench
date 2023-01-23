@@ -50,6 +50,8 @@ void difftest_regcpy(void *dut, bool direction) {
     cpu.mcause = ((uint64_t *)dut)[34];
     cpu.mtvec = ((uint64_t *)dut)[35];
     cpu.mstatus = ((uint64_t *)dut)[36];
+    cpu.mie = ((uint64_t *)dut)[37];
+    cpu.mip = ((uint64_t *)dut)[38];
   }
   else {
     for (size_t i = 0; i < 32; i++)
@@ -61,6 +63,8 @@ void difftest_regcpy(void *dut, bool direction) {
     ((uint64_t *)dut)[34] = cpu.mcause ;
     ((uint64_t *)dut)[35] = cpu.mtvec ;
     ((uint64_t *)dut)[36] = cpu.mstatus ;
+    ((uint64_t *)dut)[37] = cpu.mie;
+    ((uint64_t *)dut)[38] = cpu.mip;
   }
   //assert(0);
 }

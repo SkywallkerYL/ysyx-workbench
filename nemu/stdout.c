@@ -2952,6 +2952,7 @@ typedef struct {
   vaddr_t pc;
 
   word_t mepc,mcause,mtvec,mstatus;
+  word_t mie ,mip;
 
 
 } riscv64_CPU_state;
