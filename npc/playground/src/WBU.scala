@@ -73,6 +73,9 @@ class WBU extends Module{
     io.CsrRegfile.mstatus := Mux(io.CsrWb_i.CsrExuChoose(3),io.AluRes_i,mstatus)
     //io.LsuRes_o :=  io.LsuRes_i  
     //CLINT
+
+    io.CsrRegfile.mie := Mux(io.CsrWb_i.CsrExuChoose(5),io.AluRes_i,io.CsrWb_i.CSR.mie)
+
     val MieFlag  = (io.CsrWb_i.CSR.mstatus &parm.MIE.U(parm.REGWIDTH.W)) =/= 0.U
     val MtieFlag = (io.CsrWb_i.CSR.mie & parm.MTIE.U(parm.REGWIDTH.W)) =/= 0.U 
     val MtipFlag = MieFlag | MtieFlag | io.Mtip
