@@ -15,6 +15,8 @@ class RegInOut extends Bundle{
     val mcause = Input(UInt(parm.REGWIDTH.W))
     val mtvec = Input(UInt(parm.REGWIDTH.W))
     val mstatus = Input(UInt(parm.REGWIDTH.W))
+    val mie = Input(UInt(parm.REGWIDTH.W))
+    val mip = Input(UInt(parm.REGWIDTH.W))
     //val b = Output(UInt(parm.REGWIDTH.W))
 }
 
@@ -62,12 +64,14 @@ class regDPI extends BlackBox with HasBlackBoxInline{
     |   input [63:0] mepc,
     |   input [63:0] mcause,
     |   input [63:0] mtvec,
-    |   input [63:0] mstatus
+    |   input [63:0] mstatus,
+    |   input [63:0] mie ,
+    |   input [63:0] mip 
     |   //input reset,
     |   //input [63:0] a [31:0]
     |   //output [63:0] b
     |);
-    |reg [63:0] a [36:0];
+    |reg [63:0] a [38:0];
     |assign a[0] = a_0 ;
     |assign a[1] = a_1 ;
     |assign a[2] = a_2 ;
@@ -105,6 +109,8 @@ class regDPI extends BlackBox with HasBlackBoxInline{
     |assign a[34] = mcause;
     |assign a[35] = mtvec;
     |assign a[36] = mstatus;
+    |assign a[37] = mie;
+    |assign a[38] = mip;
     |//assign b = a;
     |
     |import "DPI-C" function void set_gpr_ptr(input logic [63:0] a[]);

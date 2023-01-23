@@ -98,6 +98,7 @@ void init_difftest(char *ref_so_file, long img_size, int port) {
   refcpu.mcause = 0;//cpu_gpr[34];
   refcpu.mtvec = 0;//cpu_gpr[35];
   refcpu.mstatus = 0xa00001800;//cpu_gpr[36];
+  refcpu.mie = 0;
   //printf("0x%08lx\n",refcpu.pc);
   assert(ref_so_file != NULL);
   printf("%s\n",ref_so_file);
