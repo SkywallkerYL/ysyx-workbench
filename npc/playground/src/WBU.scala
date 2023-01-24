@@ -102,7 +102,7 @@ class WBU extends Module{
     //处理时钟中断
     //val MtipValid = ((io.CsrWb_i.CSR.mip & parm.MTIP.U(parm.REGWIDTH.W))=/=0.U)
     when(MtipValid){
-      io.CsrAddr  := "b00100011".U
+      io.CsrAddr  := "b00101011".U
       mepc := io.pc
       //mstatus := func.EcallMstatus(io.CsrWb_i.CSR.mstatus)
       io.CsrRegfile.mip := io.CsrWb_i.CSR.mip & ~parm.MTIP.U(parm.REGWIDTH.W)
