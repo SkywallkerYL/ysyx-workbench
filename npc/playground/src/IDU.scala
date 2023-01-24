@@ -310,8 +310,12 @@ class IDU extends Module{
     //"b10001".U   ->func.SignExt(func.Mask((AluRes),"x00000000000000ff".U),8),
     ))
 
-
-
+    val MtipValid = ((io.CsrIn.mip & parm.MTIP.U(parm.REGWIDTH.W))=/=0.U)
+    when(MtipValid){
+        io.jal := 4.U
+        //rd1 := io.pc_i
+        io.ecallpc := io.CsrIn.mtvec
+    }
     io.ebreak := Mux(io.instr_i === "x00100073".U,1.B,0.B)
 
 }
