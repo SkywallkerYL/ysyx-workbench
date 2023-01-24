@@ -18,6 +18,7 @@ class EXLSIO extends Bundle{
     val lsumask = Output(UInt(parm.MaskWidth.W))
     val CsrWb = new CSRWB
     val pc  = Output(UInt(parm.PCWIDTH.W))
+    val NextPc  = Output(UInt(parm.PCWIDTH.W))
     //val rdata = Output(UInt(parm.REGWIDTH.W))
     /*
     val CsrAddr = Output(UInt(parm.CSRNUMBER.W))

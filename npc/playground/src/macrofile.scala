@@ -40,6 +40,9 @@ object  parm{
     val MEPC        : String = "x341"
     val CSRMIE      : String = "x304"
     val CSRMIP      : String = "x344"
+    // MCAUSE 
+    val EcallFromM  : Int = 11 // M-mode Environment Calls
+    val CountInter  : Int = 16 // Interupt by timer
     //CLINT
     val CLINTBASE   : String = "x02000000"
     val CLINTEND    : String = "x0200BFFF"
@@ -380,11 +383,25 @@ object func{
         //mstatus := mstatus | "x1800".U
         return realfinal
     } 
-    def Mcause (NO: UInt, localmcause : UInt): UInt ={
+    def Mcause (Mcauseflag : UInt, localmcause : UInt): UInt ={
         val mcause  = localmcause
-        val eflag = ((NO <= 19.U) || (NO === "xffffffffffffffff".U))
-        val eflagmcause=11.U
-        val finalmcause = Mux(eflag,eflagmcause,mcause)
+        //val eflag = ((NO <= 19.U) || (NO === "xffffffffffffffff".U))
+        //val eflagmcause=11.U
+        val finalmcause = MuxCase(localmcause,Seq(
+            Mcauseflag(0) -> parm.EcallFromM.U, 
+            Mcauseflag(1) -> parm.CountInter.U
+        ))
+        /*
+        val finalmcause = MuxLookup(Mcauseflag, 0.U ,Seq(  
+                            ->   parm.EcallFromM.U,          
+            //parm.MEPC.U     ->"b00000001".U(parm.CSRNUMBER.W),
+            //parm.MCAUSE.U   ->"b00000010".U(parm.CSRNUMBER.W),
+            //parm.MTVEC.U    ->"b00000100".U(parm.CSRNUMBER.W),
+            parm.MSTATUS.U  ->"b00001000".U(parm.CSRNUMBER.W),
+            parm.CSRMIE.U   ->"b00010000".U(parm.CSRNUMBER.W),
+            parm.CSRMIP.U   ->"b00100000".U(parm.CSRNUMBER.W)
+        ))
+        */
         return finalmcause
     }
 }

@@ -16,6 +16,7 @@ class LSU extends Module{
       val AluRes = Output(UInt(parm.REGWIDTH.W))
       val choose = Output(UInt(parm.RegFileChooseWidth.W))
       val pc     = Output(UInt(parm.PCWIDTH.W))
+      val NextPc  = Output(UInt(parm.PCWIDTH.W))
 //if(parm.DIFFTEST){
       val SkipRef = Output(Bool())
 //}
@@ -60,6 +61,7 @@ class LSU extends Module{
   io.choose := io.EXLS_i.choose
   io.CsrWb <> io.EXLS_i.CsrWb
   io.pc := io.EXLS_i.pc
+  io.NextPc := io.EXLS_i.NextPc
   io.Clintls.wen    := io.EXLS_i.wflag
   io.Clintls.ren    := io.EXLS_i.rflag 
   io.Clintls.raddr  := io.EXLS_i.readaddr 

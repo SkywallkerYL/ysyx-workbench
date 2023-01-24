@@ -32,7 +32,7 @@ class CLINT extends Module{
   })
 
   val mtime = RegInit(0.U(parm.REGWIDTH.W))
-  val mtimecmp = RegInit(1000000.U(parm.REGWIDTH.W))
+  val mtimecmp = RegInit(1000.U(parm.REGWIDTH.W))
 
   val mtimeren = io.LsuIn.ren & (io.LsuIn.raddr === parm.MTIMEADDR.U)
   val mtimecmpren = io.LsuIn.ren & (io.LsuIn.raddr === parm.MTIMECMPADDR.U)
