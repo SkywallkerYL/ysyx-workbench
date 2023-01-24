@@ -9,6 +9,7 @@ import chisel3.util.HasBlackBoxInline
 class WBU extends Module{
     val io = IO(new Bundle {
       val pc  = Input(UInt(parm.PCWIDTH.W))
+      val NextPc  = Input(UInt(parm.PCWIDTH.W))
       val choose = Input(UInt(parm.RegFileChooseWidth.W))
       val Regfile_i = Flipped(new REGFILEIO)
       val LsuRes_i = Input(UInt(parm.REGWIDTH.W))
@@ -103,7 +104,7 @@ class WBU extends Module{
     //val MtipValid = ((io.CsrWb_i.CSR.mip & parm.MTIP.U(parm.REGWIDTH.W))=/=0.U)
     when(MtipValid){
       io.CsrAddr  := "b00101011".U
-      mepc := io.pc
+      mepc := io.NextPc
       mstatus := io.CsrWb_i.CSR.mstatus
       io.CsrRegfile.mip := io.CsrWb_i.CSR.mip & ~parm.MTIP.U(parm.REGWIDTH.W)
     }

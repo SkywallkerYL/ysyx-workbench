@@ -137,6 +137,7 @@ class  RiscvCpu extends Module{
     Wbu.io.choose := Ls_Wb.io.choose_o
     Wbu.io.CsrWb_i <> Ls_Wb.io.CsrWb_o
     Wbu.io.pc := Ls_Wb.io.pc_o
+    Wbu.io.NextPc := NpcMux.io.NPC
     //Wbu.io.CsrIn <>Regfile.io.CSR
     Wbu.io.Reg17 := Regfile.io.Reg17
     Wbu.io.Mtip  := Clint.io.Mtip
