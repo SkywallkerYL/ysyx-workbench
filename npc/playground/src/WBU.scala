@@ -51,9 +51,9 @@ class WBU extends Module{
     
     //Mcauseflag := 0.U;
     val NO = io.Reg17
-    val Mcauseflag0 = ((NO <= 19.U) || (NO === "xffffffffffffffff".U))
+    val Mcauseflag0 = ((NO === "xffffffffffffffff".U))
     val Mcauseflag1 = MtipValid
-    val Mcauseflag = Mcauseflag1 ##Mcauseflag0
+    val Mcauseflag = Mcauseflag1 ## Mcauseflag0
     val mstatus = Wire(UInt(parm.REGWIDTH.W))
     val mcause = Wire(UInt(parm.REGWIDTH.W))
     val mepc = Wire(UInt(parm.REGWIDTH.W))
@@ -104,7 +104,7 @@ class WBU extends Module{
     when(MtipValid){
       io.CsrAddr  := "b00101011".U
       mepc := io.pc
-      mstatus := func.EcallMstatus(io.CsrWb_i.CSR.mstatus)
+      //mstatus := func.EcallMstatus(io.CsrWb_i.CSR.mstatus)
       io.CsrRegfile.mip := io.CsrWb_i.CSR.mip & ~parm.MTIP.U(parm.REGWIDTH.W)
     }
     
