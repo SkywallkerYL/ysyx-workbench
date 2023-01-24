@@ -387,7 +387,7 @@ object func{
         val mcause  = localmcause
         //val eflag = ((NO <= 19.U) || (NO === "xffffffffffffffff".U))
         //val eflagmcause=11.U
-        val finalmcause = MuxCase(localmcause,Array(
+        val finalmcause = MuxCase(localmcause,Seq(
             Mcauseflag(0) -> parm.EcallFromM.U, 
             Mcauseflag(1) -> parm.CountInter.U
         ))
