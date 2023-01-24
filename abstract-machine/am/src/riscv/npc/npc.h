@@ -19,6 +19,12 @@
 #define FB_ADDR         (MMIO_BASE   + 0x1000000)
 #define AUDIO_SBUF_ADDR (MMIO_BASE   + 0x1200000)
 
+#define CLINT_BASE    0x02000000
+#define CLINTEND      0x0200BFFF
+#define MTIMECMPADDR  0x02004000
+#define MTIMEADDR     0x0200BFF8
+#define MSIPADDR      0x02000000
+
 static inline uint8_t  inb(uintptr_t addr) { return *(volatile uint8_t  *)addr; }
 static inline uint16_t inw(uintptr_t addr) { return *(volatile uint16_t *)addr; }
 static inline uint32_t inl(uintptr_t addr) { return *(volatile uint32_t *)addr; }
