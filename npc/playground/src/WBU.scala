@@ -104,7 +104,7 @@ class WBU extends Module{
     when(MtipValid){
       io.CsrAddr  := "b00101011".U
       mepc := io.pc
-      //mstatus := func.EcallMstatus(io.CsrWb_i.CSR.mstatus)
+      mstatus := io.CsrWb_i.CSR.mstatus
       io.CsrRegfile.mip := io.CsrWb_i.CSR.mip & ~parm.MTIP.U(parm.REGWIDTH.W)
     }
     
