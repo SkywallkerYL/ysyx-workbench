@@ -83,6 +83,7 @@ class  RiscvCpu extends Module{
     //val Idu = Module(new IDU())
 
     Idu.io.pc_i := If_Id.io.idpc
+    Idu.io.NextPc_i := NpcMux.io.NPC
     Idu.io.instr_i := If_Id.io.idinstr
     Idu.io.rs_data1 := Regfile.io.rdata1
     Idu.io.rs_data2 := Regfile.io.rdata2
@@ -104,6 +105,7 @@ class  RiscvCpu extends Module{
     //val exu = Module(new EXU())
 
     exu.io.pc_i := Id_Ex.io.pc_o
+    exu.io.NextPc_i := Id_Ex.io.NextPc
     exu.io.instr_i := Id_Ex.io.instr_o
     exu.io.id <> Id_Ex.io.IDEX_o
     //exu.io.rs1_i := Id_Ex.io.rs1_o
@@ -126,6 +128,7 @@ class  RiscvCpu extends Module{
 //LS_WB
     Ls_Wb.io.Regfile_i <> Ex_Ls.io.Regfile_o
     Ls_Wb.io.pc_i :=  Lsu.io.pc
+    Ls_Wb.io.NextPc_i := Lsu.io.NextPc
     Ls_Wb.io.LsuRes_i := Lsu.io.LsuRes
     Ls_Wb.io.AluRes_i := Lsu.io.AluRes
     Ls_Wb.io.choose_i := Lsu.io.choose
@@ -137,7 +140,7 @@ class  RiscvCpu extends Module{
     Wbu.io.choose := Ls_Wb.io.choose_o
     Wbu.io.CsrWb_i <> Ls_Wb.io.CsrWb_o
     Wbu.io.pc := Ls_Wb.io.pc_o
-    Wbu.io.NextPc := NpcMux.io.NPC
+    Wbu.io.NextPc := Ls_Wb.io.NextPc_o
     //Wbu.io.CsrIn <>Regfile.io.CSR
     Wbu.io.Reg17 := Regfile.io.Reg17
     Wbu.io.Mtip  := Clint.io.Mtip
