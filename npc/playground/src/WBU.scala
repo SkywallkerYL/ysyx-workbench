@@ -85,7 +85,7 @@ class WBU extends Module{
     //io.LsuRes_o :=  io.LsuRes_i  
     //CLINT
 
-    io.CsrRegfile.mie := Mux(io.CsrWb_i.CsrExuChoose(5),io.AluRes_i,io.CsrWb_i.CSR.mie)
+    io.CsrRegfile.mie := Mux(io.CsrWb_i.CsrExuChoose(4),io.AluRes_i,io.CsrWb_i.CSR.mie)
 
     val MieFlag  = (io.CsrWb_i.CSR.mstatus &parm.MIE.U(parm.REGWIDTH.W)) =/= 0.U
     val MtieFlag = (io.CsrWb_i.CSR.mie & parm.MTIE.U(parm.REGWIDTH.W)) =/= 0.U 
@@ -94,10 +94,10 @@ class WBU extends Module{
     //val MtipLow = io.CsrWb_i.CSR.mip & (~parm.MTIP.U(parm.REGWIDTH.W))
     //如果有写入的话，优先写入  否则根据MTIPflag对mip寄存器写入 当然也有可能还有其他信号，后面再加
     when(MtipFlag){
-      io.CsrAddr := Mux(csrwen,io.CsrWb_i.CsrAddr(7),"b0".U) ##"b1".U##Mux(csrwen,io.CsrWb_i.CsrAddr(5,0),"b00000".U)
+      io.CsrAddr := Mux(csrwen,io.CsrWb_i.CsrAddr(7,6),"b00".U) ##"b1".U##Mux(csrwen,io.CsrWb_i.CsrAddr(4,0),"b0000".U)
     }
     //io.CsrAddr(6) := Mux(io.CsrWb_i.CsrAddr(6),io.CsrWb_i.CsrAddr(6),MtipFlag)
-    io.CsrRegfile.mip :=  Mux(io.CsrWb_i.CsrExuChoose(6),io.AluRes_i,Mux(MtipFlag,MtipHigh,io.CsrWb_i.CSR.mip))
+    io.CsrRegfile.mip :=  Mux(io.CsrWb_i.CsrExuChoose(5),io.AluRes_i,Mux(MtipFlag,MtipHigh,io.CsrWb_i.CSR.mip))
 
     //处理时钟中断
     //val MtipValid = ((io.CsrWb_i.CSR.mip & parm.MTIP.U(parm.REGWIDTH.W))=/=0.U)
