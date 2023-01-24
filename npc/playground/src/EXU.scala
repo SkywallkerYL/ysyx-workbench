@@ -44,7 +44,7 @@ class EX extends Bundle{
 class EXU extends Module{
     val io = IO(new Bundle {
     val pc_i = Input(UInt(parm.PCWIDTH.W))
-    val NextPc_i = Input(UInt(parm.PCWIDTH.W))
+    //val NextPc_i = Input(UInt(parm.PCWIDTH.W))
     val instr_i = Input(UInt(parm.INSTWIDTH.W))
     val id = Flipped(new IDEX)
     //val rs1_i = Input(UInt(parm.REGWIDTH.W))
@@ -142,7 +142,7 @@ class EXU extends Module{
   io.ls.writeaddr :=  maskRes
   io.ls.readaddr := maskRes
   io.ls.pc := io.pc_i
-  io.ls.NextPc := io.NextPc_i
+  io.ls.NextPc := io.id.NextPc
   //io.ls.CsrWb.CSR.mepc := Mux(io.id.CsrExuChoose(0),maskRes,io.id.CsrWb.CSR.mepc)
   //io.ls.CsrWb.CSR.mcause := Mux(io.id.CsrExuChoose(1),maskRes,io.id.CsrWb.CSR.mcause)
   //io.ls.CsrWb.CSR.mtvec := Mux(io.id.CsrExuChoose(2),maskRes,io.id.CsrWb.CSR.mtvec)

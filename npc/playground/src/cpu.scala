@@ -105,7 +105,7 @@ class  RiscvCpu extends Module{
     //val exu = Module(new EXU())
 
     exu.io.pc_i := Id_Ex.io.pc_o
-    exu.io.NextPc_i := Id_Ex.io.NextPc
+    //exu.io.NextPc_i := Id_Ex.io.IDEX_o.NextPc
     exu.io.instr_i := Id_Ex.io.instr_o
     exu.io.id <> Id_Ex.io.IDEX_o
     //exu.io.rs1_i := Id_Ex.io.rs1_o
