@@ -143,23 +143,33 @@ static int cmd_info(char *args){
   else printf("Invalid SUBCMD!\n");
   return 0;
 }
-void  cmd_imgprint(char *args){
+//pimg 100
+static int cmd_imgprint(char *args){
   uint64_t pc = CONFIG_MBASE;
-  for (size_t i = 0; i < MSIZE; i=i+4)
+  char *N = strtok(NULL," ");
+  //char *EXPR = strtok(NULL," ");
+  int maxpc ;
+  sscanf(N,"%d",&maxpc);
+  //printf("pc:0x%lx \n",maxpc );
+  //exit(0);
+  int min = maxpc < MSIZE ? maxpc : MSIZE;
+  for (size_t i = 0; i < (min); i=i+4)
   {
+    bool noimst = true;
     char inst_buf[128];
     char *p = inst_buf; 
     //uint64_t pc = Pc_Fetch();
     //uint32_t instr = Instr_Fetch();
     //uint8_t *inst = (uint8_t *)&instr;
-    for (int j = 3; j >= 0; j --) {
-     p += snprintf(p, 4, " %02x", p_mem[j-i]);
+    for (int j = 3; j >= 0; j--) {
+      if(p_mem[i+j]!=0) noimst = false;
+     p += snprintf(p, 4, " %02x", p_mem[i+j]);
     }
-    printf("pc:0x%lx inst:%s\n",pc ,inst_buf);
+    if(!noimst) printf("pc:0x%lx inst:%s\n",pc ,inst_buf);
     pc = pc+4;
   }
   
-  return ;
+  return 0;
 }
 
 
@@ -174,7 +184,7 @@ static struct {
   { "si", "Single excutaion", cmd_si},
   {"info","info SUBCMD",cmd_info},
   {"x","EXPR SCAN",cmd_x},
-  {"print_img","Print IMG",cmd_imgprint}
+  {"pimg","Print IMG",cmd_imgprint}
   //{"p","Expression calculation",cmd_p},
   //{"pt","Expression calculation test",cmd_pt},
   //{"w","Watchpoint add",cmd_w},
