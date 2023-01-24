@@ -272,7 +272,7 @@ static void execute(uint64_t n) {
         printf("pc: 0x%016lx Inst: %s\n",pc,inst_buf);
         break;
       }
-      
+      break;
       // fall through
     case NPC_QUIT: exit(0);break;
     }
