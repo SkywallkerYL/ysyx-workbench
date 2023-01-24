@@ -43,19 +43,27 @@ class WBU extends Module{
     //IRU模块也在这里实现   来处理异常，来自CLINT的信号不经过流水线，直接输入给这里的IRU部分
     val csrwen =io.CsrWb_i.csrflag | io.CsrWb_i.ecall | io.CsrWb_i.mret | io.Mtip
     io.CsrAddr := Mux(csrwen,io.CsrWb_i.CsrAddr,"b00000000".U)
+    
     //io.CsrWb_o := io.CsrWb_i
+    //计时器中断信号
+    val MtipValid = (io.CsrWb_i.CSR.mip & parm.MTIP.U(parm.REGWIDTH.W))=/=0.U
+    //Mcause
+    val Mcauseflag = Wire(UInt(3.W))
+    Mcauseflag := 0.U;
+    Mcauseflag(0) := ((io.Reg17 <= 19.U) || (io.Reg17 === "xffffffffffffffff".U))
+    Mcauseflag(1) := MtipValid
     val mstatus = Wire(UInt(parm.REGWIDTH.W))
     val mcause = Wire(UInt(parm.REGWIDTH.W))
     val mepc = Wire(UInt(parm.REGWIDTH.W))
     mstatus := 0.U
-    mcause  := 0.U
+    mcause  := func.Mcause(Mcauseflag,io.CsrWb_i.CSR.mcause)
     mepc    := 0.U
     when(io.CsrWb_i.ecall){
       //io.CsrRegfile.
       mstatus := func.EcallMstatus(io.CsrWb_i.CSR.mstatus)
       //io.rs_addr2 := 17.U
       //io.CsrRegfile.
-      mcause := func.Mcause(io.Reg17,io.CsrWb_i.CSR.mcause)
+      //mcause := func.Mcause(io.Reg17,io.CsrWb_i.CSR.mcause)
       //io.CsrRegfile.
       mepc := io.pc
     }
@@ -63,6 +71,7 @@ class WBU extends Module{
       //io.CsrRegfile.
       mstatus := func.MretMstatus(io.CsrWb_i.CSR.mstatus)
     }
+
     //io.CsrRegfile<>io.CsrIn
     //io.CsrWb_o.csrflag := io.CsrWb_i.csrflag
     //io.CsrWb_o.mret := io.CsrWb_i.mret
@@ -80,9 +89,18 @@ class WBU extends Module{
     val MtieFlag = (io.CsrWb_i.CSR.mie & parm.MTIE.U(parm.REGWIDTH.W)) =/= 0.U 
     val MtipFlag = MieFlag & MtieFlag & io.Mtip
     val MtipHigh = io.CsrWb_i.CSR.mip | parm.MTIP.U(parm.REGWIDTH.W)
-    val MtipLow = io.CsrWb_i.CSR.mip & (~parm.MTIP.U(parm.REGWIDTH.W))
-    io.CsrRegfile.mip :=  Mux(io.CsrWb_i.CsrExuChoose(6),io.AluRes_i,Mux(MtipFlag,MtipHigh,MtipLow))
+    //val MtipLow = io.CsrWb_i.CSR.mip & (~parm.MTIP.U(parm.REGWIDTH.W))
+    //如果有写入的话，优先写入  否则根据MTIPflag对mip寄存器写入 当然也有可能还有其他信号，后面再加
+    io.CsrAddr(6) := Mux(io.CsrWb_i.CsrAddr(6),io.CsrWb_i.CsrAddr(6),MtipFlag)
+    io.CsrRegfile.mip :=  Mux(io.CsrWb_i.CsrExuChoose(6),io.AluRes_i,Mux(MtipFlag,MtipHigh,io.CsrWb_i.CSR.mip))
 
-    
+    //处理时钟中断
+    val MtipValid = (io.CsrWb_i.CSR.mip & parm.MTIP.U(parm.REGWIDTH.W))=/=0.U
+    when(MtipValid){
+      io.CsrAddr  := "b00101011".U
+      mepc := io.pc
+      mstatus := func.EcallMstatus(io.CsrWb_i.CSR.mstatus)
+      io.CsrRegfile.mip := io.CsrWb_i.CSR.mip & ~parm.MTIP.U(parm.REGWIDTH.W)
+    }
     
 }

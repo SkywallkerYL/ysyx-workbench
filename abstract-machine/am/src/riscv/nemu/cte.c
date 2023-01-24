@@ -16,6 +16,8 @@ Context* __am_irq_handle(Context *c) {
         //printf("mtvec \t %08lx \n",c->mtvec);
         //printf("mstatus \t %x \n",c->mstatus);
         break;
+      case 16:
+        ev.event = EVENT_IRQ_TIMER; break;
       default: ev.event = EVENT_ERROR; break;
     }
 
