@@ -143,6 +143,25 @@ static int cmd_info(char *args){
   else printf("Invalid SUBCMD!\n");
   return 0;
 }
+void  cmd_imgprint(char *args){
+  uint64_t pc = CONFIG_MBASE;
+  for (size_t i = 0; i < MSIZE; i=i+4)
+  {
+    char inst_buf[128];
+    char *p = inst_buf; 
+    //uint64_t pc = Pc_Fetch();
+    //uint32_t instr = Instr_Fetch();
+    //uint8_t *inst = (uint8_t *)&instr;
+    for (int j = 3; j >= 0; j --) {
+     p += snprintf(p, 4, " %02x", p_mem[j-i]);
+    }
+    printf("pc:0x%lx inst:%s\n",pc ,inst_buf);
+    pc = pc+4;
+  }
+  
+  return ;
+}
+
 
 static struct {
   const char *name;
@@ -154,7 +173,8 @@ static struct {
   { "q", "Exit NPC", cmd_q },
   { "si", "Single excutaion", cmd_si},
   {"info","info SUBCMD",cmd_info},
-  {"x","EXPR SCAN",cmd_x}
+  {"x","EXPR SCAN",cmd_x},
+  {"print_img","Print IMG",cmd_imgprint}
   //{"p","Expression calculation",cmd_p},
   //{"pt","Expression calculation test",cmd_pt},
   //{"w","Watchpoint add",cmd_w},
