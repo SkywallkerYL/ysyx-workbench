@@ -21,7 +21,7 @@
 #define VGA
 //#define WAVE
 
-#define DIFFTEST_REG_SIZE (sizeof(uint64_t) * 33) // GRPs + pc
+#define DIFFTEST_REG_SIZE (sizeof(uint64_t) * 41) // GRPs + pc + 8
 #define CONFIG_MBASE 0x80000000
 #define CONFIG_MSIZE 0x8000000
 #define CONFIG_PC_RESET_OFFSET 0x0
@@ -50,6 +50,12 @@ uint8_t p_mem[MSIZE];
 #define DISK_ADDR       (DEVICE_BASE + 0x0000300)
 #define FB_ADDR         (MMIO_BASE   + 0x1000000)
 #define AUDIO_SBUF_ADDR (MMIO_BASE   + 0x1200000)
+//CLINT
+#define CLINT_BASE    0x02000000
+#define CLINTEND      0x0200BFFF
+#define MTIMECMPADDR  0x02004000
+#define MTIMEADDR     0x0200BFF8
+#define MSIPADDR      0x02000000
 
 /* convert the guest physical address in the guest program to host virtual address in NEMU */
 uint8_t* guest_to_host(paddr_t paddr);
