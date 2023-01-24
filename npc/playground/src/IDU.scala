@@ -16,7 +16,7 @@ class IDU extends Module{
 
     val instr_o = Output(UInt(parm.INSTWIDTH.W))
     val pc_o = Output(UInt(parm.PCWIDTH.W))
-    val NextPc_o = Output(UInt(parm.PCWIDTH.W))
+    //val NextPc_o = Output(UInt(parm.PCWIDTH.W))
     val rs_addr1 = Output(UInt(parm.REGADDRWIDTH.W))
     val rs_addr2 = Output(UInt(parm.REGADDRWIDTH.W))
     val idex = new IDEX
@@ -61,6 +61,7 @@ class IDU extends Module{
     io.idex.choose := 0.U
     io.mretpc := 0.U
     io.ecallpc := 0.U
+    io.idex.NextPc := io.NextPc_i
     //io.ls.pc := 0.U
 
     //io.func7 := io.instr_i(31,25)
