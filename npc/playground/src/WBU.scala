@@ -93,7 +93,10 @@ class WBU extends Module{
     val MtipHigh = io.CsrWb_i.CSR.mip | parm.MTIP.U(parm.REGWIDTH.W)
     //val MtipLow = io.CsrWb_i.CSR.mip & (~parm.MTIP.U(parm.REGWIDTH.W))
     //如果有写入的话，优先写入  否则根据MTIPflag对mip寄存器写入 当然也有可能还有其他信号，后面再加
-    io.CsrAddr(6) := Mux(io.CsrWb_i.CsrAddr(6),io.CsrWb_i.CsrAddr(6),MtipFlag)
+    when(MtipFlag){
+      io.CsrAddr(6) := 1.U
+    }
+    //io.CsrAddr(6) := Mux(io.CsrWb_i.CsrAddr(6),io.CsrWb_i.CsrAddr(6),MtipFlag)
     io.CsrRegfile.mip :=  Mux(io.CsrWb_i.CsrExuChoose(6),io.AluRes_i,Mux(MtipFlag,MtipHigh,io.CsrWb_i.CSR.mip))
 
     //处理时钟中断
