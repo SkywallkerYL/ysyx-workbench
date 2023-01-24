@@ -3,8 +3,7 @@
 //事件分发
 static Context* do_event(Event e, Context* c) {
   switch (e.event) {
-    case  EVENT_YIELD: printf("Event Yeild\n");break;
-    case  EVENT_IRQ_TIMER :printf("Event IRQ TIMER\n");break;
+    case EVENT_YIELD : printf("Event Yeild\n");break;
     //here a break will build a mret inst
     // but I can't implement it accurately
     ////EVENT_YIELD

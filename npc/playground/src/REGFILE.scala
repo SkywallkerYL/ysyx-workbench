@@ -154,8 +154,8 @@ class RegFile extends Module{
   }
   */
   //CLINT reg mie mip
-  val mieen = (io.csraddr(4))
-  val mipen = (io.csraddr(5))
+  val mieen = (io.csraddr(5))
+  val mipen = (io.csraddr(6))
   val mie   = RegInit(0.U(parm.REGWIDTH.W))
   val mip   = RegInit(0.U(parm.REGWIDTH.W))
 

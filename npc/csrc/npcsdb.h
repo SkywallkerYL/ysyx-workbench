@@ -99,15 +99,9 @@ static int cmd_x(char *args){
   sscanf(N,"%d",&addrn);
   uint64_t addexpr;
   sscanf(EXPR,"%lx",&addexpr);
-  //printf ("addexpr %x\n",addexpr);
-  uint32_t init = (addexpr-0x80000000);
- // printf ("init %d\n",init);
-  uint32_t* p = (uint32_t *)(&p_mem);//&top->rootp->RiscvCpu__DOT__M[init];
-  for (size_t i = 0; i < init/4; i++)
-  {
-    p++;
-  }
-  
+  //printf ("%x\t",addexpr);
+  uint64_t init = (addexpr-0x80000000);
+  uint32_t* p = (uint32_t *)(&p_mem + init);//&top->rootp->RiscvCpu__DOT__M[init];
   for (size_t i = 0; i < addrn; i++)
   {
     printf("0x%08lx\t 0x%08x\n",addexpr,*p);
@@ -149,40 +143,6 @@ static int cmd_info(char *args){
   else printf("Invalid SUBCMD!\n");
   return 0;
 }
-//pimg 10 0x80000000
-//与x 类似，只不过是吧指令打印出来
-static int cmd_imgprint(char *args){
-  uint64_t BASEpc = CONFIG_MBASE;
-  char *N = strtok(NULL," ");
-  char *EXPR = strtok(NULL," ");
-  int num ;
-  sscanf(N,"%d",&num);
-  uint64_t pc;
-  sscanf(EXPR,"%lx",&pc);
-  //printf("pc:0x%lx \n",maxpc );
-  //exit(0);
-  //int min = maxpc < MSIZE ? maxpc : MSIZE;
-  for (size_t i = 0; i < num; i++)
-  {
-    int index = pc-BASEpc + i*4;
-    uint64_t localpc = pc+i*4;
-    bool noimst = true;
-    char inst_buf[128];
-    char *p = inst_buf; 
-    //uint64_t pc = Pc_Fetch();
-    //uint32_t instr = Instr_Fetch();
-    //uint8_t *inst = (uint8_t *)&instr;
-    for (int j = 3; j >= 0; j--) {
-      if(p_mem[index+j]!=0) noimst = false;
-     p += snprintf(p, 4, " %02x", p_mem[index+j]);
-    }
-    if(!noimst) printf("pc:0x%lx inst:%s\n",localpc ,inst_buf);
-    //pc = pc+4;
-  }
-  
-  return 0;
-}
-
 
 static struct {
   const char *name;
@@ -194,8 +154,7 @@ static struct {
   { "q", "Exit NPC", cmd_q },
   { "si", "Single excutaion", cmd_si},
   {"info","info SUBCMD",cmd_info},
-  {"x","EXPR SCAN",cmd_x},
-  {"pimg","Print IMG",cmd_imgprint}
+  {"x","EXPR SCAN",cmd_x}
   //{"p","Expression calculation",cmd_p},
   //{"pt","Expression calculation test",cmd_pt},
   //{"w","Watchpoint add",cmd_w},

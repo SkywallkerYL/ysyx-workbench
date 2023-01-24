@@ -12,11 +12,9 @@ class IDU extends Module{
     val instr_i = Input(UInt(parm.INSTWIDTH.W))
     val rs_data1 = Input(UInt(parm.REGWIDTH.W))
     val rs_data2 = Input(UInt(parm.REGWIDTH.W))
-    val NextPc_i = Input(UInt(parm.PCWIDTH.W))
 
     val instr_o = Output(UInt(parm.INSTWIDTH.W))
     val pc_o = Output(UInt(parm.PCWIDTH.W))
-    //val NextPc_o = Output(UInt(parm.PCWIDTH.W))
     val rs_addr1 = Output(UInt(parm.REGADDRWIDTH.W))
     val rs_addr2 = Output(UInt(parm.REGADDRWIDTH.W))
     val idex = new IDEX
@@ -61,7 +59,6 @@ class IDU extends Module{
     io.idex.choose := 0.U
     io.mretpc := 0.U
     io.ecallpc := 0.U
-    io.idex.NextPc := io.NextPc_i
     //io.ls.pc := 0.U
 
     //io.func7 := io.instr_i(31,25)
@@ -313,13 +310,8 @@ class IDU extends Module{
     //"b10001".U   ->func.SignExt(func.Mask((AluRes),"x00000000000000ff".U),8),
     ))
 
-    val MtipValid = ((io.CsrIn.mip & parm.MTIP.U(parm.REGWIDTH.W))=/=0.U)
-    when(MtipValid){
-        io.jal := 4.U
-        //rd1 := io.pc_i
-        io.idex.CsrWb.CsrExuChoose :="b00000000".U 
-        io.ecallpc := io.CsrIn.mtvec
-    }
+
+
     io.ebreak := Mux(io.instr_i === "x00100073".U,1.B,0.B)
 
 }
