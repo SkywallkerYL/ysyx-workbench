@@ -95,7 +95,7 @@ class WBU extends Module{
     io.CsrRegfile.mip :=  Mux(io.CsrWb_i.CsrExuChoose(6),io.AluRes_i,Mux(MtipFlag,MtipHigh,io.CsrWb_i.CSR.mip))
 
     //处理时钟中断
-    val MtipValid = (io.CsrWb_i.CSR.mip & parm.MTIP.U(parm.REGWIDTH.W))=/=0.U
+    val MtipValid = ((io.CsrWb_i.CSR.mip & parm.MTIP.U(parm.REGWIDTH.W))=/=0.U)
     when(MtipValid){
       io.CsrAddr  := "b00101011".U
       mepc := io.pc
