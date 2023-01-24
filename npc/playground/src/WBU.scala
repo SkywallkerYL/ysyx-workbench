@@ -103,7 +103,7 @@ class WBU extends Module{
       io.CsrAddr  := "b00101011".U
       mepc := io.NextPc
       //在这里加一行会导致部分地址指令识别不出来，目前还不知道为啥
-      //mstatus := io.CsrWb_i.CSR.mstatus
+      mstatus := io.CsrWb_i.CSR.mstatus
       io.CsrRegfile.mip := io.CsrWb_i.CSR.mip & ~parm.MTIP.U(parm.REGWIDTH.W)
     }
 
