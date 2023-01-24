@@ -48,11 +48,12 @@ class WBU extends Module{
     //计时器中断信号
     val MtipValid = ((io.CsrWb_i.CSR.mip & parm.MTIP.U(parm.REGWIDTH.W))=/=0.U)
     //Mcause
-    val Mcauseflag = "b00".U
+    
     //Mcauseflag := 0.U;
     val NO = io.Reg17
-    Mcauseflag(0) := ((NO <= 19.U) | (NO === "xffffffffffffffff".U))
-    Mcauseflag(1) := MtipValid
+    val Mcauseflag0 := ((NO <= 19.U) | (NO === "xffffffffffffffff".U))
+    val Mcauseflag1 := MtipValid
+    val Mcauseflag = Mcauseflag1 ##Mcauseflag0
     val mstatus = Wire(UInt(parm.REGWIDTH.W))
     val mcause = Wire(UInt(parm.REGWIDTH.W))
     val mepc = Wire(UInt(parm.REGWIDTH.W))
