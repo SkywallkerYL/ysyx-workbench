@@ -591,7 +591,7 @@ void init_mtrace()
   return;
 }
 int mtracecount = 0;
-int maxmtrace = 10000;
+int maxmtrace = 1000000;
 void mtrace(bool wrrd,paddr_t addr, int len,word_t data)
 {
   FILE *file;
