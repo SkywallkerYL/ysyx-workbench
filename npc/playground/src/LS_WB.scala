@@ -21,7 +21,7 @@ class LS_WB extends Module{
       val AluRes_o = Output(UInt(parm.REGWIDTH.W))
       val CsrWb_o = (new CSRWB)
       val pc_o  = Output(UInt(parm.PCWIDTH.W))
-      val NextPc_o  = Input(UInt(parm.PCWIDTH.W))
+      val NextPc_o  = Output(UInt(parm.PCWIDTH.W))
   })
   if(parm.pip){
       io.Regfile_o :=  RegNext(io.Regfile_i,0.U.asTypeOf(new REGFILEIO))
