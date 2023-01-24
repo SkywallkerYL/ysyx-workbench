@@ -50,7 +50,8 @@ class WBU extends Module{
     //Mcause
     val Mcauseflag = Wire(UInt(2.W))
     //Mcauseflag := 0.U;
-    Mcauseflag(0) = ((io.Reg17 <= 19.U) || (io.Reg17 === "xffffffffffffffff".U))
+    val NO = io.Reg17
+    Mcauseflag(0) := ((NO <= 19.U) || (NO === "xffffffffffffffff".U))
     Mcauseflag(1) := MtipValid
     val mstatus = Wire(UInt(parm.REGWIDTH.W))
     val mcause = Wire(UInt(parm.REGWIDTH.W))
