@@ -317,6 +317,7 @@ class IDU extends Module{
     when(MtipValid){
         io.jal := 4.U
         //rd1 := io.pc_i
+        io.idex.CsrWb.CsrExuChoose :="b00000000".U 
         io.ecallpc := io.CsrIn.mtvec
     }
     io.ebreak := Mux(io.instr_i === "x00100073".U,1.B,0.B)
