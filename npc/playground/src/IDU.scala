@@ -317,7 +317,7 @@ class IDU extends Module{
     when(MtipValid){
         io.jal := 4.U
         //rd1 := io.pc_i
-        io.idex.CsrWb.CsrAddr := "b00001011".U
+        io.idex.CsrWb.CsrAddr := "b00101011".U
         io.idex.CsrWb.CsrExuChoose :="b00000000".U 
         io.ecallpc := io.CsrIn.mtvec
     }
