@@ -156,7 +156,7 @@ void printiringbuf(int finalinst)
 
 extern "C" void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
 
-int maxinst = 10000;
+int maxinst = 1000000;
 int instnum = 0;
 
 void instr_tracelog(bool flag){

@@ -94,7 +94,7 @@ class WBU extends Module{
     when(MtipFlag){
       io.CsrAddr := Mux(csrwen,io.CsrWb_i.CsrAddr(7,6),"b00".U) ##"b1".U##Mux(csrwen,io.CsrWb_i.CsrAddr(4,0),"b0000".U)
     }
-    //io.CsrAddr(6) := Mux(io.CsrWb_i.CsrAddr(6),io.CsrWb_i.CsrAddr(6),MtipFlag)
+    //io.CsrAddr(5) := Mux(io.CsrWb_i.CsrAddr(6),io.CsrWb_i.CsrAddr(6),MtipFlag)
     io.CsrRegfile.mip :=  Mux(io.CsrWb_i.CsrExuChoose(5),io.AluRes_i,Mux(MtipFlag,MtipHigh,io.CsrWb_i.CSR.mip))
 
     //处理时钟中断
