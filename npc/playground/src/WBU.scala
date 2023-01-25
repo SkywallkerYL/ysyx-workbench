@@ -52,7 +52,7 @@ class WBU extends Module{
     
     //Mcauseflag := 0.U;
     val NO = io.Reg17
-    val Mcauseflag0 = ((NO === "xffffffffffffffff".U)) & (io.CsrWb_i.ecall)
+    val Mcauseflag0 = ((NO === "xffffffffffffffff".U))
     val Mcauseflag1 = MtipValid
     val Mcauseflag = Mcauseflag1 ## Mcauseflag0
     val mstatus = Wire(UInt(parm.REGWIDTH.W))
@@ -61,7 +61,7 @@ class WBU extends Module{
     mstatus := 0.U
     mcause  := func.Mcause(Mcauseflag,io.CsrWb_i.CSR.mcause)
     mepc    := 0.U
-    when(io.CsrWb_i.ecall || MtipValid){
+    when(io.CsrWb_i.ecall){
       //io.CsrRegfile.
       mstatus := func.EcallMstatus(io.CsrWb_i.CSR.mstatus)
       //io.rs_addr2 := 17.U
@@ -79,7 +79,10 @@ class WBU extends Module{
     //io.CsrWb_o.csrflag := io.CsrWb_i.csrflag
     //io.CsrWb_o.mret := io.CsrWb_i.mret
     //io.CsrWb_o.ecall := 
-
+    io.CsrRegfile.mepc    := Mux(io.CsrWb_i.CsrExuChoose(0),io.AluRes_i,mepc)
+    io.CsrRegfile.mcause  := Mux(io.CsrWb_i.CsrExuChoose(1),io.AluRes_i,mcause)
+    io.CsrRegfile.mtvec   := Mux(io.CsrWb_i.CsrExuChoose(2),io.AluRes_i,io.CsrWb_i.CSR.mtvec)
+    io.CsrRegfile.mstatus := Mux(io.CsrWb_i.CsrExuChoose(3),io.AluRes_i,mstatus)
     //io.LsuRes_o :=  io.LsuRes_i  
     //CLINT
 
@@ -94,23 +97,17 @@ class WBU extends Module{
     when(MtipFlag){
       io.CsrAddr := Mux(csrwen,io.CsrWb_i.CsrAddr(7,6),"b00".U) ##"b1".U##Mux(csrwen,io.CsrWb_i.CsrAddr(4,0),"b0000".U)
     }
-    //io.CsrAddr(5) := Mux(io.CsrWb_i.CsrAddr(6),io.CsrWb_i.CsrAddr(6),MtipFlag)
+    //io.CsrAddr(6) := Mux(io.CsrWb_i.CsrAddr(6),io.CsrWb_i.CsrAddr(6),MtipFlag)
     io.CsrRegfile.mip :=  Mux(io.CsrWb_i.CsrExuChoose(5),io.AluRes_i,Mux(MtipFlag,MtipHigh,io.CsrWb_i.CSR.mip))
 
     //处理时钟中断
     //val MtipValid = ((io.CsrWb_i.CSR.mip & parm.MTIP.U(parm.REGWIDTH.W))=/=0.U)
     when(MtipValid){
-      //io.CsrAddr  := "b00101011".U
-     // mepc := io.NextPc
+      io.CsrAddr  := "b00101011".U
+      mepc := io.NextPc
       //在这里加一行会导致部分地址指令识别不出来，目前还不知道为啥
-      //mstatus := io.CsrWb_i.CSR.mstatus
+      mstatus := io.CsrWb_i.CSR.mstatus
       io.CsrRegfile.mip := io.CsrWb_i.CSR.mip & ~parm.MTIP.U(parm.REGWIDTH.W)
     }
-
-
-    io.CsrRegfile.mepc    := Mux(io.CsrWb_i.CsrExuChoose(0),io.AluRes_i,mepc)
-    io.CsrRegfile.mcause  := Mux(io.CsrWb_i.CsrExuChoose(1),io.AluRes_i,mcause)
-    io.CsrRegfile.mtvec   := Mux(io.CsrWb_i.CsrExuChoose(2),io.AluRes_i,io.CsrWb_i.CSR.mtvec)
-    io.CsrRegfile.mstatus := Mux(io.CsrWb_i.CsrExuChoose(3),io.AluRes_i,mstatus)
     
 }
