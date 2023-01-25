@@ -22,6 +22,8 @@
 #define MCAUSE  0x342
 #define MSTATUS 0x300
 #define MEPC    0x341
+#define CSRMIE  0x304
+#define MIP     0x344
 #define MIE  (1<<3)
 #define MPIE (1<<7)
 #define R(i) gpr(i)
@@ -81,6 +83,7 @@ void csrrw_inst(word_t csr, word_t src1,Decode *s,bool z_imm,bool read) {
     case MSTATUS:   t = cpu.mstatus;cpu.mstatus = read?(realsrc|t):realsrc;R(rd) = t;break;
     case MEPC   :   t = cpu.mepc   ;cpu.mepc = read?(realsrc|t):realsrc;   R(rd) = t;break;
     case MCAUSE :   t = cpu.mcause ;cpu.mcause = read?(realsrc|t):realsrc; R(rd) = t;break;
+    case CSRMIE :   t = cpu.mie    ;cpu.mie = read?(realsrc|t):realsrc;    R(rd) = t;break;
     default:
       break;
   }
