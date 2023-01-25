@@ -61,7 +61,7 @@ class WBU extends Module{
     mstatus := 0.U
     mcause  := func.Mcause(Mcauseflag,io.CsrWb_i.CSR.mcause)
     mepc    := 0.U
-    when(io.CsrWb_i.ecall){
+    when(io.CsrWb_i.ecall || MtipValid){
       //io.CsrRegfile.
       mstatus := func.EcallMstatus(io.CsrWb_i.CSR.mstatus)
       //io.rs_addr2 := 17.U
@@ -99,13 +99,13 @@ class WBU extends Module{
 
     //处理时钟中断
     //val MtipValid = ((io.CsrWb_i.CSR.mip & parm.MTIP.U(parm.REGWIDTH.W))=/=0.U)
-    when(MtipValid){
-      io.CsrAddr  := "b00101011".U
-      mepc := io.NextPc
+    //when(MtipValid){
+      //io.CsrAddr  := "b00101011".U
+     // mepc := io.NextPc
       //在这里加一行会导致部分地址指令识别不出来，目前还不知道为啥
-      mstatus := io.CsrWb_i.CSR.mstatus
-      io.CsrRegfile.mip := io.CsrWb_i.CSR.mip & ~parm.MTIP.U(parm.REGWIDTH.W)
-    }
+      //mstatus := io.CsrWb_i.CSR.mstatus
+      //io.CsrRegfile.mip := io.CsrWb_i.CSR.mip & ~parm.MTIP.U(parm.REGWIDTH.W)
+    //}
 
 
     io.CsrRegfile.mepc    := Mux(io.CsrWb_i.CsrExuChoose(0),io.AluRes_i,mepc)
