@@ -19,7 +19,7 @@
 #define CONFIG_ITRACE
 //#define CONFIG_MTRACE
 #define VGA
-#define WAVE
+//#define WAVE
 
 #define DIFFTEST_REG_SIZE (sizeof(uint64_t) * 41) // GRPs + pc + 8
 #define CONFIG_MBASE 0x80000000
