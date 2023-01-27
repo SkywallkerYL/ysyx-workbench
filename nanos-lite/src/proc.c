@@ -25,7 +25,8 @@ void init_proc() {
   Log("Initializing processes...");
 
   // load program here
-
+  //static uintptr_t loader(PCB *pcb, const char *filename);
+  //loader(NULL,NULL);
 }
 
 Context* schedule(Context *prev) {

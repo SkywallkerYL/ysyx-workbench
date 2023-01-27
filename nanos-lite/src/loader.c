@@ -26,10 +26,25 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
   //TODO();
   Elf_Ehdr elf_head;
   ramdisk_read(&elf_head, 0, sizeof(Elf_Ehdr));
-  assert(*(uint32_t *)elf_head.e_ident ==  0x7f454c46);
+  //检查MagicNumber
+  assert(*(uint32_t *)elf_head.e_ident ==  0x7f454c46);//0x7f E L F
+  //检查架构
   assert(elf_head.e_machine == EXPECT_TYPE );
+  //elf_head.e_phoff 记录了program的偏移，后边的实现都是参考trace.h
+  Elf_Phdr *elf_phdr = (Elf_Phdr*)malloc(sizeof(Elf_Phdr) * elf_head.e_phnum);
+  ramdisk_read(elf_phdr, elf_head.e_phoff, sizeof(Elf_Phdr) * elf_head.e_phnum);
+  for (size_t i = 0; i < elf_head.e_phnum; i++)
+  {
+    if(elf_phdr[i].p_type != PT_LOAD) continue;
+    char * buf_malloc = (char *)malloc(elf_phdr[i].p_filesz * sizeof(char) + 1);
+    ramdisk_read(buf_malloc, elf_phdr[i].p_offset, elf_phdr[i].p_filesz );
+    memcpy((void *)elf_phdr[i].p_vaddr, buf_malloc, elf_phdr[i].p_filesz );
+    memset((void *)(elf_phdr[i].p_vaddr + elf_phdr[i].p_filesz), 0, elf_phdr[i].p_memsz - elf_phdr[i].p_filesz);
+    free(buf_malloc);
+  }
+  
   //printf("hhhhhh\n");
-  return 0;
+  return elf_head.e_entry;
 }
 
 void naive_uload(PCB *pcb, const char *filename) {
