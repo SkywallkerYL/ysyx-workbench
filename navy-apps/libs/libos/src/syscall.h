@@ -23,5 +23,12 @@ enum {
   SYS_times,
   SYS_gettimeofday
 };
+int sys_yield() {
+    yield();
+    return 0;
+}
 
+void sys_exit(int status) {
+    halt(status);
+}
 #endif

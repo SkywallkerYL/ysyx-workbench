@@ -18,14 +18,17 @@ void hello_fun(void *arg) {
     yield();
   }
 }
-
+void naive_uload(PCB *pcb, const char *filename);
 void init_proc() {
   switch_boot_pcb();
 
   Log("Initializing processes...");
 
   // load program here
-
+  //static uintptr_t loader(PCB *pcb, const char *filename);
+  //loader(NULL,NULL);
+  naive_uload(NULL,NULL);
+  //printf("aaaa\n");
 }
 
 Context* schedule(Context *prev) {
