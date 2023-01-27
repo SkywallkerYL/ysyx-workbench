@@ -28,6 +28,7 @@ void init_proc() {
   //static uintptr_t loader(PCB *pcb, const char *filename);
   //loader(NULL,NULL);
   naive_uload(NULL,NULL);
+  //
 }
 
 Context* schedule(Context *prev) {
