@@ -37,9 +37,12 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
   ramdisk_read(elf_phdr, elf_head.e_phoff, sizeof(Elf_Phdr) * elf_head.e_phnum);
   for (size_t i = 0; i < elf_head.e_phnum; i++)
   {
+    //printf("hhhhhh%08x\n",111);
     if(elf_phdr[i].p_type != PT_LOAD) continue;
+    //printf("hhhhhh%08x\n",111);
     char * buf_malloc = (char *)malloc(elf_phdr[i].p_filesz * sizeof(char) + 1);
-    ramdisk_read(buf_malloc, elf_phdr[i].p_offset, elf_phdr[i].p_filesz );
+    //printf("offset:%08x\n",elf_phdr[i].p_offset);
+    ramdisk_read(buf_malloc, elf_phdr[i].p_offset,  elf_phdr[i].p_filesz );
     memcpy((void *)elf_phdr[i].p_vaddr, buf_malloc, elf_phdr[i].p_filesz );
     memset((void *)(elf_phdr[i].p_vaddr + elf_phdr[i].p_filesz), 0, elf_phdr[i].p_memsz - elf_phdr[i].p_filesz);
     free(buf_malloc);
@@ -51,7 +54,7 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
 
 void naive_uload(PCB *pcb, const char *filename) {
   uintptr_t entry = loader(pcb, filename);
-  //Log("Jump to entry = %p", entry);
+  Log("Jump to entry = %p", entry);
   ((void(*)())entry) ();
 }
 
