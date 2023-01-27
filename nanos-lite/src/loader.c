@@ -27,6 +27,7 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
   Elf_Ehdr elf_head;
   ramdisk_read(&elf_head, 0, sizeof(Elf_Ehdr));
   //检查MagicNumber
+  printf("0x\n",*(uint32_t *)elf_head.e_ident);
   assert(*(uint32_t *)elf_head.e_ident ==  0x7f454c46);//0x7f E L F
   //检查架构
   assert(elf_head.e_machine == EXPECT_TYPE );
