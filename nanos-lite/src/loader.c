@@ -27,8 +27,9 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
   Elf_Ehdr elf_head;
   ramdisk_read(&elf_head, 0, sizeof(Elf_Ehdr));
   //检查MagicNumber
-  printf("0x%x\n",*(uint32_t *)elf_head.e_ident);
-  assert(*(uint32_t *)elf_head.e_ident ==  0x7f454c46);//0x7f E L F
+  //printf("0x%x\n",*(uint32_t *)elf_head.e_ident);
+  //序号要反转一下0x7f454c46 -> 0x464C457F
+  assert(*(uint32_t *)elf_head.e_ident ==  0x464C457F);//0x7f E L F
   //检查架构
   assert(elf_head.e_machine == EXPECT_TYPE );
   //elf_head.e_phoff 记录了program的偏移，后边的实现都是参考trace.h
