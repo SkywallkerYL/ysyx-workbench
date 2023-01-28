@@ -131,7 +131,7 @@ int printf(const char *fmt, ...) {
             putstr(strval);
             pstr++;
             continue;
-          /*
+          
           case 'p':
             system_ = 16;
             hexval = va_arg(ap,unsigned long);
@@ -161,7 +161,7 @@ int printf(const char *fmt, ...) {
             }
             pstr++;
             continue;
-          */
+          
           /*
           case 'f':
             floatval = va_arg(ap,double);
