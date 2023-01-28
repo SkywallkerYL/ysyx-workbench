@@ -47,7 +47,7 @@ word_t isa_raise_intr(word_t NO, vaddr_t epc)
   // printf("pc:0x%016lx mstatus: 0x%016lx\n",cpu.pc,cpu.mstatus);
   word_t mtvec = cpu.mtvec;
 #ifdef CONFIG_ETRACE
-  Log("mepc:%lx:  ecall mastatus:0x%lx mcause:0x%lx mtvec:%lx\n",epc,cpu.mstatus,cpu.mcause,mtvec);
+  Log("mepc:%lx:  ecall mastatus:0x%lx mcause:0x%lx mtvec:%lx",epc,cpu.mstatus,cpu.mcause,mtvec);
   Etrace(cpu.mstatus, cpu.mcause, epc, mtvec, 1);
 #endif
   cpu.mepc = epc;

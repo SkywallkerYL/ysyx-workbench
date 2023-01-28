@@ -39,7 +39,6 @@ void do_syscall(Context *c) {
 #ifdef STRACE
       Log("SYSTEM_CALL_YIELD");
 #endif
-      Log("SYSTEM_CALL_YIELD");
       ret = sys_yield();break;
     case SYS_write :
       ret = sys_write(c->GPR2,(void *)c->GPR3,(size_t)c->GPR4);
