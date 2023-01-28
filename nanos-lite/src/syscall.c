@@ -17,11 +17,7 @@ void do_syscall(Context *c) {
       ret = sys_yield();break;
     case SYS_write :
       ret = sys_write(c->GPR2,(void *)c->GPR3,(size_t)c->GPR4);
-//#ifdef STRACE
-      //ret = sys_write(c->GPR2,(void *)c->GPR3,(size_t)c->GPR4);
-      Log("SYSTEM_CALL_WRITE RETURN %d",ret);
-//#endif
-      break;
+      Log("SYSTEM_CALL_WRITE RETURN %d",ret);break;
     default: panic("Unhandled syscall ID = %d", a[0]);
   }
   c->GPRx = ret;
