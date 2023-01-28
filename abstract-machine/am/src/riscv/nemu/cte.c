@@ -12,8 +12,8 @@ Context* __am_irq_handle(Context *c) {
         switch (c->gpr[17])//a7
         {
           case -1:
-            //ev.event = EVENT_YIELD;
-            //break;
+            ev.event = EVENT_YIELD;
+            break;
           default:
             ev.event = EVENT_SYSCALL;
             break;

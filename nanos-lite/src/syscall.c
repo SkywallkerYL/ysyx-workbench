@@ -2,7 +2,7 @@
 #include "syscall.h"
 void do_syscall(Context *c) {
   uintptr_t a[4];
-  a[0] = c->GPR1;//a7 存mcause
+  a[0] = c->GPR1;//a7 //存触发的类型
   uint64_t ret ;
   Log("mcause:%d",c->mcause);
   //GPR2 是a0,不是这里的a[0]  存的是程序退出时的状态
