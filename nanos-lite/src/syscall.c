@@ -1,5 +1,16 @@
 #include <common.h>
 #include "syscall.h"
+
+int sys_yield() {
+    yield();
+    return 0;
+}
+
+void sys_exit(int status) {
+    halt(status);
+}
+
+
 void do_syscall(Context *c) {
   uintptr_t a[4];
   a[0] = c->GPR1;//a7 //存触发的类型
