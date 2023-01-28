@@ -15,7 +15,7 @@ Context* __am_irq_handle(Context *c) {
             //ev.event = EVENT_YIELD;
             //break;
           default:
-            ev.event = EVENT_SYSCALL;
+            ev.event = EVENT_YIELD;
             break;
         }
         //ev.event = EVENT_YIELD;
