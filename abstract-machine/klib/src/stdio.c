@@ -33,8 +33,8 @@ int printf(const char *fmt, ...) {
   unsigned long tempval ;//对于整数等需要计算每一位打印，这个变量用来临时赋值
   //这个用int没事，用int64_t会触发段错误，但是用Int的话，就不能对64位的16进制进行打印
   //目前暂时不要动这个，这样子mstatus不能正确打印
-  //把tempval 改成unsigned long 可以正常打印了
-  int system_;
+  //
+  int system_ = 10;
   char* strval = NULL;
 
 
