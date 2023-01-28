@@ -37,25 +37,25 @@ void do_syscall(Context *c) {
   switch (a[0]) {
     case SYS_exit  :
 #ifdef STRACE
-      Log("SYSTEM_CALL_EXIT VALUE:%d",c->GPR2);
+      Log("SYS_EXIT VALUE:%d",c->GPR2);
 #endif
       sys_exit(c->GPR2);break;
     case SYS_yield :
 #ifdef STRACE
-      Log("SYSTEM_CALL_YIELD");
+      Log("SYS_YIELD");
 #endif
       ret = sys_yield();break;
     case SYS_write :
       ret = sys_write(c->GPR2, (void *)c->GPR3, (size_t)c->GPR4);
 #ifdef STRACE
       //Log("SYSTEM_CALL_WRITE RETURNVALUE %d",ret);
-      Log("sys_write(%x,%p,%d) return %d",c->GPR2,(void *)c->GPR3,(size_t)c->GPR4,ret);
+      Log("SYS_WRITE(%x,%p,%d) return %d",c->GPR2,(void *)c->GPR3,(size_t)c->GPR4,ret);
 #endif
       break;
     case SYS_brk :
       ret = sys_sbrk((void *)c->GPR2);
 #ifdef STRACE
-      Log("SYSTEM_CALL_SBRK RETURNVALUE %d %x",ret,c->mstatus);
+      Log("SYS_BRK RETURNVALUE %d %x",ret,c->mstatus);
 #endif
       break;
     default: panic("Unhandled syscall ID = %d", a[0]);
