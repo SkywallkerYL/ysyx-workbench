@@ -4,8 +4,7 @@
 #include <assert.h>
 #include <time.h>
 #include "syscall.h"
-//int sys_yield();
-//void sys_exit(int status);
+
 // helper macros
 #define _concat(x, y) x ## y
 #define concat(x, y) _concat(x, y)
@@ -44,7 +43,6 @@
 
 intptr_t _syscall_(intptr_t type, intptr_t a0, intptr_t a1, intptr_t a2) {
   register intptr_t _gpr1 asm (GPR1) = type;
-  //printf("a7 %d\n",type);
   register intptr_t _gpr2 asm (GPR2) = a0;
   register intptr_t _gpr3 asm (GPR3) = a1;
   register intptr_t _gpr4 asm (GPR4) = a2;
@@ -64,22 +62,11 @@ int _open(const char *path, int flags, mode_t mode) {
 }
 
 int _write(int fd, void *buf, size_t count) {
-  //_exit(SYS_write);
-  return _syscall_(SYS_write, fd, (intptr_t)buf, count);
-  //return 0;
+  _exit(SYS_write);
+  return 0;
 }
-//sbrk 
-extern intptr_t _end;
-intptr_t ProgramBreak = (intptr_t)(&_end);
-//man 2 sbrk 看手册
+
 void *_sbrk(intptr_t increment) {
-  intptr_t oldProBre = ProgramBreak;
-  //通过SYS_brk系统调用来让操作系统设置新program break
-  //接受的addr是新的位置，即老位置+ increment
-  if (_syscall_(SYS_brk,ProgramBreak+increment,0, 0) == 0){
-    ProgramBreak = ProgramBreak+increment;
-    return (void *)oldProBre;//分配成功，返回老位置
-  }
   return (void *)-1;
 }
 

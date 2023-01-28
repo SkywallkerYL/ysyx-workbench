@@ -9,7 +9,6 @@ static Context* do_event(Event e, Context* c) {
       //printf("Event Yeild\n");
       break;
     case  EVENT_SYSCALL :
-      //Log("SYSCALL a7 %d",c->gpr[17]);
       do_syscall(c) ;
       break;
     case  EVENT_IRQ_TIMER :printf("Event IRQ TIMER\n");break;
