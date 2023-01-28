@@ -5145,11 +5145,11 @@ word_t mret_inst(){
 
 
 
-  do { printf("\33[1;34m" "[%s:%d %s] " "cpupc:%lx: mret  mastatus:0x%lx mcause:0x%lx mtvec:%lx\n" "\33[0m" "\n", "src/isa/riscv64/inst.c", 105, __func__,cpu.mepc,cpu.mstatus,cpu.mcause,cpu.mtvec); do { extern FILE* log_fp; extern 
+  do { printf("\33[1;34m" "[%s:%d %s] " "cpupc:%lx: mret  mastatus:0x%lx mcause:0x%lx mtvec:%lx" "\33[0m" "\n", "src/isa/riscv64/inst.c", 105, __func__,cpu.mepc,cpu.mstatus,cpu.mcause,cpu.mtvec); do { extern FILE* log_fp; extern 
 # 105 "src/isa/riscv64/inst.c" 3 4
  _Bool 
 # 105 "src/isa/riscv64/inst.c"
- log_enable(); if (log_enable()) { fprintf(log_fp, "\33[1;34m" "[%s:%d %s] " "cpupc:%lx: mret  mastatus:0x%lx mcause:0x%lx mtvec:%lx\n" "\33[0m" "\n", "src/isa/riscv64/inst.c", 105, __func__,cpu.mepc,cpu.mstatus,cpu.mcause,cpu.mtvec); fflush(log_fp); } } while (0); } while (0);
+ log_enable(); if (log_enable()) { fprintf(log_fp, "\33[1;34m" "[%s:%d %s] " "cpupc:%lx: mret  mastatus:0x%lx mcause:0x%lx mtvec:%lx" "\33[0m" "\n", "src/isa/riscv64/inst.c", 105, __func__,cpu.mepc,cpu.mstatus,cpu.mcause,cpu.mtvec); fflush(log_fp); } } while (0); } while (0);
   Etrace(cpu.mstatus, cpu.mcause ,cpu.pc,cpu.mtvec,0);
 
   return cpu.mepc;

@@ -7,7 +7,7 @@ void do_syscall(Context *c) {
   //GPR2 是a0  存的是程序退出时的状态
   switch (a[0]) {
     case SYS_exit  :
-      Log("SYSTEM_CALL_EXIT");
+      Log("SYSTEM_CALL_EXIT VALUE:%d",c->GPR2);
       sys_exit(c->GPR2);break;
     case SYS_yield :
       Log("SYSTEM_CALL_YIELD");
