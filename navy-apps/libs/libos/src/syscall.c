@@ -68,8 +68,18 @@ int _write(int fd, void *buf, size_t count) {
   return _syscall_(SYS_write, fd, (intptr_t)buf, count);
   //return 0;
 }
-
+//sbrk 
+extern intptr_t _end;
+intptr_t ProgramBreak = (intptr_t)(&_end);
+//man 2 sbrk 看手册
 void *_sbrk(intptr_t increment) {
+  intptr_t oldProBre = ProgramBreak;
+  //通过SYS_brk系统调用来让操作系统设置新program break
+  //接受的addr是新的位置，即老位置+ increment
+  if (_syscall_(SYS_brk,ProgramBreak+increment,0, 0) == 0){
+    ProgramBreak = ProgramBreak+increment;
+    return (void *)oldProBre;//分配成功，返回老位置
+  }
   return (void *)-1;
 }
 

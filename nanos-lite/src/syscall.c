@@ -13,6 +13,7 @@ void sys_exit(int status) {
 //参考/home/yangli/ysyx-workbench/nemu/tools/spike-diff/repo/fesvr/syscall.cc
 //sys_write(reg_t fd, reg_t pbuf, reg_t len, reg_t a3, reg_t a4, reg_t a5, reg_t a6)
 //fd->a0  pbuf->a1 len->a2
+//根据navyapp的sys_call也可一看出来
 int sys_write(int fd, void *buf, size_t count) {
   if (fd == 1 || fd == 2) {
     for (size_t i = 0; i < count; ++i) {
@@ -21,6 +22,9 @@ int sys_write(int fd, void *buf, size_t count) {
     return count;
   }
   return -1;
+}
+int sys_sbrk(void *addr){
+  return 0;//目前总是成功， 返回0
 }
 
 
@@ -45,6 +49,12 @@ void do_syscall(Context *c) {
       ret = sys_write(c->GPR2, (void *)c->GPR3, (size_t)c->GPR4);
 #ifdef STRACE
       Log("SYSTEM_CALL_WRITE RETURNVALUE %d",ret);
+#endif
+      break;
+    case SYS_brk :
+      ret = sys_sbrk((void *)c->GPR2);
+#ifdef STRACE
+      Log("SYSTEM_CALL_SBRK RETURNVALUE %d",ret);
 #endif
       break;
     default: panic("Unhandled syscall ID = %d", a[0]);
