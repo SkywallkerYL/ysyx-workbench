@@ -131,10 +131,11 @@ int printf(const char *fmt, ...) {
             putstr(strval);
             pstr++;
             continue;
+          /*
           case 'p':
             system_ = 16;
             hexval = va_arg(ap,unsigned long);
-            hexval = *(volatile unsigned long *)(hexval );
+            hexval = *(volatile unsigned long *)(hexval);
             tempval = hexval;
             //因为得按顺序打印，因此要先计算长度
             if (hexval)
@@ -160,6 +161,7 @@ int printf(const char *fmt, ...) {
             }
             pstr++;
             continue;
+          */
           /*
           case 'f':
             floatval = va_arg(ap,double);
