@@ -49,7 +49,7 @@ void do_syscall(Context *c) {
       ret = sys_write(c->GPR2, (void *)c->GPR3, (size_t)c->GPR4);
 #ifdef STRACE
       //Log("SYSTEM_CALL_WRITE RETURNVALUE %d",ret);
-      Log("sys_write(%x,%p,%x) == %x",c->GPR2,(void *)c->GPR3,(size_t)c->GPR4,ret);
+      Log("sys_write(%x,%p,%d) return %d",c->GPR2,(void *)c->GPR3,(size_t)c->GPR4,ret);
 #endif
       break;
     case SYS_brk :
