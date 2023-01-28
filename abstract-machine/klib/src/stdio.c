@@ -131,7 +131,6 @@ int printf(const char *fmt, ...) {
             putstr(strval);
             pstr++;
             continue;
-          
           case 'p':
             system_ = 16;
             unsigned long addrval = va_arg(ap,unsigned long);
@@ -302,6 +301,34 @@ int sprintf(char *out, const char *fmt, ...) {
         pstr++;
         continue;
       case 'x':
+        system_ = 16;
+        hexval = va_arg(ap,unsigned long);
+        tempval = hexval;
+        //因为得按顺序打印，因此要先计算长度
+        if (hexval)
+        {
+          while (tempval){
+            lencnt++;
+            tempval = tempval/system_;
+          }
+        }
+        else lencnt = 1; 
+        resnum += lencnt;
+        while (lencnt)
+        {
+          tempval = hexval/(mpown(system_,lencnt-1));
+          hexval = hexval%(mpown(system_,lencnt-1));
+          if (tempval<=9)
+          {
+            *out = ((char)tempval+'0');
+          }
+          else  *out = ((char)tempval-10+'A');
+          out++;
+          lencnt--;
+        }
+        pstr++;
+        continue;
+      case 'p':
         system_ = 16;
         hexval = va_arg(ap,unsigned long);
         tempval = hexval;
