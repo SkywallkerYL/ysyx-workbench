@@ -35,6 +35,7 @@ void do_syscall(Context *c) {
 #ifdef STRACE
       Log("SYSTEM_CALL_EXIT VALUE%d",c->GPR2);
 #endif
+      Log("SYSTEM_CALL_EXIT VALUE%d",c->GPR2);
       break;
     case SYS_yield :
 #ifdef STRACE
