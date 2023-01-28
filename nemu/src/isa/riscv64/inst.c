@@ -102,7 +102,7 @@ word_t mret_inst(){
   //printf("mstatus: 0x%016lx\n",cpu.mstatus);
 #endif
 #ifdef CONFIG_ETRACE
-  Log("cpupc:%lx: mret  mastatus:0x%lx mcause:0x%lx mtvec:%lx",cpu.mepc,cpu.mstatus,cpu.mcause,cpu.mtvec);
+  Log("cpupc:%lx: mret  mastatus:0x%lx mcause:0x%lx mtvec:%lx\n",cpu.mepc,cpu.mstatus,cpu.mcause,cpu.mtvec);
   Etrace(cpu.mstatus, cpu.mcause ,cpu.pc,cpu.mtvec,0);
 #endif
   return cpu.mepc;
