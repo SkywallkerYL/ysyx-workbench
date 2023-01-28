@@ -1,6 +1,7 @@
 #include <common.h>
 #include "syscall.h"
-
+//sys相关函数在这里实现，syscall.h是从navyapps链接来的，因此不要修改
+//不然会触发一些难以理解的行为 
 int sys_yield() {
     yield();
     return 0;
@@ -9,7 +10,9 @@ int sys_yield() {
 void sys_exit(int status) {
     halt(status);
 }
-
+//参考/home/yangli/ysyx-workbench/nemu/tools/spike-diff/repo/fesvr/syscall.cc
+//sys_write(reg_t fd, reg_t pbuf, reg_t len, reg_t a3, reg_t a4, reg_t a5, reg_t a6)
+//fd->a0  pbuf->a1 len->a2
 int sys_write(int fd, void *buf, size_t count) {
   if (fd == 1 || fd == 2) {
     for (size_t i = 0; i < count; ++i) {
@@ -38,6 +41,12 @@ void do_syscall(Context *c) {
       Log("SYSTEM_CALL_YIELD");
 #endif
       ret = sys_yield();break;
+    case SYS_write :
+      ret = sys_write(c->GPR2, (void *)c->GPR3, (size_t)c->GPR4);
+#ifdef STRACE
+      Log("SYSTEM_CALL_WRITE RETURNVALUE%d",ret);
+#endif
+      break;
     default: panic("Unhandled syscall ID = %d", a[0]);
   }
   c->GPRx = ret;
