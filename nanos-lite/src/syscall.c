@@ -55,7 +55,7 @@ void do_syscall(Context *c) {
     case SYS_brk :
       ret = sys_sbrk((void *)c->GPR2);
 #ifdef STRACE
-      Log("SYSTEM_CALL_SBRK RETURNVALUE %d",ret);
+      Log("SYSTEM_CALL_SBRK RETURNVALUE %d %x",ret,c->mstatus);
 #endif
       break;
     default: panic("Unhandled syscall ID = %d", a[0]);
