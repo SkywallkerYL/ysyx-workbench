@@ -135,7 +135,7 @@ int printf(const char *fmt, ...) {
           case 'p':
             system_ = 16;
             unsigned long addrval = va_arg(ap,unsigned long);
-            hexval = *(volatile unsigned long *)(addrval);
+            hexval = (addrval);
             tempval = hexval;
             //因为得按顺序打印，因此要先计算长度
             if (hexval)
