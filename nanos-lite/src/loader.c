@@ -57,7 +57,7 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
   Log("e_phoff %x",elf_head.e_phoff);
   assert(fs_lseek(fd, elf_head.e_phoff, SEEK_SET) >= 0);
   assert(fs_read(fd,elf_phdr,sizeof(Elf_Phdr) * elf_head.e_phnum) >= 0);
-  ramdisk_read(elf_phdr, elf_head.e_phoff, sizeof(Elf_Phdr) * elf_head.e_phnum);
+  //ramdisk_read(elf_phdr, elf_head.e_phoff, sizeof(Elf_Phdr) * elf_head.e_phnum);
   for (size_t i = 0; i < elf_head.e_phnum; i++)
   {
     //printf("hhhhhh%08x\n",111);
