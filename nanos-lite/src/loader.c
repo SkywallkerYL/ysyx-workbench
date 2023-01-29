@@ -42,7 +42,7 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
   //首先设置偏移量，然后读取
   //assert(fs_lseek(fd, 0, SEEK_SET) >= 0);
   //assert(fs_read(fd,&elf_head,sizeof(Elf_Ehdr)) >= 0);
-  ramdisk_read(&elf_head, fileoffset, sizeof(Elf_Ehdr));
+  ramdisk_read(&elf_head, 0, sizeof(Elf_Ehdr));
   //检查MagicNumber
   //printf("0x%x\n",*(uint32_t *)elf_head.e_ident);
   //序号要反转一下0x7f454c46 -> 0x464C457F
