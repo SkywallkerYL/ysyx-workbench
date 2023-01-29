@@ -54,9 +54,9 @@ void do_syscall(Context *c) {
 #endif
       ret = sys_yield();break;
     case SYS_write :
-      ret = fs_read((int)c->GPR2, (void *)c->GPR3, (size_t)c->GPR4);
+      ret = fs_write((int)c->GPR2, (void *)c->GPR3, (size_t)c->GPR4);
 #ifdef STRACE
-      Log("fs_read(%d,%p,%d) return %d",c->GPR2,(void *)c->GPR3,(size_t)c->GPR4,ret);
+      Log("fs_write(%d,%p,%d) return %d",c->GPR2,(void *)c->GPR3,(size_t)c->GPR4,ret);
 #endif
       break;
     case SYS_brk :
