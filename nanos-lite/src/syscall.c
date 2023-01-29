@@ -26,6 +26,14 @@ int sys_write(int fd, void *buf, size_t count) {
 int sys_sbrk(void *addr){
   return 0;//目前总是成功， 返回0
 }
+int fs_open(const char *pathname, int flags, int mode);
+size_t fs_write(int fd, const void *buf, size_t len);
+size_t fs_read(int fd, void *buf, size_t len);
+size_t fs_lseek(int fd, size_t offset, int whence);
+int fs_close(int fd);
+
+
+
 
 
 void do_syscall(Context *c) {
@@ -46,16 +54,39 @@ void do_syscall(Context *c) {
 #endif
       ret = sys_yield();break;
     case SYS_write :
-      ret = sys_write(c->GPR2, (void *)c->GPR3, (size_t)c->GPR4);
+      ret = fs_write((int)c->GPR2, (void *)c->GPR3, (size_t)c->GPR4);
 #ifdef STRACE
-      //Log("SYSTEM_CALL_WRITE RETURNVALUE %d",ret);
-      Log("SYS_WRITE(%x,%p,%d) return %d",c->GPR2,(void *)c->GPR3,(size_t)c->GPR4,ret);
+      Log("fs_write(%d,%p,%d) return %d",c->GPR2,(void *)c->GPR3,(size_t)c->GPR4,ret);
 #endif
       break;
     case SYS_brk :
       ret = sys_sbrk((void *)c->GPR2);
 #ifdef STRACE
-      Log("SYS_BRK RETURNVALUE %d %x",ret,c->mstatus);
+      Log("SYS_BRK RETURNVALUE %d",ret);
+#endif
+      break;
+      case SYS_open :
+      ret = fs_open((const char *)c->GPR2, (int)c->GPR3, (int)c->GPR4);
+#ifdef STRACE
+      Log("fs_open(%s,%d,%d) return %d",(const char *)c->GPR2,(int)c->GPR3,(int)c->GPR4,ret);
+#endif
+      break;
+      case SYS_read :
+      ret = fs_read((int)c->GPR2, (void *)c->GPR3, (size_t)c->GPR4);
+#ifdef STRACE
+      Log("fs_read(%d,%p,%d) return %d",(int)c->GPR2,(void *)c->GPR3,(size_t)c->GPR4,ret);
+#endif
+      break;
+      case SYS_lseek :
+      ret = fs_lseek((int)c->GPR2, (size_t)c->GPR3, (int)c->GPR4);
+#ifdef STRACE
+      Log("fs_lseek(%d,%x,%d) return %d",(int)c->GPR2,(size_t)c->GPR3,(int)c->GPR4,ret);
+#endif
+      break;
+      case SYS_close :
+      ret = fs_close((int)c->GPR2);
+#ifdef STRACE
+      Log("fs_close(%d) return %d",(int)c->GPR2,ret);
 #endif
       break;
     default: panic("Unhandled syscall ID = %d", a[0]);
