@@ -40,7 +40,7 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
   Elf_Ehdr elf_head;
   //这种方式读取文件的范式
   //首先设置偏移量，然后读取
-  assert(fs_lseek(fd, fileoffset, SEEK_SET) >= 0);
+  assert(fs_lseek(fd, 0, SEEK_SET) >= 0);
   assert(fs_read(fd,&elf_head,sizeof(Elf_Ehdr)) >= 0);
   //ramdisk_read(&elf_head, fileoffset, sizeof(Elf_Ehdr));
   //检查MagicNumber
@@ -73,7 +73,7 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
 
   assert(fs_close(fd) == 0);
   //printf("hhhhhh\n");
-  return elf_head.e_entry;
+  return fileoffset;
 }
 
 void naive_uload(PCB *pcb, const char *filename) {
