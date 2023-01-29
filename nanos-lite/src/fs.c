@@ -102,13 +102,13 @@ size_t fs_read(int fd, void *buf, size_t len)
   // 注意len之后不要超过文件的size不要跃届
   if (fd == FD_STDIN || fd == FD_STDOUT || fd == FD_STDERR)
   {
-    Log("File read ignore %s", file_table[fd].name);
+    //Log("File read ignore %s", file_table[fd].name);
     return 0;
   }
   int openind = GetOpenInd(fd);
   if (openind == -1)
   {
-    Log("File %s read but not open", file_table[fd].name);
+    //Log("File %s read but not open", file_table[fd].name);
     return -1;
   }
   size_t readlen = len;
@@ -126,7 +126,7 @@ size_t fs_write(int fd, const void *buf, size_t len)
 {
   if (fd == FD_STDIN)
   {
-    Log("File write ignore %s", file_table[fd].name);
+    //Log("File write ignore %s", file_table[fd].name);
     return 0;
   }
   // 这两个直接输出到串口 与sys_write 行为一样
@@ -141,7 +141,7 @@ size_t fs_write(int fd, const void *buf, size_t len)
   int openind = GetOpenInd(fd);
   if (openind == -1)
   {
-    Log("File %s write but not open", file_table[fd].name);
+    //Log("File %s write but not open", file_table[fd].name);
     return -1;
   }
   size_t writelen = len;
@@ -172,13 +172,13 @@ size_t fs_lseek(int fd, size_t offset, int whence)
 {
   if (fd == FD_STDIN || fd == FD_STDOUT || fd == FD_STDERR)
   {
-    Log("File lseek ignore %s", file_table[fd].name);
+    //Log("File lseek ignore %s", file_table[fd].name);
     return 0;
   }
   int openind = GetOpenInd(fd);
   if (openind == -1)
   {
-    Log("File %s lseek but not open", file_table[fd].name);
+    //Log("File %s lseek but not open", file_table[fd].name);
     return -1;
   }
   size_t setoffset = -1;
@@ -208,13 +208,13 @@ int fs_close(int fd)
 {
   if (fd == FD_STDIN || fd == FD_STDOUT || fd == FD_STDERR)
   {
-    Log("File close ignore %s", file_table[fd].name);
+    //Log("File close ignore %s", file_table[fd].name);
     return 0;
   }
   int openind = GetOpenInd(fd);
   if (openind == -1)
   {
-    Log("File %s close but not open", file_table[fd].name);
+    //Log("File %s close but not open", file_table[fd].name);
     return -1;
   }
   // 把openind从table里删除
