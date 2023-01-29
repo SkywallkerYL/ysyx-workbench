@@ -54,7 +54,7 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
   //elf_head.e_phoff 记录了program的偏移，后边的实现都是参考trace.h
   Elf_Phdr *elf_phdr = (Elf_Phdr*)malloc(sizeof(Elf_Phdr) * elf_head.e_phnum);
   //size_t prooffset = elf_head.e_phoff;
-  Log("e_phoff %x",elf_head.e_phoff);
+  //Log("e_phoff %x",elf_head.e_phoff);
   assert(fs_lseek(fd, elf_head.e_phoff, SEEK_SET) >= 0);
   assert(fs_read(fd,elf_phdr,sizeof(Elf_Phdr) * elf_head.e_phnum) >= 0);
   //ramdisk_read(elf_phdr, elf_head.e_phoff, sizeof(Elf_Phdr) * elf_head.e_phnum);
@@ -62,7 +62,7 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
   {
     //printf("hhhhhh%08x\n",111);
     if(elf_phdr[i].p_type != PT_LOAD) continue;
-    printf("%d\n",i);
+    //printf("%d\n",i);
     char * buf_malloc = (char *)malloc(elf_phdr[i].p_filesz * sizeof(char) + 1);
     //printf("offset:%08x\n",elf_phdr[i].p_offset);
     //修改之后不直接用ramdisk_read,而是用fs_read();
