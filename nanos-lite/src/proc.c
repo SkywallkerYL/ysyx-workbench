@@ -27,7 +27,8 @@ void init_proc() {
   // load program here
   //static uintptr_t loader(PCB *pcb, const char *filename);
   //loader(NULL,NULL);
-  naive_uload(NULL,NULL);
+  const char filename []= "/bin/file-test";
+  naive_uload(NULL,filename);
   //printf("aaaa\n");
 }
 
