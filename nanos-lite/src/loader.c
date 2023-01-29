@@ -59,7 +59,7 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
   {
     //printf("hhhhhh%08x\n",111);
     if(elf_phdr[i].p_type != PT_LOAD) continue;
-    //printf("hhhhhh%08x\n",111);
+    printf("%d\n",i);
     char * buf_malloc = (char *)malloc(elf_phdr[i].p_filesz * sizeof(char) + 1);
     //printf("offset:%08x\n",elf_phdr[i].p_offset);
     //修改之后不直接用ramdisk_read,而是用fs_read();
