@@ -44,7 +44,7 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
   assert(fs_read(fd,&elf_head,sizeof(Elf_Ehdr)) >= 0);
   //ramdisk_read(&elf_head, fileoffset, sizeof(Elf_Ehdr));
   //检查MagicNumber
-  //printf("0x%x\n",*(uint32_t *)elf_head.e_ident);
+  printf("0x%x\n",*(uint32_t *)elf_head.e_ident);
   //序号要反转一下0x7f454c46 -> 0x464C457F
   assert(*(uint32_t *)elf_head.e_ident ==  0x464C457F);//0x7f E L F
   //检查架构
