@@ -56,6 +56,7 @@ size_t fb_write(const void *buf, size_t offset, size_t len) {
   uint32_t width = ev.width;
   int y = realoffset/width;
   int x = realoffset%width;
+  Log("x:%d y%d \n",x,y);
   //int wri_width = len/4;
   //assert(wri_width%4==0);
   //io_write(AM_GPU_FBDRAW, x, y, (void *)buf, width, height, true);
