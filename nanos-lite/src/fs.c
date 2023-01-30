@@ -38,7 +38,9 @@ void init_fs()
 {
   // TODO: initialize the size of /dev/fb
 }
-
+char* get_file_name(int fd) {
+    return file_table[fd].name;
+}
 /* This is the information about all files in disk. */
 /*
 static Finfo file_table[] __attribute__((used)) = {
@@ -100,11 +102,19 @@ size_t fs_read(int fd, void *buf, size_t len)
 {
   // 将fd文件的len长度读入buf
   // 注意len之后不要超过文件的size不要跃届
+  ReadFn read = file_table[fd].read;
+  if (read != NULL)
+  {
+    return read(buf,0,len);
+  }
+  
+  /*
   if (fd == FD_STDIN || fd == FD_STDOUT || fd == FD_STDERR)
   {
     Log("File read ignore %s", file_table[fd].name);
     return 0;
   }
+  */
   int openind = GetOpenInd(fd);
   if (openind == -1)
   {
@@ -124,6 +134,12 @@ size_t fs_read(int fd, void *buf, size_t len)
 // success 返回写入的bytes 失败 -1
 size_t fs_write(int fd, const void *buf, size_t len)
 {
+  //添加了vfs抽象，直接调串口的写入，即文件列表里初始化的写函数
+  WriteFn write = file_table[fd].write;
+  if(write != NULL){
+    return write(buf,0,len);//忽略offset
+  }
+  /*
   if (fd == FD_STDIN)
   {
     Log("File write ignore %s", file_table[fd].name);
@@ -138,6 +154,7 @@ size_t fs_write(int fd, const void *buf, size_t len)
     }
     return len;
   }
+  */
   int openind = GetOpenInd(fd);
   if (openind == -1)
   {
