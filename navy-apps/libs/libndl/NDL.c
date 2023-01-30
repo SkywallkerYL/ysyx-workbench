@@ -64,7 +64,7 @@ void NDL_OpenCanvas(int *w, int *h) {
   Canvas_x = (screen_w - Canvas_w)/2;
   Canvas_y = (screen_h - Canvas_h)/2;
   assert(Canvas_x >=0 && Canvas_y >= 0);
-  printf("h:%d w:%d\n",*w,*h);
+  printf("Canvas :h:%d w:%d\n",Canvas_h,Canvas_w);
 
 }
 // 向画布`(x, y)`坐标处绘制`w*h`的矩形图像, 并将该绘制区域同步到屏幕上
@@ -81,7 +81,7 @@ void NDL_DrawRect(uint32_t *pixels, int x, int y, int w, int h) {
     //x+w不能超过画布
     int len = (w+x<Canvas_w)?w:Canvas_w-x;
     lseek(fd,offset,SEEK_SET);
-    write(fd,pixels+i*w,len);
+    write(fd,pixels+i*w,len*4);
   }
   
   //uint64_t offset = y*screen_w+x;
