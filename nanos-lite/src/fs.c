@@ -174,7 +174,7 @@ size_t fs_write(int fd, const void *buf, size_t len)
   if(write!=NULL) {
     if (fd == FB_DEV)
     {
-      printf("AAAA\n");
+      //printf("AAAA\n");
       write(buf, openoff,writelen);
     }
   }
