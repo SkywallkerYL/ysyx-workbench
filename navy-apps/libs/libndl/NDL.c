@@ -81,7 +81,7 @@ void NDL_DrawRect(uint32_t *pixels, int x, int y, int w, int h) {
     //x+w不能超过画布
     int len = (w+x<Canvas_w)?w:Canvas_w-x;
     lseek(fd,offset,SEEK_SET);
-    write(fd,pixels+i*w,len*4);
+    write(fd,pixels+i*w,len);
   }
   
   //uint64_t offset = y*screen_w+x;
