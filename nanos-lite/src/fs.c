@@ -171,7 +171,12 @@ size_t fs_write(int fd, const void *buf, size_t len)
   size_t openoff = OpenFileTable[openind].open_offset;
   if (openoff > file_table[fd].size) return 0;
   writelen = (openoff + len) > file_table[fd].size ? (file_table[fd].size - openoff) : len;
-  if(write!=NULL) write(buf,file_table[fd].disk_offset + openoff,writelen);
+  if(write!=NULL) {
+    if (fd == FB_DEV)
+    {
+      write(buf,file_table[fd].disk_offset + openoff,writelen);
+    }
+  }
   else ramdisk_write(buf, file_table[fd].disk_offset + openoff, writelen);
   OpenFileTable[openind].open_offset += writelen;
   return writelen;
