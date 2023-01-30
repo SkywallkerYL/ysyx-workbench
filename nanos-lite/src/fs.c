@@ -84,7 +84,7 @@ int fs_open(const char *pathname, int flags, int mode)
       //if (i == FD_STDIN || i == FD_STDOUT || i == FD_STDERR)
       if (i < FD_FB)
       {
-        //Log("File open ignore %s", pathname);
+        if (i == FD_STDIN || i == FD_STDOUT || i == FD_STDERR)Log("File open ignore %s", pathname);
         return i;
       }
       OpenFileTable[OpenNum].fd = i;
@@ -191,7 +191,8 @@ size_t fs_lseek(int fd, size_t offset, int whence)
   //if (fd == FD_STDIN || fd == FD_STDOUT || fd == FD_STDERR)
   if (fd < FD_FB)
   {
-    //Log("File lseek ignore %s", file_table[fd].name);
+    if (fd == FD_STDIN || fd == FD_STDOUT || fd == FD_STDERR)
+    Log("File lseek ignore %s", file_table[fd].name);
     return 0;
   }
   int openind = GetOpenInd(fd);
@@ -228,7 +229,8 @@ int fs_close(int fd)
   //if (fd == FD_STDIN || fd == FD_STDOUT || fd == FD_STDERR)
   if (fd < FD_FB)
   {
-    //Log("File close ignore %s", file_table[fd].name);
+    if (fd == FD_STDIN || fd == FD_STDOUT || fd == FD_STDERR)
+    Log("File close ignore %s", file_table[fd].name);
     return 0;
   }
   int openind = GetOpenInd(fd);
