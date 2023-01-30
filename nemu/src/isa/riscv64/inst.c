@@ -209,7 +209,7 @@ static int decode_exec(Decode *s) {
   INSTPAT("0000001 ????? ????? 100 ????? 01100 11", div   , RI, if(src2 == 0) R(dest)=0;else {word_t val = (int64_t)src1/(int64_t)src2;R(dest)= val;});
   INSTPAT("0000001 ????? ????? 000 ????? 01110 11", mulw  , RI, word_t val = src1*src2;val = SEXT(val,32);R(dest)= val);//截断为32
   INSTPAT("0000001 ????? ????? 100 ????? 01110 11", divw  , RI, src1 = SEXT(src1,32);src2 = SEXT(src2,32);int32_t rs1 = src1;int32_t rs2 = src2;int32_t val=rs1/rs2;R(dest) = SEXT(val,32));
-  INSTPAT("0000001 ????? ????? 101 ????? 01100 11", divu  , RI, word_t val=src1/src2;R(dest) = val);
+  INSTPAT("0000001 ????? ????? 101 ????? 01100 11", divu  , RI, word_t rs1 = src1;word_t rs2 = src2;word_t val=rs1/rs2;R(dest) = val);
   INSTPAT("0000001 ????? ????? 101 ????? 01110 11", divuw , RI, src1 = SEXTU(src1,32);src2 = SEXTU(src2,32);word_t rs1 = src1;word_t rs2 = src2;word_t val=rs1/rs2;R(dest) = val);
   INSTPAT("0000001 ????? ????? 111 ????? 01100 11", remu  , RI, word_t val=src1%src2;R(dest) = val);
   INSTPAT("0000001 ????? ????? 110 ????? 01110 11", remw  , RI, src1 = SEXT(src1,32);src2 = SEXT(src2,32);int32_t rs1 = src1;int32_t rs2 = src2;int32_t val=rs1%rs2;R(dest) = SEXT(val,32));

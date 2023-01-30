@@ -26,34 +26,12 @@ int sys_write(int fd, void *buf, size_t count) {
 int sys_sbrk(void *addr){
   return 0;//目前总是成功， 返回0
 }
-//man 2 gettimeofday
-#define time_t  uint64_t
-#define suseconds_t uint64_t
-
-struct timeval {
-    time_t      tv_sec;     /* seconds */
-    suseconds_t tv_usec;    /* microseconds */
-};
-
-struct timezone {
-    int tz_minuteswest;     /* minutes west of Greenwich */
-    int tz_dsttime;         /* type of DST correction */
-};
-
-int sys_gettimeofday(struct timeval *tv, struct timezone *tz){
-   uint64_t us = io_read(AM_TIMER_UPTIME).us;
-   tv->tv_sec = us/1000000;//io_read(AM_TIMER_UPTIME).us;
-   tv->tv_usec = us - (us/1000000)*1000000;
-   return 0;
-}
-
-
 int fs_open(const char *pathname, int flags, int mode);
 size_t fs_write(int fd, const void *buf, size_t len);
 size_t fs_read(int fd, void *buf, size_t len);
 size_t fs_lseek(int fd, size_t offset, int whence);
 int fs_close(int fd);
-char* get_file_name(int fd);
+
 
 
 
@@ -78,7 +56,7 @@ void do_syscall(Context *c) {
     case SYS_write :
       ret = fs_write((int)c->GPR2, (void *)c->GPR3, (size_t)c->GPR4);
 #ifdef STRACE
-      Log("fs_write(%s,%p,%d) return %d",get_file_name(c->GPR2),(void *)c->GPR3,(size_t)c->GPR4,ret);
+      Log("fs_write(%d,%p,%d) return %d",c->GPR2,(void *)c->GPR3,(size_t)c->GPR4,ret);
 #endif
       break;
     case SYS_brk :
@@ -96,25 +74,19 @@ void do_syscall(Context *c) {
       case SYS_read :
       ret = fs_read((int)c->GPR2, (void *)c->GPR3, (size_t)c->GPR4);
 #ifdef STRACE
-      Log("fs_read(%s,%p,%d) return %d",get_file_name((int)c->GPR2),(void *)c->GPR3,(size_t)c->GPR4,ret);
+      Log("fs_read(%d,%p,%d) return %d",(int)c->GPR2,(void *)c->GPR3,(size_t)c->GPR4,ret);
 #endif
       break;
       case SYS_lseek :
       ret = fs_lseek((int)c->GPR2, (size_t)c->GPR3, (int)c->GPR4);
 #ifdef STRACE
-      Log("fs_lseek(%s,%x,%d) return %d",get_file_name((int)c->GPR2),(size_t)c->GPR3,(int)c->GPR4,ret);
+      Log("fs_lseek(%d,%x,%d) return %d",(int)c->GPR2,(size_t)c->GPR3,(int)c->GPR4,ret);
 #endif
       break;
       case SYS_close :
       ret = fs_close((int)c->GPR2);
 #ifdef STRACE
-      Log("fs_close(%s) return %d",get_file_name((int)c->GPR2),ret);
-#endif
-      break;
-      case SYS_gettimeofday:
-      ret = sys_gettimeofday((struct timeval *)c->GPR2,(struct timezone *)c->GPR3);
-#ifdef STRACE
-      Log("sys_gettimeofday(%p, %p, %d) = %d", c->GPR2, c->GPR3, c->GPR4, ret);
+      Log("fs_close(%d) return %d",(int)c->GPR2,ret);
 #endif
       break;
     default: panic("Unhandled syscall ID = %d", a[0]);
