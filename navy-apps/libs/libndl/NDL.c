@@ -8,6 +8,8 @@
 static int evtdev = -1;
 static int fbdev = -1;
 static int screen_w = 0, screen_h = 0;
+static int Canvas_w = 0, Canvas_h = 0;// 画布尺寸
+static int Canvas_x, Canvas_y;//画布的x,y
 static struct timeval timer_count;
 uint32_t NDL_GetTicks() {
   //return ms
@@ -57,6 +59,11 @@ void NDL_OpenCanvas(int *w, int *h) {
     *w = screen_w;
     *h = screen_h;
   }
+  Canvas_w = *w;
+  Canvas_h = *h;
+  Canvas_x = (screen_w - Canvas_w)/2;
+  Canvas_y = (screen_h - Canvas_h)/2;
+  assert(Canvas_x >=0 && Canvas_y >= 0);
   printf("h:%d w:%d\n",*w,*h);
 
 }
@@ -68,10 +75,11 @@ void NDL_DrawRect(uint32_t *pixels, int x, int y, int w, int h) {
   //AM_GPU_CONFIG_T ev = io_read(AM_GPU_CONFIG);
   ///uint32_t height = ev.height;
   //uint32_t width = ev.width;
-  for (size_t i = 0; i < h; i++)
+  for (size_t i = 0; i < h &&(y+i) < Canvas_h; i++)
   {
-    uint64_t offset = (y+i)*screen_w+x;
-    int len = w;
+    uint64_t offset = (y+Canvas_y+i)*screen_w+(x+Canvas_x);
+    //x+w不能超过画布
+    int len = (w+x<Canvas_w)?w:Canvas_w-x;
     lseek(fd,offset,SEEK_SET);
     write(fd,pixels+i*w,len);
   }
