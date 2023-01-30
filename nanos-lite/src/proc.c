@@ -29,7 +29,7 @@ void init_proc() {
   //loader(NULL,NULL);
   // /bin/hello /bin/file-test /bin/timer-test /bin/event-test
   // /bin/bmp-test
-  const char filename []= "/bin/bmp-test";
+  const char filename []= "/bin/hello";
   naive_uload(NULL,filename);
   //printf("aaaa\n");
 }
