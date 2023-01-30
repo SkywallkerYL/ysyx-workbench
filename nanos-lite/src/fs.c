@@ -214,7 +214,7 @@ The file offset is set to the  size  of  the  file  plus  offset bytes.
 size_t fs_lseek(int fd, size_t offset, int whence)
 {
   //if (fd == FD_STDIN || fd == FD_STDOUT || fd == FD_STDERR)
-  if (fd < FD_FB)
+  if (fd < FB_DEV)
   {
     if (fd == FD_STDIN || fd == FD_STDOUT || fd == FD_STDERR) Log("File lseek ignore %s", file_table[fd].name);
     return 0;
