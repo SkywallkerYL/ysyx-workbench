@@ -86,7 +86,7 @@ int fs_open(const char *pathname, int flags, int mode)
     if (strcmp(pathname, file_table[i].name) == 0)
     {
       //if (i == FD_STDIN || i == FD_STDOUT || i == FD_STDERR)
-      if (i < FD_FB)
+      if (i < FB_DEV)
       {
         if (i == FD_STDIN || i == FD_STDOUT || i == FD_STDERR)Log("File open ignore %s", pathname);
         return i;
@@ -144,7 +144,6 @@ size_t fs_write(int fd, const void *buf, size_t len)
   if(write != NULL && fd < FB_DEV){
     return write(buf,0,len);//忽略offset
   }
-  
   /*
   if (fd == FD_STDIN)
   {
@@ -167,10 +166,22 @@ size_t fs_write(int fd, const void *buf, size_t len)
     Log("File %s write but not open", file_table[fd].name);
     return -1;
   }
+  if (fd == FB_DEV)
+  {
+    //printf("AAAA\n");
+    size_t writelen = len*4;
+    size_t openoff = OpenFileTable[openind].open_offset;
+    if (openoff > file_table[fd].size) return 0;
+    writelen = (openoff + len*4) > file_table[fd].size ? (file_table[fd].size - openoff) : len*4;
+    //writelen = writelen/4;
+    write(buf, openoff,writelen/4);
+    return writelen;
+  }
   size_t writelen = len;
   size_t openoff = OpenFileTable[openind].open_offset;
   if (openoff > file_table[fd].size) return 0;
   writelen = (openoff + len) > file_table[fd].size ? (file_table[fd].size - openoff) : len;
+  /*
   if(write!=NULL) {
     if (fd == FB_DEV)
     {
@@ -178,7 +189,8 @@ size_t fs_write(int fd, const void *buf, size_t len)
       write(buf, openoff,writelen);
     }
   }
-  else ramdisk_write(buf, file_table[fd].disk_offset + openoff, writelen);
+  */
+  ramdisk_write(buf, file_table[fd].disk_offset + openoff, writelen);
   OpenFileTable[openind].open_offset += writelen;
   return writelen;
 }
