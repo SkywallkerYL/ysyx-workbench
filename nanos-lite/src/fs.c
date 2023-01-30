@@ -144,20 +144,7 @@ size_t fs_write(int fd, const void *buf, size_t len)
   if(write != NULL && fd < FB_DEV){
     return write(buf,0,len);//忽略offset
   }
-  /*
-  if (fd == FB_DEV){
-    //外部传进来没有传
-    size_t writelen = len;
-    size_t openoff = OpenFileTable[openind].open_offset;
-    if (openoff > file_table[fd].size) return 0;
-    writelen = (openoff + len) > file_table[fd].size ? (file_table[fd].size - openoff) : len;
-    if(write!=NULL) write(buf,file_table[fd].disk_offset + openoff,writelen);
-    else return 0;
-    //ramdisk_write(buf, file_table[fd].disk_offset + openoff, writelen);
-    OpenFileTable[openind].open_offset += writelen;
-    return writelen;
-  }
-  */
+  
   /*
   if (fd == FD_STDIN)
   {

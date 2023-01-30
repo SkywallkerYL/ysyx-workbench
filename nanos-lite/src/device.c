@@ -55,10 +55,11 @@ size_t fb_write(const void *buf, size_t offset, size_t len) {
   uint32_t width = ev.width;
   int y = offset/width;
   int x = offset-y*width;
-
+  int wri_width = len/4;
+  assert(wri_width%4==0);
   //io_write(AM_GPU_FBDRAW, x, y, (void *)buf, width, height, true);
   //传进来的是一行的像素
-  io_write(AM_GPU_FBDRAW, x, y, (void *)buf, len/4, 1, true);
+  io_write(AM_GPU_FBDRAW, x, y, (void *)buf, wri_width, 1, true);
   return 0;
 }
 
