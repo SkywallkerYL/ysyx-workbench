@@ -22,9 +22,18 @@ size_t serial_write(const void *buf, size_t offset, size_t len) {
   return len;
   //return 0;
 }
+//参考 /home/yangli/ysyx-workbench/am-kernels/tests/am-tests/src/tests/keyboard.c
 
 size_t events_read(void *buf, size_t offset, size_t len) {
-  return 0;
+  AM_INPUT_KEYBRD_T ev = io_read(AM_INPUT_KEYBRD);
+  if (ev.keycode == AM_KEY_NONE) return 0;
+  // kd 表示按下   kb表示松开 \n 结束一个事件
+  //key_state[ev.keycode] = ev.keydown;
+  const char *key_name = keyname[ev.keycode];
+  //char *event_buf;
+  //return value not include \0
+  int real_len = ev.keydown? snprintf(buf,len,"kd %s\n",key_name):snprintf(buf,len,"kb %s\n",key_name);
+  return real_len;
 }
 
 size_t dispinfo_read(void *buf, size_t offset, size_t len) {

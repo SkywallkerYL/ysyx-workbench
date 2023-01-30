@@ -81,7 +81,8 @@ int fs_open(const char *pathname, int flags, int mode)
   {
     if (strcmp(pathname, file_table[i].name) == 0)
     {
-      if (i == FD_STDIN || i == FD_STDOUT || i == FD_STDERR)
+      //if (i == FD_STDIN || i == FD_STDOUT || i == FD_STDERR)
+      if (i < FD_FB)
       {
         Log("File open ignore %s", pathname);
         return i;
@@ -187,7 +188,8 @@ The file offset is set to the  size  of  the  file  plus  offset bytes.
 // lseek 允许offset超过size 因此不作判断
 size_t fs_lseek(int fd, size_t offset, int whence)
 {
-  if (fd == FD_STDIN || fd == FD_STDOUT || fd == FD_STDERR)
+  //if (fd == FD_STDIN || fd == FD_STDOUT || fd == FD_STDERR)
+  if (fd < FD_FB)
   {
     Log("File lseek ignore %s", file_table[fd].name);
     return 0;
@@ -223,7 +225,8 @@ size_t fs_lseek(int fd, size_t offset, int whence)
 }
 int fs_close(int fd)
 {
-  if (fd == FD_STDIN || fd == FD_STDOUT || fd == FD_STDERR)
+  //if (fd == FD_STDIN || fd == FD_STDOUT || fd == FD_STDERR)
+  if (fd < FD_FB)
   {
     Log("File close ignore %s", file_table[fd].name);
     return 0;
