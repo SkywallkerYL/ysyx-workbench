@@ -38,7 +38,9 @@ void init_fs()
 {
   // TODO: initialize the size of /dev/fb
 }
-
+char* get_file_name(int fd) {
+    return file_table[fd].name;
+}
 /* This is the information about all files in disk. */
 /*
 static Finfo file_table[] __attribute__((used)) = {
