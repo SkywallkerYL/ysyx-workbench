@@ -191,8 +191,7 @@ size_t fs_lseek(int fd, size_t offset, int whence)
   //if (fd == FD_STDIN || fd == FD_STDOUT || fd == FD_STDERR)
   if (fd < FD_FB)
   {
-    if (fd == FD_STDIN || fd == FD_STDOUT || fd == FD_STDERR)
-    Log("File lseek ignore %s", file_table[fd].name);
+    if (fd == FD_STDIN || fd == FD_STDOUT || fd == FD_STDERR) Log("File lseek ignore %s", file_table[fd].name);
     return 0;
   }
   int openind = GetOpenInd(fd);
@@ -229,8 +228,7 @@ int fs_close(int fd)
   //if (fd == FD_STDIN || fd == FD_STDOUT || fd == FD_STDERR)
   if (fd < FD_FB)
   {
-    if (fd == FD_STDIN || fd == FD_STDOUT || fd == FD_STDERR)
-    Log("File close ignore %s", file_table[fd].name);
+    if (fd == FD_STDIN || fd == FD_STDOUT || fd == FD_STDERR) Log("File close ignore %s", file_table[fd].name);
     return 0;
   }
   int openind = GetOpenInd(fd);
