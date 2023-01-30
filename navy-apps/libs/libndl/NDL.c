@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <assert.h>
 #include <sys/time.h>
 static int evtdev = -1;
 static int fbdev = -1;
@@ -32,7 +33,8 @@ int NDL_PollEvent(char *buf, int len) {
   return (value != 0);
   //return 0;
 }
-
+// 打开一张(*w) X (*h)的画布
+// 如果*w和*h均为0, 则将系统全屏幕作为画布, 并将*w和*h分别设为系统屏幕的大小
 void NDL_OpenCanvas(int *w, int *h) {
   if (getenv("NWM_APP")) {
     int fbctl = 4;
@@ -51,6 +53,11 @@ void NDL_OpenCanvas(int *w, int *h) {
     }
     close(fbctl);
   }
+  if(*w == 0 && *h == 0){
+    *w = screen_w;
+    *h = screen_h;
+  }
+
 }
 
 void NDL_DrawRect(uint32_t *pixels, int x, int y, int w, int h) {
@@ -69,11 +76,71 @@ int NDL_PlayAudio(void *buf, int len) {
 int NDL_QueryAudio() {
   return 0;
 }
-
+//解析屏幕大小dispinfo
+static void dispinfo(){
+  int fd = open("/proc/dispinfo",0,0);
+//man 2 read
+  int maxsize = 1024;
+  char * buf = (char *)malloc(maxsize * sizeof(char));
+  int value = read(fd,buf,maxsize);
+  assert(value < maxsize);
+  int read_width  = 0;
+  int read_height = 0;
+  //读width
+  char * begin = buf;
+  assert(strncmp(begin,"WIDTH",5) == 0);
+  buf+=5;
+  while (*buf == ' ')
+  {
+    buf++;
+  }
+  assert(*buf == ':'); buf++;
+  while (*buf == ' ')
+  {
+    buf++;
+  }
+  //int pow = 1;
+  while (*buf <='9' && *buf >='0')
+  {
+    read_width = read_width*10 + (*buf-'0'); 
+    //len++;
+    buf++;
+  }
+  while (*buf == ' ')
+  {
+    buf++;
+  }
+  assert(*buf == '\n'); buf++;
+  //读weight
+  assert(strncmp(buf,"HEIGHT",6) == 0);
+  buf+=6;
+  while (*buf == ' ')
+  {
+    buf++;
+  }
+  assert(*buf == ':'); buf++;
+  while (*buf == ' ')
+  {
+    buf++;
+  }
+  //int pow = 1;
+  while (*buf <='9' && *buf >='0')
+  {
+    read_height = read_height*10 + (*buf-'0'); 
+    //len++;
+    buf++;
+  }
+  screen_h = read_height;
+  screen_w = read_width; 
+  
+  close(fd);
+}
 int NDL_Init(uint32_t flags) {
   if (getenv("NWM_APP")) {
     evtdev = 3;
   }
+  //获取屏幕大小
+  dispinfo();
   return 0;
 }
 
