@@ -63,8 +63,8 @@ void NDL_OpenCanvas(int *w, int *h) {
   }
   Canvas_w = *w;
   Canvas_h = *h;
-  Canvas_x = 0;//(screen_w - Canvas_w)/2;
-  Canvas_y = 0;//(screen_h - Canvas_h)/2;
+  Canvas_x = (screen_w - Canvas_w)/2;
+  Canvas_y = (screen_h - Canvas_h)/2;
   assert(Canvas_x >=0 && Canvas_y >= 0);
   printf("Canvas :h:%d w:%d\n",Canvas_h,Canvas_w);
 }
@@ -80,7 +80,7 @@ void NDL_DrawRect(uint32_t *pixels, int x, int y, int w, int h) {
   {
     uint64_t offset = (y+Canvas_y+i)*screen_w+(x+Canvas_x);
     //printf("offset %d screen_w %d\n",offset,screen_w);
-    printf("offset:%d x:%d y:%d\n",offset,offset%screen_w,offset/screen_w);
+    //printf("offset:%d x:%d y:%d\n",offset,offset%screen_w,offset/screen_w);
     //x+w不能超过画布
     int len = (w+x<Canvas_w)?w:Canvas_w-x;
     lseek(fd,offset*4,SEEK_SET);
