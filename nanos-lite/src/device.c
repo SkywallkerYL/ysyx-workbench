@@ -35,12 +35,21 @@ size_t events_read(void *buf, size_t offset, size_t len) {
   int real_len = ev.keydown? snprintf(buf,len,"kd %s\n",key_name):snprintf(buf,len,"kb %s\n",key_name);
   return real_len;
 }
-
+//实现类似events_read 只是换成了读屏幕
+//看readme
+//合法的dispinfo
+//WIDTH : 640
+//HEIGHT:480
 size_t dispinfo_read(void *buf, size_t offset, size_t len) {
-  return 0;
+  AM_GPU_CONFIG_T ev = io_read(AM_GPU_CONFIG);
+  uint32_t height = ev.height;
+  uint32_t width = ev.width;
+  size_t real_len = snprintf(buf,len,"WIDTH : %d\n HEIGHT : %d",width,height);
+  return real_len;
 }
 
 size_t fb_write(const void *buf, size_t offset, size_t len) {
+
   return 0;
 }
 

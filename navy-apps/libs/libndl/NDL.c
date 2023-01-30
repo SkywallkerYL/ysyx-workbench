@@ -17,15 +17,18 @@ uint32_t NDL_GetTicks() {
   //return 0;
 }
 //键盘抽象成文件
-//用过open 来进行系统调用文件  即借用操作系统打开文件
-//而fs_open是用户程序访问文件
-//#include <sys/types.h>
-//#include <sys/stat.h>
+//用过open 来进行系统调用文件  即借用操作系统打开文件 返回相应的文件描述 fd
+//而fs_open是操作系统访问文件，用户程序通过Open 或者fopen 
+//open 是更低一级的 通过NDL库来使用，用户程序直接使用NDL库
+//man 2 open
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <fcntl.h>
 int NDL_PollEvent(char *buf, int len) {
-  int fd = fs_open("/dev/events",0,0);
-  int value = fs_read(fd,buf,len);
-  fs_close(fd);
+  int fd = open("/dev/events",0,0);
+//man 2 read
+  int value = read(fd,buf,len);
+  close(fd);
   return (value != 0);
   //return 0;
 }

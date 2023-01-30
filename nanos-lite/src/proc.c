@@ -28,8 +28,8 @@ void init_proc() {
   //static uintptr_t loader(PCB *pcb, const char *filename);
   //loader(NULL,NULL);
   // /bin/hello /bin/file-test /bin/timer-test /bin/event-test
-  //
-  const char filename []= "/bin/event-test";
+  // /bin/bmp-test
+  const char filename []= "/bin/bmp-test";
   naive_uload(NULL,filename);
   //printf("aaaa\n");
 }
