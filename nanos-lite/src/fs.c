@@ -161,11 +161,12 @@ size_t fs_write(int fd, const void *buf, size_t len)
   }
   */
   int openind = GetOpenInd(fd);
-  if (openind == -1 && fd!=FB_DEV)
+  if (openind == -1)
   {
     Log("File %s write but not open", file_table[fd].name);
     return -1;
   }
+  /*
   if (fd == FB_DEV)
   {
     //printf("AAAA\n");
@@ -177,11 +178,12 @@ size_t fs_write(int fd, const void *buf, size_t len)
     write(buf, openoff,writelen/4);
     return writelen;
   }
+  */
   size_t writelen = len;
   size_t openoff = OpenFileTable[openind].open_offset;
   if (openoff > file_table[fd].size) return 0;
   writelen = (openoff + len) > file_table[fd].size ? (file_table[fd].size - openoff) : len;
-  /*
+
   if(write!=NULL) {
     if (fd == FB_DEV)
     {
@@ -189,7 +191,7 @@ size_t fs_write(int fd, const void *buf, size_t len)
       write(buf, openoff,writelen);
     }
   }
-  */
+  
   ramdisk_write(buf, file_table[fd].disk_offset + openoff, writelen);
   OpenFileTable[openind].open_offset += writelen;
   return writelen;
