@@ -7,10 +7,10 @@
 static int evtdev = -1;
 static int fbdev = -1;
 static int screen_w = 0, screen_h = 0;
-
+static struct timeval time;
 uint32_t NDL_GetTicks() {
   //return ms
-  struct timeval time;
+  //struct timeval time;
   gettimeofday(&time,NULL);
   uint32_t ms = time.tv_usec/1000;
   return ms;
