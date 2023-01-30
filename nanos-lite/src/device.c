@@ -44,7 +44,7 @@ size_t dispinfo_read(void *buf, size_t offset, size_t len) {
   AM_GPU_CONFIG_T ev = io_read(AM_GPU_CONFIG);
   uint32_t height = ev.height;
   uint32_t width = ev.width;
-  size_t real_len = snprintf(buf,len,"WIDTH : %d\n HEIGHT : %d",width,height);
+  size_t real_len = snprintf(buf,len,"WIDTH : %d\nHEIGHT : %d",width,height);
   return real_len;
 }
 
