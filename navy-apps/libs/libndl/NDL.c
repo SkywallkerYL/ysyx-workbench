@@ -12,7 +12,7 @@ uint32_t NDL_GetTicks() {
   //return ms
   //struct timeval time;
   gettimeofday(&timer_count,NULL);
-  uint32_t ms = timer_count.tv_usec/1000;
+  uint32_t ms = timer_count.tv_sec*1000+timer_count.tv_usec/1000;
   return ms;
   //return 0;
 }
