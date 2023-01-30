@@ -52,9 +52,10 @@ size_t fb_write(const void *buf, size_t offset, size_t len) {
   //io_write(AM_GPU_FBDRAW, 0, 0, vmem, screen_width(), screen_height(), true);
   AM_GPU_CONFIG_T ev = io_read(AM_GPU_CONFIG);
   //uint32_t height = ev.height;
+  size_t realoffset = offset/4;
   uint32_t width = ev.width;
-  int y = offset/width;
-  int x = offset-y*width;
+  int y = realoffset/width;
+  int x = realoffset-y*width;
   int wri_width = len/4;
   //assert(wri_width%4==0);
   //io_write(AM_GPU_FBDRAW, x, y, (void *)buf, width, height, true);
