@@ -121,7 +121,7 @@ size_t fs_read(int fd, void *buf, size_t len)
   }
   */
   int openind = GetOpenInd(fd);
-  if (openind == -1)
+  if (openind == -1 )
   {
     Log("File %s read but not open", file_table[fd].name);
     return -1;
@@ -161,7 +161,7 @@ size_t fs_write(int fd, const void *buf, size_t len)
   }
   */
   int openind = GetOpenInd(fd);
-  if (openind == -1)
+  if (openind == -1 && fd!=FB_DEV)
   {
     Log("File %s write but not open", file_table[fd].name);
     return -1;
