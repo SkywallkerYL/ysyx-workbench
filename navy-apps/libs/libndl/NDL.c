@@ -17,16 +17,15 @@ uint32_t NDL_GetTicks() {
   //return 0;
 }
 //键盘抽象成文件
-///home/yangli/ysyx-workbench/navy-apps/libs/libos/src/native.cpp
 //用过open 来进行系统调用文件  即借用操作系统打开文件
 //而fs_open是用户程序访问文件
 //#include <sys/types.h>
 //#include <sys/stat.h>
 #include <fcntl.h>
 int NDL_PollEvent(char *buf, int len) {
-  int fd = open("/dev/events",0,0);
-  int value = read(fd,buf,len);
-  close(fd);
+  int fd = fs_open("/dev/events",0,0);
+  int value = fs_read(fd,buf,len);
+  fs_close(fd);
   return (value != 0);
   //return 0;
 }
