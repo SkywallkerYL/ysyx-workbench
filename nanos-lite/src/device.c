@@ -51,11 +51,13 @@ size_t dispinfo_read(void *buf, size_t offset, size_t len) {
 size_t fb_write(const void *buf, size_t offset, size_t len) {
   //io_write(AM_GPU_FBDRAW, 0, 0, vmem, screen_width(), screen_height(), true);
   AM_GPU_CONFIG_T ev = io_read(AM_GPU_CONFIG);
-  uint32_t height = ev.height;
+  //uint32_t height = ev.height;
   uint32_t width = ev.width;
   int y = offset/width;
   int x = offset-y*width;
-  io_write(AM_GPU_FBDRAW, x, y, (void *)buf, width, height, true);
+
+  //io_write(AM_GPU_FBDRAW, x, y, (void *)buf, width, height, true);
+  io_write(AM_GPU_FBDRAW, x, y, (void *)buf, len, 1, true);
   return 0;
 }
 
