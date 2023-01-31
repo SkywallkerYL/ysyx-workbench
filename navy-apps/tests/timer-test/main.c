@@ -2,16 +2,7 @@
 //#include <assert.h>
 #include <sys/time.h>
 
-//
-//uint32_t NDL_GetTicks();
-//#define TESTMODE 1
-//make file 里需要链接到ndllib
-#ifndef TESTMODE
-#include <NDL.h>
-#endif
 int main(){
-    //get time by gettimeofday
-#ifdef TESTMODE
     struct timeval init_time;
     struct timeval now;
 // init
@@ -37,23 +28,5 @@ int main(){
         }
         
     }
-#else
-    __uint32_t old_ms = NDL_GetTicks();
-    __uint32_t now_ms;
-    int multy = 2;
-    int time = 0;
-    while (1)
-    {
-        now_ms = NDL_GetTicks();
-        __uint32_t gap_ms = now_ms-old_ms;
-        if (gap_ms>500*multy)
-        {
-            old_ms = now_ms;
-            printf("time:%d %d*0.5s passed\n",time,multy);
-            time++;
-        }
-        
-    }
-#endif
     return 0;
 }

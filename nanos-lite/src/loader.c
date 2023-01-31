@@ -35,7 +35,7 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
   assert(fd >=2); 
   //assert((fd != FD_STDIN)&&( fd != FD_STDOUT) && (fd != FD_STDERR));
   size_t fileoffset = file_table[fd].disk_offset; 
-  Log("file %s offset:%d",file_table[fd].name,fileoffset);
+  Log("fd %d offset:%d",fd,fileoffset);
   
   Elf_Ehdr elf_head;
   //这种方式读取文件的范式
