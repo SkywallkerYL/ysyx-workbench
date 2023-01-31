@@ -25,7 +25,6 @@ void render() {
   }
   char fname[256];
   sprintf(fname, path, cur);
-  printf("%s\n",fname);
   slide = SDL_LoadBMP(fname);
   assert(slide);
   SDL_UpdateRect(slide, 0, 0, 0, 0);
@@ -55,11 +54,9 @@ int main() {
 
   while (1) {
     SDL_Event e;
-    //printf("%d\n",e.type);
     SDL_WaitEvent(&e);
-    //if(ret) continue;
+
     if (e.type == SDL_KEYDOWN) {
-      //printf("hhhhh\n");
       switch(e.key.keysym.sym) {
         case SDLK_0: rep = rep * 10 + 0; break;
         case SDLK_1: rep = rep * 10 + 1; break;
