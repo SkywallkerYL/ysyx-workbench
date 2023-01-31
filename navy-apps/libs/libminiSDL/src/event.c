@@ -17,7 +17,7 @@ int SDL_PollEvent(SDL_Event *ev) {
   char* keybuf = buf;
   keybuf+=3;
   if (NDL_PollEvent(buf, sizeof(buf))) {
-    //printf("%s\n",buf);
+    printf("%s\n",keybuf);
     if(strncmp(buf,"kd",2)==0) {ev->type =SDL_KEYDOWN ;}
     else if(strncmp(buf,"kb",2)==0){ev->type =SDL_KEYUP ;}
     else return 1;
