@@ -34,7 +34,7 @@ int SDL_PollEvent(SDL_Event *ev) {
       //printf("%s\n",keyname[i]);
       if (strncmp(keybuf, keyname[i],len)==0)
       {
-        //printf("%s %s\n",keybuf,keyname[i]);
+        printf("%s %s\n",keybuf,keyname[i]);
         ev->key.keysym.sym = i;
         break;
       }
