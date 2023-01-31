@@ -127,36 +127,48 @@ typedef	__uint128_t fixedptud;
 
 /* Multiplies a fixedpt number with an integer, returns the result. */
 static inline fixedpt fixedpt_muli(fixedpt A, int B) {
-	
-	return 0;
+	return A*B;//fixedpt_fromint(B)/(1<<8);
+	//return 0;
 }
 
 /* Divides a fixedpt number with an integer, returns the result. */
 static inline fixedpt fixedpt_divi(fixedpt A, int B) {
-	return 0;
+	return A/B;///fixedpt_fromint(B)*(1<<8);
+	//return 0;
 }
 
 /* Multiplies two fixedpt numbers, returns the result. */
 static inline fixedpt fixedpt_mul(fixedpt A, fixedpt B) {
-	return 0;
+	return A*B/(1<<8);
+	//return 0;
 }
 
 
 /* Divides two fixedpt numbers, returns the result. */
 static inline fixedpt fixedpt_div(fixedpt A, fixedpt B) {
-	return 0;
+	return A/B*(1<<8);
+	//return 0;
 }
 
 static inline fixedpt fixedpt_abs(fixedpt A) {
-	return 0;
+	return (A < 0)? -A:A;
+	//return 0;
 }
 
 static inline fixedpt fixedpt_floor(fixedpt A) {
-	return 0;
+	uint32_t a = -A&(~0xff);
+	uint32_t b = FIXEDPT_ONE;
+	if (fixedpt_fracpart(A) == 0) return A;
+	return (A <0)? -(a+b):(A&(~0xff));
+	//return 0;
 }
 
 static inline fixedpt fixedpt_ceil(fixedpt A) {
-	return 0;
+	uint32_t a = A&(~0xff);
+	uint32_t b = FIXEDPT_ONE;
+	if (fixedpt_fracpart(A) == 0) return A;
+	else return (A > 0)? (a+b):-(-A&(~0xff));
+	//return 0;
 }
 
 /*
