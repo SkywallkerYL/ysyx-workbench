@@ -4,69 +4,12 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
-//将一张画布中的指定矩形区域复制到另一张画布的指定位置
-//SDL_BlitSurface(s, NULL, screen, &dstrect);
 void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_Rect *dstrect) {
   assert(dst && src);
   assert(dst->format->BitsPerPixel == src->format->BitsPerPixel);
-  uint32_t * src_pixels = src->pixels;
-  uint32_t * dst_pixels = dst->pixels;
-  int init_offset = dstrect->y*dst->w+dstrect->x;
-  if(srcrect == NULL){
-    //目前好像只有这种情况，另外的情况没实现
-    /*
-    dstrect->x = 0;
-    dstrect->y = 0;
-    dstrect->w = dst->w;
-    dstrect->h = dst->h;
-    */
-    int w_ = src->w <= dst->w - dstrect->x ? src->w : (dstrect->x + dstrect->w)< dst->w? dstrect->w:dst->w-dstrect->x;
-    int h_ = src->h <= dst->h - dstrect->y ? src->h : (dstrect->y + dstrect->h)< dst->h? dstrect->h:dst->h-dstrect->y;
-    for (size_t i = 0; i < ; i++)
-    {
-      *(dst_pixels+init_offset) = src_pixels
-    }
-    for (size_t i = 0; i < h_ ; i++)
-    {
-      for (size_t j = 0; j < w_; j++)
-      {
-        *(dst_pixels+init_offset+i*dst->w+j) = *(src_pixels+i*src->w+j);
-      }
-    }
-  }
-  else{
-    printf("srcrect invalid\n");
-    assert(0);
-  }
-  return;
 }
-//往画布的指定矩形区域中填充指定的颜色
-//dst 是屏幕 dstrect 是画布
+
 void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color) {
-  //bool flag = dstrect->x==0 && dstrect->y==0 &&dstrect->w ==0 &&dstrect->h ==0;
-  //int w_ = flag?400:dstrect->w;
-  //int h_ = flag?300:dstrect->h;
-  //有distrect为null的情况
-  uint32_t * pixels = dst->pixels;
-  if (dstrect == NULL){
-    for (size_t i = 0; i < dst->w*dst->h; i++)
-    {
-      *(pixels+i) = color;
-    }
-    return;
-  }
-  //同前NDL_DrawRect类似
-  int w_ = (dstrect->x + dstrect->w)< dst->w? dstrect->w:dst->w-dstrect->x;
-  int h_ = (dstrect->y + dstrect->h)< dst->h? dstrect->h:dst->h-dstrect->y;
-  int init_off = dstrect->y*dst->w+dstrect->x;
-  for (size_t i = 0; i < h_ ; i++)
-  {
-    for (size_t j = 0; j < w_; j++)
-    {
-      *(pixels+init_off+i*dst->w+j) = color;
-    }
-  }
-  return;
 }
 //extern int screen_w , screen_h ;
 void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h) {
@@ -91,7 +34,7 @@ static inline int maskToShift(uint32_t mask) {
 }
 
 SDL_Surface* SDL_CreateRGBSurface(uint32_t flags, int width, int height, int depth,
-  uint32_t Rmask, uint32_t Gmask, uint32_t Bmask, uint32_t Amask) {
+    uint32_t Rmask, uint32_t Gmask, uint32_t Bmask, uint32_t Amask) {
   assert(depth == 8 || depth == 32);
   SDL_Surface *s = malloc(sizeof(SDL_Surface));
   assert(s);
