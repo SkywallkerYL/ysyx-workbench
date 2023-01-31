@@ -37,6 +37,10 @@ size_t invalid_write(const void *buf, size_t offset, size_t len)
 void init_fs()
 {
   // TODO: initialize the size of /dev/fb
+  AM_GPU_CONFIG_T ev = io_read(AM_GPU_CONFIG);
+  uint32_t height = ev.height;
+  uint32_t width = ev.width;
+  file_table[FB_DEV].size = height*width*4;
 }
 char* get_file_name(int fd) {
     return file_table[fd].name;
@@ -81,9 +85,10 @@ int fs_open(const char *pathname, int flags, int mode)
   {
     if (strcmp(pathname, file_table[i].name) == 0)
     {
-      if (i == FD_STDIN || i == FD_STDOUT || i == FD_STDERR)
+      //if (i == FD_STDIN || i == FD_STDOUT || i == FD_STDERR)
+      if (i < FB_DEV)
       {
-        Log("File open ignore %s", pathname);
+        if (i == FD_STDIN || i == FD_STDOUT || i == FD_STDERR)Log("File open ignore %s", pathname);
         return i;
       }
       OpenFileTable[OpenNum].fd = i;
@@ -104,7 +109,7 @@ size_t fs_read(int fd, void *buf, size_t len)
   // 注意len之后不要超过文件的size不要跃届
   ReadFn read = file_table[fd].read;
   if (read != NULL)
-  {
+  { 
     return read(buf,0,len);
   }
   
@@ -116,7 +121,7 @@ size_t fs_read(int fd, void *buf, size_t len)
   }
   */
   int openind = GetOpenInd(fd);
-  if (openind == -1)
+  if (openind == -1 )
   {
     Log("File %s read but not open", file_table[fd].name);
     return -1;
@@ -136,7 +141,7 @@ size_t fs_write(int fd, const void *buf, size_t len)
 {
   //添加了vfs抽象，直接调串口的写入，即文件列表里初始化的写函数
   WriteFn write = file_table[fd].write;
-  if(write != NULL){
+  if(write != NULL && fd < FB_DEV){
     return write(buf,0,len);//忽略offset
   }
   /*
@@ -161,11 +166,32 @@ size_t fs_write(int fd, const void *buf, size_t len)
     Log("File %s write but not open", file_table[fd].name);
     return -1;
   }
+  /*
+  if (fd == FB_DEV)
+  {
+    //printf("AAAA\n");
+    size_t writelen = len*4;
+    size_t openoff = OpenFileTable[openind].open_offset;
+    if (openoff > file_table[fd].size) return 0;
+    writelen = (openoff + len*4) > file_table[fd].size ? (file_table[fd].size - openoff) : len*4;
+    //writelen = writelen/4;
+    write(buf, openoff,writelen/4);
+    return writelen;
+  }
+  */
   size_t writelen = len;
   size_t openoff = OpenFileTable[openind].open_offset;
-  if (openoff > file_table[fd].size)
-    return 0;
+  if (openoff > file_table[fd].size) return 0;
   writelen = (openoff + len) > file_table[fd].size ? (file_table[fd].size - openoff) : len;
+
+  if(write!=NULL) {
+    if (fd == FB_DEV)
+    {
+      //printf("AAAA\n");
+      write(buf, openoff,writelen);
+    }
+  }
+  
   ramdisk_write(buf, file_table[fd].disk_offset + openoff, writelen);
   OpenFileTable[openind].open_offset += writelen;
   return writelen;
@@ -187,9 +213,10 @@ The file offset is set to the  size  of  the  file  plus  offset bytes.
 // lseek 允许offset超过size 因此不作判断
 size_t fs_lseek(int fd, size_t offset, int whence)
 {
-  if (fd == FD_STDIN || fd == FD_STDOUT || fd == FD_STDERR)
+  //if (fd == FD_STDIN || fd == FD_STDOUT || fd == FD_STDERR)
+  if (fd < FB_DEV)
   {
-    Log("File lseek ignore %s", file_table[fd].name);
+    if (fd == FD_STDIN || fd == FD_STDOUT || fd == FD_STDERR) Log("File lseek ignore %s", file_table[fd].name);
     return 0;
   }
   int openind = GetOpenInd(fd);
@@ -223,9 +250,10 @@ size_t fs_lseek(int fd, size_t offset, int whence)
 }
 int fs_close(int fd)
 {
-  if (fd == FD_STDIN || fd == FD_STDOUT || fd == FD_STDERR)
+  //if (fd == FD_STDIN || fd == FD_STDOUT || fd == FD_STDERR)
+  if (fd < FD_FB)
   {
-    Log("File close ignore %s", file_table[fd].name);
+    if (fd == FD_STDIN || fd == FD_STDOUT || fd == FD_STDERR) Log("File close ignore %s", file_table[fd].name);
     return 0;
   }
   int openind = GetOpenInd(fd);
