@@ -17,9 +17,9 @@ int SDL_PollEvent(SDL_Event *ev) {
   char* keybuf = buf;
   keybuf+=3;
   if (NDL_PollEvent(buf, sizeof(buf))) {
-    printf("%s\n",buf);
-    if(strncmp(buf,"kd",2)==0) {printf("aaa\n");ev->type =SDL_KEYDOWN ;}
-    else if(strncmp(buf,"kb",2)==0){printf("bbbb\n");ev->type =SDL_KEYUP ;}
+    //printf("%s\n",buf);
+    if(strncmp(buf,"kd",2)==0) {ev->type =SDL_KEYDOWN ;}
+    else if(strncmp(buf,"kb",2)==0){ev->type =SDL_KEYUP ;}
     else return 1;
     for (size_t i = 0; i < 83; i++)
     {
@@ -29,6 +29,7 @@ int SDL_PollEvent(SDL_Event *ev) {
         break;
       }
     }
+    printf("%s\n",keyname[ev->key.keysym.sym]);
   }
   return 0;
 }
