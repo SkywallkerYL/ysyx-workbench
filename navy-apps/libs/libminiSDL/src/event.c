@@ -23,6 +23,7 @@ int SDL_PollEvent(SDL_Event *ev) {
     else return 1;
     for (size_t i = 0; i < 83; i++)
     {
+      printf("%s\n",keyname[i]);
       if (strcmp(keybuf, keyname[i])==0)
       {
         ev->key.keysym.sym = i;
