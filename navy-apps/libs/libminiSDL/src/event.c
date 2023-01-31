@@ -39,7 +39,7 @@ int SDL_PollEvent(SDL_Event *ev) {
         break;
       }
     }
-    //printf("%s\n",keyname[ev->key.keysym.sym]);
+    printf("key %s\n",keyname[ev->key.keysym.sym]);
   }
   else return 1;
   return 0;
