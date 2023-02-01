@@ -13,7 +13,7 @@ void extern_app_run(const char *app_path);
 int main(int argc, char *argv[]) {
   SDL_Init(0);
   font = new BDF_Font(font_fname);
-
+  //printf("aaaa\n");
   // setup display
   int win_w = font->w * W;
   int win_h = font->h * H;
@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
 
   term = new Terminal(W, H);
 
-  if (argc < 2) { builtin_sh_run(); }
+  if (argc < 2) {builtin_sh_run(); }
   else { extern_app_run(argv[1]); }
 
   // should not reach here
@@ -48,7 +48,10 @@ void refresh_terminal() {
   static uint32_t last = 0;
   static int flip = 0;
   uint32_t now = SDL_GetTicks();
+  //printf("now:%d last%d\n",now,last);
   if (now - last > 500 || needsync) {
+    //printf("time ms:%d\n",now);
+
     int x = term->cursor.x, y = term->cursor.y;
     uint32_t color = (flip ? term->foreground(x, y) : term->background(x, y));
     draw_ch(x * font->w, y * font->h, ' ', 0, color);
