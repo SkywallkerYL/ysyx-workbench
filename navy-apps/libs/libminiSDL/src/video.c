@@ -9,17 +9,10 @@
 void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_Rect *dstrect) {
   assert(dst && src);
   assert(dst->format->BitsPerPixel == src->format->BitsPerPixel);
-  uint32_t * src_pixels = src->pixels;
-  uint32_t * dst_pixels = dst->pixels;
+  uint32_t * src_pixels = (uint32_t *)src->pixels;
+  uint32_t * dst_pixels = (uint32_t *)dst->pixels;
   int init_offset = dstrect->y*dst->w+dstrect->x;
   if(srcrect == NULL){
-    //目前好像只有这种情况，另外的情况没实现
-    /*
-    dstrect->x = 0;
-    dstrect->y = 0;
-    dstrect->w = dst->w;
-    dstrect->h = dst->h;
-    */
     int w_ = src->w <= dst->w - dstrect->x ? src->w : (dstrect->x + dstrect->w)< dst->w? dstrect->w:dst->w-dstrect->x;
     int h_ = src->h <= dst->h - dstrect->y ? src->h : (dstrect->y + dstrect->h)< dst->h? dstrect->h:dst->h-dstrect->y;
     for (size_t i = 0; i < h_ ; i++)
@@ -31,8 +24,21 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
     }
   }
   else{
-    printf("srcrect invalid\n");
-    assert(0);
+    int src_offset =srcrect->y*src->w + srcrect->x;
+    //(src->w-srcrect->x) srcrect->w (dst->w-dstrect->x) dstrect->w
+    int src_w = srcrect->w+srcrect->x < src->w ? srcrect->w : (src->w-srcrect->x);
+    int src_h = srcrect->h+srcrect->y < src->h ? srcrect->h : (src->h-srcrect->y);
+    int w_ = src_w <= dst->w - dstrect->x ? src_w : (dstrect->x + dstrect->w)< dst->w? dstrect->w:dst->w-dstrect->x;
+    int h_ = src_h <= dst->h - dstrect->y ? src_h : (dstrect->y + dstrect->h)< dst->h? dstrect->h:dst->h-dstrect->y;
+    for (size_t i = 0; i < h_ ; i++)
+    {
+      for (size_t j = 0; j < w_; j++)
+      {
+        *(dst_pixels+init_offset+i*dst->w+j) = *(src_pixels+src_offset+i*src->w+j);
+      }
+    }
+    //printf("srcrect invalid\n");
+    //assert(0);
   }
   return;
 }
