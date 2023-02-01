@@ -107,6 +107,7 @@ void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color) {
       *(pixels+init_off+i*dst->w+j) = color;
     }
   }
+  NDL_DrawRect((uint32_t *)(dst->pixels),dstrect->x,dstrect->y,w_,h_);
   return;
 }
 //extern int screen_w , screen_h ;
