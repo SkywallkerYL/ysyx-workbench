@@ -13,7 +13,7 @@ void extern_app_run(const char *app_path);
 int main(int argc, char *argv[]) {
   SDL_Init(0);
   font = new BDF_Font(font_fname);
-  printf("aaaa\n");
+  //printf("aaaa\n");
   // setup display
   int win_w = font->w * W;
   int win_h = font->h * H;
