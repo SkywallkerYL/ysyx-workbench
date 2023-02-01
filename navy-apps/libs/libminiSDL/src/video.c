@@ -13,14 +13,14 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
   uint32_t * dst_pixels = (uint32_t *)dst->pixels;
   int init_offset = dstrect->y*dst->w+dstrect->x;
   if(srcrect == NULL){
-    printf("src_w:%d src_h:%d\n",src->w,src->h);
+    //printf("src_w:%d src_h:%d\n",src->w,src->h);
     int w_ = src->w <= dst->w - dstrect->x ? src->w : (dstrect->x + dstrect->w)< dst->w? dstrect->w:dst->w-dstrect->x;
     int h_ = src->h <= dst->h - dstrect->y ? src->h : (dstrect->y + dstrect->h)< dst->h? dstrect->h:dst->h-dstrect->y;
     for (size_t i = 0; i < h_ ; i++)
     {
       for (size_t j = 0; j < w_; j++)
       {
-        *(dst_pixels+init_offset+i*dst->w+j) = *(src_pixels+i*src->w+j);
+        *(dst_pixels+init_offset+i*dst->w+j) = 0xffffffff;//*(src_pixels+i*src->w+j);
       }
     }
   }
