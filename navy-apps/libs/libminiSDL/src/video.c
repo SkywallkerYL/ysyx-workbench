@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdio.h>
 //将一张画布中的指定矩形区域复制到另一张画布的指定位置
 //SDL_BlitSurface(s, NULL, screen, &dstrect);
 void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_Rect *dstrect) {
@@ -13,6 +14,14 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
   uint32_t * dst_pixels = (uint32_t *)dst->pixels;
   int init_offset = dstrect->y*dst->w+dstrect->x;
   //printf("x:%d y:%d\n",dstrect->x,dstrect->y);
+  /*
+  int src_x = 0,src_y = 0,dst_x = 0,dst_y = 0;
+  int src_w,src_h;
+  if(srcrect == NULL){
+  
+  }
+  */
+  if(dst->format->palette) printf("full\n");
   if(srcrect == NULL){
     //printf("src_w:%d src_h:%d\n",src->w,src->h);
     int w_ = src->w <= dst->w - dstrect->x ? src->w : (dstrect->x + dstrect->w)< dst->w? dstrect->w:dst->w-dstrect->x;
@@ -46,6 +55,7 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
     //printf("srcrect invalid\n");
     //assert(0);
   }
+  
   return;
 }
 //往画布的指定矩形区域中填充指定的颜色
