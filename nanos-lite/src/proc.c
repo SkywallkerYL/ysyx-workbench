@@ -29,7 +29,7 @@ void init_proc() {
   //loader(NULL,NULL);
   // /bin/hello /bin/file-test /bin/timer-test /bin/event-test
   // /bin/bmp-test /bin/nslider /bin/menu nterm
-  const char filename []= "/bin/nterm";
+  const char filename []= "/bin/bird";
   naive_uload(NULL,filename);
   //printf("aaaa\n");
 }
