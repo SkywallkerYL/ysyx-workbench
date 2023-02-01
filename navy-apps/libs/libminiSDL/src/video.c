@@ -107,14 +107,14 @@ void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color) {
       *(pixels+init_off+i*dst->w+j) = color;
     }
   }
-  NDL_DrawRect((uint32_t *)(dst->pixels),dstrect->x,dstrect->y,w_,h_);
+  //NDL_DrawRect((uint32_t *)(dst->pixels),dstrect->x,dstrect->y,w_,h_);
   return;
 }
 //extern int screen_w , screen_h ;
 void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h) {
   bool flag = x==0 && y==0 &&w ==0 &&h ==0;
-  int w_ = flag?400:w;
-  int h_ = flag?300:h;
+  int w_ = flag?s->w:w;
+  int h_ = flag?s->h:h;
   NDL_DrawRect((uint32_t *)(s->pixels),x,y,w_,h_);
   //io_write(AM_GPU_FBDRAW, x, y, (void *)s->pixels, w, h, true);
 }
