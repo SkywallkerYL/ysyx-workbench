@@ -12,6 +12,7 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
   uint32_t * src_pixels = (uint32_t *)src->pixels;
   uint32_t * dst_pixels = (uint32_t *)dst->pixels;
   int init_offset = dstrect->y*dst->w+dstrect->x;
+  printf("x:%d y:%d\n",dstrect->x,dstrect->y);
   if(srcrect == NULL){
     //printf("src_w:%d src_h:%d\n",src->w,src->h);
     int w_ = src->w <= dst->w - dstrect->x ? src->w : (dstrect->x + dstrect->w)< dst->w? dstrect->w:dst->w-dstrect->x;
