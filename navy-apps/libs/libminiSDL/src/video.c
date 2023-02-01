@@ -30,9 +30,9 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
     int w_ = src->w <= dst->w - dstrect->x ? src->w : (dstrect->x + dstrect->w)< dst->w? dstrect->w:dst->w-dstrect->x;
     int h_ = src->h <= dst->h - dstrect->y ? src->h : (dstrect->y + dstrect->h)< dst->h? dstrect->h:dst->h-dstrect->y;
     //printf("w:%d h:%d\n",w_,h_);
-    for (size_t i = 0; i < h_*4 ; i++)
+    for (size_t i = 0; i < h_ ; i++)
     {
-      for (size_t j = 0; j < w_*4; j++)
+      for (size_t j = 0; j < w_; j++)
       {
         //dst_pixels[init_offset+i*dst->w+j] = src_pixels[i*src->w+j];
         //*(dst_pixels+init_offset+i*dst->w+j) = *(src_pixels+i*src->w+j);
