@@ -11,7 +11,7 @@ static void sh_printf(const char *format, ...) {
   va_start(ap, format);
   //printf("sh_printf\n");
   int len = vsnprintf(buf, 256, format, ap);
-  printf("buf:%s\n",buf);
+  //printf("buf:%s\n",buf);
   va_end(ap);
   term->write(buf, len);
 }
