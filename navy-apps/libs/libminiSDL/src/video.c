@@ -21,7 +21,7 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
   
   }
   */
-  if(dst->format->palette) printf("full\n");
+  if(dst->format->palette) printf("aaaaaaaaaafull\n");
   if(srcrect == NULL){
     //printf("src_w:%d src_h:%d\n",src->w,src->h);
     int w_ = src->w <= dst->w - dstrect->x ? src->w : (dstrect->x + dstrect->w)< dst->w? dstrect->w:dst->w-dstrect->x;
