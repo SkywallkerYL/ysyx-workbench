@@ -32,12 +32,13 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
     //printf("w:%d h:%d\n",w_,h_);
     for (size_t i = 0; i < h_ ; i++)
     {
-      for (size_t j = 0; j < w_; j++)
-      {
+      memcpy(dst_pixels+init_offset+i*dst->w,src_pixels+i*src->w,w_);
+      //for (size_t j = 0; j < w_; j++)
+      //{
         //dst_pixels[init_offset+i*dst->w+j] = src_pixels[i*src->w+j];
         //*(dst_pixels+init_offset+i*dst->w+j) = *(src_pixels+i*src->w+j);
-        *(dst->pixels+4*(init_offset+i*dst->w+j)) = *(src->pixels+4*(i*src->w+j));
-      }
+        
+      //}
     }
     return;
   }
