@@ -39,6 +39,7 @@ int SDL_PollEvent(SDL_Event *ev) {
         break;
       }
     }
+    return 1;
     //printf("key %s\n",keyname[ev->key.keysym.sym]);
   }
   else {
@@ -48,7 +49,7 @@ int SDL_PollEvent(SDL_Event *ev) {
 }
 
 int SDL_WaitEvent(SDL_Event *event) {
-    char buf[64];
+  char buf[64];
   char* keybuf = buf;
   keybuf+=3;
   int len=0;
@@ -58,7 +59,9 @@ int SDL_WaitEvent(SDL_Event *event) {
     len++;
   }
   keybuf=keybuf-len;
-  if (NDL_PollEvent(buf, sizeof(buf))) {
+  while (!NDL_PollEvent(buf, sizeof(buf)));
+  
+  //if (NDL_PollEvent(buf, sizeof(buf))) {
     //printf("%s\n",keybuf);
     if(strncmp(buf,"kd",2)==0) {event->type =SDL_KEYDOWN ;}
     else if(strncmp(buf,"kb",2)==0){event->type =SDL_KEYUP ;}
@@ -75,13 +78,13 @@ int SDL_WaitEvent(SDL_Event *event) {
       }
     }
     //printf("key %s\n",keyname[ev->key.keysym.sym]);
-  }
-  else {
-    event->type = SDL_USEREVENT;
-    event->key.keysym.sym=0;
-    return 1;
-  }
-  return 0;
+  //}
+  //else {
+   // event->type = SDL_USEREVENT;
+   // event->key.keysym.sym=0;
+   // return 1;
+  //}
+  return 1;
 }
 
 int SDL_PeepEvents(SDL_Event *ev, int numevents, int action, uint32_t mask) {
