@@ -48,6 +48,7 @@ void refresh_terminal() {
   static uint32_t last = 0;
   static int flip = 0;
   uint32_t now = SDL_GetTicks();
+  printf("now:%d last%d\n",now,last);
   if (now - last > 500 || needsync) {
     printf("time ms:%d\n",now);
 
