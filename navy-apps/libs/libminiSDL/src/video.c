@@ -21,8 +21,8 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
     {
       for (size_t j = 0; j < w_; j++)
       {
-        dst_pixels[init_offset+i*dst->w+j] = src_pixels[i*src->w+j];
-        //*(dst_pixels+init_offset+i*dst->w+j) = *(src_pixels+i*src->w+j);
+        //dst_pixels[init_offset+i*dst->w+j] = src_pixels[i*src->w+j];
+        *(dst_pixels+init_offset+i*dst->w+j) = *(src_pixels+i*src->w+j);
       }
     }
   }
