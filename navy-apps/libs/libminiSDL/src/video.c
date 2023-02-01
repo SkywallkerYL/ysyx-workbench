@@ -21,6 +21,7 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
   
   }
   */
+ /**/
   printf("init_offset:%d\n",init_offset);
   //if(dst->format->palette) printf("init_offset\n");
   if(srcrect == NULL){
