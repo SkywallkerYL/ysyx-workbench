@@ -43,8 +43,10 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
   //if(dst->format->palette) printf("init_offset\n");
   //if(srcrect == NULL){
     //printf("src_w:%d src_h:%d\n",src->w,src->h);
-  int w_ = src_w <= dst->w - dst_x ? src_w : (dst_x + dst_w)< dst->w? dst_w:dst->w-dst_x;
-  int h_ = src_h <= dst->h - dst_y ? src_h : (dst_y + dst_h)< dst->h? dst_h:dst->h-dst_y;
+  int minsrc_w = src_w+src_x < src->w ? src_w : (src->w-src_x);
+  int minsrc_h = src_h+src_y < src->h ? src_h : (src->h-src_y);
+  int w_ = minsrc_w <= dst->w - dst_x ? minsrc_w : (dst_x + dst_w)< dst->w? dst_w:dst->w-dst_x;
+  int h_ = minsrc_h <= dst->h - dst_y ? minsrc_h : (dst_y + dst_h)< dst->h? dst_h:dst->h-dst_y;
   //printf("w:%d h:%d\n",w_,h_);
   for (size_t i = 0; i < h_ ; i++)
   {
