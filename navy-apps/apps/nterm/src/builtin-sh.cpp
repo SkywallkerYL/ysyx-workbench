@@ -9,9 +9,9 @@ static void sh_printf(const char *format, ...) {
   static char buf[256] = {};
   va_list ap;
   va_start(ap, format);
-  printf("sh_printf\n");
+  //printf("sh_printf\n");
   int len = vsnprintf(buf, 256, format, ap);
-  printf("len:%d\n",len);
+  //printf("len:%d\n",len);
   va_end(ap);
   term->write(buf, len);
 }
