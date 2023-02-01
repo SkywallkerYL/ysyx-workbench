@@ -26,6 +26,7 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
         *(dst_pixels+init_offset+i*dst->w+j) = *(src_pixels+i*src->w+j);
       }
     }
+    return;
   }
   else{
     int src_offset =srcrect->y*src->w + srcrect->x;
@@ -41,6 +42,7 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
         *(dst_pixels+init_offset+i*dst->w+j) = *(src_pixels+src_offset+i*src->w+j);
       }
     }
+    return;
     //printf("srcrect invalid\n");
     //assert(0);
   }
