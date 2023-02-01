@@ -82,7 +82,8 @@ int SDL_WaitEvent(SDL_Event *event) {
         break;
       }
     }
-  assert(findflag);
+  if(!findflag) return 0;
+  //assert(findflag);
     //printf("key %s\n",keyname[ev->key.keysym.sym]);
   //}
   //else {
