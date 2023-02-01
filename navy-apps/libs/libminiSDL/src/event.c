@@ -46,7 +46,7 @@ int SDL_PollEvent(SDL_Event *ev) {
   else {
     //ev->type = SDL_USEREVENT;
     //ev->key.keysym.sym=0;
-    return 0;
+    return 1;
   }
   //return 1;
 }
