@@ -13,6 +13,7 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
   uint32_t * src_pixels = (uint32_t *)src->pixels;
   uint32_t * dst_pixels = (uint32_t *)dst->pixels;
   int init_offset = dstrect->y*dst->w+dstrect->x;
+  //int src_offset = 
   //printf("x:%d y:%d\n",dstrect->x,dstrect->y);
   /*
   int src_x = 0,src_y = 0,dst_x = 0,dst_y = 0;
@@ -22,19 +23,20 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
   }
   */
  /**/
-  printf("init_offset:%d\n",init_offset);
+  //printf("init_offset:%d\n",init_offset);
   //if(dst->format->palette) printf("init_offset\n");
   if(srcrect == NULL){
     //printf("src_w:%d src_h:%d\n",src->w,src->h);
     int w_ = src->w <= dst->w - dstrect->x ? src->w : (dstrect->x + dstrect->w)< dst->w? dstrect->w:dst->w-dstrect->x;
     int h_ = src->h <= dst->h - dstrect->y ? src->h : (dstrect->y + dstrect->h)< dst->h? dstrect->h:dst->h-dstrect->y;
     //printf("w:%d h:%d\n",w_,h_);
-    for (size_t i = 0; i < h_ ; i++)
+    for (size_t i = 0; i < h_*4 ; i++)
     {
-      for (size_t j = 0; j < w_; j++)
+      for (size_t j = 0; j < w_*4; j++)
       {
         //dst_pixels[init_offset+i*dst->w+j] = src_pixels[i*src->w+j];
-        *(dst_pixels+init_offset+i*dst->w+j) = *(src_pixels+i*src->w+j);
+        //*(dst_pixels+init_offset+i*dst->w+j) = *(src_pixels+i*src->w+j);
+        *(dst->pixels+4*(init_offset+i*dst->w+j)) = *(src->pixels+4*(i*src->w+j));
       }
     }
     return;
