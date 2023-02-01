@@ -49,7 +49,7 @@ void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color) {
   //int w_ = flag?400:dstrect->w;
   //int h_ = flag?300:dstrect->h;
   //有distrect为null的情况
-  uint32_t * pixels = dst->pixels;
+  uint32_t * pixels = (uint32_t *)dst->pixels;
   if (dstrect == NULL){
     for (size_t i = 0; i < dst->w*dst->h; i++)
     {
