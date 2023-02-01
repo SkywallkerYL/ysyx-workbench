@@ -43,6 +43,7 @@ void builtin_sh_run() {
         //printf("key event %d\n",ev.type);
       }
     }
+    printf("hhhhh\n");
     refresh_terminal();
   }
 }
