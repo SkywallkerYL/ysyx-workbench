@@ -149,7 +149,7 @@ Terminal::Terminal(int width, int height) {
   col_f = Color::BLACK;
   col_b = Color::WHITE;
   input[0] = '\0';
-  //printf("w:%d h:%d\n",w,h);
+
   for (int x = 0; x < w; x ++) {
     for (int y = 0; y < h; y ++) {
       putch(x, y, EMPTY);

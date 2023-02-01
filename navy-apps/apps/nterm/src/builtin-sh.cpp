@@ -9,9 +9,7 @@ static void sh_printf(const char *format, ...) {
   static char buf[256] = {};
   va_list ap;
   va_start(ap, format);
-  //printf("sh_printf\n");
   int len = vsnprintf(buf, 256, format, ap);
-  //printf("buf:%s\n",buf);
   va_end(ap);
   term->write(buf, len);
 }
@@ -40,10 +38,8 @@ void builtin_sh_run() {
           sh_handle_cmd(res);
           sh_prompt();
         }
-        //printf("key event %d\n",ev.type);
       }
     }
-    printf("hhhhh\n");
     refresh_terminal();
   }
 }

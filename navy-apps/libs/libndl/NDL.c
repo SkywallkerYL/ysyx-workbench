@@ -28,7 +28,6 @@ uint32_t NDL_GetTicks() {
 #include <sys/stat.h>
 #include <fcntl.h>
 int NDL_PollEvent(char *buf, int len) {
-  memset(buf, 0, len);
   int fd = open("/dev/events",0,0);
 //man 2 read
   int value = read(fd,buf,len);
