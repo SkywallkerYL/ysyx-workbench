@@ -12,36 +12,53 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
   assert(dst->format->BitsPerPixel == src->format->BitsPerPixel);
   uint32_t * src_pixels = (uint32_t *)src->pixels;
   uint32_t * dst_pixels = (uint32_t *)dst->pixels;
-  int init_offset = dstrect->y*dst->w+dstrect->x;
-  //int src_offset = 
   //printf("x:%d y:%d\n",dstrect->x,dstrect->y);
-  /*
-  int src_x = 0,src_y = 0,dst_x = 0,dst_y = 0;
-  int src_w,src_h;
-  if(srcrect == NULL){
   
+  int src_x = 0,src_y = 0,dst_x = 0,dst_y = 0;
+  int dst_w,dst_h;
+  int src_w,src_h;
+  if(dstrect!=NULL){
+    dst_w = dstrect->w;
+    dst_h = dstrect->h;
+    dst_x = dstrect->x;
+    dst_y = dstrect->y;
+  }else {
+    dst_w = dst->w;
+    dst_h = dst->h;
   }
-  */
+  if(srcrect != NULL){
+    src_w = srcrect->w;
+    src_h = srcrect->h;
+    src_x = srcrect->x;
+    src_y = srcrect->y;
+  }
+  else {
+    src_w = src->w;
+    src_h = src->h;
+  }
+  int init_offset = dst_y*dst->w+ dst_x;
+  int src_offset  = src_y*src_w + src_x;
  /**/
   //printf("init_offset:%d\n",init_offset);
   //if(dst->format->palette) printf("init_offset\n");
-  if(srcrect == NULL){
+  //if(srcrect == NULL){
     //printf("src_w:%d src_h:%d\n",src->w,src->h);
-    int w_ = src->w <= dst->w - dstrect->x ? src->w : (dstrect->x + dstrect->w)< dst->w? dstrect->w:dst->w-dstrect->x;
-    int h_ = src->h <= dst->h - dstrect->y ? src->h : (dstrect->y + dstrect->h)< dst->h? dstrect->h:dst->h-dstrect->y;
-    //printf("w:%d h:%d\n",w_,h_);
-    for (size_t i = 0; i < h_ ; i++)
+  int w_ = src_w <= dst->w - dst_x ? src_w : (dst_x + dst_w)< dst->w? dst_w:dst->w-dst_x;
+  int h_ = src_h <= dst->h - dst_y ? src_h : (dst_y + dst_h)< dst->h? dst_h:dst->h-dst_y;
+  //printf("w:%d h:%d\n",w_,h_);
+  for (size_t i = 0; i < h_ ; i++)
+  {
+    //memcpy(dst_pixels+init_offset+i*dst->w,src_pixels+i*src->w,w_);
+    for (size_t j = 0; j < w_; j++)
     {
-      memcpy(dst_pixels+init_offset+i*dst->w,src_pixels+i*src->w,w_);
-      //for (size_t j = 0; j < w_; j++)
-      //{
-        //dst_pixels[init_offset+i*dst->w+j] = src_pixels[i*src->w+j];
-        //*(dst_pixels+init_offset+i*dst->w+j) = *(src_pixels+i*src->w+j);
-        
-      //}
+      //dst_pixels[init_offset+i*dst->w+j] = src_pixels[i*src->w+j];
+      *(dst_pixels+init_offset+i*dst->w+j) = *(src_pixels+src_offset+i*src->w+j);
+      
     }
-    return;
   }
+  return;
+  //}
+  /*
   else{
     int src_offset =srcrect->y*src->w + srcrect->x;
     //(src->w-srcrect->x) srcrect->w (dst->w-dstrect->x) dstrect->w
@@ -59,9 +76,10 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
     return;
     //printf("srcrect invalid\n");
     //assert(0);
-  }
+    */
+  //}
   
-  return;
+  //return;
 }
 //往画布的指定矩形区域中填充指定的颜色
 //dst 是屏幕 dstrect 是画布
