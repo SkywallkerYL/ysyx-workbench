@@ -77,6 +77,7 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
       {
         uint8_t * src_pixels = (uint8_t *)src->pixels;
         uint8_t * dst_pixels = (uint8_t *)dst->pixels;
+        printf("aaaa\n");
         //uint32_t pal_color_xy = palette[pixels[x][y]];
         //dst_pixels[init_offset+i*dst->w+j] = src_pixels[i*src->w+j];
         *(dst_pixels+init_offset+i*dst->w+j) = *(src_pixels+src_offset+i*src->w+j);
