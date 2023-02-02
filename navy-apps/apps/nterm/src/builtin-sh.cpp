@@ -40,7 +40,7 @@ void builtin_sh_run() {
           sh_handle_cmd(res);
           sh_prompt();
         }
-        //printf("key event %d\n",ev.type);
+        //printf("key %d\n",ev.key.keysym.sym);
       }
     }
     //printf("hhhhh\n");
