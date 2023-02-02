@@ -154,7 +154,14 @@ void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color) {
     }
   }
   else{
-
+    uint8_t * pixels = (uint8_t *)dst->pixels;
+    for (size_t i = 0; i < h_ ; i++)
+    {
+      for (size_t j = 0; j < w_; j++)
+      {
+        dst->format->palette->colors[pixels[init_off+i*dst->w+j]].val = color;
+      }
+    }
   }
   
   //NDL_DrawRect((uint32_t *)(dst->pixels),dstrect->x,dstrect->y,w_,h_);
