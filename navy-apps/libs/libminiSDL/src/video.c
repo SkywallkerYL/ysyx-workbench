@@ -165,7 +165,7 @@ void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h) {
   bool flag = x==0 && y==0 &&w ==0 &&h ==0;
   int w_ = flag?s->w:w;
   int h_ = flag?s->h:h;
-  if (s->format->palette!=NULL)
+  if (s->format->palette==NULL)
   {
     NDL_DrawRect((uint32_t *)(s->pixels),x,y,w_,h_);
   }
