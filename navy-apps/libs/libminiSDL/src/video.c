@@ -54,8 +54,8 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
   int w_ = minsrc_w <= dst->w - dst_x ? minsrc_w : (dst_x + dst_w)< dst->w? dst_w:dst->w-dst_x;
   int h_ = minsrc_h <= dst->h - dst_y ? minsrc_h : (dst_y + dst_h)< dst->h? dst_h:dst->h-dst_y;
   //printf("w:%d h:%d\n",w_,h_);
-  if (dst->format->palette == NULL)
-  {
+  //if (dst->format->palette == NULL)
+  //{
     uint32_t * src_pixels = (uint32_t *)src->pixels;
     uint32_t * dst_pixels = (uint32_t *)dst->pixels;
     for (size_t i = 0; i < h_ ; i++)
@@ -68,8 +68,8 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
 
       }
     }
-  }
-  
+  //}
+  /*
   else {
     assert(src->format->palette!=NULL);
     for (size_t i = 0; i < h_ ; i++)
@@ -87,7 +87,7 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
     }
     //printf("aaaa\n");
   }
-  
+  */
 
   return;
   //}
@@ -146,7 +146,7 @@ void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color) {
   int w_ = (dst_x + dst_w)< dst->w? dst_w:dst->w-dst_x;
   int h_ = (dst_y + dst_h)< dst->h? dst_h:dst->h-dst_y;
   int init_off = dst_y*dst->w+dst_x;
-  if(dst->format->palette==NULL){
+  //if(dst->format->palette==NULL){
     uint32_t * pixels = (uint32_t *)dst->pixels;
     for (size_t i = 0; i < h_ ; i++)
     {
@@ -155,7 +155,8 @@ void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color) {
         *(pixels+init_off+i*dst->w+j) = color;
       }
     }
-  }
+  //}
+  /*
   else{
     uint8_t * pixels = (uint8_t *)dst->pixels;
     for (size_t i = 0; i < h_ ; i++)
@@ -166,7 +167,7 @@ void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color) {
       }
     }
   }
-  
+  */
   //NDL_DrawRect((uint32_t *)(dst->pixels),dstrect->x,dstrect->y,w_,h_);
   return;
 }
