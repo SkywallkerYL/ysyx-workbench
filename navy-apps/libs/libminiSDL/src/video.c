@@ -190,6 +190,7 @@ void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h) {
       pixels[i] = s->format->palette->colors[pix[i]].val;
     }
     NDL_DrawRect((uint32_t *)(pixels),x,y,w_,h_);
+    free(pixels);
   }
   
   //io_write(AM_GPU_FBDRAW, x, y, (void *)s->pixels, w, h, true);
