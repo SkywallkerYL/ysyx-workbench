@@ -85,6 +85,7 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
         dst->format->palette->colors[dst_pixels[init_offset+i*dst->w+j]].val = src->format->palette->colors[src_pixels[src_offset+i*src->w+j]].val;
       }
     }
+    printf("aaaa\n");
   }
   
 
