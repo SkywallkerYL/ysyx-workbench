@@ -71,17 +71,18 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
   }
   
   else {
+    assert(src->format->palette!=NULL);
     for (size_t i = 0; i < h_ ; i++)
     {
       for (size_t j = 0; j < w_; j++)
       {
         uint8_t * src_pixels = (uint8_t *)src->pixels;
         uint8_t * dst_pixels = (uint8_t *)dst->pixels;
-        printf("aaaa\n");
+        //printf("aaaa\n");
         //uint32_t pal_color_xy = palette[pixels[x][y]];
         //dst_pixels[init_offset+i*dst->w+j] = src_pixels[i*src->w+j];
-        *(dst_pixels+init_offset+i*dst->w+j) = *(src_pixels+src_offset+i*src->w+j);
-        
+        //*(dst_pixels+init_offset+i*dst->w+j) = *(src_pixels+src_offset+i*src->w+j);
+        dst->format->palette->colors[dst_pixels[init_offset+i*dst->w+j]].val = src->format->palette->colors[src_pixels[src_offset+i*src->w+j]].val;
       }
     }
   }
