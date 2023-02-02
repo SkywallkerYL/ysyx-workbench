@@ -4,7 +4,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <stdio.h>
 //将一张画布中的指定矩形区域复制到另一张画布的指定位置
 //SDL_BlitSurface(s, NULL, screen, &dstrect);
 void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_Rect *dstrect) {
@@ -12,55 +11,23 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
   assert(dst->format->BitsPerPixel == src->format->BitsPerPixel);
   uint32_t * src_pixels = (uint32_t *)src->pixels;
   uint32_t * dst_pixels = (uint32_t *)dst->pixels;
+  int init_offset = dstrect->y*dst->w+dstrect->x;
   //printf("x:%d y:%d\n",dstrect->x,dstrect->y);
-  
-  int src_x = 0,src_y = 0,dst_x = 0,dst_y = 0;
-  int dst_w,dst_h;
-  int src_w,src_h;
-  if(dstrect!=NULL){
-    dst_w = dstrect->w;
-    dst_h = dstrect->h;
-    dst_x = dstrect->x;
-    dst_y = dstrect->y;
-  }else {
-    dst_w = dst->w;
-    dst_h = dst->h;
-  }
-  if(srcrect != NULL){
-    src_w = srcrect->w;
-    src_h = srcrect->h;
-    src_x = srcrect->x;
-    src_y = srcrect->y;
-  }
-  else {
-    src_w = src->w;
-    src_h = src->h;
-  }
-  int init_offset = dst_y*dst->w+ dst_x;
-  int src_offset  = src_y*src_w + src_x;
- /**/
-  //printf("init_offset:%d\n",init_offset);
-  //if(dst->format->palette) printf("init_offset\n");
-  //if(srcrect == NULL){
+  if(srcrect == NULL){
     //printf("src_w:%d src_h:%d\n",src->w,src->h);
-  int minsrc_w = src_w+src_x < src->w ? src_w : (src->w-src_x);
-  int minsrc_h = src_h+src_y < src->h ? src_h : (src->h-src_y);
-  int w_ = minsrc_w <= dst->w - dst_x ? minsrc_w : (dst_x + dst_w)< dst->w? dst_w:dst->w-dst_x;
-  int h_ = minsrc_h <= dst->h - dst_y ? minsrc_h : (dst_y + dst_h)< dst->h? dst_h:dst->h-dst_y;
-  //printf("w:%d h:%d\n",w_,h_);
-  for (size_t i = 0; i < h_ ; i++)
-  {
-    //memcpy(dst_pixels+init_offset+i*dst->w,src_pixels+i*src->w,w_);
-    for (size_t j = 0; j < w_; j++)
+    int w_ = src->w <= dst->w - dstrect->x ? src->w : (dstrect->x + dstrect->w)< dst->w? dstrect->w:dst->w-dstrect->x;
+    int h_ = src->h <= dst->h - dstrect->y ? src->h : (dstrect->y + dstrect->h)< dst->h? dstrect->h:dst->h-dstrect->y;
+    //printf("w:%d h:%d\n",w_,h_);
+    for (size_t i = 0; i < h_ ; i++)
     {
-      //dst_pixels[init_offset+i*dst->w+j] = src_pixels[i*src->w+j];
-      *(dst_pixels+init_offset+i*dst->w+j) = *(src_pixels+src_offset+i*src->w+j);
-      
+      for (size_t j = 0; j < w_; j++)
+      {
+        //dst_pixels[init_offset+i*dst->w+j] = src_pixels[i*src->w+j];
+        *(dst_pixels+init_offset+i*dst->w+j) = *(src_pixels+i*src->w+j);
+      }
     }
+    return;
   }
-  return;
-  //}
-  /*
   else{
     int src_offset =srcrect->y*src->w + srcrect->x;
     //(src->w-srcrect->x) srcrect->w (dst->w-dstrect->x) dstrect->w
@@ -78,10 +45,8 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
     return;
     //printf("srcrect invalid\n");
     //assert(0);
-    */
-  //}
-  
-  //return;
+  }
+  return;
 }
 //往画布的指定矩形区域中填充指定的颜色
 //dst 是屏幕 dstrect 是画布
@@ -109,14 +74,13 @@ void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color) {
       *(pixels+init_off+i*dst->w+j) = color;
     }
   }
-  //NDL_DrawRect((uint32_t *)(dst->pixels),dstrect->x,dstrect->y,w_,h_);
   return;
 }
 //extern int screen_w , screen_h ;
 void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h) {
   bool flag = x==0 && y==0 &&w ==0 &&h ==0;
-  int w_ = flag?s->w:w;
-  int h_ = flag?s->h:h;
+  int w_ = flag?400:w;
+  int h_ = flag?300:h;
   NDL_DrawRect((uint32_t *)(s->pixels),x,y,w_,h_);
   //io_write(AM_GPU_FBDRAW, x, y, (void *)s->pixels, w, h, true);
 }
