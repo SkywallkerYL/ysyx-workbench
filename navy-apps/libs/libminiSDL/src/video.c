@@ -81,11 +81,11 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
         //printf("aaaa\n");
         //uint32_t pal_color_xy = palette[pixels[x][y]];
         //dst_pixels[init_offset+i*dst->w+j] = src_pixels[i*src->w+j];
-        //*(dst_pixels+init_offset+i*dst->w+j) = *(src_pixels+src_offset+i*src->w+j);
-        dst->format->palette->colors[dst_pixels[init_offset+i*dst->w+j]].val = src->format->palette->colors[src_pixels[src_offset+i*src->w+j]].val;
+        *(dst_pixels+init_offset+i*dst->w+j) = *(src_pixels+src_offset+i*src->w+j);
+        //dst->format->palette->colors[dst_pixels[init_offset+i*dst->w+j]].val = src->format->palette->colors[src_pixels[src_offset+i*src->w+j]].val;
       }
     }
-    printf("aaaa\n");
+    //printf("aaaa\n");
   }
   
 
@@ -184,7 +184,7 @@ void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h) {
     int64_t size = sizeof(uint32_t *) * w_*h_;
     uint32_t * pixels = (uint32_t *)malloc(size);
     uint8_t * pix = s->pixels;
-    for (size_t i = 0; i < size; i++)
+    for (size_t i = 0; i < w_*h_; i++)
     {
       /* code */
       pixels[i] = s->format->palette->colors[pix[i]].val;
