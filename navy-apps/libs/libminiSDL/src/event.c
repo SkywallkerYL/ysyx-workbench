@@ -12,7 +12,7 @@ static const char *keyname[] = {
 int SDL_PushEvent(SDL_Event *ev) {
   return 0;
 }
-
+//https://wiki.libsdl.org/SDL2/SDL_PollEvent
 int SDL_PollEvent(SDL_Event *ev) {
   char buf[64];
   char* keybuf = buf;
@@ -50,7 +50,7 @@ int SDL_PollEvent(SDL_Event *ev) {
   }
   //return 1;
 }
-
+//https://wiki.libsdl.org/SDL2/SDL_WaitEvent
 int SDL_WaitEvent(SDL_Event *event) {
   char buf[64];
   char* keybuf = buf;
