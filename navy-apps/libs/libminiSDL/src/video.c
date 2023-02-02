@@ -5,19 +5,13 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdio.h>
-// 现在像素阵列中直接存放32位的颜色信息
-//uint32_t color_xy = pixels[x][y];
-
-// 仙剑奇侠传中的像素阵列存放的是8位的调色板下标,
-// 用这个下标在调色板中进行索引, 得到的才是32位的颜色信息
-//uint32_t pal_color_xy = palette[pixels[x][y]];
-
 //将一张画布中的指定矩形区域复制到另一张画布的指定位置
 //SDL_BlitSurface(s, NULL, screen, &dstrect);
 void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_Rect *dstrect) {
   assert(dst && src);
   assert(dst->format->BitsPerPixel == src->format->BitsPerPixel);
-
+  uint32_t * src_pixels = (uint32_t *)src->pixels;
+  uint32_t * dst_pixels = (uint32_t *)dst->pixels;
   //printf("x:%d y:%d\n",dstrect->x,dstrect->y);
   
   int src_x = 0,src_y = 0,dst_x = 0,dst_y = 0;
@@ -42,8 +36,8 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
     src_w = src->w;
     src_h = src->h;
   }
-  int init_offset = dst_y*dst->w + dst_x;
-  int src_offset  = src_y*src->w + src_x;
+  int init_offset = dst_y*dst->w+ dst_x;
+  int src_offset  = src_y*src_w + src_x;
  /**/
   //printf("init_offset:%d\n",init_offset);
   //if(dst->format->palette) printf("init_offset\n");
@@ -54,53 +48,16 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
   int w_ = minsrc_w <= dst->w - dst_x ? minsrc_w : (dst_x + dst_w)< dst->w? dst_w:dst->w-dst_x;
   int h_ = minsrc_h <= dst->h - dst_y ? minsrc_h : (dst_y + dst_h)< dst->h? dst_h:dst->h-dst_y;
   //printf("w:%d h:%d\n",w_,h_);
-  if (dst->format->palette == NULL)
+  for (size_t i = 0; i < h_ ; i++)
   {
-    uint32_t * src_pixels = (uint32_t *)src->pixels;
-    uint32_t * dst_pixels = (uint32_t *)dst->pixels;
-    for (size_t i = 0; i < h_ ; i++)
+    //memcpy(dst_pixels+init_offset+i*dst->w,src_pixels+i*src->w,w_);
+    for (size_t j = 0; j < w_; j++)
     {
-      //memcpy(dst_pixels+init_offset+i*dst->w,src_pixels+i*src->w,w_);
-      for (size_t j = 0; j < w_; j++)
-      {
-        //dst_pixels[init_offset+i*dst->w+j] = src_pixels[i*src->w+j];
-        *(dst_pixels+init_offset+i*dst->w+j) = *(src_pixels+src_offset+i*src->w+j);
-
-      }
+      //dst_pixels[init_offset+i*dst->w+j] = src_pixels[i*src->w+j];
+      *(dst_pixels+init_offset+i*dst->w+j) = *(src_pixels+src_offset+i*src->w+j);
+      
     }
   }
-  
-  else {
-    assert(src->format->palette!=NULL);
-    /*
-    for (size_t i = 0; i < h_; i++)
-    {
-      memcpy(dst->pixels+(init_offset+i*dst->w),src->pixels+(src_offset+i*src->w),w_);
-    }
-    */
-    /**/
-    uint8_t * src_pixels = (uint8_t *)src->pixels;
-    uint8_t * dst_pixels = (uint8_t *)dst->pixels;
-    for (size_t i = 0; i < h_ ; i++)
-    {
-      for (size_t j = 0; j < w_; j++)
-      {
-
-        //printf("aaaa\n");
-        //uint32_t pal_color_xy = palette[pixels[x][y]];
-        dst_pixels[init_offset+i*dst->w+j] = src_pixels[src_offset+i*src->w+j];
-        
-        //*(dst_pixels+4*(init_offset+i*dst->w+j)) = *(src_pixels+4*(src_offset+i*src->w+j));
-        //printf("%p\n",(dst_pixels+init_offset+i*dst->w+j));
-        //dst->format->palette->colors[dst_pixels[init_offset+i*dst->w+j]].val = src->format->palette->colors[src_pixels[src_offset+i*src->w+j]].val;
-      }
-    }
-    
-    
-    //printf("aaaa\n");
-  }
-  
-
   return;
   //}
   /*
@@ -133,19 +90,7 @@ void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color) {
   //int w_ = flag?400:dstrect->w;
   //int h_ = flag?300:dstrect->h;
   //有distrect为null的情况
-  int dst_x = 0,dst_y = 0;
-  int dst_w,dst_h;
-  if(dstrect!=NULL){
-    dst_w = dstrect->w;
-    dst_h = dstrect->h;
-    dst_x = dstrect->x;
-    dst_y = dstrect->y;
-  }else {
-    dst_w = dst->w;
-    dst_h = dst->h;
-  }
-  
-  /*
+  uint32_t * pixels = (uint32_t *)dst->pixels;
   if (dstrect == NULL){
     for (size_t i = 0; i < dst->w*dst->h; i++)
     {
@@ -153,76 +98,26 @@ void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color) {
     }
     return;
   }
-  */
   //同前NDL_DrawRect类似
-  int w_ = (dst_x + dst_w)< dst->w? dst_w:dst->w-dst_x;
-  int h_ = (dst_y + dst_h)< dst->h? dst_h:dst->h-dst_y;
-  int init_off = dst_y*dst->w+dst_x;
-  //if(dst->format->palette==NULL){
-    uint32_t * pixels = (uint32_t *)dst->pixels;
-    for (size_t i = 0; i < h_ ; i++)
+  int w_ = (dstrect->x + dstrect->w)< dst->w? dstrect->w:dst->w-dstrect->x;
+  int h_ = (dstrect->y + dstrect->h)< dst->h? dstrect->h:dst->h-dstrect->y;
+  int init_off = dstrect->y*dst->w+dstrect->x;
+  for (size_t i = 0; i < h_ ; i++)
+  {
+    for (size_t j = 0; j < w_; j++)
     {
-      for (size_t j = 0; j < w_; j++)
-      {
-        *(pixels+init_off+i*dst->w+j) = color;
-      }
-    }
-  //}
-  /*
-  else{
-    uint8_t * pixels = (uint8_t *)dst->pixels;
-    for (size_t i = 0; i < h_ ; i++)
-    {
-      for (size_t j = 0; j < w_; j++)
-      {
-        dst->format->palette->colors[pixels[init_off+i*dst->w+j]].val = color;
-      }
+      *(pixels+init_off+i*dst->w+j) = color;
     }
   }
-  */
-  //printf("aaaaa\n");
   //NDL_DrawRect((uint32_t *)(dst->pixels),dstrect->x,dstrect->y,w_,h_);
   return;
 }
 //extern int screen_w , screen_h ;
 void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h) {
-  bool flag = w ==0 &&h ==0;
+  bool flag = x==0 && y==0 &&w ==0 &&h ==0;
   int w_ = flag?s->w:w;
   int h_ = flag?s->h:h;
-  if (s->format->palette==NULL)
-  {
-    NDL_DrawRect((uint32_t *)(s->pixels),x,y,w_,h_);
-  }
-  
-  else{
-    //从调色板里取颜色
-    int init_off = y*s->w+x;
-    int64_t size = sizeof(uint32_t *) * w_*h_;
-    uint32_t * pixels = (uint32_t *)malloc(size);
-    uint8_t * pix = s->pixels;
-    for (size_t i = 0; i < h_; i++)
-    {
-      
-      for (size_t j = 0; j < w_; j++)
-      {
-        SDL_Color colors = s->format->palette->colors[pix[init_off+i*s->w+j]];
-        uint32_t a  = colors.a << 24;
-        uint32_t r  = colors.r << 16;
-        uint32_t g  = colors.g << 8;
-        uint32_t b  = colors.b ;
-        pixels[i*w_+j] = a|r|g|b;
-      }
-      
-      //colors存的是r g b a ，顺序不一样不能直接用
-      
-      //pixels[i] = s->format->palette->colors[pix[i+init_off]].val;
-
-    }
-    
-    NDL_DrawRect((uint32_t *)(pixels),x,y,w_,h_);
-    free(pixels);
-  }
-  
+  NDL_DrawRect((uint32_t *)(s->pixels),x,y,w_,h_);
   //io_write(AM_GPU_FBDRAW, x, y, (void *)s->pixels, w, h, true);
 }
 
