@@ -56,6 +56,8 @@ static Finfo file_table[] __attribute__((used)) = {
 */
 // 新开一个结构体 记录打开文件的读写偏移量,这样子方便记录一个文件是否打开
 // open_offset 来记录目前文件操作的位置. 每次对文件读写了多少个字节, 偏移量就前进多少.
+// 不维护这个结构了 ，open_offset移到Finfo里面区
+/*
 typedef struct
 {
   size_t fd;
@@ -77,6 +79,7 @@ static int GetOpenInd(size_t fd)
   }
   return OpenInd;
 }
+*/
 // 这些都忽略flags mode
 // 对于前三个特殊的占为表项也忽略
 int fs_open(const char *pathname, int flags, int mode)
@@ -91,9 +94,10 @@ int fs_open(const char *pathname, int flags, int mode)
         if (i == FD_STDIN || i == FD_STDOUT || i == FD_STDERR)Log("File open ignore %s", pathname);
         return i;
       }
-      OpenFileTable[OpenNum].fd = i;
-      OpenFileTable[OpenNum].open_offset = 0;
-      OpenNum++;
+      //OpenFileTable[OpenNum].fd = i;
+      //OpenFileTable[OpenNum].open_offset = 0;
+      //OpenNum++;
+      file_table[i].open_offset = 0;
       return i;
     }
   }
@@ -120,19 +124,22 @@ size_t fs_read(int fd, void *buf, size_t len)
     return 0;
   }
   */
+  /*
   int openind = GetOpenInd(fd);
   if (openind == -1 )
   {
     Log("File %s read but not open", file_table[fd].name);
     return -1;
   }
+  */
   size_t readlen = len;
-  size_t openoff = OpenFileTable[openind].open_offset;
+  size_t openoff = file_table[fd].open_offset;//OpenFileTable[openind].open_offset;
   if (openoff > file_table[fd].size)
     return 0;
   readlen = (openoff + len) > file_table[fd].size ? (file_table[fd].size - openoff) : len;
   ramdisk_read(buf, file_table[fd].disk_offset + openoff, readlen);
-  OpenFileTable[openind].open_offset += readlen;
+  //OpenFileTable[openind].open_offset += readlen;
+  file_table[fd].open_offset  += readlen;
   return readlen;
 }
 // man 2 write
@@ -160,12 +167,14 @@ size_t fs_write(int fd, const void *buf, size_t len)
     return len;
   }
   */
+ /*
   int openind = GetOpenInd(fd);
   if (openind == -1)
   {
     Log("File %s write but not open", file_table[fd].name);
     return -1;
   }
+  */
   /*
   if (fd == FB_DEV)
   {
@@ -180,7 +189,7 @@ size_t fs_write(int fd, const void *buf, size_t len)
   }
   */
   size_t writelen = len;
-  size_t openoff = OpenFileTable[openind].open_offset;
+  size_t openoff = file_table[fd].open_offset;//OpenFileTable[openind].open_offset;
   if (openoff > file_table[fd].size) return 0;
   writelen = (openoff + len) > file_table[fd].size ? (file_table[fd].size - openoff) : len;
 
@@ -193,7 +202,8 @@ size_t fs_write(int fd, const void *buf, size_t len)
   }
   
   ramdisk_write(buf, file_table[fd].disk_offset + openoff, writelen);
-  OpenFileTable[openind].open_offset += writelen;
+  //OpenFileTable[openind].open_offset += writelen;
+  file_table[fd].open_offset = writelen;
   return writelen;
 }
 // man 2 lseek
@@ -219,15 +229,17 @@ size_t fs_lseek(int fd, size_t offset, int whence)
     if (fd == FD_STDIN || fd == FD_STDOUT || fd == FD_STDERR) Log("File lseek ignore %s", file_table[fd].name);
     return 0;
   }
+  /*
   int openind = GetOpenInd(fd);
   if (openind == -1)
   {
     Log("File %s lseek but not open", file_table[fd].name);
     return -1;
   }
+  */
   size_t setoffset = -1;
   size_t fdsize = file_table[fd].size;
-  size_t openoffset = OpenFileTable[openind].open_offset;
+  size_t openoffset = file_table[fd].open_offset;//OpenFileTable[openind].open_offset;
   switch (whence)
   {
   case SEEK_SET:
@@ -245,7 +257,8 @@ size_t fs_lseek(int fd, size_t offset, int whence)
     break;
   }
   assert(setoffset >= 0);
-  OpenFileTable[openind].open_offset = setoffset;
+  //OpenFileTable[openind].open_offset = setoffset;
+  file_table[fd].open_offset = setoffset;
   return setoffset;
 }
 int fs_close(int fd)
@@ -256,6 +269,7 @@ int fs_close(int fd)
     if (fd == FD_STDIN || fd == FD_STDOUT || fd == FD_STDERR) Log("File close ignore %s", file_table[fd].name);
     return 0;
   }
+  /*
   int openind = GetOpenInd(fd);
   if (openind == -1)
   {
@@ -269,5 +283,6 @@ int fs_close(int fd)
   }
   OpenNum--;
   assert(OpenNum >= 0);
+  */
   return 0;
 }
