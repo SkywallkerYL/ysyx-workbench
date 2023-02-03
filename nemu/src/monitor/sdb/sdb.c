@@ -226,8 +226,20 @@ static int cmd_d (char *args){
   else printf("NO Watchpoint %d \n",NO);
   return 0;
 }
-
-
+void isa_difftest_detach();
+static int cmd_detach(char *args){
+  isa_difftest_detach();
+  return 0;
+}
+void isa_difftest_attach();
+static int cmd_attach(char *args){
+  isa_difftest_attach();
+  return 0;
+}
+static int cmd_savepath(char *args){
+  
+  return 0;
+}
 
 
 static struct {
@@ -244,7 +256,9 @@ static struct {
   {"p","Expression calculation",cmd_p},
   {"pt","Expression calculation test",cmd_pt},
   {"w","Watchpoint add",cmd_w},
-  {"d","Watchpoint delete",cmd_d}
+  {"d","Watchpoint delete",cmd_d},
+  {"attach","Open Difftest",cmd_attach},
+  {"detach","Close Difftest",cmd_detach}
   /* TODO: Add more commands */
 
 };
