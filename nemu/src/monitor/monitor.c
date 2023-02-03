@@ -123,7 +123,7 @@ static int parse_args(int argc, char *argv[])
 void Etrace(word_t mstatus, word_t mcause ,word_t mepc,word_t mtvec, bool ecall);
 void init_Etrace();
 #endif
-static long IMGSIZE;
+long IMGSIZE;
 void init_monitor(int argc, char *argv[])
 {
   /* Perform some global initialization. */
