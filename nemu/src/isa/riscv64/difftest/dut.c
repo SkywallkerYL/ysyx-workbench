@@ -59,7 +59,7 @@ bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
 #endif
   return regflag;
 }
-extern bool is_difftest ;
+static bool is_difftest =true;
 extern bool IMGSIZE ;
 #define PMEM_LEFT  ((paddr_t)CONFIG_MBASE)
 #define PMEM_RIGHT ((paddr_t)CONFIG_MBASE + CONFIG_MSIZE - 1)
