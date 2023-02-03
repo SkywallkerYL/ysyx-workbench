@@ -1,10 +1,10 @@
-# 0 "src/monitor/monitor.c"
+# 0 "src/isa/riscv64/difftest/dut.c"
 # 0 "<built-in>"
 # 0 "<command-line>"
 # 1 "/usr/include/stdc-predef.h" 1 3 4
 # 0 "<command-line>" 2
-# 1 "src/monitor/monitor.c"
-# 16 "src/monitor/monitor.c"
+# 1 "src/isa/riscv64/difftest/dut.c"
+# 16 "src/isa/riscv64/difftest/dut.c"
 # 1 "/home/yangli/ysyx-workbench/nemu/include/isa.h" 1
 # 20 "/home/yangli/ysyx-workbench/nemu/include/isa.h"
 # 1 "/home/yangli/ysyx-workbench/nemu/src/isa/riscv64/include/isa-def.h" 1
@@ -3008,414 +3008,239 @@ _Bool
 # 55 "/home/yangli/ysyx-workbench/nemu/include/isa.h"
     isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc);
 void isa_difftest_attach();
-# 17 "src/monitor/monitor.c" 2
-# 1 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h" 1
-# 26 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h"
-uint8_t* guest_to_host(paddr_t paddr);
+# 17 "src/isa/riscv64/difftest/dut.c" 2
+# 1 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 1
+# 20 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+# 1 "/home/yangli/ysyx-workbench/nemu/include/difftest-def.h" 1
+# 20 "/home/yangli/ysyx-workbench/nemu/include/difftest-def.h"
+# 1 "/home/yangli/ysyx-workbench/nemu/include/generated/autoconf.h" 1
+# 21 "/home/yangli/ysyx-workbench/nemu/include/difftest-def.h" 2
 
-paddr_t host_to_guest(uint8_t *haddr);
+enum { DIFFTEST_TO_DUT, DIFFTEST_TO_REF };
+# 21 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 2
+
+
+void difftest_skip_ref();
+void difftest_skip_dut(int nr_ref, int nr_dut);
+void difftest_set_patch(void (*fn)(void *arg), void *arg);
+void difftest_step(vaddr_t pc, vaddr_t npc);
+void difftest_detach();
+void difftest_attach();
+# 39 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+extern void (*ref_difftest_memcpy)(paddr_t addr, void *buf, size_t n, 
+# 39 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
+                                                                     _Bool 
+# 39 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+                                                                          direction);
+extern void (*ref_difftest_regcpy)(void *dut, 
+# 40 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
+                                             _Bool 
+# 40 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+                                                  direction);
+extern void (*ref_difftest_exec)(uint64_t n);
+extern void (*ref_difftest_raise_intr)(uint64_t NO);
 
 static inline 
-# 30 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h" 3 4
+# 44 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
              _Bool 
-# 30 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h"
-                  in_pmem(paddr_t addr) {
-  return addr - 0x80000000 < 0x8000000;
-}
-
-
-
-
-
-word_t paddr_read(paddr_t addr, int len);
-void paddr_write(paddr_t addr, int len, word_t data);
-
-
-union var8
-{
-    char p[8];
-    int64_t i;
-};
-union var4
-{
-    char p[4];
-    int32_t i;
-};
-union var2
-{
-    char p[2];
-    int16_t i;
-};
-union var1
-{
-    char p;
-    int8_t i;
-};
-
-
-
-void init_ftrace(char * elf_file);
-
-void log_ftrace(paddr_t addr,
-# 67 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h" 3 4
-                            _Bool 
-# 67 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h"
-                                 jarlflag, int rd ,word_t imm, int rs1,word_t src1);
-# 18 "src/monitor/monitor.c" 2
-
-void init_rand();
-void init_log(const char *log_file);
-void init_mem();
-void init_difftest(char *ref_so_file, long img_size, int port);
-void init_device();
-void init_sdb();
-void init_disasm(const char *triple);
-
-static void welcome()
-{
-  do { printf("\33[1;34m" "[%s:%d %s] " "Trace: %s" "\33[0m" "\n", "src/monitor/monitor.c", 29, __func__, "\33[1;32m" "ON" "\33[0m"); do { extern FILE* log_fp; extern 
-# 29 "src/monitor/monitor.c" 3 4
- _Bool 
-# 29 "src/monitor/monitor.c"
- log_enable(); if (log_enable()) { fprintf(log_fp, "\33[1;34m" "[%s:%d %s] " "Trace: %s" "\33[0m" "\n", "src/monitor/monitor.c", 29, __func__, "\33[1;32m" "ON" "\33[0m"); fflush(log_fp); } } while (0); } while (0);
-  do { printf("\33[1;34m" "[%s:%d %s] " "If trace is enabled, a log file will be generated " "to record the trace. This may lead to a large log file. " "If it is not necessary, you can disable it in menuconfig" "\33[0m" "\n", "src/monitor/monitor.c", 30, __func__); do { extern FILE* log_fp; extern 
-# 30 "src/monitor/monitor.c" 3 4
- _Bool 
-# 30 "src/monitor/monitor.c"
- log_enable(); if (log_enable()) { fprintf(log_fp, "\33[1;34m" "[%s:%d %s] " "If trace is enabled, a log file will be generated " "to record the trace. This may lead to a large log file. " "If it is not necessary, you can disable it in menuconfig" "\33[0m" "\n", "src/monitor/monitor.c", 30, __func__); fflush(log_fp); } } while (0); } while (0)
-
-                                                                                      ;
-  do { printf("\33[1;34m" "[%s:%d %s] " "Build time: %s, %s" "\33[0m" "\n", "src/monitor/monitor.c", 33, __func__, "16:56:23", "Feb  3 2023"); do { extern FILE* log_fp; extern 
-# 33 "src/monitor/monitor.c" 3 4
- _Bool 
-# 33 "src/monitor/monitor.c"
- log_enable(); if (log_enable()) { fprintf(log_fp, "\33[1;34m" "[%s:%d %s] " "Build time: %s, %s" "\33[0m" "\n", "src/monitor/monitor.c", 33, __func__, "16:56:23", "Feb  3 2023"); fflush(log_fp); } } while (0); } while (0);
-  printf("Welcome to %s-NEMU!\n", "\33[1;33m" "\33[1;41m" "riscv64" "\33[0m");
-  printf("For help, type \"help\"\n");
-
-
-}
-
-
-# 1 "/usr/include/getopt.h" 1 3 4
-# 35 "/usr/include/getopt.h" 3 4
-# 1 "/usr/include/x86_64-linux-gnu/bits/getopt_core.h" 1 3 4
-# 28 "/usr/include/x86_64-linux-gnu/bits/getopt_core.h" 3 4
-
-
-
-
-
-
-
-
-
-# 36 "/usr/include/x86_64-linux-gnu/bits/getopt_core.h" 3 4
-extern char *optarg;
-# 50 "/usr/include/x86_64-linux-gnu/bits/getopt_core.h" 3 4
-extern int optind;
-
-
-
-
-extern int opterr;
-
-
-
-extern int optopt;
-# 91 "/usr/include/x86_64-linux-gnu/bits/getopt_core.h" 3 4
-extern int getopt (int ___argc, char *const *___argv, const char *__shortopts)
-       __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (2, 3)));
-
-
-# 36 "/usr/include/getopt.h" 2 3 4
-# 1 "/usr/include/x86_64-linux-gnu/bits/getopt_ext.h" 1 3 4
-# 27 "/usr/include/x86_64-linux-gnu/bits/getopt_ext.h" 3 4
-
-# 50 "/usr/include/x86_64-linux-gnu/bits/getopt_ext.h" 3 4
-struct option
-{
-  const char *name;
-
-
-  int has_arg;
-  int *flag;
-  int val;
-};
-
-
-
-
-
-
-
-extern int getopt_long (int ___argc, char *const *___argv,
-   const char *__shortopts,
-          const struct option *__longopts, int *__longind)
-       __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (2, 3)));
-extern int getopt_long_only (int ___argc, char *const *___argv,
-        const char *__shortopts,
-               const struct option *__longopts, int *__longind)
-       __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (2, 3)));
-
-
-# 37 "/usr/include/getopt.h" 2 3 4
-# 42 "src/monitor/monitor.c" 2
-
-
-# 43 "src/monitor/monitor.c"
-void sdb_set_batch_mode();
-void init_ftrace(char * elf_file);
-static char *log_file = 
-# 45 "src/monitor/monitor.c" 3 4
-                       ((void *)0)
-# 45 "src/monitor/monitor.c"
-                           ;
-static char *diff_so_file = 
-# 46 "src/monitor/monitor.c" 3 4
-                           ((void *)0)
-# 46 "src/monitor/monitor.c"
-                               ;
-static char *img_file = 
-# 47 "src/monitor/monitor.c" 3 4
-                       ((void *)0)
-# 47 "src/monitor/monitor.c"
-                           ;
-static int difftest_port = 1234;
-static char *elf_filein = 
-# 49 "src/monitor/monitor.c" 3 4
-                         ((void *)0)
-# 49 "src/monitor/monitor.c"
-                             ;
-static long load_img()
-{
-  if (img_file == 
-# 52 "src/monitor/monitor.c" 3 4
-                 ((void *)0)
-# 52 "src/monitor/monitor.c"
-                     )
-  {
-    do { printf("\33[1;34m" "[%s:%d %s] " "No image is given. Use the default build-in image." "\33[0m" "\n", "src/monitor/monitor.c", 54, __func__); do { extern FILE* log_fp; extern 
-# 54 "src/monitor/monitor.c" 3 4
+# 44 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+                  difftest_check_reg(const char *name, vaddr_t pc, word_t ref, word_t dut) {
+  if (ref != dut) {
+    do { printf("\33[1;34m" "[%s:%d %s] " "%s is different after executing instruction at pc = " "0x%016"
+# 46 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
+   "l" "x" 
+# 46 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+   ", right = " "0x%016"
+# 46 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
+   "l" "x" 
+# 46 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+   ", wrong = " "0x%016"
+# 46 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
+   "l" "x" 
+# 46 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+   ", diff = " "0x%016"
+# 46 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
+   "l" "x" 
+# 46 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+   "\33[0m" "\n", "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h", 46, __func__, name, pc, ref, dut, ref ^ dut); do { extern FILE* log_fp; extern 
+# 46 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
    _Bool 
-# 54 "src/monitor/monitor.c"
-   log_enable(); if (log_enable()) { fprintf(log_fp, "\33[1;34m" "[%s:%d %s] " "No image is given. Use the default build-in image." "\33[0m" "\n", "src/monitor/monitor.c", 54, __func__); fflush(log_fp); } } while (0); } while (0);
-    return 4096;
+# 46 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+   log_enable(); if (log_enable()) { fprintf(log_fp, "\33[1;34m" "[%s:%d %s] " "%s is different after executing instruction at pc = " "0x%016"
+# 46 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
+   "l" "x" 
+# 46 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+   ", right = " "0x%016"
+# 46 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
+   "l" "x" 
+# 46 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+   ", wrong = " "0x%016"
+# 46 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
+   "l" "x" 
+# 46 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+   ", diff = " "0x%016"
+# 46 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
+   "l" "x" 
+# 46 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+   "\33[0m" "\n", "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h", 46, __func__, name, pc, ref, dut, ref ^ dut); fflush(log_fp); } } while (0); } while (0)
+
+                                      ;
+    return 
+# 49 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
+          0
+# 49 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+               ;
   }
-
-  FILE *fp = fopen(img_file, "rb");
-  do { if (!(fp)) { (fflush(
-# 59 "src/monitor/monitor.c" 3 4
- stdout
-# 59 "src/monitor/monitor.c"
- ), fprintf(
-# 59 "src/monitor/monitor.c" 3 4
- stderr
-# 59 "src/monitor/monitor.c"
- , "\33[1;31m" "Can not open '%s'" "\33[0m" "\n", img_file)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
-# 59 "src/monitor/monitor.c" 3 4
- ((void) sizeof ((
-# 59 "src/monitor/monitor.c"
- fp
-# 59 "src/monitor/monitor.c" 3 4
- ) ? 1 : 0), __extension__ ({ if (
-# 59 "src/monitor/monitor.c"
- fp
-# 59 "src/monitor/monitor.c" 3 4
- ) ; else __assert_fail (
-# 59 "src/monitor/monitor.c"
- "fp"
-# 59 "src/monitor/monitor.c" 3 4
- , "src/monitor/monitor.c", 59, __extension__ __PRETTY_FUNCTION__); }))
-# 59 "src/monitor/monitor.c"
- ; } } while (0);
-
-  fseek(fp, 0, 
-# 61 "src/monitor/monitor.c" 3 4
-              2
-# 61 "src/monitor/monitor.c"
-                      );
-  long size = ftell(fp);
-
-  do { printf("\33[1;34m" "[%s:%d %s] " "The image is %s, size = %ld" "\33[0m" "\n", "src/monitor/monitor.c", 64, __func__, img_file, size); do { extern FILE* log_fp; extern 
-# 64 "src/monitor/monitor.c" 3 4
- _Bool 
-# 64 "src/monitor/monitor.c"
- log_enable(); if (log_enable()) { fprintf(log_fp, "\33[1;34m" "[%s:%d %s] " "The image is %s, size = %ld" "\33[0m" "\n", "src/monitor/monitor.c", 64, __func__, img_file, size); fflush(log_fp); } } while (0); } while (0);
-
-  fseek(fp, 0, 
-# 66 "src/monitor/monitor.c" 3 4
-              0
-# 66 "src/monitor/monitor.c"
-                      );
-  int ret = fread(guest_to_host((((paddr_t)0x80000000) + 0x0)), size, 1, fp);
+  return 
+# 51 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
+        1
+# 51 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+            ;
+}
+# 18 "src/isa/riscv64/difftest/dut.c" 2
+# 1 "src/isa/riscv64/difftest/../local-include/reg.h" 1
+# 21 "src/isa/riscv64/difftest/../local-include/reg.h"
+static inline int check_reg_idx(int idx) {
   
-# 68 "src/monitor/monitor.c" 3 4
+# 22 "src/isa/riscv64/difftest/../local-include/reg.h" 3 4
  ((void) sizeof ((
-# 68 "src/monitor/monitor.c"
- ret == 1
-# 68 "src/monitor/monitor.c" 3 4
+# 22 "src/isa/riscv64/difftest/../local-include/reg.h"
+ idx >= 0 && idx < 32
+# 22 "src/isa/riscv64/difftest/../local-include/reg.h" 3 4
  ) ? 1 : 0), __extension__ ({ if (
-# 68 "src/monitor/monitor.c"
- ret == 1
-# 68 "src/monitor/monitor.c" 3 4
+# 22 "src/isa/riscv64/difftest/../local-include/reg.h"
+ idx >= 0 && idx < 32
+# 22 "src/isa/riscv64/difftest/../local-include/reg.h" 3 4
  ) ; else __assert_fail (
-# 68 "src/monitor/monitor.c"
- "ret == 1"
-# 68 "src/monitor/monitor.c" 3 4
- , "src/monitor/monitor.c", 68, __extension__ __PRETTY_FUNCTION__); }))
-# 68 "src/monitor/monitor.c"
-                 ;
-
-  fclose(fp);
-  return size;
+# 22 "src/isa/riscv64/difftest/../local-include/reg.h"
+ "idx >= 0 && idx < 32"
+# 22 "src/isa/riscv64/difftest/../local-include/reg.h" 3 4
+ , "src/isa/riscv64/difftest/../local-include/reg.h", 22, __extension__ __PRETTY_FUNCTION__); }))
+# 22 "src/isa/riscv64/difftest/../local-include/reg.h"
+                                                     ;
+  return idx;
 }
 
-static int parse_args(int argc, char *argv[])
-{
-  const struct option table[] = {
-      {"batch", 
-# 77 "src/monitor/monitor.c" 3 4
-               0
-# 77 "src/monitor/monitor.c"
-                          , 
-# 77 "src/monitor/monitor.c" 3 4
-                            ((void *)0)
-# 77 "src/monitor/monitor.c"
-                                , 'b'},
-      {"log", 
-# 78 "src/monitor/monitor.c" 3 4
-             1
-# 78 "src/monitor/monitor.c"
-                              , 
-# 78 "src/monitor/monitor.c" 3 4
-                                ((void *)0)
-# 78 "src/monitor/monitor.c"
-                                    , 'l'},
-      {"diff", 
-# 79 "src/monitor/monitor.c" 3 4
-              1
-# 79 "src/monitor/monitor.c"
-                               , 
-# 79 "src/monitor/monitor.c" 3 4
-                                 ((void *)0)
-# 79 "src/monitor/monitor.c"
-                                     , 'd'},
-      {"port", 
-# 80 "src/monitor/monitor.c" 3 4
-              1
-# 80 "src/monitor/monitor.c"
-                               , 
-# 80 "src/monitor/monitor.c" 3 4
-                                 ((void *)0)
-# 80 "src/monitor/monitor.c"
-                                     , 'p'},
-      {"help", 
-# 81 "src/monitor/monitor.c" 3 4
-              0
-# 81 "src/monitor/monitor.c"
-                         , 
-# 81 "src/monitor/monitor.c" 3 4
-                           ((void *)0)
-# 81 "src/monitor/monitor.c"
-                               , 'h'},
-      {"ftrace",
-# 82 "src/monitor/monitor.c" 3 4
-               1
-# 82 "src/monitor/monitor.c"
-                                , 
-# 82 "src/monitor/monitor.c" 3 4
-                                  ((void *)0)
-# 82 "src/monitor/monitor.c"
-                                      ,'f'},
-      {0, 0, 
-# 83 "src/monitor/monitor.c" 3 4
-            ((void *)0)
-# 83 "src/monitor/monitor.c"
-                , 0},
-  };
-  int o;
-  while ((o = getopt_long(argc, argv, "-f:bhl:d:p:", table, 
-# 86 "src/monitor/monitor.c" 3 4
-                                                           ((void *)0)
-# 86 "src/monitor/monitor.c"
-                                                               )) != -1)
-  {
-    switch (o)
-    {
-    case 'b':
-      sdb_set_batch_mode();
-      break;
-    case 'p':
-      sscanf(optarg, "%d", &difftest_port);
-      break;
-    case 'l':
-      log_file = optarg;
-      break;
-    case 'd':
-      diff_so_file = optarg;
-      break;
-    case 1:
-      img_file = optarg;
-      return 0;
-    case 'f':
 
-      elf_filein = optarg;
-      break;
-    default:
-      printf("Usage: %s [OPTION...] IMAGE [args]\n\n", argv[0]);
-      printf("\t-b,--batch              run with batch mode\n");
-      printf("\t-l,--log=FILE           output log to FILE\n");
-      printf("\t-d,--diff=REF_SO        run DiffTest with reference REF_SO\n");
-      printf("\t-p,--port=PORT          run DiffTest with port PORT\n");
-      printf("\t-f,--port=FILE          run with ftrace");
-      printf("\n");
-      exit(0);
+
+static inline const char* reg_name(int idx, int width) {
+  extern const char* regs[];
+  return regs[check_reg_idx(idx)];
+}
+# 19 "src/isa/riscv64/difftest/dut.c" 2
+
+const char *regs0[] = {
+  "$0", "ra", "sp", "gp", "tp", "t0", "t1", "t2",
+  "s0", "s1", "a0", "a1", "a2", "a3", "a4", "a5",
+  "a6", "a7", "s2", "s3", "s4", "s5", "s6", "s7",
+  "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6"
+};
+
+
+
+# 28 "src/isa/riscv64/difftest/dut.c" 3 4
+_Bool 
+# 28 "src/isa/riscv64/difftest/dut.c"
+    isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
+  if (ref_r->pc!=cpu.pc) {printf("refpc:%08lx nemupc:%08lx lastpc:%08lx\n",ref_r->pc,cpu.pc,pc);return 
+# 29 "src/isa/riscv64/difftest/dut.c" 3 4
+                                                                                                      0
+# 29 "src/isa/riscv64/difftest/dut.c"
+                                                                                                           ;}
+  
+# 30 "src/isa/riscv64/difftest/dut.c" 3 4
+ _Bool 
+# 30 "src/isa/riscv64/difftest/dut.c"
+      regflag = 
+# 30 "src/isa/riscv64/difftest/dut.c" 3 4
+                1
+# 30 "src/isa/riscv64/difftest/dut.c"
+                    ;
+  for (size_t i = 0; i < 32; i++)
+  {
+
+    if (ref_r->gpr[i]!=cpu.gpr[i])
+    {
+      printf("reg: %s ref:%08lx nemu:%08lx lastpc:%08lx\n",regs0[i],ref_r->gpr[i],cpu.gpr[i],pc);
+
+
+      regflag = 
+# 39 "src/isa/riscv64/difftest/dut.c" 3 4
+               0
+# 39 "src/isa/riscv64/difftest/dut.c"
+                    ;
     }
   }
-  return 0;
+
+  if (ref_r->mepc !=cpu.mepc){
+      printf("mepc ref:%08lx nemu:%08lx lastpc:%08lx\n",ref_r->mepc,cpu.mepc,pc);
+      regflag = 
+# 45 "src/isa/riscv64/difftest/dut.c" 3 4
+               0
+# 45 "src/isa/riscv64/difftest/dut.c"
+                    ;
+  }
+  if (ref_r->mcause !=cpu.mcause){
+      printf("mcause ref:%08lx nemu:%08lx lastpc:%08lx\n",ref_r->mcause,cpu.mcause,pc);
+      regflag = 
+# 49 "src/isa/riscv64/difftest/dut.c" 3 4
+               0
+# 49 "src/isa/riscv64/difftest/dut.c"
+                    ;
+  }
+  if (ref_r->mtvec !=cpu.mtvec){
+      printf("mtvec ref:%08lx nemu:%08lx lastpc:%08lx\n",ref_r->mtvec,cpu.mtvec,pc);
+      regflag = 
+# 53 "src/isa/riscv64/difftest/dut.c" 3 4
+               0
+# 53 "src/isa/riscv64/difftest/dut.c"
+                    ;
+  }
+  if (ref_r->mstatus !=cpu.mstatus){
+      printf("mstatus ref:%08lx nemu:%08lx lastpc:%08lx\n",ref_r->mstatus,cpu.mstatus,pc);
+      regflag = 
+# 57 "src/isa/riscv64/difftest/dut.c" 3 4
+               0
+# 57 "src/isa/riscv64/difftest/dut.c"
+                    ;
+  }
+
+  return regflag;
 }
+extern 
+# 62 "src/isa/riscv64/difftest/dut.c" 3 4
+      _Bool 
+# 62 "src/isa/riscv64/difftest/dut.c"
+           IMGSIZE ;
 
 
 
 
-long IMGSIZE;
-void init_monitor(int argc, char *argv[])
-{
 
-
-
-  parse_args(argc, argv);
-
-
-  init_rand();
-
-
-  init_log(log_file);
-# 151 "src/monitor/monitor.c"
-  init_mem();
-
-
-  init_device();
-
-
-  init_isa();
-
-
-  long img_size = load_img();
-  IMGSIZE = img_size;
-
-  init_difftest(diff_so_file, img_size, difftest_port);
-
-
-  init_sdb();
-
-  init_disasm( "riscv64" "-pc-linux-gnu")
-
-
-
-                                                                                                                 ;
-
-
-  welcome();
+uint8_t* guest_to_host(paddr_t paddr);
+extern 
+# 69 "src/isa/riscv64/difftest/dut.c" 3 4
+      _Bool 
+# 69 "src/isa/riscv64/difftest/dut.c"
+           open_difftest;
+void isa_difftest_attach() {
+  open_difftest = 
+# 71 "src/isa/riscv64/difftest/dut.c" 3 4
+                 1
+# 71 "src/isa/riscv64/difftest/dut.c"
+                     ;
+  ref_difftest_memcpy((((paddr_t)0x80000000) + 0x0), guest_to_host((((paddr_t)0x80000000) + 0x0)), IMGSIZE, DIFFTEST_TO_REF);
+  ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
+}
+extern 
+# 75 "src/isa/riscv64/difftest/dut.c" 3 4
+      _Bool 
+# 75 "src/isa/riscv64/difftest/dut.c"
+           open_difftest;
+void isa_difftest_detach() {
+  open_difftest = 
+# 77 "src/isa/riscv64/difftest/dut.c" 3 4
+                 0
+# 77 "src/isa/riscv64/difftest/dut.c"
+                      ;
 }
