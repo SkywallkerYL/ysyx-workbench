@@ -3231,15 +3231,15 @@ static
 # 32 "src/cpu/difftest/dut.c"
                               ;
 static int skip_dut_nr_inst = 0;
-static 
+
 # 34 "src/cpu/difftest/dut.c" 3 4
-      _Bool 
+_Bool 
 # 34 "src/cpu/difftest/dut.c"
-           open_difftest = 
+    open_difftest = 
 # 34 "src/cpu/difftest/dut.c" 3 4
-                           1
+                    1
 # 34 "src/cpu/difftest/dut.c"
-                               ;
+                        ;
 
 
 
