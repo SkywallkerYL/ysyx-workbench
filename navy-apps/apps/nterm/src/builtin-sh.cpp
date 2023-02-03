@@ -38,6 +38,7 @@ static void sh_handle_cmd(const char *cmd) {
   strncpy(tempbuf,cmd,strlen(cmd)-1);
   //man 2 execve
   printf("%s",tempbuf);
+  printf("aaaaa\n");
   execve(tempbuf, NULL, NULL);
   
 }
