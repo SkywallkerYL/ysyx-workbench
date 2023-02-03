@@ -160,7 +160,7 @@ void init_monitor(int argc, char *argv[])
   long img_size = load_img();
   
   IMGSIZE = img_size;
-  printf("imgsize %ld %ld \n",IMGSIZE,img_size);
+  //printf("imgsize %ld %ld \n",IMGSIZE,img_size);
   /* Initialize differential testing. */
   init_difftest(diff_so_file, img_size, difftest_port);
 
