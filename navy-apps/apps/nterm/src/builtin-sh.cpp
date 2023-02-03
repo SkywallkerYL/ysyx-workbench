@@ -23,8 +23,21 @@ static void sh_banner() {
 static void sh_prompt() {
   sh_printf("sh> ");
 }
+char bufsize = 64;
+char tempbuf[64];
 
 static void sh_handle_cmd(const char *cmd) {
+  if(cmd == NULL) return;
+  if (strlen(cmd) > bufsize)
+  {
+    sh_printf("Too Long Commond\n");
+    return;
+  }
+  memset(tempbuf,0,bufsize);
+  strncpy(tempbuf,cmd,strlen(cmd));
+  //man 2 execve
+  execve(tempbuf, NULL, NULL);
+  
 }
 
 void builtin_sh_run() {
