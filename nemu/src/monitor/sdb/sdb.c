@@ -236,12 +236,11 @@ static int cmd_attach(char *args){
   isa_difftest_attach();
   return 0;
 }
-/*
 static int cmd_savepath(char *args){
   
   return 0;
 }
-*/
+
 
 static struct {
   const char *name;

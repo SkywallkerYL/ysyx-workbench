@@ -1,7 +1,5 @@
 #include <common.h>
 #include "syscall.h"
-#include "proc.h"
-void naive_uload(PCB *pcb, const char *filename);
 //sys相关函数在这里实现，syscall.h是从navyapps链接来的，因此不要修改
 //不然会触发一些难以理解的行为 
 int sys_yield() {
@@ -10,9 +8,7 @@ int sys_yield() {
 }
 
 void sys_exit(int status) {
-    //halt(status);
-    const char filename[] = "/bin/menu";
-    naive_uload(NULL,filename);
+    halt(status);
 }
 //参考/home/yangli/ysyx-workbench/nemu/tools/spike-diff/repo/fesvr/syscall.cc
 //sys_write(reg_t fd, reg_t pbuf, reg_t len, reg_t a3, reg_t a4, reg_t a5, reg_t a6)
@@ -58,12 +54,7 @@ size_t fs_read(int fd, void *buf, size_t len);
 size_t fs_lseek(int fd, size_t offset, int whence);
 int fs_close(int fd);
 char* get_file_name(int fd);
-//man 2 execve
 
-int sys_execve(const char *filename,char * const argv[], char *const envp[]){
-      naive_uload(NULL,filename);
-      return -1;
-}
 
 
 
@@ -78,10 +69,7 @@ void do_syscall(Context *c) {
 #ifdef STRACE
       Log("SYS_EXIT VALUE:%d",c->GPR2);
 #endif
-
-      sys_exit(c->GPR2);ret = 0;break;
-      //ret = sys_execve("/bin/menu",(char * const *)c->GPR3,(char * const *)c->GPR4);
-
+      sys_exit(c->GPR2);break;
     case SYS_yield :
 #ifdef STRACE
       Log("SYS_YIELD");
@@ -128,13 +116,6 @@ void do_syscall(Context *c) {
 #ifdef STRACE
       Log("sys_gettimeofday(%p, %p, %d) = %d", c->GPR2, c->GPR3, c->GPR4, ret);
 #endif
-      break;
-      case SYS_execve:
-#ifdef STRACE
-      Log("sys_execve(%s, %d, %d) ", c->GPR2, 0, 0);
-#endif
-      ret = sys_execve((const char *)c->GPR2,(char * const *)c->GPR3,(char * const *)c->GPR4);
-      
       break;
     default: panic("Unhandled syscall ID = %d", a[0]);
   }
