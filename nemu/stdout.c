@@ -3062,15 +3062,6 @@ void difftest_set_patch(void (*fn)(void *arg), void *arg);
 void difftest_step(vaddr_t pc, vaddr_t npc);
 void difftest_detach();
 void difftest_attach();
-
-# 29 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
-_Bool 
-# 29 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
-    open_difftest = 
-# 29 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
-                    1
-# 29 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
-                        ;
 # 39 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
 extern void (*ref_difftest_memcpy)(paddr_t addr, void *buf, size_t n, 
 # 39 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
@@ -3240,15 +3231,24 @@ static
 # 32 "src/cpu/difftest/dut.c"
                               ;
 static int skip_dut_nr_inst = 0;
+static 
+# 34 "src/cpu/difftest/dut.c" 3 4
+      _Bool 
+# 34 "src/cpu/difftest/dut.c"
+           open_difftest = 
+# 34 "src/cpu/difftest/dut.c" 3 4
+                           1
+# 34 "src/cpu/difftest/dut.c"
+                               ;
 
 
 
 void difftest_skip_ref() {
   if(!open_difftest) return;
   is_skip_ref = 
-# 39 "src/cpu/difftest/dut.c" 3 4
+# 40 "src/cpu/difftest/dut.c" 3 4
                1
-# 39 "src/cpu/difftest/dut.c"
+# 40 "src/cpu/difftest/dut.c"
                    ;
 
 
@@ -3278,152 +3278,152 @@ void difftest_skip_dut(int nr_ref, int nr_dut) {
 void init_difftest(char *ref_so_file, long img_size, int port) {
   cpu.mstatus = 0xa00001800;
   
-# 67 "src/cpu/difftest/dut.c" 3 4
+# 68 "src/cpu/difftest/dut.c" 3 4
  ((void) sizeof ((
-# 67 "src/cpu/difftest/dut.c"
+# 68 "src/cpu/difftest/dut.c"
  ref_so_file != 
-# 67 "src/cpu/difftest/dut.c" 3 4
+# 68 "src/cpu/difftest/dut.c" 3 4
  ((void *)0)) ? 1 : 0), __extension__ ({ if (
-# 67 "src/cpu/difftest/dut.c"
+# 68 "src/cpu/difftest/dut.c"
  ref_so_file != 
-# 67 "src/cpu/difftest/dut.c" 3 4
+# 68 "src/cpu/difftest/dut.c" 3 4
  ((void *)0)) ; else __assert_fail (
-# 67 "src/cpu/difftest/dut.c"
+# 68 "src/cpu/difftest/dut.c"
  "ref_so_file != NULL"
-# 67 "src/cpu/difftest/dut.c" 3 4
- , "src/cpu/difftest/dut.c", 67, __extension__ __PRETTY_FUNCTION__); }))
-# 67 "src/cpu/difftest/dut.c"
+# 68 "src/cpu/difftest/dut.c" 3 4
+ , "src/cpu/difftest/dut.c", 68, __extension__ __PRETTY_FUNCTION__); }))
+# 68 "src/cpu/difftest/dut.c"
                             ;
 
   void *handle;
   handle = dlopen(ref_so_file, 
-# 70 "src/cpu/difftest/dut.c" 3 4
+# 71 "src/cpu/difftest/dut.c" 3 4
                               0x00001
-# 70 "src/cpu/difftest/dut.c"
+# 71 "src/cpu/difftest/dut.c"
                                        );
   
-# 71 "src/cpu/difftest/dut.c" 3 4
+# 72 "src/cpu/difftest/dut.c" 3 4
  ((void) sizeof ((
-# 71 "src/cpu/difftest/dut.c"
+# 72 "src/cpu/difftest/dut.c"
  handle
-# 71 "src/cpu/difftest/dut.c" 3 4
+# 72 "src/cpu/difftest/dut.c" 3 4
  ) ? 1 : 0), __extension__ ({ if (
-# 71 "src/cpu/difftest/dut.c"
+# 72 "src/cpu/difftest/dut.c"
  handle
-# 71 "src/cpu/difftest/dut.c" 3 4
+# 72 "src/cpu/difftest/dut.c" 3 4
  ) ; else __assert_fail (
-# 71 "src/cpu/difftest/dut.c"
+# 72 "src/cpu/difftest/dut.c"
  "handle"
-# 71 "src/cpu/difftest/dut.c" 3 4
- , "src/cpu/difftest/dut.c", 71, __extension__ __PRETTY_FUNCTION__); }))
-# 71 "src/cpu/difftest/dut.c"
+# 72 "src/cpu/difftest/dut.c" 3 4
+ , "src/cpu/difftest/dut.c", 72, __extension__ __PRETTY_FUNCTION__); }))
+# 72 "src/cpu/difftest/dut.c"
                ;
 
   ref_difftest_memcpy = dlsym(handle, "difftest_memcpy");
   
-# 74 "src/cpu/difftest/dut.c" 3 4
+# 75 "src/cpu/difftest/dut.c" 3 4
  ((void) sizeof ((
-# 74 "src/cpu/difftest/dut.c"
+# 75 "src/cpu/difftest/dut.c"
  ref_difftest_memcpy
-# 74 "src/cpu/difftest/dut.c" 3 4
+# 75 "src/cpu/difftest/dut.c" 3 4
  ) ? 1 : 0), __extension__ ({ if (
-# 74 "src/cpu/difftest/dut.c"
+# 75 "src/cpu/difftest/dut.c"
  ref_difftest_memcpy
-# 74 "src/cpu/difftest/dut.c" 3 4
+# 75 "src/cpu/difftest/dut.c" 3 4
  ) ; else __assert_fail (
-# 74 "src/cpu/difftest/dut.c"
+# 75 "src/cpu/difftest/dut.c"
  "ref_difftest_memcpy"
-# 74 "src/cpu/difftest/dut.c" 3 4
- , "src/cpu/difftest/dut.c", 74, __extension__ __PRETTY_FUNCTION__); }))
-# 74 "src/cpu/difftest/dut.c"
+# 75 "src/cpu/difftest/dut.c" 3 4
+ , "src/cpu/difftest/dut.c", 75, __extension__ __PRETTY_FUNCTION__); }))
+# 75 "src/cpu/difftest/dut.c"
                             ;
 
   ref_difftest_regcpy = dlsym(handle, "difftest_regcpy");
   
-# 77 "src/cpu/difftest/dut.c" 3 4
+# 78 "src/cpu/difftest/dut.c" 3 4
  ((void) sizeof ((
-# 77 "src/cpu/difftest/dut.c"
+# 78 "src/cpu/difftest/dut.c"
  ref_difftest_regcpy
-# 77 "src/cpu/difftest/dut.c" 3 4
+# 78 "src/cpu/difftest/dut.c" 3 4
  ) ? 1 : 0), __extension__ ({ if (
-# 77 "src/cpu/difftest/dut.c"
+# 78 "src/cpu/difftest/dut.c"
  ref_difftest_regcpy
-# 77 "src/cpu/difftest/dut.c" 3 4
+# 78 "src/cpu/difftest/dut.c" 3 4
  ) ; else __assert_fail (
-# 77 "src/cpu/difftest/dut.c"
+# 78 "src/cpu/difftest/dut.c"
  "ref_difftest_regcpy"
-# 77 "src/cpu/difftest/dut.c" 3 4
- , "src/cpu/difftest/dut.c", 77, __extension__ __PRETTY_FUNCTION__); }))
-# 77 "src/cpu/difftest/dut.c"
+# 78 "src/cpu/difftest/dut.c" 3 4
+ , "src/cpu/difftest/dut.c", 78, __extension__ __PRETTY_FUNCTION__); }))
+# 78 "src/cpu/difftest/dut.c"
                             ;
 
   ref_difftest_exec = dlsym(handle, "difftest_exec");
   
-# 80 "src/cpu/difftest/dut.c" 3 4
+# 81 "src/cpu/difftest/dut.c" 3 4
  ((void) sizeof ((
-# 80 "src/cpu/difftest/dut.c"
+# 81 "src/cpu/difftest/dut.c"
  ref_difftest_exec
-# 80 "src/cpu/difftest/dut.c" 3 4
+# 81 "src/cpu/difftest/dut.c" 3 4
  ) ? 1 : 0), __extension__ ({ if (
-# 80 "src/cpu/difftest/dut.c"
+# 81 "src/cpu/difftest/dut.c"
  ref_difftest_exec
-# 80 "src/cpu/difftest/dut.c" 3 4
+# 81 "src/cpu/difftest/dut.c" 3 4
  ) ; else __assert_fail (
-# 80 "src/cpu/difftest/dut.c"
+# 81 "src/cpu/difftest/dut.c"
  "ref_difftest_exec"
-# 80 "src/cpu/difftest/dut.c" 3 4
- , "src/cpu/difftest/dut.c", 80, __extension__ __PRETTY_FUNCTION__); }))
-# 80 "src/cpu/difftest/dut.c"
+# 81 "src/cpu/difftest/dut.c" 3 4
+ , "src/cpu/difftest/dut.c", 81, __extension__ __PRETTY_FUNCTION__); }))
+# 81 "src/cpu/difftest/dut.c"
                           ;
 
   ref_difftest_raise_intr = dlsym(handle, "difftest_raise_intr");
   
-# 83 "src/cpu/difftest/dut.c" 3 4
+# 84 "src/cpu/difftest/dut.c" 3 4
  ((void) sizeof ((
-# 83 "src/cpu/difftest/dut.c"
+# 84 "src/cpu/difftest/dut.c"
  ref_difftest_raise_intr
-# 83 "src/cpu/difftest/dut.c" 3 4
+# 84 "src/cpu/difftest/dut.c" 3 4
  ) ? 1 : 0), __extension__ ({ if (
-# 83 "src/cpu/difftest/dut.c"
+# 84 "src/cpu/difftest/dut.c"
  ref_difftest_raise_intr
-# 83 "src/cpu/difftest/dut.c" 3 4
+# 84 "src/cpu/difftest/dut.c" 3 4
  ) ; else __assert_fail (
-# 83 "src/cpu/difftest/dut.c"
+# 84 "src/cpu/difftest/dut.c"
  "ref_difftest_raise_intr"
-# 83 "src/cpu/difftest/dut.c" 3 4
- , "src/cpu/difftest/dut.c", 83, __extension__ __PRETTY_FUNCTION__); }))
-# 83 "src/cpu/difftest/dut.c"
+# 84 "src/cpu/difftest/dut.c" 3 4
+ , "src/cpu/difftest/dut.c", 84, __extension__ __PRETTY_FUNCTION__); }))
+# 84 "src/cpu/difftest/dut.c"
                                 ;
 
   void (*ref_difftest_init)(int) = dlsym(handle, "difftest_init");
   
-# 86 "src/cpu/difftest/dut.c" 3 4
+# 87 "src/cpu/difftest/dut.c" 3 4
  ((void) sizeof ((
-# 86 "src/cpu/difftest/dut.c"
+# 87 "src/cpu/difftest/dut.c"
  ref_difftest_init
-# 86 "src/cpu/difftest/dut.c" 3 4
+# 87 "src/cpu/difftest/dut.c" 3 4
  ) ? 1 : 0), __extension__ ({ if (
-# 86 "src/cpu/difftest/dut.c"
+# 87 "src/cpu/difftest/dut.c"
  ref_difftest_init
-# 86 "src/cpu/difftest/dut.c" 3 4
+# 87 "src/cpu/difftest/dut.c" 3 4
  ) ; else __assert_fail (
-# 86 "src/cpu/difftest/dut.c"
+# 87 "src/cpu/difftest/dut.c"
  "ref_difftest_init"
-# 86 "src/cpu/difftest/dut.c" 3 4
- , "src/cpu/difftest/dut.c", 86, __extension__ __PRETTY_FUNCTION__); }))
-# 86 "src/cpu/difftest/dut.c"
+# 87 "src/cpu/difftest/dut.c" 3 4
+ , "src/cpu/difftest/dut.c", 87, __extension__ __PRETTY_FUNCTION__); }))
+# 87 "src/cpu/difftest/dut.c"
                           ;
 
-  do { printf("\33[1;34m" "[%s:%d %s] " "Differential testing: %s" "\33[0m" "\n", "src/cpu/difftest/dut.c", 88, __func__, "\33[1;32m" "ON" "\33[0m"); do { extern FILE* log_fp; extern 
-# 88 "src/cpu/difftest/dut.c" 3 4
- _Bool 
-# 88 "src/cpu/difftest/dut.c"
- log_enable(); if (log_enable()) { fprintf(log_fp, "\33[1;34m" "[%s:%d %s] " "Differential testing: %s" "\33[0m" "\n", "src/cpu/difftest/dut.c", 88, __func__, "\33[1;32m" "ON" "\33[0m"); fflush(log_fp); } } while (0); } while (0);
-  do { printf("\33[1;34m" "[%s:%d %s] " "The result of every instruction will be compared with %s. " "This will help you a lot for debugging, but also significantly reduce the performance. " "If it is not necessary, you can turn it off in menuconfig." "\33[0m" "\n", "src/cpu/difftest/dut.c", 89, __func__, ref_so_file); do { extern FILE* log_fp; extern 
+  do { printf("\33[1;34m" "[%s:%d %s] " "Differential testing: %s" "\33[0m" "\n", "src/cpu/difftest/dut.c", 89, __func__, "\33[1;32m" "ON" "\33[0m"); do { extern FILE* log_fp; extern 
 # 89 "src/cpu/difftest/dut.c" 3 4
  _Bool 
 # 89 "src/cpu/difftest/dut.c"
- log_enable(); if (log_enable()) { fprintf(log_fp, "\33[1;34m" "[%s:%d %s] " "The result of every instruction will be compared with %s. " "This will help you a lot for debugging, but also significantly reduce the performance. " "If it is not necessary, you can turn it off in menuconfig." "\33[0m" "\n", "src/cpu/difftest/dut.c", 89, __func__, ref_so_file); fflush(log_fp); } } while (0); } while (0)
+ log_enable(); if (log_enable()) { fprintf(log_fp, "\33[1;34m" "[%s:%d %s] " "Differential testing: %s" "\33[0m" "\n", "src/cpu/difftest/dut.c", 89, __func__, "\33[1;32m" "ON" "\33[0m"); fflush(log_fp); } } while (0); } while (0);
+  do { printf("\33[1;34m" "[%s:%d %s] " "The result of every instruction will be compared with %s. " "This will help you a lot for debugging, but also significantly reduce the performance. " "If it is not necessary, you can turn it off in menuconfig." "\33[0m" "\n", "src/cpu/difftest/dut.c", 90, __func__, ref_so_file); do { extern FILE* log_fp; extern 
+# 90 "src/cpu/difftest/dut.c" 3 4
+ _Bool 
+# 90 "src/cpu/difftest/dut.c"
+ log_enable(); if (log_enable()) { fprintf(log_fp, "\33[1;34m" "[%s:%d %s] " "The result of every instruction will be compared with %s. " "This will help you a lot for debugging, but also significantly reduce the performance. " "If it is not necessary, you can turn it off in menuconfig." "\33[0m" "\n", "src/cpu/difftest/dut.c", 90, __func__, ref_so_file); fflush(log_fp); } } while (0); } while (0)
 
                                                                                 ;
 
@@ -3457,37 +3457,37 @@ void difftest_step(vaddr_t pc, vaddr_t npc) {
     skip_dut_nr_inst --;
     if (skip_dut_nr_inst == 0)
       do { if (!(0)) { (fflush(
-# 122 "src/cpu/difftest/dut.c" 3 4
+# 123 "src/cpu/difftest/dut.c" 3 4
      stdout
-# 122 "src/cpu/difftest/dut.c"
+# 123 "src/cpu/difftest/dut.c"
      ), fprintf(
-# 122 "src/cpu/difftest/dut.c" 3 4
+# 123 "src/cpu/difftest/dut.c" 3 4
      stderr
-# 122 "src/cpu/difftest/dut.c"
+# 123 "src/cpu/difftest/dut.c"
      , "\33[1;31m" "can not catch up with ref.pc = " "0x%016"
-# 122 "src/cpu/difftest/dut.c" 3 4
+# 123 "src/cpu/difftest/dut.c" 3 4
      "l" "x" 
-# 122 "src/cpu/difftest/dut.c"
+# 123 "src/cpu/difftest/dut.c"
      " at pc = " "0x%016"
-# 122 "src/cpu/difftest/dut.c" 3 4
+# 123 "src/cpu/difftest/dut.c" 3 4
      "l" "x" 
-# 122 "src/cpu/difftest/dut.c"
+# 123 "src/cpu/difftest/dut.c"
      "\33[0m" "\n", ref_r.pc, pc)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
-# 122 "src/cpu/difftest/dut.c" 3 4
+# 123 "src/cpu/difftest/dut.c" 3 4
      ((void) sizeof ((
-# 122 "src/cpu/difftest/dut.c"
+# 123 "src/cpu/difftest/dut.c"
      0
-# 122 "src/cpu/difftest/dut.c" 3 4
+# 123 "src/cpu/difftest/dut.c" 3 4
      ) ? 1 : 0), __extension__ ({ if (
-# 122 "src/cpu/difftest/dut.c"
+# 123 "src/cpu/difftest/dut.c"
      0
-# 122 "src/cpu/difftest/dut.c" 3 4
+# 123 "src/cpu/difftest/dut.c" 3 4
      ) ; else __assert_fail (
-# 122 "src/cpu/difftest/dut.c"
+# 123 "src/cpu/difftest/dut.c"
      "0"
-# 122 "src/cpu/difftest/dut.c" 3 4
-     , "src/cpu/difftest/dut.c", 122, __extension__ __PRETTY_FUNCTION__); }))
-# 122 "src/cpu/difftest/dut.c"
+# 123 "src/cpu/difftest/dut.c" 3 4
+     , "src/cpu/difftest/dut.c", 123, __extension__ __PRETTY_FUNCTION__); }))
+# 123 "src/cpu/difftest/dut.c"
      ; } } while (0);
     return;
   }
@@ -3496,9 +3496,9 @@ void difftest_step(vaddr_t pc, vaddr_t npc) {
 
     ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
     is_skip_ref = 
-# 129 "src/cpu/difftest/dut.c" 3 4
+# 130 "src/cpu/difftest/dut.c" 3 4
                  0
-# 129 "src/cpu/difftest/dut.c"
+# 130 "src/cpu/difftest/dut.c"
                       ;
     return;
   }
