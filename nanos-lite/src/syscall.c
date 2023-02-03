@@ -1,5 +1,7 @@
 #include <common.h>
 #include "syscall.h"
+#include "proc.h"
+void naive_uload(PCB *pcb, const char *filename);
 //sys相关函数在这里实现，syscall.h是从navyapps链接来的，因此不要修改
 //不然会触发一些难以理解的行为 
 int sys_yield() {
@@ -8,7 +10,9 @@ int sys_yield() {
 }
 
 void sys_exit(int status) {
-    halt(status);
+    //halt(status);
+    const char filename[] = "/bin/menu";
+    naive_uload(NULL,filename);
 }
 //参考/home/yangli/ysyx-workbench/nemu/tools/spike-diff/repo/fesvr/syscall.cc
 //sys_write(reg_t fd, reg_t pbuf, reg_t len, reg_t a3, reg_t a4, reg_t a5, reg_t a6)
@@ -55,8 +59,7 @@ size_t fs_lseek(int fd, size_t offset, int whence);
 int fs_close(int fd);
 char* get_file_name(int fd);
 //man 2 execve
-#include "proc.h"
-void naive_uload(PCB *pcb, const char *filename);
+
 int sys_execve(const char *filename,char * const argv[], char *const envp[]){
       naive_uload(NULL,filename);
       return -1;
@@ -75,9 +78,10 @@ void do_syscall(Context *c) {
 #ifdef STRACE
       Log("SYS_EXIT VALUE:%d",c->GPR2);
 #endif
-      //sys_exit(c->GPR2);break;
-      ret = sys_execve("/bin/menu",(char * const *)c->GPR3,(char * const *)c->GPR4);
-      break;
+
+      sys_exit(c->GPR2);ret = 0;break;
+      //ret = sys_execve("/bin/menu",(char * const *)c->GPR3,(char * const *)c->GPR4);
+
     case SYS_yield :
 #ifdef STRACE
       Log("SYS_YIELD");
