@@ -123,7 +123,6 @@ static int parse_args(int argc, char *argv[])
 void Etrace(word_t mstatus, word_t mcause ,word_t mepc,word_t mtvec, bool ecall);
 void init_Etrace();
 #endif
-long IMGSIZE;
 void init_monitor(int argc, char *argv[])
 {
   /* Perform some global initialization. */
@@ -158,9 +157,7 @@ void init_monitor(int argc, char *argv[])
 
   /* Load the image to memory. This will overwrite the built-in image. */
   long img_size = load_img();
-  
-  IMGSIZE = img_size;
-  //printf("imgsize %ld %ld \n",IMGSIZE,img_size);
+
   /* Initialize differential testing. */
   init_difftest(diff_so_file, img_size, difftest_port);
 
