@@ -1,12 +1,22 @@
-# 0 "src/cpu/difftest/dut.c"
+# 0 "src/cpu/difftest/ref.c"
 # 0 "<built-in>"
 # 0 "<command-line>"
 # 1 "/usr/include/stdc-predef.h" 1 3 4
 # 0 "<command-line>" 2
-# 1 "src/cpu/difftest/dut.c"
-# 16 "src/cpu/difftest/dut.c"
-# 1 "/usr/include/dlfcn.h" 1 3 4
-# 22 "/usr/include/dlfcn.h" 3 4
+# 1 "src/cpu/difftest/ref.c"
+# 16 "src/cpu/difftest/ref.c"
+# 1 "/home/yangli/ysyx-workbench/nemu/include/isa.h" 1
+# 20 "/home/yangli/ysyx-workbench/nemu/include/isa.h"
+# 1 "/home/yangli/ysyx-workbench/nemu/src/isa/riscv64/include/isa-def.h" 1
+# 19 "/home/yangli/ysyx-workbench/nemu/src/isa/riscv64/include/isa-def.h"
+# 1 "/home/yangli/ysyx-workbench/nemu/include/common.h" 1
+# 19 "/home/yangli/ysyx-workbench/nemu/include/common.h"
+# 1 "/usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h" 1 3 4
+# 9 "/usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h" 3 4
+# 1 "/usr/include/stdint.h" 1 3 4
+# 26 "/usr/include/stdint.h" 3 4
+# 1 "/usr/include/x86_64-linux-gnu/bits/libc-header-start.h" 1 3 4
+# 33 "/usr/include/x86_64-linux-gnu/bits/libc-header-start.h" 3 4
 # 1 "/usr/include/features.h" 1 3 4
 # 392 "/usr/include/features.h" 3 4
 # 1 "/usr/include/features-time64.h" 1 3 4
@@ -33,50 +43,7 @@
 # 1 "/usr/include/x86_64-linux-gnu/gnu/stubs-64.h" 1 3 4
 # 11 "/usr/include/x86_64-linux-gnu/gnu/stubs.h" 2 3 4
 # 511 "/usr/include/features.h" 2 3 4
-# 23 "/usr/include/dlfcn.h" 2 3 4
-
-# 1 "/usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h" 1 3 4
-# 209 "/usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h" 3 4
-
-# 209 "/usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h" 3 4
-typedef long unsigned int size_t;
-# 25 "/usr/include/dlfcn.h" 2 3 4
-
-
-# 1 "/usr/include/x86_64-linux-gnu/bits/dlfcn.h" 1 3 4
-# 28 "/usr/include/dlfcn.h" 2 3 4
-# 54 "/usr/include/dlfcn.h" 3 4
-
-
-
-
-extern void *dlopen (const char *__file, int __mode) __attribute__ ((__nothrow__));
-
-
-
-extern int dlclose (void *__handle) __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1)));
-
-
-
-extern void *dlsym (void *__restrict __handle,
-      const char *__restrict __name) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (2)));
-# 84 "/usr/include/dlfcn.h" 3 4
-extern char *dlerror (void) __attribute__ ((__nothrow__ , __leaf__));
-# 227 "/usr/include/dlfcn.h" 3 4
-
-# 17 "src/cpu/difftest/dut.c" 2
-
-# 1 "/home/yangli/ysyx-workbench/nemu/include/isa.h" 1
-# 20 "/home/yangli/ysyx-workbench/nemu/include/isa.h"
-# 1 "/home/yangli/ysyx-workbench/nemu/src/isa/riscv64/include/isa-def.h" 1
-# 19 "/home/yangli/ysyx-workbench/nemu/src/isa/riscv64/include/isa-def.h"
-# 1 "/home/yangli/ysyx-workbench/nemu/include/common.h" 1
-# 19 "/home/yangli/ysyx-workbench/nemu/include/common.h"
-# 1 "/usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h" 1 3 4
-# 9 "/usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h" 3 4
-# 1 "/usr/include/stdint.h" 1 3 4
-# 26 "/usr/include/stdint.h" 3 4
-# 1 "/usr/include/x86_64-linux-gnu/bits/libc-header-start.h" 1 3 4
+# 34 "/usr/include/x86_64-linux-gnu/bits/libc-header-start.h" 2 3 4
 # 27 "/usr/include/stdint.h" 2 3 4
 # 1 "/usr/include/x86_64-linux-gnu/bits/types.h" 1 3 4
 # 27 "/usr/include/x86_64-linux-gnu/bits/types.h" 3 4
@@ -89,6 +56,8 @@ extern char *dlerror (void) __attribute__ ((__nothrow__ , __leaf__));
 # 29 "/usr/include/x86_64-linux-gnu/bits/types.h" 2 3 4
 
 
+
+# 31 "/usr/include/x86_64-linux-gnu/bits/types.h" 3 4
 typedef unsigned char __u_char;
 typedef unsigned short int __u_short;
 typedef unsigned int __u_int;
@@ -330,6 +299,8 @@ extern uintmax_t wcstoumax (const __gwchar_t *__restrict __nptr,
 
 
 # 1 "/usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h" 1 3 4
+# 209 "/usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h" 3 4
+typedef long unsigned int size_t;
 # 34 "/usr/include/string.h" 2 3 4
 # 43 "/usr/include/string.h" 3 4
 extern void *memcpy (void *__restrict __dest, const void *__restrict __src,
@@ -3037,14 +3008,21 @@ _Bool
 # 55 "/home/yangli/ysyx-workbench/nemu/include/isa.h"
     isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc);
 void isa_difftest_attach();
-# 19 "src/cpu/difftest/dut.c" 2
+# 17 "src/cpu/difftest/ref.c" 2
 # 1 "/home/yangli/ysyx-workbench/nemu/include/cpu/cpu.h" 1
 # 21 "/home/yangli/ysyx-workbench/nemu/include/cpu/cpu.h"
 void cpu_exec(uint64_t n);
 
 void set_nemu_state(int state, vaddr_t pc, int halt_ret);
 void invalid_inst(vaddr_t thispc);
-# 20 "src/cpu/difftest/dut.c" 2
+# 18 "src/cpu/difftest/ref.c" 2
+# 1 "/home/yangli/ysyx-workbench/nemu/include/difftest-def.h" 1
+# 20 "/home/yangli/ysyx-workbench/nemu/include/difftest-def.h"
+# 1 "/home/yangli/ysyx-workbench/nemu/include/generated/autoconf.h" 1
+# 21 "/home/yangli/ysyx-workbench/nemu/include/difftest-def.h" 2
+
+enum { DIFFTEST_TO_DUT, DIFFTEST_TO_REF };
+# 19 "src/cpu/difftest/ref.c" 2
 # 1 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h" 1
 # 26 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h"
 uint8_t* guest_to_host(paddr_t paddr);
@@ -3097,327 +3075,112 @@ void log_ftrace(paddr_t addr,
                             _Bool 
 # 67 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h"
                                  jarlflag, int rd ,word_t imm, int rs1,word_t src1);
-# 21 "src/cpu/difftest/dut.c" 2
-
-# 1 "/home/yangli/ysyx-workbench/nemu/include/difftest-def.h" 1
-# 20 "/home/yangli/ysyx-workbench/nemu/include/difftest-def.h"
-# 1 "/home/yangli/ysyx-workbench/nemu/include/generated/autoconf.h" 1
-# 21 "/home/yangli/ysyx-workbench/nemu/include/difftest-def.h" 2
-
-enum { DIFFTEST_TO_DUT, DIFFTEST_TO_REF };
-# 23 "src/cpu/difftest/dut.c" 2
-
-void (*ref_difftest_memcpy)(paddr_t addr, void *buf, size_t n, 
-# 24 "src/cpu/difftest/dut.c" 3 4
-                                                              _Bool 
-# 24 "src/cpu/difftest/dut.c"
-                                                                   direction) = 
-# 24 "src/cpu/difftest/dut.c" 3 4
-                                                                                ((void *)0)
-# 24 "src/cpu/difftest/dut.c"
-                                                                                    ;
-void (*ref_difftest_regcpy)(void *dut, 
-# 25 "src/cpu/difftest/dut.c" 3 4
-                                      _Bool 
-# 25 "src/cpu/difftest/dut.c"
-                                           direction) = 
-# 25 "src/cpu/difftest/dut.c" 3 4
-                                                        ((void *)0)
-# 25 "src/cpu/difftest/dut.c"
-                                                            ;
-void (*ref_difftest_exec)(uint64_t n) = 
-# 26 "src/cpu/difftest/dut.c" 3 4
-                                       ((void *)0)
-# 26 "src/cpu/difftest/dut.c"
-                                           ;
-void (*ref_difftest_raise_intr)(uint64_t NO) = 
-# 27 "src/cpu/difftest/dut.c" 3 4
-                                              ((void *)0)
-# 27 "src/cpu/difftest/dut.c"
-                                                  ;
-
-
-
-static 
-# 31 "src/cpu/difftest/dut.c" 3 4
-      _Bool 
-# 31 "src/cpu/difftest/dut.c"
-           is_skip_ref = 
-# 31 "src/cpu/difftest/dut.c" 3 4
-                         0
-# 31 "src/cpu/difftest/dut.c"
-                              ;
-static int skip_dut_nr_inst = 0;
-extern 
-# 33 "src/cpu/difftest/dut.c" 3 4
-      _Bool 
-# 33 "src/cpu/difftest/dut.c"
-           is_difftest ;
-
-
-void difftest_skip_ref() {
-  if(!is_difftest) return;
-  is_skip_ref = 
-# 38 "src/cpu/difftest/dut.c" 3 4
-               1
-# 38 "src/cpu/difftest/dut.c"
-                   ;
+# 20 "src/cpu/difftest/ref.c" 2
 
 
 
 
 
+void difftest_memcpy(paddr_t addr, void *buf, size_t n, 
+# 25 "src/cpu/difftest/ref.c" 3 4
+                                                       _Bool 
+# 25 "src/cpu/difftest/ref.c"
+                                                            direction) {
 
-
-  skip_dut_nr_inst = 0;
-}
-
-
-
-
-
-
-
-void difftest_skip_dut(int nr_ref, int nr_dut) {
-  if(!is_difftest) return;
-  skip_dut_nr_inst += nr_dut;
-
-  while (nr_ref -- > 0) {
-    ref_difftest_exec(1);
-  }
-}
-
-void init_difftest(char *ref_so_file, long img_size, int port) {
-  cpu.mstatus = 0xa00001800;
-  
-# 66 "src/cpu/difftest/dut.c" 3 4
- ((void) sizeof ((
-# 66 "src/cpu/difftest/dut.c"
- ref_so_file != 
-# 66 "src/cpu/difftest/dut.c" 3 4
- ((void *)0)) ? 1 : 0), __extension__ ({ if (
-# 66 "src/cpu/difftest/dut.c"
- ref_so_file != 
-# 66 "src/cpu/difftest/dut.c" 3 4
- ((void *)0)) ; else __assert_fail (
-# 66 "src/cpu/difftest/dut.c"
- "ref_so_file != NULL"
-# 66 "src/cpu/difftest/dut.c" 3 4
- , "src/cpu/difftest/dut.c", 66, __extension__ __PRETTY_FUNCTION__); }))
-# 66 "src/cpu/difftest/dut.c"
-                            ;
-
-  void *handle;
-  handle = dlopen(ref_so_file, 
-# 69 "src/cpu/difftest/dut.c" 3 4
-                              0x00001
-# 69 "src/cpu/difftest/dut.c"
-                                       );
-  
-# 70 "src/cpu/difftest/dut.c" 3 4
- ((void) sizeof ((
-# 70 "src/cpu/difftest/dut.c"
- handle
-# 70 "src/cpu/difftest/dut.c" 3 4
- ) ? 1 : 0), __extension__ ({ if (
-# 70 "src/cpu/difftest/dut.c"
- handle
-# 70 "src/cpu/difftest/dut.c" 3 4
- ) ; else __assert_fail (
-# 70 "src/cpu/difftest/dut.c"
- "handle"
-# 70 "src/cpu/difftest/dut.c" 3 4
- , "src/cpu/difftest/dut.c", 70, __extension__ __PRETTY_FUNCTION__); }))
-# 70 "src/cpu/difftest/dut.c"
-               ;
-
-  ref_difftest_memcpy = dlsym(handle, "difftest_memcpy");
-  
-# 73 "src/cpu/difftest/dut.c" 3 4
- ((void) sizeof ((
-# 73 "src/cpu/difftest/dut.c"
- ref_difftest_memcpy
-# 73 "src/cpu/difftest/dut.c" 3 4
- ) ? 1 : 0), __extension__ ({ if (
-# 73 "src/cpu/difftest/dut.c"
- ref_difftest_memcpy
-# 73 "src/cpu/difftest/dut.c" 3 4
- ) ; else __assert_fail (
-# 73 "src/cpu/difftest/dut.c"
- "ref_difftest_memcpy"
-# 73 "src/cpu/difftest/dut.c" 3 4
- , "src/cpu/difftest/dut.c", 73, __extension__ __PRETTY_FUNCTION__); }))
-# 73 "src/cpu/difftest/dut.c"
-                            ;
-
-  ref_difftest_regcpy = dlsym(handle, "difftest_regcpy");
-  
-# 76 "src/cpu/difftest/dut.c" 3 4
- ((void) sizeof ((
-# 76 "src/cpu/difftest/dut.c"
- ref_difftest_regcpy
-# 76 "src/cpu/difftest/dut.c" 3 4
- ) ? 1 : 0), __extension__ ({ if (
-# 76 "src/cpu/difftest/dut.c"
- ref_difftest_regcpy
-# 76 "src/cpu/difftest/dut.c" 3 4
- ) ; else __assert_fail (
-# 76 "src/cpu/difftest/dut.c"
- "ref_difftest_regcpy"
-# 76 "src/cpu/difftest/dut.c" 3 4
- , "src/cpu/difftest/dut.c", 76, __extension__ __PRETTY_FUNCTION__); }))
-# 76 "src/cpu/difftest/dut.c"
-                            ;
-
-  ref_difftest_exec = dlsym(handle, "difftest_exec");
-  
-# 79 "src/cpu/difftest/dut.c" 3 4
- ((void) sizeof ((
-# 79 "src/cpu/difftest/dut.c"
- ref_difftest_exec
-# 79 "src/cpu/difftest/dut.c" 3 4
- ) ? 1 : 0), __extension__ ({ if (
-# 79 "src/cpu/difftest/dut.c"
- ref_difftest_exec
-# 79 "src/cpu/difftest/dut.c" 3 4
- ) ; else __assert_fail (
-# 79 "src/cpu/difftest/dut.c"
- "ref_difftest_exec"
-# 79 "src/cpu/difftest/dut.c" 3 4
- , "src/cpu/difftest/dut.c", 79, __extension__ __PRETTY_FUNCTION__); }))
-# 79 "src/cpu/difftest/dut.c"
-                          ;
-
-  ref_difftest_raise_intr = dlsym(handle, "difftest_raise_intr");
-  
-# 82 "src/cpu/difftest/dut.c" 3 4
- ((void) sizeof ((
-# 82 "src/cpu/difftest/dut.c"
- ref_difftest_raise_intr
-# 82 "src/cpu/difftest/dut.c" 3 4
- ) ? 1 : 0), __extension__ ({ if (
-# 82 "src/cpu/difftest/dut.c"
- ref_difftest_raise_intr
-# 82 "src/cpu/difftest/dut.c" 3 4
- ) ; else __assert_fail (
-# 82 "src/cpu/difftest/dut.c"
- "ref_difftest_raise_intr"
-# 82 "src/cpu/difftest/dut.c" 3 4
- , "src/cpu/difftest/dut.c", 82, __extension__ __PRETTY_FUNCTION__); }))
-# 82 "src/cpu/difftest/dut.c"
-                                ;
-
-  void (*ref_difftest_init)(int) = dlsym(handle, "difftest_init");
-  
-# 85 "src/cpu/difftest/dut.c" 3 4
- ((void) sizeof ((
-# 85 "src/cpu/difftest/dut.c"
- ref_difftest_init
-# 85 "src/cpu/difftest/dut.c" 3 4
- ) ? 1 : 0), __extension__ ({ if (
-# 85 "src/cpu/difftest/dut.c"
- ref_difftest_init
-# 85 "src/cpu/difftest/dut.c" 3 4
- ) ; else __assert_fail (
-# 85 "src/cpu/difftest/dut.c"
- "ref_difftest_init"
-# 85 "src/cpu/difftest/dut.c" 3 4
- , "src/cpu/difftest/dut.c", 85, __extension__ __PRETTY_FUNCTION__); }))
-# 85 "src/cpu/difftest/dut.c"
-                          ;
-
-  do { printf("\33[1;34m" "[%s:%d %s] " "Differential testing: %s" "\33[0m" "\n", "src/cpu/difftest/dut.c", 87, __func__, "\33[1;32m" "ON" "\33[0m"); do { extern FILE* log_fp; extern 
-# 87 "src/cpu/difftest/dut.c" 3 4
- _Bool 
-# 87 "src/cpu/difftest/dut.c"
- log_enable(); if (log_enable()) { fprintf(log_fp, "\33[1;34m" "[%s:%d %s] " "Differential testing: %s" "\33[0m" "\n", "src/cpu/difftest/dut.c", 87, __func__, "\33[1;32m" "ON" "\33[0m"); fflush(log_fp); } } while (0); } while (0);
-  do { printf("\33[1;34m" "[%s:%d %s] " "The result of every instruction will be compared with %s. " "This will help you a lot for debugging, but also significantly reduce the performance. " "If it is not necessary, you can turn it off in menuconfig." "\33[0m" "\n", "src/cpu/difftest/dut.c", 88, __func__, ref_so_file); do { extern FILE* log_fp; extern 
-# 88 "src/cpu/difftest/dut.c" 3 4
- _Bool 
-# 88 "src/cpu/difftest/dut.c"
- log_enable(); if (log_enable()) { fprintf(log_fp, "\33[1;34m" "[%s:%d %s] " "The result of every instruction will be compared with %s. " "This will help you a lot for debugging, but also significantly reduce the performance. " "If it is not necessary, you can turn it off in menuconfig." "\33[0m" "\n", "src/cpu/difftest/dut.c", 88, __func__, ref_so_file); fflush(log_fp); } } while (0); } while (0)
-
-                                                                                ;
-
-  ref_difftest_init(port);
-  ref_difftest_memcpy((((paddr_t)0x80000000) + 0x0), guest_to_host((((paddr_t)0x80000000) + 0x0)), img_size, DIFFTEST_TO_REF);
-  ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
-}
-
-static void checkregs(CPU_state *ref, vaddr_t pc) {
-  if (!isa_difftest_checkregs(ref, pc)) {
-    nemu_state.state = NEMU_ABORT;
-    nemu_state.halt_pc = pc;
-
-    isa_reg_display();
-  }
-}
-
-void difftest_step(vaddr_t pc, vaddr_t npc) {
-  if(!is_difftest) return;
-  CPU_state ref_r;
-
-
-  if (skip_dut_nr_inst > 0) {
-    ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
-    printf("ref_r_pc:%08lx \n",ref_r.pc);
-    if (ref_r.pc == npc) {
-      skip_dut_nr_inst = 0;
-      checkregs(&ref_r, npc);
-      return;
+  if (direction == DIFFTEST_TO_REF)
+  {
+    for (size_t i = 0; i < n; i++)
+    {
+      paddr_write(addr+i,1,((uint8_t *)buf)[i]);
     }
-    skip_dut_nr_inst --;
-    if (skip_dut_nr_inst == 0)
-      do { if (!(0)) { (fflush(
-# 121 "src/cpu/difftest/dut.c" 3 4
-     stdout
-# 121 "src/cpu/difftest/dut.c"
-     ), fprintf(
-# 121 "src/cpu/difftest/dut.c" 3 4
-     stderr
-# 121 "src/cpu/difftest/dut.c"
-     , "\33[1;31m" "can not catch up with ref.pc = " "0x%016"
-# 121 "src/cpu/difftest/dut.c" 3 4
-     "l" "x" 
-# 121 "src/cpu/difftest/dut.c"
-     " at pc = " "0x%016"
-# 121 "src/cpu/difftest/dut.c" 3 4
-     "l" "x" 
-# 121 "src/cpu/difftest/dut.c"
-     "\33[0m" "\n", ref_r.pc, pc)); extern FILE* log_fp; fflush(log_fp); extern void assert_fail_msg(); assert_fail_msg(); 
-# 121 "src/cpu/difftest/dut.c" 3 4
-     ((void) sizeof ((
-# 121 "src/cpu/difftest/dut.c"
-     0
-# 121 "src/cpu/difftest/dut.c" 3 4
-     ) ? 1 : 0), __extension__ ({ if (
-# 121 "src/cpu/difftest/dut.c"
-     0
-# 121 "src/cpu/difftest/dut.c" 3 4
-     ) ; else __assert_fail (
-# 121 "src/cpu/difftest/dut.c"
-     "0"
-# 121 "src/cpu/difftest/dut.c" 3 4
-     , "src/cpu/difftest/dut.c", 121, __extension__ __PRETTY_FUNCTION__); }))
-# 121 "src/cpu/difftest/dut.c"
-     ; } } while (0);
-    return;
+
+  }
+  else 
+# 35 "src/cpu/difftest/ref.c" 3 4
+      ((void) sizeof ((
+# 35 "src/cpu/difftest/ref.c"
+      0
+# 35 "src/cpu/difftest/ref.c" 3 4
+      ) ? 1 : 0), __extension__ ({ if (
+# 35 "src/cpu/difftest/ref.c"
+      0
+# 35 "src/cpu/difftest/ref.c" 3 4
+      ) ; else __assert_fail (
+# 35 "src/cpu/difftest/ref.c"
+      "0"
+# 35 "src/cpu/difftest/ref.c" 3 4
+      , "src/cpu/difftest/ref.c", 35, __extension__ __PRETTY_FUNCTION__); }))
+# 35 "src/cpu/difftest/ref.c"
+               ;
+}
+
+void difftest_regcpy(void *dut, 
+# 38 "src/cpu/difftest/ref.c" 3 4
+                               _Bool 
+# 38 "src/cpu/difftest/ref.c"
+                                    direction) {
+  if(direction == DIFFTEST_TO_REF){
+
+    for (size_t i = 0; i < 32; i++)
+    {
+      cpu.gpr[i] = ((uint64_t *)dut)[i];
+    }
+
+
+    cpu.pc = ((uint64_t *)dut)[32];
+
+    cpu.mepc = ((uint64_t *)dut)[33];
+    cpu.mcause = ((uint64_t *)dut)[34];
+    cpu.mtvec = ((uint64_t *)dut)[35];
+    cpu.mstatus = ((uint64_t *)dut)[36];
+    cpu.mie = ((uint64_t *)dut)[37];
+    cpu.mip = ((uint64_t *)dut)[38];
+  }
+  else {
+    for (size_t i = 0; i < 32; i++)
+    {
+      ((uint64_t *)dut)[i]= cpu.gpr[i];
+    }
+    ((uint64_t *)dut)[32] = cpu.pc;
+    ((uint64_t *)dut)[33] = cpu.mepc ;
+    ((uint64_t *)dut)[34] = cpu.mcause ;
+    ((uint64_t *)dut)[35] = cpu.mtvec ;
+    ((uint64_t *)dut)[36] = cpu.mstatus ;
+    ((uint64_t *)dut)[37] = cpu.mie;
+    ((uint64_t *)dut)[38] = cpu.mip;
   }
 
-  if (is_skip_ref) {
+}
 
-    ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
-    is_skip_ref = 
-# 128 "src/cpu/difftest/dut.c" 3 4
-                 0
-# 128 "src/cpu/difftest/dut.c"
-                      ;
-    return;
-  }
+void difftest_exec(uint64_t n) {
 
-  ref_difftest_exec(1);
+  cpu_exec(n);
 
-  ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
+}
 
-  checkregs(&ref_r, pc);
+void difftest_raise_intr(word_t NO) {
+  
+# 79 "src/cpu/difftest/ref.c" 3 4
+ ((void) sizeof ((
+# 79 "src/cpu/difftest/ref.c"
+ 0
+# 79 "src/cpu/difftest/ref.c" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 79 "src/cpu/difftest/ref.c"
+ 0
+# 79 "src/cpu/difftest/ref.c" 3 4
+ ) ; else __assert_fail (
+# 79 "src/cpu/difftest/ref.c"
+ "0"
+# 79 "src/cpu/difftest/ref.c" 3 4
+ , "src/cpu/difftest/ref.c", 79, __extension__ __PRETTY_FUNCTION__); }))
+# 79 "src/cpu/difftest/ref.c"
+          ;
+}
+
+void difftest_init(int port) {
+
+
+
+  init_isa();
 }
