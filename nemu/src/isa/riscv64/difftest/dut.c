@@ -67,11 +67,11 @@ extern bool IMGSIZE ;
 /* convert the guest physical address in the guest program to host virtual address in NEMU */
 uint8_t* guest_to_host(paddr_t paddr);
 void isa_difftest_attach() {
-  is_difftest = true;
+  open_difftest = true;
   ref_difftest_memcpy(RESET_VECTOR, guest_to_host(RESET_VECTOR), IMGSIZE, DIFFTEST_TO_REF);
   ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
 }
 
 void isa_difftest_detach() {
-  is_difftest = false;
+  open_difftest = false;
 }
