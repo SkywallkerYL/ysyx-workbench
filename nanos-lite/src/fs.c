@@ -86,7 +86,7 @@ int fs_open(const char *pathname, int flags, int mode)
 {
   for (size_t i = 0; i < LENGTH(file_table); i++)
   {
-    if(i>=6) printf("%s %s\n",pathname,file_table[i].name);
+    //if(i>=6) printf("%s %s\n",pathname,file_table[i].name);
     if (strcmp(pathname, file_table[i].name) == 0)
     {
       //if (i == FD_STDIN || i == FD_STDOUT || i == FD_STDERR)
@@ -103,7 +103,7 @@ int fs_open(const char *pathname, int flags, int mode)
     }
   }
   Log("File %s not found, should not reach here!", pathname);
-  //assert(0);
+  assert(0);
   return -1;
 }
 // man 2 read
