@@ -54,7 +54,13 @@ size_t fs_read(int fd, void *buf, size_t len);
 size_t fs_lseek(int fd, size_t offset, int whence);
 int fs_close(int fd);
 char* get_file_name(int fd);
-
+//man 2 execve
+#include "proc.h"
+void naive_uload(PCB *pcb, const char *filename);
+int sys_execve(const char *filename,char * const argv[], char *const envp[]){
+      naive_uload(NULL,filename);
+      return -1;
+}
 
 
 
@@ -115,6 +121,12 @@ void do_syscall(Context *c) {
       ret = sys_gettimeofday((struct timeval *)c->GPR2,(struct timezone *)c->GPR3);
 #ifdef STRACE
       Log("sys_gettimeofday(%p, %p, %d) = %d", c->GPR2, c->GPR3, c->GPR4, ret);
+#endif
+      break;
+      case SYS_execve:
+      ret=sys_execve((const char *)c->GPR2,(char * const *)c->GPR3,(char * const *)c->GPR4);
+#ifdef STRACE
+      Log("sys_execve(%s, %s, %s) = %d", c->GPR2, c->GPR3, c->GPR4,ret);
 #endif
       break;
     default: panic("Unhandled syscall ID = %d", a[0]);
