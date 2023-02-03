@@ -75,7 +75,9 @@ void do_syscall(Context *c) {
 #ifdef STRACE
       Log("SYS_EXIT VALUE:%d",c->GPR2);
 #endif
-      sys_exit(c->GPR2);break;
+      //sys_exit(c->GPR2);break;
+      ret = sys_execve("/bin/menu",(char * const *)c->GPR3,(char * const *)c->GPR4);
+      break;
     case SYS_yield :
 #ifdef STRACE
       Log("SYS_YIELD");
