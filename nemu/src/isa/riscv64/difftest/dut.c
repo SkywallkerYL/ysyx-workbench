@@ -65,6 +65,7 @@ extern long IMGSIZE ;
 #define RESET_VECTOR (PMEM_LEFT + CONFIG_PC_RESET_OFFSET)
 
 /* convert the guest physical address in the guest program to host virtual address in NEMU */
+#ifdef CONFIG_DIFFTEST
 uint8_t* guest_to_host(paddr_t paddr);
 extern bool open_difftest;
 void isa_difftest_attach() {
@@ -77,3 +78,4 @@ extern bool open_difftest;
 void isa_difftest_detach() {
   open_difftest = false;
 }
+#endif
