@@ -3229,18 +3229,19 @@ void isa_difftest_attach() {
                  1
 # 71 "src/isa/riscv64/difftest/dut.c"
                      ;
+  printf("IMG_SIZE:%d\n",IMGSIZE);
   ref_difftest_memcpy((((paddr_t)0x80000000) + 0x0), guest_to_host((((paddr_t)0x80000000) + 0x0)), IMGSIZE, DIFFTEST_TO_REF);
   ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
 }
 extern 
-# 75 "src/isa/riscv64/difftest/dut.c" 3 4
+# 76 "src/isa/riscv64/difftest/dut.c" 3 4
       _Bool 
-# 75 "src/isa/riscv64/difftest/dut.c"
+# 76 "src/isa/riscv64/difftest/dut.c"
            open_difftest;
 void isa_difftest_detach() {
   open_difftest = 
-# 77 "src/isa/riscv64/difftest/dut.c" 3 4
+# 78 "src/isa/riscv64/difftest/dut.c" 3 4
                  0
-# 77 "src/isa/riscv64/difftest/dut.c"
+# 78 "src/isa/riscv64/difftest/dut.c"
                       ;
 }
