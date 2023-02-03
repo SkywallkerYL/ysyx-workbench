@@ -4,4 +4,8 @@
 #define ARCH_H "navy.h"
 #include "am-origin.h"
 
+#include "klib-macros.h"
+#include "klib.h"
+#include "amdev.h"
+
 #endif
