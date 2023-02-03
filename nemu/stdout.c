@@ -3208,3 +3208,28 @@ _Bool
   return regflag;
 }
 extern long IMGSIZE ;
+
+
+
+
+
+
+uint8_t* guest_to_host(paddr_t paddr);
+
+
+
+void isa_difftest_attach() {
+
+
+
+
+
+
+
+}
+
+void isa_difftest_detach() {
+
+
+
+}
