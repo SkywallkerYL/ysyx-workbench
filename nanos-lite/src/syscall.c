@@ -124,7 +124,8 @@ void do_syscall(Context *c) {
 #endif
       break;
       case SYS_execve:
-      ret=sys_execve((const char *)c->GPR2,(char * const *)c->GPR3,(char * const *)c->GPR4);
+      ret = sys_execve((const char *)c->GPR2,(char * const *)c->GPR3,(char * const *)c->GPR4);
+      
 #ifdef STRACE
       Log("sys_execve(%s, %s, %s) = %d", c->GPR2, c->GPR3, c->GPR4,ret);
 #endif
