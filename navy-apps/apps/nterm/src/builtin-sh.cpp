@@ -37,10 +37,10 @@ static void sh_handle_cmd(const char *cmd) {
   //最后有一个\n 要去掉
   strncpy(tempbuf,cmd,strlen(cmd)-1);
   //man 2 execve
-  printf("%s",tempbuf);
-  printf("aaaaa\n");
-  execve(tempbuf, NULL, NULL);
-  
+  //printf("%s",tempbuf);
+  //printf("aaaaa\n");
+  //execve(tempbuf, NULL, NULL);
+  execvp(tempbuf, NULL);
 }
 
 void builtin_sh_run() {
