@@ -18,24 +18,7 @@ paddr_t host_to_guest(uint8_t *haddr) { return haddr - pmem + CONFIG_MBASE; }
 uint8_t* pmembase(){
   return pmem;
 }
-#ifdef CONFIG_DIFFTEST
-  extern bool open_difftest;
-#endif
-extern long IMGSIZE ;
-void isa_difftest_attach() {
-#ifdef CONFIG_DIFFTEST
 
-  open_difftest = true;
-  printf("IMG_SIZE:%ld\n",IMGSIZE);
-  ref_difftest_memcpy(RESET_VECTOR, guest_to_host(RESET_VECTOR), IMGSIZE, DIFFTEST_TO_REF);
-  ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
-#endif
-}
-void isa_difftest_detach() {
-#ifdef CONFIG_DIFFTEST
-  open_difftest = false;
-#endif
-}
 #ifdef CONFIG_DIFFTEST
 
 bool is_skip_ref = false;
@@ -82,7 +65,6 @@ bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
 }
 
 void isa_difftest_attach();
-
 // this is used to let ref skip instructions which
 // can not produce consistent behavior with NEMU
 void difftest_skip_ref() {

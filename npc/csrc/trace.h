@@ -156,8 +156,8 @@ void printiringbuf(int finalinst)
 
 extern "C" void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
 
-//int maxinst = 10000;
-int64_t instnum = 0;
+int maxinst = 10000;
+int instnum = 0;
 
 void instr_tracelog(bool flag){
     Decode s;
@@ -199,7 +199,7 @@ void instr_tracelog(bool flag){
     void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
     disassemble(p,  s.logbuf + sizeof(s.logbuf) - p,s.pc, inst , ilen);
     if(flag)printf("%s\n",s.logbuf);
-    if(TRACE_CONDITION(instnum,ITRACE_BEGIN,ITRACE_END))fprintf(file,"%s\n",s.logbuf);
+    if(instnum <= maxinst)fprintf(file,"%s\n",s.logbuf);
     instnum++;
     fclose(file);
     strcpy(iringbuf[iringbufind],s.logbuf);
@@ -430,8 +430,8 @@ void init_ftrace(char* elf_file)
 	}
   return;
 }
-//int maxftrace = 10000;
-int64_t ftracecount = 0;
+int maxftrace = 10000;
+int ftracecount = 0;
 void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1,word_t src1)
 {
   FILE *file;
@@ -473,7 +473,7 @@ void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1,word_t s
     funcname[len] = '\0';
     callcount--;
     uint64_t localpc = Pc_Fetch();
-    if (!TRACE_CONDITION(ftracecount,FTRACE_BEGIN,FTRACE_END)) {fclose(file); return;}
+    if (ftracecount > maxftrace) {fclose(file); return;}
     ftracecount++;
     fprintf(file,"pc:%lx:\t funpc:%lx\t",localpc,realpc);
     for (int i = 0;i<callcount;i++)  fprintf(file," ");
@@ -540,7 +540,7 @@ void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1,word_t s
           *funcp = '\0';*/
           strncpy(funcname_ftrace[addind],funcname,len);
         }
-        if (!TRACE_CONDITION(ftracecount,FTRACE_BEGIN,FTRACE_END)) {fclose(file); return;}
+        if (ftracecount > maxftrace) {fclose(file); return;}
         ftracecount++;
         //printf(" %s",funcname); printf("\n");
         //printf("pc:%lx: Addr:%x func [%s] rd:%d rs1:%d imm:%ld jarl:%d\n",cpu.pc,addr,funcname,rd,rs1,imm,jarlflag);
@@ -590,8 +590,8 @@ void init_mtrace()
   //assert(file!=NULL);
   return;
 }
-int64_t mtracecount = 0;
-//int maxmtrace = 10000;
+int mtracecount = 0;
+int maxmtrace = 10000;
 void mtrace(bool wrrd,paddr_t addr, int len,word_t data)
 {
   FILE *file;
@@ -602,7 +602,7 @@ void mtrace(bool wrrd,paddr_t addr, int len,word_t data)
   //1是写 0是读
   wrflag = wrrd?'w':'r';
   if (file == NULL) {printf("No file!!!!\n");}
-  if (!!TRACE_CONDITION(mtracecount,MTRACE_BEGIN,MTRACE_END)) {fclose(file); return;}
+  if (mtracecount > maxmtrace) {fclose(file); return;}
   mtracecount++;
   fprintf(file,"pc:%lx: Addr:%lx len:%x %c value:%lx\n",cpu_gpr[32],addr,len,wrflag,data);
   //printf("pc:%lx Addr:%x len:%x %c value:%lx\n",cpu.pc,addr,len,wrflag,data);

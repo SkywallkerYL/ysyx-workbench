@@ -88,8 +88,6 @@ static int parse_args(int argc, char *argv[])
 }
 void init_ftrace(char* elf_file);
 void init_mtrace();
-long IMGSIZE = 0;
-bool open_difftest = true;
 void init_monitor(int argc, char *argv[])
 {
   /* Perform some global initialization. */
@@ -124,7 +122,7 @@ void init_monitor(int argc, char *argv[])
   /* Load the image to memory. This will overwrite the built-in image. */
   if(img_file!=NULL)img_size = load_prog(img_file);
   else img_size = initial_default_img();
-  IMGSIZE = img_size;
+
   /* Initialize differential testing. */
    //printf("hhhh\n");
   init_difftest(diff_so_file, img_size, difftest_port);
