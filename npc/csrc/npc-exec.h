@@ -26,10 +26,12 @@
 VerilatedContext* contextp = NULL;
 VerilatedVcdC* tfp = NULL;
 //static VRiscvCpu* top;
-
+int64_t wavecount = 0;
 void step_and_dump_wave(){
   top->eval();
 #ifdef WAVE
+  if(!TRACE_CONDITION(wavecount,WAVE_BEGIN,WAVE_END)) return;
+  wavecount++;
   contextp->timeInc(1);
   tfp->dump(contextp->time());
 #endif

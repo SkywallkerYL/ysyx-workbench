@@ -17,9 +17,19 @@
 #define vaddr_t uint64_t
 //#define CONFIG_DIFFTEST
 #define CONFIG_ITRACE
+#define ITRACE_BEGIN 0
+#define ITRACE_END   10000
+#define FTRACE_BEGIN 0
+#define FTRACE_END   1000
 //#define CONFIG_MTRACE
+#define MTRACE_BEGIN 0
+#define MTRACE_END   10000
 #define VGA
 //#define WAVE
+#define WAVE_BEGIN 0
+#define WAVE_END   100
+
+#define TRACE_CONDITION(a,begin,end)   ((a>=begin)&&(a<end))
 
 #define DIFFTEST_REG_SIZE (sizeof(uint64_t) * 41) // GRPs + pc + 8
 #define CONFIG_MBASE 0x80000000
