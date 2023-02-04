@@ -78,7 +78,7 @@ void do_syscall(Context *c) {
 #ifdef STRACE
       Log("SYS_EXIT VALUE:%d",c->GPR2);
 #endif
-
+      Log("SYS_EXIT VALUE:%d",c->GPR2);
       sys_exit(c->GPR2);ret = 0;break;
       //ret = sys_execve("/bin/menu",(char * const *)c->GPR3,(char * const *)c->GPR4);
 
@@ -133,6 +133,7 @@ void do_syscall(Context *c) {
 #ifdef STRACE
       Log("sys_execve(%s, %d, %d) ", c->GPR2, 0, 0);
 #endif
+      Log("sys_execve(%s, %d, %d) ", c->GPR2, 0, 0);
       ret = sys_execve((const char *)c->GPR2,(char * const *)c->GPR3,(char * const *)c->GPR4);
       
       break;

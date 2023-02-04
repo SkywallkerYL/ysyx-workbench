@@ -39,8 +39,8 @@ static void sh_handle_cmd(const char *cmd) {
   //man 2 execve
   //printf("%s",tempbuf);
   //printf("aaaaa\n");
-  //execve(tempbuf, NULL, NULL);
-  execvp(tempbuf, NULL);
+  execve(tempbuf, NULL, NULL);
+  //execvp(tempbuf, NULL);
 }
 
 void builtin_sh_run() {
