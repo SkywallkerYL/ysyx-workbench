@@ -129,7 +129,12 @@ void isa_reg_display(){
   {
     printf("%s \t 0x%08lx\n",regs[i],cpu_gpr[i]);
   }
-  
+  printf("mepc:%08lx\n",cpu_gpr[33]);
+  printf("mcause:%08lx\n",cpu_gpr[34]);
+  printf("mtvec:%08lx\n",cpu_gpr[35]);
+  printf("mstatus:%08lx\n",cpu_gpr[36]);
+  printf("mie:%08lx\n",cpu_gpr[37]);
+  printf("mip:%08lx\n",cpu_gpr[38]);
   //printf("0x%08lx\n",*cpu_gpr);
   return;
 }
@@ -182,7 +187,16 @@ static int cmd_imgprint(char *args){
   
   return 0;
 }
-
+void isa_difftest_detach();
+static int cmd_detach(char *args){
+  isa_difftest_detach();
+  return 0;
+}
+void isa_difftest_attach();
+static int cmd_attach(char *args){
+  isa_difftest_attach();
+  return 0;
+}
 
 static struct {
   const char *name;
@@ -195,7 +209,9 @@ static struct {
   { "si", "Single excutaion", cmd_si},
   {"info","info SUBCMD",cmd_info},
   {"x","EXPR SCAN",cmd_x},
-  {"pimg","Print IMG",cmd_imgprint}
+  {"pimg","Print IMG",cmd_imgprint},
+  {"attach","Open Difftest",cmd_attach},
+  {"detach","Close Difftest",cmd_detach}
   //{"p","Expression calculation",cmd_p},
   //{"pt","Expression calculation test",cmd_pt},
   //{"w","Watchpoint add",cmd_w},
