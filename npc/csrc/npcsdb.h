@@ -182,7 +182,16 @@ static int cmd_imgprint(char *args){
   
   return 0;
 }
-
+void isa_difftest_detach();
+static int cmd_detach(char *args){
+  isa_difftest_detach();
+  return 0;
+}
+void isa_difftest_attach();
+static int cmd_attach(char *args){
+  isa_difftest_attach();
+  return 0;
+}
 
 static struct {
   const char *name;
