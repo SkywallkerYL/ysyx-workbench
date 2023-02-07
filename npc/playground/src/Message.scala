@@ -100,7 +100,7 @@ class Lsu2Wbu extends Bundle{
     val NextPc  = Output(UInt(parm.PCWIDTH.W))
 }
 //WB --- RegFile
-class MessageWbuRegfile extends Bundle{
+class Wbu2Regfile extends Bundle{
     val Reg17       = Input(UInt(parm.REGWIDTH.W))
 
     val Regfile     = new REGFILEIO

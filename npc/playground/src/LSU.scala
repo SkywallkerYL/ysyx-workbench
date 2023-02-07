@@ -11,12 +11,13 @@ import chisel3.util.HasBlackBoxInline
 class LSU extends Module{
     val io = IO(new Bundle {
       val EXLS = Flipped(new Exu2Lsu)
+      val LSWB = new Lsu2Wbu
       //val Regfile_i = Flipped(new REGFILEIO)
-      val LsuRes = Output(UInt(parm.REGWIDTH.W))
-      val AluRes = Output(UInt(parm.REGWIDTH.W))
-      val choose = Output(UInt(parm.RegFileChooseWidth.W))
-      val pc     = Output(UInt(parm.PCWIDTH.W))
-      val NextPc  = Output(UInt(parm.PCWIDTH.W))
+      //val LsuRes = Output(UInt(parm.REGWIDTH.W))
+      //val AluRes = Output(UInt(parm.REGWIDTH.W))
+      //val choose = Output(UInt(parm.RegFileChooseWidth.W))
+      //val pc     = Output(UInt(parm.PCWIDTH.W))
+      //val NextPc  = Output(UInt(parm.PCWIDTH.W))
 //if(parm.DIFFTEST){
       val SkipRef = Output(Bool())
 //}
@@ -56,12 +57,13 @@ class LSU extends Module{
     "b00011".U   ->func.UsignExt(func.Mask((readdata),"x000000000000ffff".U),16),
     "b00001".U   ->func.UsignExt(func.Mask((readdata),"x00000000000000ff".U),8)
   ))
-  io.LsuRes := maskRes
-  io.AluRes := io.EXLS.alures
-  io.choose := io.EXLS.choose
-  io.CsrWb <> io.EXLS.CsrWb
-  io.pc := io.EXLS.pc
-  io.NextPc := io.EXLS.NextPc
+  io.LSWB.LsuRes := maskRes
+  io.LSWB.AluRes := io.EXLS.alures
+  io.LSWB.choose := io.EXLS.choose
+  io.LSWB.CsrWb <> io.EXLS.CsrWb
+  io.LSWB.RegFile <> io.EXLS.RegFileIO
+  io.LSWB.pc := io.EXLS.pc
+  io.LSWB.NextPc := io.EXLS.NextPc
   io.Clintls.wen    := io.EXLS.wflag
   io.Clintls.ren    := io.EXLS.rflag 
   io.Clintls.raddr  := io.EXLS.readaddr 
