@@ -21,7 +21,8 @@ class LSU extends Module{
 //if(parm.DIFFTEST){
       val SkipRef = Output(Bool())
 //}
-      val Clintls = new CLINTLS 
+      val LSCLINT = new Lsu2Clint
+      //val Clintls = new CLINTLS 
       //val CsrWb = new CSRWB
   })
   val CLINTREAD  = (io.EXLS.readaddr< parm.CLINTEND.U) && (io.EXLS.readaddr>=parm.CLINTBASE.U)
@@ -40,7 +41,7 @@ class LSU extends Module{
     //io.LsuRes := LsuDPI.io.rdata
   }
 
-  readdata := Mux(CLINTREAD,io.Clintls.rdata,LsuDpidata)
+  readdata := Mux(CLINTREAD,io.LSCLINT.Clintls.rdata,LsuDpidata)
   io.SkipRef := false.B
   if(parm.DIFFTEST){
       val readskip = (io.EXLS.readaddr< parm.PMEM_RIGHT.U) && (io.EXLS.readaddr>=parm.PMEM_LEFT.U)
@@ -64,10 +65,10 @@ class LSU extends Module{
   io.LSWB.Regfile <> io.EXLS.RegFileIO
   io.LSWB.pc := io.EXLS.pc
   io.LSWB.NextPc := io.EXLS.NextPc
-  io.Clintls.wen    := io.EXLS.wflag
-  io.Clintls.ren    := io.EXLS.rflag 
-  io.Clintls.raddr  := io.EXLS.readaddr 
-  io.Clintls.waddr  := io.EXLS.writeaddr
-  io.Clintls.wdata  := io.EXLS.writedata
+  io.LSCLINT.Clintls.wen    := io.EXLS.wflag
+  io.LSCLINT.Clintls.ren    := io.EXLS.rflag 
+  io.LSCLINT.Clintls.raddr  := io.EXLS.readaddr 
+  io.LSCLINT.Clintls.waddr  := io.EXLS.writeaddr
+  io.LSCLINT.Clintls.wdata  := io.EXLS.writedata
 
 }

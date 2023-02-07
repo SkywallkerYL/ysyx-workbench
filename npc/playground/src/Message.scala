@@ -114,7 +114,7 @@ class Regfile2Wbu extends Bundle{
 
 
 //LS --- CLINT
-class MessageLsuClint extends Bundle{
+class Lsu2Clint extends Bundle{
     val Clintls = new CLINTLS
 }
 //CLINT --- WB

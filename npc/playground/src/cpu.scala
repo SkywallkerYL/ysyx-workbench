@@ -89,7 +89,7 @@ class  RiscvCpu extends Module{
 // LSU
     
 // CLINT
-    Clint.io.LsuIn <> Lsu.io.Clintls
+    Clint.io.LsuIn <> Lsu.io.LSCLINT
 //LS_WB
     Wbu.io.LSWB <> Lsu.io.LSWB
     //Ls_Wb.io.Regfile_i <> Ex_Ls.io.Regfile_o
