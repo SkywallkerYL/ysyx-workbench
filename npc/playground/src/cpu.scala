@@ -77,7 +77,7 @@ class  RiscvCpu extends Module{
     Regfile.io.wen := Wbu.io.Regfile_o.wen//exu.io.ex.rden
     Regfile.io.waddr := Wbu.io.Regfile_o.waddr//exu.io.ex.rdaddr
     Regfile.io.wdata := Wbu.io.wbRes_o//exu.io.ex.rddata
-    Regfile.io.pc := If_Id.io.idpc
+    Regfile.io.pc := Idu.io.IFID.pc//
     Regfile.io.csraddr := Wbu.io.CsrAddr
     Regfile.io.CSRInput <> Wbu.io.CsrRegfile
     //Regfile.io.
@@ -152,7 +152,7 @@ class  RiscvCpu extends Module{
         pcdpi.io.pc := Idu.io.pc_o
         pcdpi.io.dnpc := NpcMux.io.NPC.npc
         val instrdpi = Module(new InstrFetchDPI)
-        instrdpi.io.a := Idu.io.instr_i
+        instrdpi.io.a := Idu.io.IFID.inst
         val srcdpi = Module(new SrcFetchDPI)
         srcdpi.io.rs1 := Idu.io.rs_addr1
         srcdpi.io.rd := Idu.io.idex.rdaddr
