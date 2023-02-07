@@ -151,7 +151,7 @@ class  RiscvCpu extends Module{
         val instrdpi = Module(new InstrFetchDPI)
         instrdpi.io.a := Idu.io.instr_o
         val srcdpi = Module(new SrcFetchDPI)
-        srcdpi.io.rs1 := Idu.io.rs_addr1
+        srcdpi.io.rs1 := Idu.io.IDRegFile.raddr1
         srcdpi.io.rd := Idu.io.idex.rdaddr
         srcdpi.io.imm := Idu.io.idex.imm
     }
