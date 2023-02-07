@@ -50,17 +50,17 @@ class  RiscvCpu extends Module{
 
     //val resetflag = PcReg.io.pc_o === 0.U
     //PcReg.io.pc_i := NpcMux.io.NPC
-    PcRegOut := PcReg.io.PcIf.bits.pc
-    StageConnect("single",PcReg.io.RegPc,NpcMux.io.RegPc)
-    StageConnect("single",NpcMux.io.NPC,PcReg.io.NPC)
+    PcRegOut := PcReg.io.PcIf.pc
+    StageConnect("multi",PcReg.io.RegPc,NpcMux.io.RegPc)
+    StageConnect("multi",NpcMux.io.NPC,PcReg.io.NPC)
 //ifu
     //val IfU = Module(new IFU())
-    StageConnect("single",PcReg.io.PcIf,IfU.io.PcIf)
+    StageConnect("multi",PcReg.io.PcIf,IfU.io.PcIf)
     //IfU.io.pc_i := PcReg.io.pc_o
     //IfU.io.instr_i := instr
     if(parm.DPI){
         val instrread = Module(new InstrReadDPI)
-        instrread.io.a := PcReg.io.PcIf.bits.pc
+        instrread.io.a := PcReg.io.PcIf.pc
         IfU.io.instr_i := instrread.io.b
     }
 //if_id
@@ -85,7 +85,7 @@ class  RiscvCpu extends Module{
     //val Idu = Module(new IDU())
 
     Idu.io.pc_i := If_Id.io.idpc
-    Idu.io.NextPc_i := NpcMux.io.NPC.bits.npc
+    Idu.io.NextPc_i := NpcMux.io.NPC.npc
     Idu.io.instr_i := If_Id.io.idinstr
     Idu.io.rs_data1 := Regfile.io.rdata1
     Idu.io.rs_data2 := Regfile.io.rdata2
@@ -152,7 +152,7 @@ class  RiscvCpu extends Module{
         ebrdpi.io.a := Idu.io.ebreak 
         val pcdpi = Module(new pcDPI)
         pcdpi.io.pc := Idu.io.pc_o
-        pcdpi.io.dnpc := NpcMux.io.NPC.bits.npc
+        pcdpi.io.dnpc := NpcMux.io.NPC.npc
         val instrdpi = Module(new InstrFetchDPI)
         instrdpi.io.a := Idu.io.instr_i
         val srcdpi = Module(new SrcFetchDPI)
