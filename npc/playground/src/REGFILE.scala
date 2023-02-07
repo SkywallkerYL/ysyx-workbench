@@ -46,17 +46,12 @@ class RegFile extends Module{
     //val wdata = Input(UInt(parm.REGWIDTH.W))
     val IDRegFile = Flipped((new Idu2Regfile))
     val WBREG = Flipped((new Wbu2Regfile))
-
+    val REGWB = new Regfile2Wbu
     val pc = Input(UInt(parm.PCWIDTH.W))
     val RegFileID = ((new Regfile2Idu))
     val a0data = Output(UInt(parm.REGWIDTH.W))
     val Reg17  = Output(UInt(parm.REGWIDTH.W))
 
-  //CSR 
-    //val csraddr = Input(UInt(parm.CSRNUMBER.W))
-    //val CSRInput= Flipped(new CSRIO)
-    //val CSR = (new CSRIO)
-  //CLINT
       
 
   })
@@ -77,10 +72,6 @@ class RegFile extends Module{
     regdpi.io.mstatus  := io.RegFileID.CSRs.mstatus
     regdpi.io.mie      := io.RegFileID.CSRs.mie
     regdpi.io.mip      := io.RegFileID.CSRs.mip
-    //regdpi.io.a(1) := reg(1)
-    //regdpi.io.clock := io.clock
-    //regdpi.io.reset := io.reset
-    //printf(p"reg(1)=${(regdpi.io.b)} \n")
   }
   when (io.WBREG.Regfile.wen){
     when (io.WBREG.Regfile.waddr =/= 0.U) {reg(io.WBREG.Regfile.waddr) := io.WBREG.Regfile.wdata}
@@ -163,5 +154,5 @@ class RegFile extends Module{
   //for io_halt it can be removed when it is not need
   io.a0data := reg(10)
   //REG 17 STORE THE no FOR csrs
-  io.Reg17 := reg(17)
+  io.REGWB.Reg17 := reg(17)
 }

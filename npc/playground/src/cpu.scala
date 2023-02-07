@@ -108,7 +108,7 @@ class  RiscvCpu extends Module{
     //Wbu.io.pc := Ls_Wb.io.pc_o
     //Wbu.io.NextPc := Ls_Wb.io.NextPc_o
     //Wbu.io.CsrIn <>Regfile.io.CSR
-    Wbu.io.Reg17 := Regfile.io.Reg17
+    Wbu.io.REGWB <> Regfile.io.REGWB
     Wbu.io.Mtip  := Clint.io.Mtip
 //out
     if(parm.DPI){

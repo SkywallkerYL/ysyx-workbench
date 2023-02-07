@@ -9,23 +9,10 @@ import chisel3.util.HasBlackBoxInline
 class WBU extends Module{
     val io = IO(new Bundle {
       val LSWB = Flipped((new Lsu2Wbu))
-      //val pc  = Input(UInt(parm.PCWIDTH.W))
-      //val NextPc  = Input(UInt(parm.PCWIDTH.W))
-      //val choose = Input(UInt(parm.RegFileChooseWidth.W))
-      //val Regfile_i = Flipped(new REGFILEIO)
-      //val LsuRes_i = Input(UInt(parm.REGWIDTH.W))
-      val Reg17  = Input(UInt(parm.REGWIDTH.W))
-      //val AluRes_i = Input(UInt(parm.REGWIDTH.W))
-      //val CSRs_i = Input(UInt(parm.REGWIDTH.W))
-      //val CsrWb_i = Flipped(new CSRWB)
-      //val CsrIn = Flipped(new CSRIO)
+      val REGWB = Flipped((new Regfile2Wbu))
+
       val WBREG = new Wbu2Regfile
-      //val Regfile_o = new REGFILEIO
-      //val wbRes_o = Output(UInt(parm.REGWIDTH.W))
-      //val CsrRegfile = new CSRIO
-      //val CsrWb_o = new CSRWB
-      //val CsrAddr = Output(UInt(parm.CSRNUMBER.W))
-      
+
       //CLINT
       val Mtip = Input(Bool()) 
   })
@@ -55,7 +42,7 @@ class WBU extends Module{
     //Mcause
     
     //Mcauseflag := 0.U;
-    val NO = io.Reg17
+    val NO = io.REGWB.Reg17
     val Mcauseflag0 = ((NO === "xffffffffffffffff".U)||NO<=19.U) & (io.LSWB.CsrWb.ecall)
     val Mcauseflag1 = MtipValid
     val Mcauseflag = Mcauseflag1 ## Mcauseflag0
@@ -70,7 +57,7 @@ class WBU extends Module{
       mstatus := func.EcallMstatus(io.LSWB.CsrWb.CSR.mstatus)
       //io.rs_addr2 := 17.U
       //io.CsrRegfile.
-      //mcause := func.Mcause(io.Reg17,io.LSWB.CsrWb.CSR.mcause)
+      //mcause := func.Mcause(io.REGWB.Reg17,io.LSWB.CsrWb.CSR.mcause)
       //io.CsrRegfile.
       mepc := io.LSWB.pc
     }
