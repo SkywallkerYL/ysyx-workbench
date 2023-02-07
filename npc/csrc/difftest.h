@@ -55,27 +55,27 @@ bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
     
   }
   if (ref_r->mepc !=cpu_gpr[33]){
-      printf("mepc ref:%08lx nemu:%08lx lastpc:%08lx\n",ref_r->mepc,cpu_gpr[33],pc);
+      printf("mepc ref:%08lx npc:%08lx lastpc:%08lx\n",ref_r->mepc,cpu_gpr[33],pc);
       regflag = false;
   }
   if (ref_r->mcause !=cpu_gpr[34]){
-      printf("mcause ref:%08lx nemu:%08lx lastpc:%08lx\n",ref_r->mcause,cpu_gpr[34],pc);
+      printf("mcause ref:%08lx npc:%08lx lastpc:%08lx\n",ref_r->mcause,cpu_gpr[34],pc);
       regflag = false;
   }
   if (ref_r->mtvec !=cpu_gpr[35]){
-      printf("mtvec ref:%08lx nemu:%08lx lastpc:%08lx\n",ref_r->mtvec ,cpu_gpr[35],pc);
+      printf("mtvec ref:%08lx npc:%08lx lastpc:%08lx\n",ref_r->mtvec ,cpu_gpr[35],pc);
       regflag = false;
   }
   if (ref_r->mstatus !=cpu_gpr[36]){
-      printf("mstatus ref:%08lx nemu:%08lx lastpc:%08lx\n",ref_r->mstatus,cpu_gpr[36],pc);
+      printf("mstatus ref:%08lx npc:%08lx lastpc:%08lx\n",ref_r->mstatus,cpu_gpr[36],pc);
       regflag = false;
   }
   if (ref_r->mie !=cpu_gpr[37]){
-      printf("mie ref:%08lx nemu:%08lx lastpc:%08lx\n",ref_r->mie,cpu_gpr[37],pc);
+      printf("mie ref:%08lx npc:%08lx lastpc:%08lx\n",ref_r->mie,cpu_gpr[37],pc);
       regflag = false;
   }
   if (ref_r->mip !=cpu_gpr[38]){
-      printf("mip ref:%08lx nemu:%08lx lastpc:%08lx\n",ref_r->mip,cpu_gpr[38],pc);
+      printf("mip ref:%08lx npc:%08lx lastpc:%08lx\n",ref_r->mip,cpu_gpr[38],pc);
       regflag = false;
   }
   return regflag;
