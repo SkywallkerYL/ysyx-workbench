@@ -11,6 +11,6 @@ class PC_REG extends Module{
     val PcIf  = Decoupled(new MessagePcIfu)
   })
   val reg = RegNext(io.NPC.bits.npc,parm.INITIAL_PC.U(parm.PCWIDTH.W))
-  io.NPC.bits.RegPc = reg
-  io.PcIf.bits.pc = reg
+  io.NPC.bits.RegPc := reg
+  io.PcIf.bits.pc := reg
 }
