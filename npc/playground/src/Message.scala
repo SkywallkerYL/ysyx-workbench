@@ -11,7 +11,7 @@ class Pc2Ifu extends Bundle{
   val pc   = Output(UInt(parm.PCWIDTH.W))
 }
 //IF --- ID
-class MessageIfuIdu extends Bundle{
+class Ifu2Idu extends Bundle{
   val inst = Output(UInt(parm.INSTWIDTH.W))
   val pc   = Output(UInt(parm.PCWIDTH.W))
 }

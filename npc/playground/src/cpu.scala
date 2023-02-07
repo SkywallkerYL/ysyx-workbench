@@ -66,8 +66,8 @@ class  RiscvCpu extends Module{
 //if_id
     //val If_Id = Module(new IF_ID())
 
-    If_Id.io.ifpc := IfU.io.pc_o
-    If_Id.io.ifinstr := IfU.io.instr_o
+    If_Id.io.ifpc := IfU.io.IFID.pc
+    If_Id.io.ifinstr := IfU.io.IFID.inst
     If_Id.io.nop := NpcMux.io.NOP
 // regfile
 
@@ -170,7 +170,7 @@ class  RiscvCpu extends Module{
     //io.res := exu.io.expres
 
 }
-
+//for AXI-LITE signals , use these function
 object StageConnect{
     def apply[T <: Data] (arch: String,left: DecoupledIO[T], right:DecoupledIO[T] ) = {
         //val arch = "single"
