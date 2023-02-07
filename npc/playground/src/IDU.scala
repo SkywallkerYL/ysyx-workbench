@@ -54,7 +54,7 @@ class IDU extends Module{
     io.idex.CsrWb.CsrAddr := "b00000000".U
     io.idex.CsrWb.ecall := 0.U
     io.idex.CsrWb.mret  := 0.U
-    io.idex.CsrWb.CSR <> io.RegFileID.CSRs
+    //io.idex.CsrWb.CSR <> io.RegFileID.CSRs
     io.idex.CsrWb.CsrExuChoose := "b00000000".U
     io.idex.CsrWb.csrflag :=0.U
 
