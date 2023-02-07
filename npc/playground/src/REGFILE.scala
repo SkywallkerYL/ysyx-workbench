@@ -151,6 +151,13 @@ class RegFile extends Module{
 
   io.RegFileID.CSRs.mie := mie 
   io.RegFileID.CSRs.mip := mip
+
+  io.REGWB.CSRs.mepc     := mepc
+  io.REGWB.CSRs.mcause   := mcause
+  io.REGWB.CSRs.mtvec    := mtvec
+  io.REGWB.CSRs.mstatus  := mstatus
+  io.REGWB.CSRs.mie      := mie 
+  io.REGWB.CSRs.mip      := mip
   //for io_halt it can be removed when it is not need
   io.a0data := reg(10)
   //REG 17 STORE THE no FOR csrs

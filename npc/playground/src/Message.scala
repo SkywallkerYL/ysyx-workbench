@@ -109,7 +109,8 @@ class Wbu2Regfile extends Bundle{
     val CsrAddr     = Output(UInt(parm.CSRNUMBER.W))
 }
 class Regfile2Wbu extends Bundle{
-    val Reg17       = Output(UInt(parm.REGWIDTH.W))    
+    val Reg17       = Output(UInt(parm.REGWIDTH.W)) 
+    val CSRs        = new CSRIO   
 }
 
 
