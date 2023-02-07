@@ -113,10 +113,10 @@ class RegFile extends Module{
   }.otherwise {io.RegFileID.rdata2 := reg(io.IDRegFile.raddr2)}
   */
   //CSR
-  val mepcen   =  (io.WBREG.Regfile.CsrAddr(0))
-  val mcauseen =  (io.WBREG.Regfile.CsrAddr(1))
-  val mtvecen  =  (io.WBREG.Regfile.CsrAddr(2))
-  val mstatusen=  (io.WBREG.Regfile.CsrAddr(3))
+  val mepcen   =  (io.WBREG.CsrAddr(0))
+  val mcauseen =  (io.WBREG.CsrAddr(1))
+  val mtvecen  =  (io.WBREG.CsrAddr(2))
+  val mstatusen=  (io.WBREG.CsrAddr(3))
 
   when(mepcen){
     mepc := io.WBREG.CsrRegfile.mepc
