@@ -27,7 +27,7 @@ class  RiscvCpu extends Module{
     //val If_Id = Module(new IF_ID())
     val Regfile = Module(new RegFile)
     val Idu = Module(new IDU())
-    val Id_Ex = Module(new ID_EX())
+    //val Id_Ex = Module(new ID_EX())
     val exu = Module(new EXU())
     val Ex_Ls = Module(new EX_LS())
     val Lsu = Module(new LSU())
