@@ -19,11 +19,12 @@ class WBU extends Module{
       //val CSRs_i = Input(UInt(parm.REGWIDTH.W))
       //val CsrWb_i = Flipped(new CSRWB)
       //val CsrIn = Flipped(new CSRIO)
-      val Regfile_o = new REGFILEIO
-      val wbRes_o = Output(UInt(parm.REGWIDTH.W))
-      val CsrRegfile = new CSRIO
+      val WBREG = new Wbu2Regfile
+      //val Regfile_o = new REGFILEIO
+      //val wbRes_o = Output(UInt(parm.REGWIDTH.W))
+      //val CsrRegfile = new CSRIO
       //val CsrWb_o = new CSRWB
-      val CsrAddr = Output(UInt(parm.CSRNUMBER.W))
+      //val CsrAddr = Output(UInt(parm.CSRNUMBER.W))
       
       //CLINT
       val Mtip = Input(Bool()) 
@@ -36,15 +37,15 @@ class WBU extends Module{
       "b00010000".U    ->io.LSWB.CsrWb.CSR.mie,
       "b00100000".U    ->io.LSWB.CsrWb.CSR.mip
     ))
-    io.Regfile_o :=  io.LSWB.Regfile
-    io.wbRes_o := MuxLookup(io.LSWB.choose,0.U,Seq(
+    io.WBREG.Regfile :=  io.LSWB.Regfile
+    io.WBREG.WbuRes  := MuxLookup(io.LSWB.choose,0.U,Seq(
       "b0000".U -> io.LSWB.AluRes,
       "b0001".U -> io.LSWB.LsuRes,
       "b0010".U -> CSR
     ))
     //IRU模块也在这里实现   来处理异常，来自CLINT的信号不经过流水线，直接输入给这里的IRU部分
     val csrwen =io.LSWB.CsrWb.csrflag | io.LSWB.CsrWb.ecall | io.LSWB.CsrWb.mret | io.Mtip
-    io.CsrAddr := Mux(csrwen,io.LSWB.CsrWb.CsrAddr,"b00000000".U)
+    io.WBREG.CsrAddr := Mux(csrwen,io.LSWB.CsrWb.CsrAddr,"b00000000".U)
     
     //io.CsrWb_o := io.CsrWb_i
     //计时器中断信号
@@ -84,7 +85,7 @@ class WBU extends Module{
     //io.LsuRes_o :=  io.LsuRes_i  
     //CLINT
 
-    io.CsrRegfile.mie := Mux(io.LSWB.CsrWb.CsrExuChoose(4),io.LSWB.AluRes,io.LSWB.CsrWb.CSR.mie)
+    io.WBREG.CsrRegfile.mie := Mux(io.LSWB.CsrWb.CsrExuChoose(4),io.LSWB.AluRes,io.LSWB.CsrWb.CSR.mie)
 
     val MieFlag  = (io.LSWB.CsrWb.CSR.mstatus &parm.MIE.U(parm.REGWIDTH.W)) =/= 0.U
     val MtieFlag = (io.LSWB.CsrWb.CSR.mie & parm.MTIE.U(parm.REGWIDTH.W)) =/= 0.U 
@@ -96,7 +97,7 @@ class WBU extends Module{
       io.CsrAddr := Mux(csrwen,io.LSWB.CsrWb.CsrAddr(7,6),"b00".U) ##"b1".U##Mux(csrwen,io.LSWB.CsrWb.CsrAddr(4,0),"b0000".U)
     }
     //io.CsrAddr(5) := Mux(io.LSWB.CsrWb.CsrAddr(6),io.LSWB.CsrWb.CsrAddr(6),MtipFlag)
-    io.CsrRegfile.mip :=  Mux(io.LSWB.CsrWb.CsrExuChoose(5),io.LSWB.AluRes,Mux(MtipFlag,MtipHigh,io.LSWB.CsrWb.CSR.mip))
+    io.WBREG.CsrRegfile.mip :=  Mux(io.LSWB.CsrWb.CsrExuChoose(5),io.LSWB.AluRes,Mux(MtipFlag,MtipHigh,io.LSWB.CsrWb.CSR.mip))
 
     //处理时钟中断
     //val MtipValid = ((io.LSWB.CsrWb.CSR.mip & parm.MTIP.U(parm.REGWIDTH.W))=/=0.U)
@@ -105,13 +106,13 @@ class WBU extends Module{
      // mepc := io.NextPc
       //在这里加一行会导致部分地址指令识别不出来，目前还不知道为啥
       //mstatus := io.LSWB.CsrWb.CSR.mstatus
-      io.CsrRegfile.mip := io.LSWB.CsrWb.CSR.mip & ~parm.MTIP.U(parm.REGWIDTH.W)
+      io.WBREG.CsrRegfile.mip := io.LSWB.CsrWb.CSR.mip & ~parm.MTIP.U(parm.REGWIDTH.W)
     }
 
 
-    io.CsrRegfile.mepc    := Mux(io.LSWB.CsrWb.CsrExuChoose(0),io.LSWB.AluRes,mepc)
-    io.CsrRegfile.mcause  := Mux(io.LSWB.CsrWb.CsrExuChoose(1),io.LSWB.AluRes,mcause)
-    io.CsrRegfile.mtvec   := Mux(io.LSWB.CsrWb.CsrExuChoose(2),io.LSWB.AluRes,io.LSWB.CsrWb.CSR.mtvec)
-    io.CsrRegfile.mstatus := Mux(io.LSWB.CsrWb.CsrExuChoose(3),io.LSWB.AluRes,mstatus)
+    io.WBREG.CsrRegfile.mepc    := Mux(io.LSWB.CsrWb.CsrExuChoose(0),io.LSWB.AluRes,mepc)
+    io.WBREG.CsrRegfile.mcause  := Mux(io.LSWB.CsrWb.CsrExuChoose(1),io.LSWB.AluRes,mcause)
+    io.WBREG.CsrRegfile.mtvec   := Mux(io.LSWB.CsrWb.CsrExuChoose(2),io.LSWB.AluRes,io.LSWB.CsrWb.CSR.mtvec)
+    io.WBREG.CsrRegfile.mstatus := Mux(io.LSWB.CsrWb.CsrExuChoose(3),io.LSWB.AluRes,mstatus)
     
 }

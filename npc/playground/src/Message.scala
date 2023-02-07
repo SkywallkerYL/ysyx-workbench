@@ -101,13 +101,18 @@ class Lsu2Wbu extends Bundle{
 }
 //WB --- RegFile
 class Wbu2Regfile extends Bundle{
-    val Reg17       = Input(UInt(parm.REGWIDTH.W))
+    //val Reg17       = Input(UInt(parm.REGWIDTH.W))
 
     val Regfile     = new REGFILEIO
     val WbuRes      = Output(UInt(parm.REGWIDTH.W))
     val CsrRegfile  = new CSRIO
     val CsrAddr     = Output(UInt(parm.CSRNUMBER.W))
 }
+class Regfile2Wbu extends Bundle{
+    val Reg17       = Output(UInt(parm.REGWIDTH.W))    
+}
+
+
 //LS --- CLINT
 class MessageLsuClint extends Bundle{
     val Clintls = new CLINTLS
