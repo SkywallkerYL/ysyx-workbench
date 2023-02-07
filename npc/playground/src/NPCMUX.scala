@@ -5,7 +5,7 @@ import chisel3.util._
 
 class NPCMUX extends Module{
     val io = IO(new Bundle {
-      val IDNPC = new Idu2Npc
+      val IDNPC = Flipped((new Idu2Npc))
       //val NPC = Output(UInt(parm.PCWIDTH.W))
       val NOP = Output(Bool())
       //between pcreg
