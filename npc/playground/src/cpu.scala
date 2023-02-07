@@ -32,7 +32,7 @@ class  RiscvCpu extends Module{
     //val Ex_Ls = Module(new EX_LS())
     val Lsu = Module(new LSU())
     val Clint = Module(new CLINT())
-    val Ls_Wb = Module(new LS_WB())
+    //val Ls_Wb = Module(new LS_WB())
     val Wbu = Module(new WBU())
 //pc   
     val PcRegOut = Wire(UInt(parm.PCWIDTH.W))
