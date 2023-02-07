@@ -62,12 +62,12 @@ class  RiscvCpu extends Module{
     //If_Id.io.nop := NpcMux.io.NOP
 // regfile
     Regfile.io.IDRegFile <> Idu.io.IDRegFile
-    Regfile.io.wen := Wbu.io.Regfile_o.wen//exu.io.ex.rden
-    Regfile.io.waddr := Wbu.io.Regfile_o.waddr//exu.io.ex.rdaddr
-    Regfile.io.wdata := Wbu.io.wbRes_o//exu.io.ex.rddata
+    //Regfile.io.wen := Wbu.io.Regfile_o.wen//exu.io.ex.rden
+    //Regfile.io.waddr := Wbu.io.Regfile_o.waddr//exu.io.ex.rdaddr
+    //Regfile.io.wdata := Wbu.io.wbRes_o//exu.io.ex.rddata
     Regfile.io.pc := IfU.io.IFID.pc//
-    Regfile.io.csraddr := Wbu.io.CsrAddr
-    Regfile.io.CSRInput <> Wbu.io.CsrRegfile
+    //Regfile.io.csraddr := Wbu.io.CsrAddr
+    //Regfile.io.CSRInput <> Wbu.io.CsrRegfile
 //id
     //val Idu = Module(new IDU())
     Idu.io.NPC <> NpcMux.io.NPCId

@@ -37,12 +37,14 @@ class WBU extends Module{
       "b00010000".U    ->io.LSWB.CsrWb.CSR.mie,
       "b00100000".U    ->io.LSWB.CsrWb.CSR.mip
     ))
-    io.WBREG.Regfile :=  io.LSWB.Regfile
-    io.WBREG.WbuRes  := MuxLookup(io.LSWB.choose,0.U,Seq(
+    io.WBREG.Regfile.wen :=  io.LSWB.Regfile.wen
+    io.WBREG.Regfile.waddr :=  io.LSWB.Regfile.waddr
+    val WbuRes  = MuxLookup(io.LSWB.choose,0.U,Seq(
       "b0000".U -> io.LSWB.AluRes,
       "b0001".U -> io.LSWB.LsuRes,
       "b0010".U -> CSR
     ))
+    io.WBREG.Regfile.wdata := WbuRes
     //IRU模块也在这里实现   来处理异常，来自CLINT的信号不经过流水线，直接输入给这里的IRU部分
     val csrwen =io.LSWB.CsrWb.csrflag | io.LSWB.CsrWb.ecall | io.LSWB.CsrWb.mret | io.Mtip
     io.WBREG.CsrAddr := Mux(csrwen,io.LSWB.CsrWb.CsrAddr,"b00000000".U)
@@ -94,7 +96,7 @@ class WBU extends Module{
     //val MtipLow = io.LSWB.CsrWb.CSR.mip & (~parm.MTIP.U(parm.REGWIDTH.W))
     //如果有写入的话，优先写入  否则根据MTIPflag对mip寄存器写入 当然也有可能还有其他信号，后面再加
     when(MtipFlag){
-      io.CsrAddr := Mux(csrwen,io.LSWB.CsrWb.CsrAddr(7,6),"b00".U) ##"b1".U##Mux(csrwen,io.LSWB.CsrWb.CsrAddr(4,0),"b0000".U)
+      io.WBREG.CsrAddr := Mux(csrwen,io.LSWB.CsrWb.CsrAddr(7,6),"b00".U) ##"b1".U##Mux(csrwen,io.LSWB.CsrWb.CsrAddr(4,0),"b0000".U)
     }
     //io.CsrAddr(5) := Mux(io.LSWB.CsrWb.CsrAddr(6),io.LSWB.CsrWb.CsrAddr(6),MtipFlag)
     io.WBREG.CsrRegfile.mip :=  Mux(io.LSWB.CsrWb.CsrExuChoose(5),io.LSWB.AluRes,Mux(MtipFlag,MtipHigh,io.LSWB.CsrWb.CSR.mip))

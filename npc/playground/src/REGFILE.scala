@@ -41,11 +41,11 @@ class CSRWB extends Bundle{
 
 class RegFile extends Module{
     val io = IO(new Bundle {
-    val wen = Input(Bool())
-    val waddr = Input(UInt(parm.REGADDRWIDTH.W))
-    val wdata = Input(UInt(parm.REGWIDTH.W))
+    //val wen = Input(Bool())
+    //val waddr = Input(UInt(parm.REGADDRWIDTH.W))
+    //val wdata = Input(UInt(parm.REGWIDTH.W))
     val IDRegFile = Flipped((new Idu2Regfile))
-    
+    val WBREG = new Wbu2Regfile
 
     val pc = Input(UInt(parm.PCWIDTH.W))
     val RegFileID = ((new Regfile2Idu))
@@ -53,8 +53,8 @@ class RegFile extends Module{
     val Reg17  = Output(UInt(parm.REGWIDTH.W))
 
   //CSR 
-    val csraddr = Input(UInt(parm.CSRNUMBER.W))
-    val CSRInput= Flipped(new CSRIO)
+    //val csraddr = Input(UInt(parm.CSRNUMBER.W))
+    //val CSRInput= Flipped(new CSRIO)
     //val CSR = (new CSRIO)
   //CLINT
       
@@ -82,8 +82,8 @@ class RegFile extends Module{
     //regdpi.io.reset := io.reset
     //printf(p"reg(1)=${(regdpi.io.b)} \n")
   }
-  when (io.wen){
-    when (io.waddr =/= 0.U) {reg(io.waddr) := io.wdata}
+  when (io.WBREG.Regfile.wen){
+    when (io.WBREG.Regfile.waddr =/= 0.U) {reg(io.WBREG.Regfile.waddr) := io.WBREG.Regfile.wdata}
   }
   //生成出来的verilog文件似乎不会解决冲突的问题
 
@@ -119,16 +119,16 @@ class RegFile extends Module{
   val mstatusen=  (io.csraddr(3))
 
   when(mepcen){
-    mepc := io.CSRInput.mepc
+    mepc := io.WBREG.CsrRegfile.mepc
   }
   when(mcauseen){
-    mcause := io.CSRInput.mcause
+    mcause := io.WBREG.CsrRegfile.mcause
   }
   when(mtvecen){
-    mtvec := io.CSRInput.mtvec
+    mtvec := io.WBREG.CsrRegfile.mtvec
   }
   when(mstatusen){
-    mstatus := io.CSRInput.mstatus
+    mstatus := io.WBREG.CsrRegfile.mstatus
   }
   io.RegFileID.CSRs.mepc     := mepc
   io.RegFileID.CSRs.mcause   := mcause
@@ -146,16 +146,16 @@ class RegFile extends Module{
   }
   */
   //CLINT reg mie mip
-  val mieen = (io.csraddr(4))
-  val mipen = (io.csraddr(5))
+  val mieen = (io.WBREG.CsrAddr(4))
+  val mipen = (io.WBREG.CsrAddr(5))
   val mie   = RegInit(0.U(parm.REGWIDTH.W))
   val mip   = RegInit(0.U(parm.REGWIDTH.W))
 
   when(mieen){
-    mie := io.CSRInput.mie
+    mie := io.WBREG.CsrRegfile.mie
   }
   when(mipen){
-    mip := io.CSRInput.mip
+    mip := io.WBREG.CsrRegfile.mip
   }
 
   io.RegFileID.CSRs.mie := mie 

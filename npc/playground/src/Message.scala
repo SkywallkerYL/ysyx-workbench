@@ -104,7 +104,7 @@ class Wbu2Regfile extends Bundle{
     //val Reg17       = Input(UInt(parm.REGWIDTH.W))
 
     val Regfile     = new REGFILEIO
-    val WbuRes      = Output(UInt(parm.REGWIDTH.W))
+    //val WbuRes      = Output(UInt(parm.REGWIDTH.W))
     val CsrRegfile  = new CSRIO
     val CsrAddr     = Output(UInt(parm.CSRNUMBER.W))
 }
