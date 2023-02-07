@@ -49,16 +49,18 @@ class  RiscvCpu extends Module{
     NpcMux.io.rs1 := Idu.io.idex.rs1
 
     //val resetflag = PcReg.io.pc_o === 0.U
-    PcReg.io.pc_i := NpcMux.io.NPC
+    //PcReg.io.pc_i := NpcMux.io.NPC
     PcRegOut := PcReg.io.pc_o
+    StageConnect(NpcMux.io.NpcPcreg,PcReg.io.NPC)
+    
 //ifu
     //val IfU = Module(new IFU())
-
-    IfU.io.pc_i := PcReg.io.pc_o
+    StageConnect(PcReg.io.PcIf,IfU.io.PcIf)
+    //IfU.io.pc_i := PcReg.io.pc_o
     //IfU.io.instr_i := instr
     if(parm.DPI){
         val instrread = Module(new InstrReadDPI)
-        instrread.io.a := PcReg.io.pc_o
+        instrread.io.a := PcReg.io.PcIf.pc
         IfU.io.instr_i := instrread.io.b
     }
 //if_id
@@ -167,4 +169,13 @@ class  RiscvCpu extends Module{
 }   else io.SkipRef := false.B
     //io.res := exu.io.expres
 
+}
+
+object StageConnect{
+    def apply[T <: Data] (left: DecoupledIO[T], right:DecoupledIO[T] ) = {
+        val arch = "multi"
+        if (arch == "single") {right.bits := left.bits}
+        else if (arch == "multi") {right <> left} 
+        else if (arch == "pipeline") {right <> RegEnable(left,left.fire)}
+    }
 }
