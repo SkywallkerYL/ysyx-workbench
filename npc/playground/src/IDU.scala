@@ -8,47 +8,23 @@ import chisel3.util.HasBlackBoxInline
 
 class IDU extends Module{
     val io = IO(new Bundle {
-    //val IFID.inst = Input(UInt(parm.INSTWIDTH.W))
     val IFID = Flipped((new Ifu2Idu))
-    //val NextPc_i = Input(UInt(parm.PCWIDTH.W))
     val NPC = Flipped((new Npc2Idu))
-    //val rs_data1 = Input(UInt(parm.REGWIDTH.W))
-    //val rs_data2 = Input(UInt(parm.REGWIDTH.W))
-    
     val RegFileID = Flipped((new Regfile2Idu))
-    val IDRegFile = ((new Idu2Regfile))
 
+
+    val IDRegFile = ((new Idu2Regfile))
     val instr_o = Output(UInt(parm.INSTWIDTH.W))
     val pc_o = Output(UInt(parm.PCWIDTH.W))
-    //val NextPc_o = Output(UInt(parm.PCWIDTH.W))
-    //val rs_addr1 = Output(UInt(parm.REGADDRWIDTH.W))
-    //val rs_addr2 = Output(UInt(parm.REGADDRWIDTH.W))
     val idex = new IDEX
-// CSR //输出已经包含在idex中
-    //val CsrIn = Flipped(new CSRIO)
-    val ecallpc = Output(UInt(parm.PCWIDTH.W))
-    val mretpc = Output(UInt(parm.PCWIDTH.W))
-    //val CSR = new CSRIO
-    //val CsrAddr = Output(UInt(parm.CSRNUMBER.W))
-    //val CSRs = Output(UInt(parm.REGWIDTH.W))
-    //val rd_addr = Output(UInt(parm.REGADDRWIDTH.W))
-    //val rd_en = Output(Bool())
-    //val imm = Output(UInt(parm.REGWIDTH.W))
-    //val rs1 = Output(UInt(parm.REGWIDTH.W))
-    //val rs2 = Output(UInt(parm.REGWIDTH.W))
-    //val opcode = Output(UInt(parm.OPCODEWIDTH.W))
-    //val func3 = Output(UInt(3.W))
-    //val func7 = Output(UInt(7.W))
+    val IDNPC = new Idu2Npc
     val ebreak = Output(Bool())
-    //val wflag = Output(Bool())
-    //val rflag = Output(Bool())
     val instrnoimpl = Output(Bool())
-    val jal    = Output(UInt(OpJType.OPJNUMWIDTH.W))
   })
     io.instrnoimpl := false.B;
     io.instr_o := io.IFID.inst
     io.pc_o := io.IFID.pc
-    io.jal := 0.U
+    io.IDNPC.jal := 0.U
     io.IDRegFile.raddr1 := io.IFID.inst(19,15)
     io.IDRegFile.raddr2 := io.IFID.inst(24,20)
     val shamt = io.IFID.inst(25,20)
@@ -63,8 +39,11 @@ class IDU extends Module{
     io.idex.src1mask := "b11111".U(parm.MaskWidth.W)
     io.idex.src2mask := "b11111".U(parm.MaskWidth.W)
     io.idex.choose := 0.U
-    io.mretpc := 0.U
-    io.ecallpc := 0.U
+    io.IDNPC.mretpc := 0.U
+    io.IDNPC.ecallpc := 0.U
+    io.IDNPC.IdPc := io.IFID.pc
+    io.IDNPC.imm := io.idex.imm
+    io.IDNPC.rs1 := io.idex.rs1
     io.idex.NextPc := io.NPC.NextPc
     //io.ls.pc := 0.U
 
@@ -177,13 +156,13 @@ class IDU extends Module{
                 rd1 := io.IFID.pc
                 rd2 := 4.U
                 //io.idex.AluOp.op  := OpType.ADD
-                io.jal := 2.U
+                io.IDNPC.jal := 2.U
             }
             when(DecodeRes(InstrTable.InstrN) === OpIType.ECALL)
             {
-                io.jal := 4.U
+                io.IDNPC.jal := 4.U
                 rd1 := io.IFID.pc
-                io.ecallpc := io.RegFileID.CSRs.mtvec
+                io.IDNPC.ecallpc := io.RegFileID.CSRs.mtvec
               // io.idex.CsrWb.CSR.mstatus := func.EcallMstatus(io.RegFileID.CSRs.mstatus)
                // io.IDRegFile.raddr2 := 17.U
                 //io.idex.CsrWb.CSR.mcause := func.Mcause(io.RegFileID.rdata2,io.RegFileID.CSRs.mcause)
@@ -222,12 +201,12 @@ class IDU extends Module{
             io.idex.src1mask := lsuflag(34,30)
             when(DecodeRes(InstrTable.InstrN) === OpRType.MRET)
             {
-                io.jal := 5.U
+                io.IDNPC.jal := 5.U
                 //io.idex.CsrWb.CSR.mstatus := func.MretMstatus(io.RegFileID.CSRs.mstatus)
                 io.idex.CsrWb.CsrAddr := "b00001000".U
                 io.idex.CsrWb.mret := 1.U
                 io.idex.CsrWb.CsrExuChoose :="b00000000".U // 为1的寄存器选择ALU结果写入，否则选择这里的ecall结果
-                io.mretpc := io.RegFileID.CSRs.mepc
+                io.IDNPC.mretpc := io.RegFileID.CSRs.mepc
             }
         }
         is(InstrType.U){
@@ -244,7 +223,7 @@ class IDU extends Module{
             rd2 := 4.U
             //io.idex.rden := 0.U
             //io.idex.AluOp.op  := OpType.ADD
-            io.jal := 1.U
+            io.IDNPC.jal := 1.U
         }
         is(InstrType.B){
             io.idex.imm := B_imm//.asSInt
@@ -258,7 +237,7 @@ class IDU extends Module{
             io.idex.rden := 0.U
             val jump = (less&byte(1)) | (bigger&(byte(2))) | (eq & byte(3)) | (ueq & byte(4))
             //io.idex.AluOp.op  := OpType.ADD
-            io.jal := Mux(jump,3.U,0.U)
+            io.IDNPC.jal := Mux(jump,3.U,0.U)
         }
         is (InstrType.S){
             io.idex.imm := S_imm//.asSInt
@@ -319,11 +298,11 @@ class IDU extends Module{
 
     val MtipValid = ((io.RegFileID.CSRs.mip & parm.MTIP.U(parm.REGWIDTH.W))=/=0.U)
     when(MtipValid){
-        io.jal := 4.U
+        io.IDNPC.jal := 4.U
         //rd1 := io.IFID.pc
         io.idex.CsrWb.CsrAddr := "b00101011".U
         io.idex.CsrWb.CsrExuChoose :="b00000000".U 
-        io.ecallpc := io.RegFileID.CSRs.mtvec
+        io.IDNPC.ecallpc := io.RegFileID.CSRs.mtvec
     }
     io.ebreak := Mux(io.IFID.inst === "x00100073".U,1.B,0.B)
 
