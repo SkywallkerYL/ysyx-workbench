@@ -17,12 +17,12 @@ class WBU extends Module{
       val CLINTWB = Flipped((new Clint2Wbu))
   })
     val CSR = MuxLookup(io.LSWB.CsrWb.CsrAddr, 0.U(parm.REGWIDTH.W),Seq(    
-      "b00000001".U    ->io.REGWB.CSRsmepc,
-      "b00000010".U    ->io.REGWB.CSRsmcause,
-      "b00000100".U    ->io.REGWB.CSRsmtvec,
-      "b00001000".U    ->io.REGWB.CSRsmstatus,
-      "b00010000".U    ->io.REGWB.CSRsmie,
-      "b00100000".U    ->io.REGWB.CSRsmip
+      "b00000001".U    ->io.REGWB.CSRs.mepc,
+      "b00000010".U    ->io.REGWB.CSRs.mcause,
+      "b00000100".U    ->io.REGWB.CSRs.mtvec,
+      "b00001000".U    ->io.REGWB.CSRs.mstatus,
+      "b00010000".U    ->io.REGWB.CSRs.mie,
+      "b00100000".U    ->io.REGWB.CSRs.mip
     ))
     io.WBREG.Regfile.wen :=  io.LSWB.Regfile.wen
     io.WBREG.Regfile.waddr :=  io.LSWB.Regfile.waddr
@@ -38,7 +38,7 @@ class WBU extends Module{
     
     //io.CsrWb_o := io.CsrWb_i
     //计时器中断信号
-    val MtipValid = ((io.REGWB.CSRsmip & parm.MTIP.U(parm.REGWIDTH.W))=/=0.U)
+    val MtipValid = ((io.REGWB.CSRs.mip & parm.MTIP.U(parm.REGWIDTH.W))=/=0.U)
     //Mcause
     
     //Mcauseflag := 0.U;
@@ -50,20 +50,20 @@ class WBU extends Module{
     val mcause = Wire(UInt(parm.REGWIDTH.W))
     val mepc = Wire(UInt(parm.REGWIDTH.W))
     mstatus := 0.U
-    mcause  := func.Mcause(Mcauseflag,io.REGWB.CSRsmcause)
+    mcause  := func.Mcause(Mcauseflag,io.REGWB.CSRs.mcause)
     mepc    := 0.U
     when(io.LSWB.CsrWb.ecall || MtipValid){
       //io.CsrRegfile.
-      mstatus := func.EcallMstatus(io.REGWB.CSRsmstatus)
+      mstatus := func.EcallMstatus(io.REGWB.CSRs.mstatus)
       //io.rs_addr2 := 17.U
       //io.CsrRegfile.
-      //mcause := func.Mcause(io.REGWB.Reg17,io.REGWB.CSRsmcause)
+      //mcause := func.Mcause(io.REGWB.Reg17,io.REGWB.CSRs.mcause)
       //io.CsrRegfile.
       mepc := io.LSWB.pc
     }
     when(io.LSWB.CsrWb.mret){
       //io.CsrRegfile.
-      mstatus := func.MretMstatus(io.REGWB.CSRsmstatus)
+      mstatus := func.MretMstatus(io.REGWB.CSRs.mstatus)
     }
 
     //io.CsrRegfile<>io.CsrIn
@@ -74,34 +74,34 @@ class WBU extends Module{
     //io.LsuRes_o :=  io.LsuRes_i  
     //CLINT
 
-    io.WBREG.CsrRegfile.mie := Mux(io.LSWB.CsrWb.CsrExuChoose(4),io.LSWB.AluRes,io.REGWB.CSRsmie)
+    io.WBREG.CsrRegfile.mie := Mux(io.LSWB.CsrWb.CsrExuChoose(4),io.LSWB.AluRes,io.REGWB.CSRs.mie)
 
-    val MieFlag  = (io.REGWB.CSRsmstatus &parm.MIE.U(parm.REGWIDTH.W)) =/= 0.U
-    val MtieFlag = (io.REGWB.CSRsmie & parm.MTIE.U(parm.REGWIDTH.W)) =/= 0.U 
+    val MieFlag  = (io.REGWB.CSRs.mstatus &parm.MIE.U(parm.REGWIDTH.W)) =/= 0.U
+    val MtieFlag = (io.REGWB.CSRs.mie & parm.MTIE.U(parm.REGWIDTH.W)) =/= 0.U 
     val MtipFlag = MieFlag & MtieFlag & io.CLINTWB.Mtip
-    val MtipHigh = io.REGWB.CSRsmip | parm.MTIP.U(parm.REGWIDTH.W)
-    //val MtipLow = io.REGWB.CSRsmip & (~parm.MTIP.U(parm.REGWIDTH.W))
+    val MtipHigh = io.REGWB.CSRs.mip | parm.MTIP.U(parm.REGWIDTH.W)
+    //val MtipLow = io.REGWB.CSRs.mip & (~parm.MTIP.U(parm.REGWIDTH.W))
     //如果有写入的话，优先写入  否则根据MTIPflag对mip寄存器写入 当然也有可能还有其他信号，后面再加
     when(MtipFlag){
       io.WBREG.CsrAddr := Mux(csrwen,io.LSWB.CsrWb.CsrAddr(7,6),"b00".U) ##"b1".U##Mux(csrwen,io.LSWB.CsrWb.CsrAddr(4,0),"b0000".U)
     }
     //io.CsrAddr(5) := Mux(io.LSWB.CsrWb.CsrAddr(6),io.LSWB.CsrWb.CsrAddr(6),MtipFlag)
-    io.WBREG.CsrRegfile.mip :=  Mux(io.LSWB.CsrWb.CsrExuChoose(5),io.LSWB.AluRes,Mux(MtipFlag,MtipHigh,io.REGWB.CSRsmip))
+    io.WBREG.CsrRegfile.mip :=  Mux(io.LSWB.CsrWb.CsrExuChoose(5),io.LSWB.AluRes,Mux(MtipFlag,MtipHigh,io.REGWB.CSRs.mip))
 
     //处理时钟中断
-    //val MtipValid = ((io.REGWB.CSRsmip & parm.MTIP.U(parm.REGWIDTH.W))=/=0.U)
+    //val MtipValid = ((io.REGWB.CSRs.mip & parm.MTIP.U(parm.REGWIDTH.W))=/=0.U)
     when(MtipValid){
       //io.CsrAddr  := "b00101011".U
      // mepc := io.NextPc
       //在这里加一行会导致部分地址指令识别不出来，目前还不知道为啥
-      //mstatus := io.REGWB.CSRsmstatus
-      io.WBREG.CsrRegfile.mip := io.REGWB.CSRsmip & ~parm.MTIP.U(parm.REGWIDTH.W)
+      //mstatus := io.REGWB.CSRs.mstatus
+      io.WBREG.CsrRegfile.mip := io.REGWB.CSRs.mip & ~parm.MTIP.U(parm.REGWIDTH.W)
     }
 
 
     io.WBREG.CsrRegfile.mepc    := Mux(io.LSWB.CsrWb.CsrExuChoose(0),io.LSWB.AluRes,mepc)
     io.WBREG.CsrRegfile.mcause  := Mux(io.LSWB.CsrWb.CsrExuChoose(1),io.LSWB.AluRes,mcause)
-    io.WBREG.CsrRegfile.mtvec   := Mux(io.LSWB.CsrWb.CsrExuChoose(2),io.LSWB.AluRes,io.REGWB.CSRsmtvec)
+    io.WBREG.CsrRegfile.mtvec   := Mux(io.LSWB.CsrWb.CsrExuChoose(2),io.LSWB.AluRes,io.REGWB.CSRs.mtvec)
     io.WBREG.CsrRegfile.mstatus := Mux(io.LSWB.CsrWb.CsrExuChoose(3),io.LSWB.AluRes,mstatus)
     
 }
