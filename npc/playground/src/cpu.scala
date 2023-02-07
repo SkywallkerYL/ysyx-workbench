@@ -62,7 +62,8 @@ class  RiscvCpu extends Module{
     //If_Id.io.nop := NpcMux.io.NOP
 // regfile
     Regfile.io.IDRegFile <> Idu.io.IDRegFile
-    Regfile.io.WBREG <> Wbu.io.WBREG
+    
+    Regfile.io.REGWB<>Wbu.io.REGWB 
     //Regfile.io.wen := Wbu.io.Regfile_o.wen//exu.io.ex.rden
     //Regfile.io.waddr := Wbu.io.Regfile_o.waddr//exu.io.ex.rdaddr
     //Regfile.io.wdata := Wbu.io.wbRes_o//exu.io.ex.rddata
@@ -108,8 +109,8 @@ class  RiscvCpu extends Module{
     //Wbu.io.pc := Ls_Wb.io.pc_o
     //Wbu.io.NextPc := Ls_Wb.io.NextPc_o
     //Wbu.io.CsrIn <>Regfile.io.CSR
-    Wbu.io.REGWB <> Regfile.io.REGWB
-    Wbu.io.Mtip  := Clint.io.Mtip
+    Wbu.io.WBREG <> Regfile.io.WBREG 
+    Wbu.io.CLINTWB  := Clint.io.CLINTWB
 //out
     if(parm.DPI){
         val ebrdpi = Module(new ebreakDPI)
