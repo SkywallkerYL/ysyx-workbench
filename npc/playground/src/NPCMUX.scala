@@ -18,6 +18,7 @@ class NPCMUX extends Module{
       //between pcreg
       val RegPc = Flipped((new Pcreg2Npc))//Decoupled
       val NPC   = (((new Npc2Pcreg)))
+      val NPCId = ((new Npc2Idu))
       
   })
   //val resetflag = io.PcRegPc===0.U
