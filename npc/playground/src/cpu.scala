@@ -62,6 +62,7 @@ class  RiscvCpu extends Module{
     //If_Id.io.nop := NpcMux.io.NOP
 // regfile
     Regfile.io.IDRegFile <> Idu.io.IDRegFile
+    Regfile.io.WBREG <> Wbu.io.WBREG
     //Regfile.io.wen := Wbu.io.Regfile_o.wen//exu.io.ex.rden
     //Regfile.io.waddr := Wbu.io.Regfile_o.waddr//exu.io.ex.rdaddr
     //Regfile.io.wdata := Wbu.io.wbRes_o//exu.io.ex.rddata
