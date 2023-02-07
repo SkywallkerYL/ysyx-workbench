@@ -51,7 +51,7 @@ class  RiscvCpu extends Module{
     //val resetflag = PcReg.io.pc_o === 0.U
     //PcReg.io.pc_i := NpcMux.io.NPC
     PcRegOut := PcReg.io.PcIf.bits.pc
-    StageConnect(NpcMux.io.NpcPcreg,PcReg.io.NPC)
+    StageConnect(PcReg.io.NPC,NpcMux.io.NpcPcreg)
     
 //ifu
     //val IfU = Module(new IFU())
