@@ -12,21 +12,20 @@ Context* __am_irq_handle(Context *c) {
         {
           case -1:
             ev.event = EVENT_YIELD;
-            //printf("aaaa\n");
             break;
           default:
             ev.event = EVENT_SYSCALL;
             break;
-        } break;
+        } 
       //ev.event = EVENT_YIELD; break;
       case 16: ev.event = EVENT_IRQ_TIMER; break;
       default: ev.event = EVENT_ERROR; break;
     }
-    //printf("event:%d\n",ev.event);
+
     c = user_handler(ev, c);
     assert(c != NULL);
   }
-  
+
   return c;
 }
 

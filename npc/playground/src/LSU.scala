@@ -10,46 +10,44 @@ import chisel3.util.HasBlackBoxInline
 
 class LSU extends Module{
     val io = IO(new Bundle {
-      val EXLS = Flipped(new Exu2Lsu)
-      val LSWB = new Lsu2Wbu
+      val EXLS_i = Flipped(new EXLSIO)
       //val Regfile_i = Flipped(new REGFILEIO)
-      //val LsuRes = Output(UInt(parm.REGWIDTH.W))
-      //val AluRes = Output(UInt(parm.REGWIDTH.W))
-      //val choose = Output(UInt(parm.RegFileChooseWidth.W))
-      //val pc     = Output(UInt(parm.PCWIDTH.W))
-      //val NextPc  = Output(UInt(parm.PCWIDTH.W))
+      val LsuRes = Output(UInt(parm.REGWIDTH.W))
+      val AluRes = Output(UInt(parm.REGWIDTH.W))
+      val choose = Output(UInt(parm.RegFileChooseWidth.W))
+      val pc     = Output(UInt(parm.PCWIDTH.W))
+      val NextPc  = Output(UInt(parm.PCWIDTH.W))
 //if(parm.DIFFTEST){
       val SkipRef = Output(Bool())
 //}
-      val LSCLINT = new Lsu2Clint
-      //val Clintls = new CLINTLS 
-      //val CsrWb = new CSRWB
+      val Clintls = new CLINTLS 
+      val CsrWb = new CSRWB
   })
-  val CLINTREAD  = (io.EXLS.readaddr< parm.CLINTEND.U) && (io.EXLS.readaddr>=parm.CLINTBASE.U)
-  val CLINTWRITE = (io.EXLS.writeaddr< parm.CLINTEND.U) && (io.EXLS.writeaddr>=parm.CLINTBASE.U)
+  val CLINTREAD  = (io.EXLS_i.readaddr< parm.CLINTEND.U) && (io.EXLS_i.readaddr>=parm.CLINTBASE.U)
+  val CLINTWRITE = (io.EXLS_i.writeaddr< parm.CLINTEND.U) && (io.EXLS_i.writeaddr>=parm.CLINTBASE.U)
   val readdata = Wire(UInt(parm.REGWIDTH.W))
   val LsuDpidata = Wire(UInt(parm.REGWIDTH.W))
   if(parm.DPI){
     val LsuDPI = Module(new LSUDPI) 
-    LsuDPI.io.wflag := io.EXLS.wflag & !CLINTWRITE
-    LsuDPI.io.rflag := io.EXLS.rflag & !CLINTREAD
-    LsuDPI.io.raddr := io.EXLS.readaddr  
-    LsuDPI.io.waddr := io.EXLS.writeaddr 
-    LsuDPI.io.wdata := io.EXLS.writedata 
-    LsuDPI.io.wmask := io.EXLS.wmask 
+    LsuDPI.io.wflag := io.EXLS_i.wflag & !CLINTWRITE
+    LsuDPI.io.rflag := io.EXLS_i.rflag & !CLINTREAD
+    LsuDPI.io.raddr := io.EXLS_i.readaddr  
+    LsuDPI.io.waddr := io.EXLS_i.writeaddr 
+    LsuDPI.io.wdata := io.EXLS_i.writedata 
+    LsuDPI.io.wmask := io.EXLS_i.wmask 
     LsuDpidata := LsuDPI.io.rdata
     //io.LsuRes := LsuDPI.io.rdata
   }
 
-  readdata := Mux(CLINTREAD,io.LSCLINT.Clintls.rdata,LsuDpidata)
+  readdata := Mux(CLINTREAD,io.Clintls.rdata,LsuDpidata)
   io.SkipRef := false.B
   if(parm.DIFFTEST){
-      val readskip = (io.EXLS.readaddr< parm.PMEM_RIGHT.U) && (io.EXLS.readaddr>=parm.PMEM_LEFT.U)
-      val writeskip= (io.EXLS.writeaddr< parm.PMEM_RIGHT.U) && (io.EXLS.writeaddr>=parm.PMEM_LEFT.U)
-      io.SkipRef := (!readskip& io.EXLS.rflag)| (!writeskip&io.EXLS.wflag)
+      val readskip = (io.EXLS_i.readaddr< parm.PMEM_RIGHT.U) && (io.EXLS_i.readaddr>=parm.PMEM_LEFT.U)
+      val writeskip= (io.EXLS_i.writeaddr< parm.PMEM_RIGHT.U) && (io.EXLS_i.writeaddr>=parm.PMEM_LEFT.U)
+      io.SkipRef := (!readskip& io.EXLS_i.rflag)| (!writeskip&io.EXLS_i.wflag)
   }
 
-  val maskRes = MuxLookup(io.EXLS.lsumask, readdata,Seq(
+  val maskRes = MuxLookup(io.EXLS_i.lsumask, readdata,Seq(
     "b11111".U   -> readdata,
     "b10111".U   ->func.SignExt(func.Mask ((readdata),"x00000000ffffffff".U),32),
     "b10011".U   ->func.SignExt(func.Mask ((readdata),"x000000000000ffff".U),16),
@@ -58,17 +56,16 @@ class LSU extends Module{
     "b00011".U   ->func.UsignExt(func.Mask((readdata),"x000000000000ffff".U),16),
     "b00001".U   ->func.UsignExt(func.Mask((readdata),"x00000000000000ff".U),8)
   ))
-  io.LSWB.LsuRes := maskRes
-  io.LSWB.AluRes := io.EXLS.alures
-  io.LSWB.choose := io.EXLS.choose
-  io.LSWB.CsrWb <> io.EXLS.CsrWb
-  io.LSWB.Regfile <> io.EXLS.RegFileIO
-  io.LSWB.pc := io.EXLS.pc
-  io.LSWB.NextPc := io.EXLS.NextPc
-  io.LSCLINT.Clintls.wen    := io.EXLS.wflag
-  io.LSCLINT.Clintls.ren    := io.EXLS.rflag 
-  io.LSCLINT.Clintls.raddr  := io.EXLS.readaddr 
-  io.LSCLINT.Clintls.waddr  := io.EXLS.writeaddr
-  io.LSCLINT.Clintls.wdata  := io.EXLS.writedata
+  io.LsuRes := maskRes
+  io.AluRes := io.EXLS_i.alures
+  io.choose := io.EXLS_i.choose
+  io.CsrWb <> io.EXLS_i.CsrWb
+  io.pc := io.EXLS_i.pc
+  io.NextPc := io.EXLS_i.NextPc
+  io.Clintls.wen    := io.EXLS_i.wflag
+  io.Clintls.ren    := io.EXLS_i.rflag 
+  io.Clintls.raddr  := io.EXLS_i.readaddr 
+  io.Clintls.waddr  := io.EXLS_i.writeaddr
+  io.Clintls.wdata  := io.EXLS_i.writedata
 
 }

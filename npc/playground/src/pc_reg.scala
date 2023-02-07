@@ -7,13 +7,9 @@ import chisel3.util._
 
 class PC_REG extends Module{
     val io = IO(new Bundle {
-    
-    val NPC = Flipped(((new Npc2Pcreg)))//Decoupled
-    
-    val RegPc = (new Pcreg2Npc)
-    val PcIf  = (new Pc2Ifu)
+    val pc_i = Input(UInt(parm.PCWIDTH.W))
+    val pc_o = Output(UInt(parm.PCWIDTH.W))
   })
-  val reg = RegNext(io.NPC.npc,parm.INITIAL_PC.U(parm.PCWIDTH.W))
-  io.RegPc.RegPc := reg
-  io.PcIf.pc := reg
+  val reg = RegNext(io.pc_i,parm.INITIAL_PC.U(parm.PCWIDTH.W))
+  io.pc_o := reg
 }
