@@ -26,24 +26,24 @@ class CLINTLS extends Bundle{
 
 class CLINT extends Module{
     val io = IO(new Bundle {
-    val LsuIn       = Flipped(new CLINTLS)
+    val LsuIn       = Flipped(new Lsu2Clint)
     val ClintReg    = (new CLINTIO)
-    val Mtip        = Output(Bool()) 
+    val CLINTWB     = new Clint2Wbu
   })
 
   val mtime = RegInit(0.U(parm.REGWIDTH.W))
   val mtimecmp = RegInit(1000.U(parm.REGWIDTH.W))
 
-  val mtimeren = io.LsuIn.ren & (io.LsuIn.raddr === parm.MTIMEADDR.U)
-  val mtimecmpren = io.LsuIn.ren & (io.LsuIn.raddr === parm.MTIMECMPADDR.U)
+  val mtimeren = io.LsuIn.Clintls.ren & (io.LsuIn.Clintls.raddr === parm.MTIMEADDR.U)
+  val mtimecmpren = io.LsuIn.Clintls.ren & (io.LsuIn.Clintls.raddr === parm.MTIMECMPADDR.U)
 
-  io.LsuIn.rdata := Mux(mtimeren,mtime,Mux(mtimecmpren,mtimecmp,0.U))
+  io.LsuIn.Clintls.rdata := Mux(mtimeren,mtime,Mux(mtimecmpren,mtimecmp,0.U))
 
   val MTIP = mtime >= mtimecmp
 
-  val mtimewen = io.LsuIn.wen & (io.LsuIn.waddr === parm.MTIMEADDR.U)
+  val mtimewen = io.LsuIn.Clintls.wen & (io.LsuIn.Clintls.waddr === parm.MTIMEADDR.U)
   when(mtimewen) {
-    mtime := io.LsuIn.wdata
+    mtime := io.LsuIn.Clintls.wdata
   }.elsewhen(!MTIP){
     mtime := mtime + 1.U
   }.otherwise{
@@ -52,12 +52,12 @@ class CLINT extends Module{
 
 
 
-  val mtimecmpwen = io.LsuIn.wen & (io.LsuIn.waddr === parm.MTIMECMPADDR.U)
+  val mtimecmpwen = io.LsuIn.Clintls.wen & (io.LsuIn.Clintls.waddr === parm.MTIMECMPADDR.U)
   when (mtimecmpwen){
-    mtimecmp := io.LsuIn.wdata
+    mtimecmp := io.LsuIn.Clintls.wdata
   }
 
-  io.Mtip := MTIP
+  io.CLINTWB.Mtip := MTIP
   io.ClintReg.mtime    := mtime
   io.ClintReg.mtimecmp := mtimecmp
 }

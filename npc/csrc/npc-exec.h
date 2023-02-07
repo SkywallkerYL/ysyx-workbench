@@ -254,7 +254,7 @@ static void execute(uint64_t n) {
         char *p = inst_buf; 
         uint64_t pc = Pc_Fetch();
         uint32_t instr = Instr_Fetch();
-        uint32_t intsr1 = p_mem[pc-CONFIG_MBASE];
+        //uint32_t intsr1 = p_mem[pc-CONFIG_MBASE];
         //printf("instr: 0x%08x\n",instr);
         //printf("instr1: 0x%08x\n",intsr1);
         uint8_t *inst =(uint8_t *)&instr;//(uint8_t *)&p_mem[pc-CONFIG_MBASE]; //(uint8_t *)&instr;

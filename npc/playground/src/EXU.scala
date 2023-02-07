@@ -43,53 +43,33 @@ class EX extends Bundle{
 
 class EXU extends Module{
     val io = IO(new Bundle {
-    val pc_i = Input(UInt(parm.PCWIDTH.W))
-    //val NextPc_i = Input(UInt(parm.PCWIDTH.W))
-    val instr_i = Input(UInt(parm.INSTWIDTH.W))
-    val id = Flipped(new IDEX)
-    //val rs1_i = Input(UInt(parm.REGWIDTH.W))
-    //val rs2_i = Input(UInt(parm.REGWIDTH.W))
-    //val imm_i = Input(UInt(parm.REGWIDTH.W))
-    //val func3_i = Input(UInt(3.W))
-    //val opcode_i = Input(UInt(parm.OPCODEWIDTH.W))
-    //val rdaddr_i = Input(UInt(parm.REGADDRWIDTH.W))
-    //val rden_i = Input(Bool())
-    val pc_o = Output(UInt(parm.PCWIDTH.W))
-    val instr_o = Output(UInt(parm.INSTWIDTH.W))
-    //val expres = Output(UInt(parm.REGWIDTH.W))
-    val ex =new EX
-    val ls = new EXLSIO
+    val id = Flipped(new Idu2Exu)
+    val EXLS = new Exu2Lsu
 
-    //val rddata = Output(UInt(parm.REGWIDTH.W))//按理说rddata不应该在这里，目前是三级流水，暂且这样
-    //val rs2_o = Output(UInt(parm.REGWIDTH.W))
-    //val imm_o = Output(UInt(parm.REGWIDTH.W))
-    //val func3_o = Output(UInt(3.W))
-    //val opcode_o = Output(UInt(parm.OPCODEWIDTH.W))
-    //val rdaddr_o = Output(UInt(parm.REGADDRWIDTH.W))
-    //val rden_o = Output(Bool())
   })
-  io.pc_o := io.pc_i
-  io.instr_o := io.instr_i
-  io.ex.rs2 := io.id.rs2
-  io.ex.rdaddr := io.id.rdaddr
-  io.ex.rden := io.id.rden
+  io.EXLS.pc := io.id.pc
+  io.EXLS.NextPc := io.id.NextPc
+  //io.instr_o := io.instr_i
+  io.EXLS.rs2 := io.id.rs2
+  io.EXLS.RegFileIO.waddr := io.id.rdaddr
+  io.EXLS.RegFileIO.wen   := io.id.rden
   //val alu = Module (new ALU(parm.REGWIDTH))
   //alu.io.func3 := io.func3_i 
-  io.ex.alures := 0.U
+  io.EXLS.alures := 0.U
 
 
-  io.ls.wflag := io.id.wflag
-  io.ls.rflag := io.id.rflag
-  io.ls.writedata := io.id.rs2
-  io.ls.wmask := io.id.wmask
-  io.ls.choose := io.id.choose
-  io.ls.lsumask := io.id.lsumask
-  io.ls.CsrWb <> io.id.CsrWb
+  io.EXLS.wflag := io.id.wflag
+  io.EXLS.rflag := io.id.rflag
+  io.EXLS.writedata := io.id.rs2
+  io.EXLS.wmask := io.id.wmask
+  io.EXLS.choose := io.id.choose
+  io.EXLS.lsumask := io.id.lsumask
+  io.EXLS.CsrWb <> io.id.CsrWb
   /*
-  io.ls.CsrAddr :=  io.id.CsrAddr
-  io.ls.CsrExuChoose := io.id.CsrExuChoose
-  io.ls.ecall := io.id.ecall
-  io.ls.mret  := io.id.mret
+  io.EXLS.CsrAddr :=  io.id.CsrAddr
+  io.EXLS.CsrExuChoose := io.id.CsrExuChoose
+  io.EXLS.ecall := io.id.ecall
+  io.EXLS.mret  := io.id.mret
   */
   //val src1 = Wire(UInt(parm.REGWIDTH.W))
   //val src2 = Wire(UInt(parm.REGWIDTH.W))
@@ -99,7 +79,7 @@ class EXU extends Module{
 
   //src1 := 0.U
   //src2 := 0.U
-  io.ex.rddata := 0.U
+  //io.EXLS.rddata := 0.U
   /*-----------------------ALU---------------------*/
   val src1 = io.id.AluOp.rd1
 
@@ -136,15 +116,15 @@ class EXU extends Module{
     //OpType.ADDW -> func.SignExt(func.Mask((src1+src2),"x0000ffff".U),32),
   ))
   //printf(p"AluRes=0x${Hexadecimal(AluRes)} wflag:  ${io.id.wflag}\n")
-  io.ex.rddata:= maskRes
-  io.ex.alures:= maskRes
-  io.ls.alures := maskRes
-  io.ls.writeaddr :=  maskRes
-  io.ls.readaddr := maskRes
-  io.ls.pc := io.pc_i
-  io.ls.NextPc := io.id.NextPc
-  //io.ls.CsrWb.CSR.mepc := Mux(io.id.CsrExuChoose(0),maskRes,io.id.CsrWb.CSR.mepc)
-  //io.ls.CsrWb.CSR.mcause := Mux(io.id.CsrExuChoose(1),maskRes,io.id.CsrWb.CSR.mcause)
-  //io.ls.CsrWb.CSR.mtvec := Mux(io.id.CsrExuChoose(2),maskRes,io.id.CsrWb.CSR.mtvec)
-  //io.ls.CsrWb.CSR.mstatus := Mux(io.id.CsrExuChoose(3),maskRes,io.id.CsrWb.CSR.mstatus)
+  //io.EXLS.rddata:= maskRes
+  io.EXLS.alures := maskRes
+  io.EXLS.writeaddr :=  maskRes
+  io.EXLS.readaddr := maskRes
+  io.EXLS.pc := io.id.pc
+  io.EXLS.NextPc := io.id.NextPc
+  io.EXLS.RegFileIO.wdata := maskRes
+  //io.EXLS.CsrWb.CSR.mepc := Mux(io.id.CsrExuChoose(0),maskRes,io.id.CsrWb.CSR.mepc)
+  //io.EXLS.CsrWb.CSR.mcause := Mux(io.id.CsrExuChoose(1),maskRes,io.id.CsrWb.CSR.mcause)
+  //io.EXLS.CsrWb.CSR.mtvec := Mux(io.id.CsrExuChoose(2),maskRes,io.id.CsrWb.CSR.mtvec)
+  //io.EXLS.CsrWb.CSR.mstatus := Mux(io.id.CsrExuChoose(3),maskRes,io.id.CsrWb.CSR.mstatus)
 }

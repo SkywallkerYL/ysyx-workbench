@@ -7,12 +7,11 @@ import chisel3.util._
 
 class IFU extends Module{
     val io = IO(new Bundle {
-    val pc_i = Input(UInt(parm.PCWIDTH.W))
+    val PcIf  = Flipped((new Pc2Ifu))
     val instr_i = Input(UInt(parm.INSTWIDTH.W))
-    val instr_o = Output(UInt(parm.INSTWIDTH.W))
-    val pc_o = Output(UInt(parm.PCWIDTH.W))
+    val IFID  = new Ifu2Idu
   })
-  io.instr_o := io.instr_i
-  io.pc_o := io.pc_i
+  io.IFID.inst := io.instr_i
+  io.IFID.pc   := io.PcIf.pc
 
 }
