@@ -62,8 +62,7 @@ class  RiscvCpu extends Module{
     //If_Id.io.nop := NpcMux.io.NOP
 // regfile
     Regfile.io.IDRegFile <> Idu.io.IDRegFile
-    
-    Regfile.io.REGWB<>Wbu.io.REGWB 
+    Regfile.io.WBREG <> Wbu.io.WBREG 
     //Regfile.io.wen := Wbu.io.Regfile_o.wen//exu.io.ex.rden
     //Regfile.io.waddr := Wbu.io.Regfile_o.waddr//exu.io.ex.rdaddr
     //Regfile.io.wdata := Wbu.io.wbRes_o//exu.io.ex.rddata
@@ -93,23 +92,8 @@ class  RiscvCpu extends Module{
     Clint.io.LsuIn <> Lsu.io.LSCLINT
 //LS_WB
     Wbu.io.LSWB <> Lsu.io.LSWB
-    //Ls_Wb.io.Regfile_i <> Ex_Ls.io.Regfile_o
-    //Ls_Wb.io.pc_i :=  Lsu.io.pc
-    //Ls_Wb.io.NextPc_i := Lsu.io.NextPc
-    //Ls_Wb.io.LsuRes_i := Lsu.io.LsuRes
-    //Ls_Wb.io.AluRes_i := Lsu.io.AluRes
-    //Ls_Wb.io.choose_i := Lsu.io.choose
-    //Ls_Wb.io.CsrWb_i <> Ex_Ls.io.EXLS_o.CsrWb
 //WB
-    //Wbu.io.Regfile_i <> Ls_Wb.io.Regfile_o
-    //Wbu.io.LsuRes_i := Ls_Wb.io.LsuRes_o
-    //Wbu.io.AluRes_i := Ls_Wb.io.AluRes_o
-    //Wbu.io.choose := Ls_Wb.io.choose_o
-    //Wbu.io.CsrWb_i <> Ls_Wb.io.CsrWb_o
-    //Wbu.io.pc := Ls_Wb.io.pc_o
-    //Wbu.io.NextPc := Ls_Wb.io.NextPc_o
-    //Wbu.io.CsrIn <>Regfile.io.CSR
-    Wbu.io.WBREG <> Regfile.io.WBREG 
+    Wbu.io.REGWB <>  Regfile.io.REGWB 
     Wbu.io.CLINTWB  := Clint.io.CLINTWB
 //out
     if(parm.DPI){
