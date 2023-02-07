@@ -50,7 +50,7 @@ class RegFile extends Module{
     val pc = Input(UInt(parm.PCWIDTH.W))
     val RegFileID = ((new Regfile2Idu))
     val a0data = Output(UInt(parm.REGWIDTH.W))
-    val Reg17  = Output(UInt(parm.REGWIDTH.W))
+    //val Reg17  = Output(UInt(parm.REGWIDTH.W))
 
       
 
