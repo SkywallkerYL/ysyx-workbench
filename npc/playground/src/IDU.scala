@@ -49,8 +49,8 @@ class IDU extends Module{
     io.instr_o := io.IFID.inst
     io.pc_o := io.IFID.pc
     io.jal := 0.U
-    io.rs_addr1 := io.IFID.inst(19,15)
-    io.rs_addr2 := io.IFID.inst(24,20)
+    io.IDRegFile.raddr1 := io.IFID.inst(19,15)
+    io.IDRegFile.raddr2 := io.IFID.inst(24,20)
     val shamt = io.IFID.inst(25,20)
     io.idex.rdaddr := io.IFID.inst(11,7)
     io.idex.rs1 := io.RegFileID.rdata1
@@ -185,7 +185,7 @@ class IDU extends Module{
                 rd1 := io.IFID.pc
                 io.ecallpc := io.RegFileID.CSRs.mtvec
               // io.idex.CsrWb.CSR.mstatus := func.EcallMstatus(io.RegFileID.CSRs.mstatus)
-               // io.rs_addr2 := 17.U
+               // io.IDRegFile.raddr2 := 17.U
                 //io.idex.CsrWb.CSR.mcause := func.Mcause(io.RegFileID.rdata2,io.RegFileID.CSRs.mcause)
                 //io.idex.CsrWb.CSR.mepc := io.IFID.pc
                 io.idex.CsrWb.CsrAddr := "b00001011".U
