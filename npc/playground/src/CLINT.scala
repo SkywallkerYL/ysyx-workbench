@@ -28,7 +28,6 @@ class CLINT extends Module{
     val io = IO(new Bundle {
     val LsuIn       = Flipped(new Lsu2Clint)
     val ClintReg    = (new CLINTIO)
-    val Mtip        = Output(Bool()) 
     val CLINTWB     = new Clint2Wbu
   })
 
