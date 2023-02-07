@@ -122,7 +122,7 @@ class EXU extends Module{
   io.EXLS.readaddr := maskRes
   io.EXLS.pc := io.id.pc
   io.EXLS.NextPc := io.id.NextPc
-  io.EXLS.RegFileIO := maskRes
+  io.EXLS.RegFileIO.wdata := maskRes
   //io.EXLS.CsrWb.CSR.mepc := Mux(io.id.CsrExuChoose(0),maskRes,io.id.CsrWb.CSR.mepc)
   //io.EXLS.CsrWb.CSR.mcause := Mux(io.id.CsrExuChoose(1),maskRes,io.id.CsrWb.CSR.mcause)
   //io.EXLS.CsrWb.CSR.mtvec := Mux(io.id.CsrExuChoose(2),maskRes,io.id.CsrWb.CSR.mtvec)
