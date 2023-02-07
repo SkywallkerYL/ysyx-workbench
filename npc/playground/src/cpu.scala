@@ -24,7 +24,7 @@ class  RiscvCpu extends Module{
     val PcReg = Module(new PC_REG()) 
     val NpcMux = Module(new NPCMUX())
     val IfU = Module(new IFU())
-    val If_Id = Module(new IF_ID())
+    //val If_Id = Module(new IF_ID())
     val Regfile = Module(new RegFile)
     val Idu = Module(new IDU())
     val Id_Ex = Module(new ID_EX())
@@ -65,10 +65,10 @@ class  RiscvCpu extends Module{
     }
 //if_id
     //val If_Id = Module(new IF_ID())
-
-    If_Id.io.ifpc := IfU.io.IFID.pc
-    If_Id.io.ifinstr := IfU.io.IFID.inst
-    If_Id.io.nop := NpcMux.io.NOP
+    Idu.io.IFID  <> IfU.io.IFID 
+    //If_Id.io.ifpc := IfU.io.IFID.pc
+    //If_Id.io.ifinstr := IfU.io.IFID.inst
+    //If_Id.io.nop := NpcMux.io.NOP
 // regfile
 
     //val Regfile = Module(new RegFile)
@@ -83,10 +83,8 @@ class  RiscvCpu extends Module{
     //Regfile.io.
 //id
     //val Idu = Module(new IDU())
-
-    Idu.io.pc_i := If_Id.io.idpc
-    Idu.io.NextPc_i := NpcMux.io.NPC.npc
-    Idu.io.instr_i := If_Id.io.idinstr
+    Idu.io.NPC := NpcMux.io.NPC
+    //Idu.io.pc_i := If_Id.io.idpc
     Idu.io.rs_data1 := Regfile.io.rdata1
     Idu.io.rs_data2 := Regfile.io.rdata2
     Idu.io.CsrIn <> Regfile.io.CSR
@@ -171,7 +169,7 @@ class  RiscvCpu extends Module{
 
 }
 //for AXI-LITE signals , use these function
-object StageConnect{
+object DecoupledConnect{
     def apply[T <: Data] (arch: String,left: DecoupledIO[T], right:DecoupledIO[T] ) = {
         //val arch = "single"
         if (arch == "single") {right.bits := left.bits}

@@ -8,11 +8,13 @@ import chisel3.util.HasBlackBoxInline
 
 class IDU extends Module{
     val io = IO(new Bundle {
-    val pc_i = Input(UInt(parm.PCWIDTH.W))
-    val instr_i = Input(UInt(parm.INSTWIDTH.W))
+    //val IFID.inst = Input(UInt(parm.INSTWIDTH.W))
+    val IFID = Flipped((new Ifu2Idu))
+    //val NextPc_i = Input(UInt(parm.PCWIDTH.W))
+    val NPC = Flipped((new Npc2Idu))
     val rs_data1 = Input(UInt(parm.REGWIDTH.W))
     val rs_data2 = Input(UInt(parm.REGWIDTH.W))
-    val NextPc_i = Input(UInt(parm.PCWIDTH.W))
+    
 
     val instr_o = Output(UInt(parm.INSTWIDTH.W))
     val pc_o = Output(UInt(parm.PCWIDTH.W))
@@ -42,13 +44,13 @@ class IDU extends Module{
     val jal    = Output(UInt(OpJType.OPJNUMWIDTH.W))
   })
     io.instrnoimpl := false.B;
-    io.instr_o := io.instr_i
-    io.pc_o := io.pc_i
+    io.instr_o := io.IFID.inst
+    io.pc_o := io.IFID.pc
     io.jal := 0.U
-    io.rs_addr1 := io.instr_i(19,15)
-    io.rs_addr2 := io.instr_i(24,20)
-    val shamt = io.instr_i(25,20)
-    io.idex.rdaddr := io.instr_i(11,7)
+    io.rs_addr1 := io.IFID.inst(19,15)
+    io.rs_addr2 := io.IFID.inst(24,20)
+    val shamt = io.IFID.inst(25,20)
+    io.idex.rdaddr := io.IFID.inst(11,7)
     io.idex.rs1 := io.rs_data1
     io.idex.rs2 := io.rs_data2
     io.idex.rflag := 0.U
@@ -61,12 +63,12 @@ class IDU extends Module{
     io.idex.choose := 0.U
     io.mretpc := 0.U
     io.ecallpc := 0.U
-    io.idex.NextPc := io.NextPc_i
+    io.idex.NextPc := io.NPC.NextPc
     //io.ls.pc := 0.U
 
-    //io.func7 := io.instr_i(31,25)
-    //io.func3 := io.instr_i(14,12)
-    //io.opcode := io.instr_i(6,0)
+    //io.func7 := io.IFID.inst(31,25)
+    //io.func3 := io.IFID.inst(14,12)
+    //io.opcode := io.IFID.inst(6,0)
     io.idex.rden := 1.U
 
     io.idex.CsrWb.CsrAddr := "b00000000".U
@@ -76,16 +78,16 @@ class IDU extends Module{
     io.idex.CsrWb.CsrExuChoose := "b00000000".U
     io.idex.CsrWb.csrflag :=0.U
 
-    val sign = io.instr_i(31)
+    val sign = io.IFID.inst(31)
     
-    val I_imm = Fill((parm.REGWIDTH-12),sign) ## (io.instr_i(31,20))
-    val U_imm = Fill((parm.REGWIDTH-32),sign) ## io.instr_i(31,12) ## Fill((12),0.U)
-    val J_imm = Fill((parm.REGWIDTH-20),sign) ## io.instr_i(19,12) ## io.instr_i(20) ## io.instr_i(30,21) ## 0.U
-    val B_imm = Fill((parm.REGWIDTH-12),sign) ## io.instr_i(7) ## io.instr_i(30,25) ## io.instr_i(11,8) ##0.U
-    val S_imm = Fill((parm.REGWIDTH-12),sign) ## io.instr_i(31,25) ## io.instr_i(11,7)
+    val I_imm = Fill((parm.REGWIDTH-12),sign) ## (io.IFID.inst(31,20))
+    val U_imm = Fill((parm.REGWIDTH-32),sign) ## io.IFID.inst(31,12) ## Fill((12),0.U)
+    val J_imm = Fill((parm.REGWIDTH-20),sign) ## io.IFID.inst(19,12) ## io.IFID.inst(20) ## io.IFID.inst(30,21) ## 0.U
+    val B_imm = Fill((parm.REGWIDTH-12),sign) ## io.IFID.inst(7) ## io.IFID.inst(30,25) ## io.IFID.inst(11,8) ##0.U
+    val S_imm = Fill((parm.REGWIDTH-12),sign) ## io.IFID.inst(31,25) ## io.IFID.inst(11,7)
 //CSR
-    val zimm    = func.UsignExt(io.instr_i(19,15),5)
-    val CSRTYPE = func.UsignExt(io.instr_i(31,20),12)
+    val zimm    = func.UsignExt(io.IFID.inst(19,15),5)
+    val CSRTYPE = func.UsignExt(io.IFID.inst(31,20),12)
     val CSRs = Wire(UInt(parm.REGWIDTH.W))
     CSRs := 0.U
     //io.idex.CsrWb.CSRs := CSRs
@@ -95,7 +97,7 @@ class IDU extends Module{
     io.idex.AluOp.rd2 := 0.U
     io.idex.AluOp.op  := 0.U
     io.idex.imm := 0.U
-    val DecodeRes = ListLookup(io.instr_i,InstrTable.Default,InstrTable.InstrMap)
+    val DecodeRes = ListLookup(io.IFID.inst,InstrTable.Default,InstrTable.InstrMap)
     val InstType = DecodeRes(InstrTable.InstrT)
     io.idex.AluOp.op := DecodeRes(InstrTable.OpT)
     val rd1 = Wire(UInt(parm.REGWIDTH.W))
@@ -170,7 +172,7 @@ class IDU extends Module{
             io.idex.CsrWb.CsrExuChoose := csraddr //正好要写入的Csr时，就使用EXU的计算结果，因此直接接过来
             when(DecodeRes(InstrTable.InstrN) === OpIType.JALR)
             {
-                rd1 := io.pc_i
+                rd1 := io.IFID.pc
                 rd2 := 4.U
                 //io.idex.AluOp.op  := OpType.ADD
                 io.jal := 2.U
@@ -178,12 +180,12 @@ class IDU extends Module{
             when(DecodeRes(InstrTable.InstrN) === OpIType.ECALL)
             {
                 io.jal := 4.U
-                rd1 := io.pc_i
+                rd1 := io.IFID.pc
                 io.ecallpc := io.CsrIn.mtvec
               // io.idex.CsrWb.CSR.mstatus := func.EcallMstatus(io.CsrIn.mstatus)
                // io.rs_addr2 := 17.U
                 //io.idex.CsrWb.CSR.mcause := func.Mcause(io.rs_data2,io.CsrIn.mcause)
-                //io.idex.CsrWb.CSR.mepc := io.pc_i
+                //io.idex.CsrWb.CSR.mepc := io.IFID.pc
                 io.idex.CsrWb.CsrAddr := "b00001011".U
                 io.idex.CsrWb.ecall := 1.U
                 io.idex.CsrWb.CsrExuChoose :="b00000000".U // 为1的寄存器选择ALU结果写入，否则选择这里的ecall结果
@@ -231,12 +233,12 @@ class IDU extends Module{
             rd1 := U_imm.asUInt
             val Uty = DecodeRes(InstrTable.InstrN)
             // 0->lui->0.U  1->auipc->pc
-            rd2 := Mux(Uty(0),io.pc_i,0.U)
+            rd2 := Mux(Uty(0),io.IFID.pc,0.U)
             //io.idex.AluOp.op := OpType.ADD
         }
         is(InstrType.J){
             io.idex.imm := J_imm//.asSInt
-            rd1 := io.pc_i
+            rd1 := io.IFID.pc
             rd2 := 4.U
             //io.idex.rden := 0.U
             //io.idex.AluOp.op  := OpType.ADD
@@ -244,7 +246,7 @@ class IDU extends Module{
         }
         is(InstrType.B){
             io.idex.imm := B_imm//.asSInt
-            //io.idex.AluOp.rd1 := io.pc_i
+            //io.idex.AluOp.rd1 := io.IFID.pc
             //io.idex.AluOp.rd2 := B_imm.asUInt
             val byte = DecodeRes(InstrTable.InstrN)
             val less = Mux(byte(0),io.rs_data1.asUInt < io.rs_data2.asUInt, io.rs_data1.asSInt < io.rs_data2.asSInt)
@@ -316,11 +318,11 @@ class IDU extends Module{
     val MtipValid = ((io.CsrIn.mip & parm.MTIP.U(parm.REGWIDTH.W))=/=0.U)
     when(MtipValid){
         io.jal := 4.U
-        //rd1 := io.pc_i
+        //rd1 := io.IFID.pc
         io.idex.CsrWb.CsrAddr := "b00101011".U
         io.idex.CsrWb.CsrExuChoose :="b00000000".U 
         io.ecallpc := io.CsrIn.mtvec
     }
-    io.ebreak := Mux(io.instr_i === "x00100073".U,1.B,0.B)
+    io.ebreak := Mux(io.IFID.inst === "x00100073".U,1.B,0.B)
 
 }
