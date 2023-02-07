@@ -36,7 +36,7 @@ class WBU extends Module{
       "b00010000".U    ->io.LSWB.CsrWb.CSR.mie,
       "b00100000".U    ->io.LSWB.CsrWb.CSR.mip
     ))
-    io.Regfile_o :=  io.LSWB.RegFile
+    io.Regfile_o :=  io.LSWB.Regfile
     io.wbRes_o := MuxLookup(io.LSWB.choose,0.U,Seq(
       "b0000".U -> io.LSWB.AluRes,
       "b0001".U -> io.LSWB.LsuRes,
@@ -69,7 +69,7 @@ class WBU extends Module{
       //io.CsrRegfile.
       //mcause := func.Mcause(io.Reg17,io.LSWB.CsrWb.CSR.mcause)
       //io.CsrRegfile.
-      mepc := io.pc
+      mepc := io.LSWB.pc
     }
     when(io.LSWB.CsrWb.mret){
       //io.CsrRegfile.
@@ -84,7 +84,7 @@ class WBU extends Module{
     //io.LsuRes_o :=  io.LsuRes_i  
     //CLINT
 
-    io.CsrRegfile.mie := Mux(io.LSWB.CsrWb.CsrExuChoose(4),io.AluRes_i,io.LSWB.CsrWb.CSR.mie)
+    io.CsrRegfile.mie := Mux(io.LSWB.CsrWb.CsrExuChoose(4),io.LSWB.AluRes,io.LSWB.CsrWb.CSR.mie)
 
     val MieFlag  = (io.LSWB.CsrWb.CSR.mstatus &parm.MIE.U(parm.REGWIDTH.W)) =/= 0.U
     val MtieFlag = (io.LSWB.CsrWb.CSR.mie & parm.MTIE.U(parm.REGWIDTH.W)) =/= 0.U 
@@ -96,7 +96,7 @@ class WBU extends Module{
       io.CsrAddr := Mux(csrwen,io.LSWB.CsrWb.CsrAddr(7,6),"b00".U) ##"b1".U##Mux(csrwen,io.LSWB.CsrWb.CsrAddr(4,0),"b0000".U)
     }
     //io.CsrAddr(5) := Mux(io.LSWB.CsrWb.CsrAddr(6),io.LSWB.CsrWb.CsrAddr(6),MtipFlag)
-    io.CsrRegfile.mip :=  Mux(io.LSWB.CsrWb.CsrExuChoose(5),io.AluRes_i,Mux(MtipFlag,MtipHigh,io.LSWB.CsrWb.CSR.mip))
+    io.CsrRegfile.mip :=  Mux(io.LSWB.CsrWb.CsrExuChoose(5),io.LSWB.AluRes,Mux(MtipFlag,MtipHigh,io.LSWB.CsrWb.CSR.mip))
 
     //处理时钟中断
     //val MtipValid = ((io.LSWB.CsrWb.CSR.mip & parm.MTIP.U(parm.REGWIDTH.W))=/=0.U)
@@ -109,9 +109,9 @@ class WBU extends Module{
     }
 
 
-    io.CsrRegfile.mepc    := Mux(io.LSWB.CsrWb.CsrExuChoose(0),io.AluRes_i,mepc)
-    io.CsrRegfile.mcause  := Mux(io.LSWB.CsrWb.CsrExuChoose(1),io.AluRes_i,mcause)
-    io.CsrRegfile.mtvec   := Mux(io.LSWB.CsrWb.CsrExuChoose(2),io.AluRes_i,io.LSWB.CsrWb.CSR.mtvec)
-    io.CsrRegfile.mstatus := Mux(io.LSWB.CsrWb.CsrExuChoose(3),io.AluRes_i,mstatus)
+    io.CsrRegfile.mepc    := Mux(io.LSWB.CsrWb.CsrExuChoose(0),io.LSWB.AluRes,mepc)
+    io.CsrRegfile.mcause  := Mux(io.LSWB.CsrWb.CsrExuChoose(1),io.LSWB.AluRes,mcause)
+    io.CsrRegfile.mtvec   := Mux(io.LSWB.CsrWb.CsrExuChoose(2),io.LSWB.AluRes,io.LSWB.CsrWb.CSR.mtvec)
+    io.CsrRegfile.mstatus := Mux(io.LSWB.CsrWb.CsrExuChoose(3),io.LSWB.AluRes,mstatus)
     
 }

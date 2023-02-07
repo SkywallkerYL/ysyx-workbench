@@ -61,7 +61,7 @@ class LSU extends Module{
   io.LSWB.AluRes := io.EXLS.alures
   io.LSWB.choose := io.EXLS.choose
   io.LSWB.CsrWb <> io.EXLS.CsrWb
-  io.LSWB.RegFile <> io.EXLS.RegFileIO
+  io.LSWB.Regfile <> io.EXLS.RegFileIO
   io.LSWB.pc := io.EXLS.pc
   io.LSWB.NextPc := io.EXLS.NextPc
   io.Clintls.wen    := io.EXLS.wflag
