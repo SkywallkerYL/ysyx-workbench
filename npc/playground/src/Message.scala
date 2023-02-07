@@ -53,7 +53,7 @@ class Regfile2Idu extends Bundle{
     val rdata2  = Output(UInt(parm.REGWIDTH.W))
 }
 //ID --- EX
-class MessageIduExu extends Bundle{
+class Idu2Exu extends Bundle{
     val pc          = Output(UInt(parm.PCWIDTH.W))
     val rs1         = Output(UInt(parm.REGWIDTH.W))
     val rs2         = Output(UInt(parm.REGWIDTH.W))

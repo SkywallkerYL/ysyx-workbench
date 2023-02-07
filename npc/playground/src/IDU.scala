@@ -11,12 +11,10 @@ class IDU extends Module{
     val IFID = Flipped((new Ifu2Idu))
     val NPC = Flipped((new Npc2Idu))
     val RegFileID = Flipped((new Regfile2Idu))
-
-
     val IDRegFile = ((new Idu2Regfile))
     val instr_o = Output(UInt(parm.INSTWIDTH.W))
     val pc_o = Output(UInt(parm.PCWIDTH.W))
-    val idex = new IDEX
+    val idex = new Idu2Exu
     val IDNPC = new Idu2Npc
     val ebreak = Output(Bool())
     val instrnoimpl = Output(Bool())
@@ -28,6 +26,7 @@ class IDU extends Module{
     io.IDRegFile.raddr1 := io.IFID.inst(19,15)
     io.IDRegFile.raddr2 := io.IFID.inst(24,20)
     val shamt = io.IFID.inst(25,20)
+    io.idex.pc := iio.IFID.pc
     io.idex.rdaddr := io.IFID.inst(11,7)
     io.idex.rs1 := io.RegFileID.rdata1
     io.idex.rs2 := io.RegFileID.rdata2

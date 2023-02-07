@@ -81,30 +81,9 @@ class  RiscvCpu extends Module{
 //ID_EX
     //val Id_Ex = Module(new ID_EX())
     //Idu.io.
-    Id_Ex.io.pc_i := Idu.io.pc_o
-    Id_Ex.io.instr_i := Idu.io.instr_o
-    Id_Ex.io.IDEX_i <> Idu.io.idex
-   // Id_Ex.io.rs1_i := Id.io.rs1
-   // Id_Ex.io.rs2_i := Id.io.rs2
-   // Id_Ex.io.imm_i := Id.io.imm
-   // Id_Ex.io.func3_i := Id.io.func3
-   // Id_Ex.io.opcode_i := Id.io.opcode
-   // Id_Ex.io.rdaddr_i := Id.io.rd_addr
-   // Id_Ex.io.rden_i := Id.io.rd_en
+    exu.io.id <> Idu.io.idex  // RegEnable
 //EXU
     //val exu = Module(new EXU())
-
-    exu.io.pc_i := Id_Ex.io.pc_o
-    //exu.io.NextPc_i := Id_Ex.io.IDEX_o.NextPc
-    exu.io.instr_i := Id_Ex.io.instr_o
-    exu.io.id <> Id_Ex.io.IDEX_o
-    //exu.io.rs1_i := Id_Ex.io.rs1_o
-    //exu.io.rs2_i := Id_Ex.io.rs2_o
-    //exu.io.imm_i := Id_Ex.io.imm_o
-    //exu.io.func3_i := Id_Ex.io.func3_o
-    //exu.io.opcode_i := Id_Ex.io.opcode_o
-    //exu.io.rdaddr_i := Id_Ex.io.rdaddr_o
-    //exu.io.rden_i := Id_Ex.io.rden_o
 //EX_LS
     Ex_Ls.io.Regfile_i.wen := exu.io.ex.rden
     Ex_Ls.io.Regfile_i.waddr := exu.io.ex.rdaddr

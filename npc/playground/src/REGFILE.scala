@@ -45,24 +45,13 @@ class RegFile extends Module{
     val waddr = Input(UInt(parm.REGADDRWIDTH.W))
     val wdata = Input(UInt(parm.REGWIDTH.W))
     val IDRegFile = Flipped((new Idu2Regfile))
-    val RegFileID = ((new Regfile2Idu))
     
-    //val raddr1 = Input(UInt(parm.REGADDRWIDTH.W))
-    //val raddr2 = Input(UInt(parm.REGADDRWIDTH.W))
+
     val pc = Input(UInt(parm.PCWIDTH.W))
-    //val rdata1 = Output(UInt(parm.REGWIDTH.W))
-    //val rdata2 = Output(UInt(parm.REGWIDTH.W))
+    val RegFileID = ((new Regfile2Idu))
     val a0data = Output(UInt(parm.REGWIDTH.W))
     val Reg17  = Output(UInt(parm.REGWIDTH.W))
-    //val raddr = Input(Vec(parm.RegFileReadPorts,UInt(parm.REGADDRWIDTH.W)))
-    //val rdata = Output(Vec(parm.RegFileReadPorts,UInt(parm.REGWIDTH.W)))
-    //CSR
-    //val csren   = Input(Bool())
-    //val mepcen   = Input(Bool())  
-    //val mcauseen = Input(Bool())
-    //val mtvecen  = Input(Bool())
-    //val mstatusen= Input(Bool())
-    //val NO      = Input(UInt(parm.REGWIDTH.W))
+
   //CSR 
     val csraddr = Input(UInt(parm.CSRNUMBER.W))
     val CSRInput= Flipped(new CSRIO)

@@ -43,9 +43,6 @@ class EX extends Bundle{
 
 class EXU extends Module{
     val io = IO(new Bundle {
-    val pc_i = Input(UInt(parm.PCWIDTH.W))
-    //val NextPc_i = Input(UInt(parm.PCWIDTH.W))
-    val instr_i = Input(UInt(parm.INSTWIDTH.W))
     val id = Flipped(new IDEX)
     //val rs1_i = Input(UInt(parm.REGWIDTH.W))
     //val rs2_i = Input(UInt(parm.REGWIDTH.W))
@@ -68,8 +65,8 @@ class EXU extends Module{
     //val rdaddr_o = Output(UInt(parm.REGADDRWIDTH.W))
     //val rden_o = Output(Bool())
   })
-  io.pc_o := io.pc_i
-  io.instr_o := io.instr_i
+  io.pc_o := io.id.pc
+  //io.instr_o := io.instr_i
   io.ex.rs2 := io.id.rs2
   io.ex.rdaddr := io.id.rdaddr
   io.ex.rden := io.id.rden
