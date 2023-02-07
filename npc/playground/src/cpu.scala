@@ -151,7 +151,7 @@ class  RiscvCpu extends Module{
     //when it is not need ,it can be removed
     io.halt := Idu.io.ebreak&&(Regfile.io.a0data===0.U)
     io.abort := Idu.io.instrnoimpl
-    io.jalr := Idu.io.jal === 2.U
+    io.jalr := Idu.io.IDNPC.jal === 2.U
     if (parm.DIFFTEST){
     io.SkipRef := Lsu.io.SkipRef
 }   else io.SkipRef := false.B
