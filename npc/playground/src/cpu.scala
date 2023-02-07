@@ -85,7 +85,7 @@ class  RiscvCpu extends Module{
     //val Idu = Module(new IDU())
 
     Idu.io.pc_i := If_Id.io.idpc
-    Idu.io.NextPc_i := NpcMux.io.NPC
+    Idu.io.NextPc_i := NpcMux.io.NPC.bits.npc
     Idu.io.instr_i := If_Id.io.idinstr
     Idu.io.rs_data1 := Regfile.io.rdata1
     Idu.io.rs_data2 := Regfile.io.rdata2
