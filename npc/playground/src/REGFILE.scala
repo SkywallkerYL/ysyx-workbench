@@ -45,7 +45,7 @@ class RegFile extends Module{
     //val waddr = Input(UInt(parm.REGADDRWIDTH.W))
     //val wdata = Input(UInt(parm.REGWIDTH.W))
     val IDRegFile = Flipped((new Idu2Regfile))
-    val WBREG = new Wbu2Regfile
+    val WBREG = Flipped((new Wbu2Regfile))
 
     val pc = Input(UInt(parm.PCWIDTH.W))
     val RegFileID = ((new Regfile2Idu))
