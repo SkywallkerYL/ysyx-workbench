@@ -13,6 +13,6 @@ class IFU extends Module{
     val pc_o = Output(UInt(parm.PCWIDTH.W))
   })
   io.instr_o := io.instr_i
-  io.pc_o := io.PcIf.pc
+  io.pc_o := io.PcIf.bits.pc
 
 }
