@@ -41,7 +41,7 @@ class  RiscvCpu extends Module{
     //printf(p"addr=${addr} instr=0x${Hexadecimal(M(addr))} \n")
     //printf(p"pc=0x${Hexadecimal(PcRegOut)} instr=0x${Hexadecimal(instr)}\n")
     NpcMux.io.jal := Idu.io.jal
-    NpcMux.io.PcRegPc := PcReg.io.pc_o
+    //NpcMux.io.PcRegPc := PcReg.io.pc_o
     NpcMux.io.IdPc := Idu.io.pc_o
     NpcMux.io.ecallpc := Idu.io.ecallpc
     NpcMux.io.mretpc := Idu.io.mretpc
@@ -50,7 +50,7 @@ class  RiscvCpu extends Module{
 
     //val resetflag = PcReg.io.pc_o === 0.U
     //PcReg.io.pc_i := NpcMux.io.NPC
-    PcRegOut := PcReg.io.pc_o
+    PcRegOut := PcReg.io.PcIf.bits.pc
     StageConnect(NpcMux.io.NpcPcreg,PcReg.io.NPC)
     
 //ifu

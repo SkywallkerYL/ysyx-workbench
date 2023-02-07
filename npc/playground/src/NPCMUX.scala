@@ -19,7 +19,7 @@ class NPCMUX extends Module{
   })
   //val resetflag = io.PcRegPc===0.U
   //val regpc = Mux(resetflag,parm.INITIAL_PC.U,io.PcRegPc)
-  val pc_4 = io.NpcPcreg.RegPc + 4.U
+  val pc_4 = io.NpcPcreg.bits.RegPc + 4.U
   val jalpc  = io.IdPc + io.imm.asUInt
   val jalrpc = (io.imm.asUInt + io.rs1)&(~ (1.U(parm.REGWIDTH.W)))
   val jumppc = MuxLookup(io.jal,pc_4,Seq(
@@ -32,6 +32,6 @@ class NPCMUX extends Module{
   ))
   io.NOP := io.jal=/=0.U
   io.NPC := Mux(io.NOP,jumppc,pc_4)
-  io.NpcPcreg.npc := Mux(io.NOP,jumppc,pc_4)
+  io.NpcPcreg.bits.npc := Mux(io.NOP,jumppc,pc_4)
   //io.NPC := Mux(io.resetflag,0.U,)
 }
