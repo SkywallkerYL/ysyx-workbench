@@ -1,3 +1,9 @@
+package npc
+
+import chisel3._
+import chisel3.util._
+
+
 //This file define the Message between each module
 //PCReg ---- IF
 class MessagePcIfu extends Bundle{
