@@ -3,10 +3,11 @@ package npc
 import chisel3._
 import chisel3.util._
 
-
+//These signals will be used in Decoupled
+//so it can only be one direction
 //This file define the Message between each module
 //PCReg ---- IF
-class MessagePcIfu extends Bundle{
+class Pc2Ifu extends Bundle{
   val pc   = Output(UInt(parm.PCWIDTH.W))
 }
 //IF --- ID
@@ -15,8 +16,8 @@ class MessageIfuIdu extends Bundle{
   val pc   = Output(UInt(parm.PCWIDTH.W))
 }
 //ID --- NPCMUX
-class MessageIduNpc extends Bundle{
-    val NextPc  = Input(UInt(parm.PCWIDTH.W))
+class Idu2Npc extends Bundle{
+    //val NextPc  = Input(UInt(parm.PCWIDTH.W))
 
     val jal     = Output(UInt(OpJType.OPJNUMWIDTH.W))
     val IdPc    = Output(UInt(parm.PCWIDTH.W))
@@ -25,10 +26,15 @@ class MessageIduNpc extends Bundle{
     val ecallpc = Output(UInt(parm.PCWIDTH.W))
     val mretpc  = Output(UInt(parm.PCWIDTH.W))
 }
+class Npc2Idu extends Bundle{
+    val NextPc  = Output(UInt(parm.PCWIDTH.W))
+}
 //NPCMUX --- PCREG
-class MessageNpcPcreg extends Bundle{
-    val RegPc   = Input(UInt(parm.PCWIDTH.W))
+class Npc2Pcreg extends Bundle{
     val npc     = Output(UInt(parm.PCWIDTH.W))
+}
+class Pcreg2Npc extends Bundle{
+    val RegPc   = Output(UInt(parm.PCWIDTH.W))
 }
 //NPCMUX --- IF
 class MessageNpcIfu extends Bundle{
