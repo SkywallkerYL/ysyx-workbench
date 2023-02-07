@@ -73,12 +73,9 @@ class Idu2Exu extends Bundle{
     val NextPc      = Output(UInt(parm.PCWIDTH.W))
 }
 //EX --- LS
-class MessageExuLsu extends Bundle{
+class Exu2Lsu extends Bundle{
     val rs2         = Output(UInt(parm.REGWIDTH.W))
     val alures      = Output(UInt(parm.REGWIDTH.W))
-    //val rddata  = Output(UInt(parm.REGWIDTH.W))
-    val rdaddr      = Output(UInt(parm.REGADDRWIDTH.W))
-    val rden        = Output(Bool())
     val CsrWb       = new CSRWB
     val RegFileIO   = new REGFILEIO
     val wflag       = Output(Bool())
@@ -93,7 +90,7 @@ class MessageExuLsu extends Bundle{
     val NextPc      = Output(UInt(parm.PCWIDTH.W))
 }
 //LS --- WB
-class MessageLsuWbu extends Bundle{
+class Lsu2Wbu extends Bundle{
     val choose  = Output(UInt(parm.RegFileChooseWidth.W))
     val Regfile = new REGFILEIO
     val LsuRes  = Output(UInt(parm.REGWIDTH.W))

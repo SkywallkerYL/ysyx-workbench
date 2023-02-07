@@ -29,7 +29,7 @@ class  RiscvCpu extends Module{
     val Idu = Module(new IDU())
     //val Id_Ex = Module(new ID_EX())
     val exu = Module(new EXU())
-    val Ex_Ls = Module(new EX_LS())
+    //val Ex_Ls = Module(new EX_LS())
     val Lsu = Module(new LSU())
     val Clint = Module(new CLINT())
     val Ls_Wb = Module(new LS_WB())
@@ -80,13 +80,13 @@ class  RiscvCpu extends Module{
 //EXU
     //val exu = Module(new EXU())
 //EX_LS
-    Ex_Ls.io.Regfile_i.wen := exu.io.ex.rden
-    Ex_Ls.io.Regfile_i.waddr := exu.io.ex.rdaddr
-    Ex_Ls.io.Regfile_i.wdata := exu.io.ex.rddata
-    Ex_Ls.io.EXLS_i <> exu.io.ls
-
+    //Ex_Ls.io.Regfile_i.wen := exu.io.ex.rden
+    //Ex_Ls.io.Regfile_i.waddr := exu.io.ex.rdaddr
+    //Ex_Ls.io.Regfile_i.wdata := exu.io.ex.rddata
+    //Ex_Ls.io.EXLS_i <> exu.io.ls
+    Lsu.io.EXLS <> exu.io.EXLS
 // LSU
-    Lsu.io.EXLS_i <> Ex_Ls.io.EXLS_o
+    
 // CLINT
     Clint.io.LsuIn <> Lsu.io.Clintls
 //LS_WB
