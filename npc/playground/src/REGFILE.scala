@@ -89,14 +89,14 @@ class RegFile extends Module{
 
   if(io.IDRegFile.raddr1 == 0.U){
       io.RegFileID.rdata1 := 0.U(parm.REGWIDTH.W)
-  }else if (io.IDRegFile.raddr1 == io.waddr ){
-      io.RegFileID.rdata1 := io.wdata
+  }else if (io.IDRegFile.raddr1 == io.WBREG.Regfile.waddr ){
+      io.RegFileID.rdata1 := io.WBREG.Regfile.wdata
   }else io.RegFileID.rdata1 := reg(io.IDRegFile.raddr1)
   
   if (io.IDRegFile.raddr2 == 0.U){
       io.RegFileID.rdata2 := 0.U(parm.REGWIDTH.W)
-  }else if (io.IDRegFile.raddr2 == io.waddr ){
-      io.RegFileID.rdata2 := io.wdata
+  }else if (io.IDRegFile.raddr2 == io.WBREG.Regfile.waddr ){
+      io.RegFileID.rdata2 := io.WBREG.Regfile.wdata
   }else io.RegFileID.rdata2 := reg(io.IDRegFile.raddr2)
   //这样写会有combinational loop
   /*
@@ -113,10 +113,10 @@ class RegFile extends Module{
   }.otherwise {io.RegFileID.rdata2 := reg(io.IDRegFile.raddr2)}
   */
   //CSR
-  val mepcen   =  (io.csraddr(0))
-  val mcauseen =  (io.csraddr(1))
-  val mtvecen  =  (io.csraddr(2))
-  val mstatusen=  (io.csraddr(3))
+  val mepcen   =  (io.WBREG.Regfile.CsrAddr(0))
+  val mcauseen =  (io.WBREG.Regfile.CsrAddr(1))
+  val mtvecen  =  (io.WBREG.Regfile.CsrAddr(2))
+  val mstatusen=  (io.WBREG.Regfile.CsrAddr(3))
 
   when(mepcen){
     mepc := io.WBREG.CsrRegfile.mepc
