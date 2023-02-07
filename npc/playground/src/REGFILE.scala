@@ -44,11 +44,14 @@ class RegFile extends Module{
     val wen = Input(Bool())
     val waddr = Input(UInt(parm.REGADDRWIDTH.W))
     val wdata = Input(UInt(parm.REGWIDTH.W))
-    val raddr1 = Input(UInt(parm.REGADDRWIDTH.W))
-    val raddr2 = Input(UInt(parm.REGADDRWIDTH.W))
+    val IDRegFile = Flipped((new Idu2Regfile))
+    val RegFileID = ((new Regfile2Idu))
+    
+    //val raddr1 = Input(UInt(parm.REGADDRWIDTH.W))
+    //val raddr2 = Input(UInt(parm.REGADDRWIDTH.W))
     val pc = Input(UInt(parm.PCWIDTH.W))
-    val rdata1 = Output(UInt(parm.REGWIDTH.W))
-    val rdata2 = Output(UInt(parm.REGWIDTH.W))
+    //val rdata1 = Output(UInt(parm.REGWIDTH.W))
+    //val rdata2 = Output(UInt(parm.REGWIDTH.W))
     val a0data = Output(UInt(parm.REGWIDTH.W))
     val Reg17  = Output(UInt(parm.REGWIDTH.W))
     //val raddr = Input(Vec(parm.RegFileReadPorts,UInt(parm.REGADDRWIDTH.W)))
@@ -63,7 +66,7 @@ class RegFile extends Module{
   //CSR 
     val csraddr = Input(UInt(parm.CSRNUMBER.W))
     val CSRInput= Flipped(new CSRIO)
-    val CSR = (new CSRIO)
+    //val CSR = (new CSRIO)
   //CLINT
       
 
@@ -79,12 +82,12 @@ class RegFile extends Module{
       regdpi.io.a(i) := reg(i)
     }
     regdpi.io.pc        := io.pc
-    regdpi.io.mepc      := io.CSR.mepc    
-    regdpi.io.mcause    := io.CSR.mcause  
-    regdpi.io.mtvec     := io.CSR.mtvec   
-    regdpi.io.mstatus  := io.CSR.mstatus
-    regdpi.io.mie      := io.CSR.mie
-    regdpi.io.mip      := io.CSR.mip
+    regdpi.io.mepc      := io.RegFileID.CSRs.mepc    
+    regdpi.io.mcause    := io.RegFileID.CSRs.mcause  
+    regdpi.io.mtvec     := io.RegFileID.CSRs.mtvec   
+    regdpi.io.mstatus  := io.RegFileID.CSRs.mstatus
+    regdpi.io.mie      := io.RegFileID.CSRs.mie
+    regdpi.io.mip      := io.RegFileID.CSRs.mip
     //regdpi.io.a(1) := reg(1)
     //regdpi.io.clock := io.clock
     //regdpi.io.reset := io.reset
@@ -95,30 +98,30 @@ class RegFile extends Module{
   }
   //生成出来的verilog文件似乎不会解决冲突的问题
 
-  if(io.raddr1 == 0.U){
-      io.rdata1 := 0.U(parm.REGWIDTH.W)
-  }else if (io.raddr1 == io.waddr ){
-      io.rdata1 := io.wdata
-  }else io.rdata1 := reg(io.raddr1)
+  if(io.IDRegFile.raddr1 == 0.U){
+      io.RegFileID.rdata1 := 0.U(parm.REGWIDTH.W)
+  }else if (io.IDRegFile.raddr1 == io.waddr ){
+      io.RegFileID.rdata1 := io.wdata
+  }else io.RegFileID.rdata1 := reg(io.IDRegFile.raddr1)
   
-  if (io.raddr2 == 0.U){
-      io.rdata2 := 0.U(parm.REGWIDTH.W)
-  }else if (io.raddr2 == io.waddr ){
-      io.rdata2 := io.wdata
-  }else io.rdata2 := reg(io.raddr2)
+  if (io.IDRegFile.raddr2 == 0.U){
+      io.RegFileID.rdata2 := 0.U(parm.REGWIDTH.W)
+  }else if (io.IDRegFile.raddr2 == io.waddr ){
+      io.RegFileID.rdata2 := io.wdata
+  }else io.RegFileID.rdata2 := reg(io.IDRegFile.raddr2)
   //这样写会有combinational loop
   /*
-  when(io.raddr1 === 0.U){
-      io.rdata1 := 0.U(parm.REGWIDTH.W)
-  }.elsewhen (io.raddr1 === io.waddr ){
-      io.rdata1 := io.wdata
-  }.otherwise {io.rdata1 := reg(io.raddr1)}
+  when(io.IDRegFile.raddr1 === 0.U){
+      io.RegFileID.rdata1 := 0.U(parm.REGWIDTH.W)
+  }.elsewhen (io.IDRegFile.raddr1 === io.waddr ){
+      io.RegFileID.rdata1 := io.wdata
+  }.otherwise {io.RegFileID.rdata1 := reg(io.IDRegFile.raddr1)}
   
-  when (io.raddr2 === 0.U){
-      io.rdata2 := 0.U(parm.REGWIDTH.W)
-  }.elsewhen(io.raddr2 === io.waddr ){
-      io.rdata2 := io.wdata
-  }.otherwise {io.rdata2 := reg(io.raddr2)}
+  when (io.IDRegFile.raddr2 === 0.U){
+      io.RegFileID.rdata2 := 0.U(parm.REGWIDTH.W)
+  }.elsewhen(io.IDRegFile.raddr2 === io.waddr ){
+      io.RegFileID.rdata2 := io.wdata
+  }.otherwise {io.RegFileID.rdata2 := reg(io.IDRegFile.raddr2)}
   */
   //CSR
   val mepcen   =  (io.csraddr(0))
@@ -138,10 +141,10 @@ class RegFile extends Module{
   when(mstatusen){
     mstatus := io.CSRInput.mstatus
   }
-  io.CSR.mepc     := mepc
-  io.CSR.mcause   := mcause
-  io.CSR.mtvec    := mtvec
-  io.CSR.mstatus  := mstatus
+  io.RegFileID.CSRs.mepc     := mepc
+  io.RegFileID.CSRs.mcause   := mcause
+  io.RegFileID.CSRs.mtvec    := mtvec
+  io.RegFileID.CSRs.mstatus  := mstatus
   /*
   for (i <- 0 until parm.RegFileReadPorts){
     when (io.raddr(i) === 0.U){
@@ -166,8 +169,8 @@ class RegFile extends Module{
     mip := io.CSRInput.mip
   }
 
-  io.CSR.mie := mie 
-  io.CSR.mip := mip
+  io.RegFileID.CSRs.mie := mie 
+  io.RegFileID.CSRs.mip := mip
   //for io_halt it can be removed when it is not need
   io.a0data := reg(10)
   //REG 17 STORE THE no FOR csrs

@@ -37,23 +37,20 @@ class Pcreg2Npc extends Bundle{
     val RegPc   = Output(UInt(parm.PCWIDTH.W))
 }
 //NPCMUX --- IF
-class MessageNpcIfu extends Bundle{
+class Npc2Ifu extends Bundle{
     val nop     = Output(Bool())
 }
 //
 //ID --- RegFile
-class MessageIduRegfile extends Bundle{
-    val mepc    = Input(UInt(parm.PCWIDTH.W))
-    val mcause  = Input(UInt(parm.REGWIDTH.W))
-    val mtvec   = Input(UInt(parm.REGWIDTH.W))
-    val mstatus = Input(UInt(parm.REGWIDTH.W))
-    val mie     = Input(UInt(parm.REGWIDTH.W))
-    val mip     = Input(UInt(parm.REGWIDTH.W))
-    val rdata1  = Input(UInt(parm.REGWIDTH.W))
-    val rdata2  = Input(UInt(parm.REGWIDTH.W))
-
+class Idu2Regfile extends Bundle{
     val raddr1  = Output(UInt(parm.REGADDRWIDTH.W))
     val raddr2  = Output(UInt(parm.REGADDRWIDTH.W))
+}
+
+class Regfile2Idu extends Bundle{
+    val CSRs    = new CSRIO
+    val rdata1  = Output(UInt(parm.REGWIDTH.W))
+    val rdata2  = Output(UInt(parm.REGWIDTH.W))
 }
 //ID --- EX
 class MessageIduExu extends Bundle{
