@@ -37,5 +37,6 @@ class NPCMUX extends Module{
   io.NOP := io.jal=/=0.U
   //io.NPC := Mux(io.NOP,jumppc,pc_4)
   io.NPC.npc := Mux(io.NOP,jumppc,pc_4)
+  io.NPCId.NextPc := io.NPC.npc
   //io.NPC := Mux(io.resetflag,0.U,)
 }
