@@ -29,6 +29,7 @@ class CLINT extends Module{
     val LsuIn       = Flipped(new Lsu2Clint)
     val ClintReg    = (new CLINTIO)
     val Mtip        = Output(Bool()) 
+    val CLINTWB     = new Clint2Wbu
   })
 
   val mtime = RegInit(0.U(parm.REGWIDTH.W))
@@ -57,7 +58,7 @@ class CLINT extends Module{
     mtimecmp := io.LsuIn.Clintls.wdata
   }
 
-  io.Mtip := MTIP
+  io.CLINTWB.Mtip := MTIP
   io.ClintReg.mtime    := mtime
   io.ClintReg.mtimecmp := mtimecmp
 }

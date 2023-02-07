@@ -118,6 +118,6 @@ class Lsu2Clint extends Bundle{
     val Clintls = new CLINTLS
 }
 //CLINT --- WB
-class MessageClintWbu extends Bundle{
+class Clint2Wbu extends Bundle{
     val Mtip = Output(Bool()) 
 }

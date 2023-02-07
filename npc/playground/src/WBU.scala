@@ -14,7 +14,7 @@ class WBU extends Module{
       val WBREG = new Wbu2Regfile
 
       //CLINT
-      val Mtip = Input(Bool()) 
+      val CLINTWB = Flipped((new Clint2Wbu))
   })
     val CSR = MuxLookup(io.LSWB.CsrWb.CsrAddr, 0.U(parm.REGWIDTH.W),Seq(    
       "b00000001".U    ->io.LSWB.CsrWb.CSR.mepc,
@@ -33,7 +33,7 @@ class WBU extends Module{
     ))
     io.WBREG.Regfile.wdata := WbuRes
     //IRU模块也在这里实现   来处理异常，来自CLINT的信号不经过流水线，直接输入给这里的IRU部分
-    val csrwen =io.LSWB.CsrWb.csrflag | io.LSWB.CsrWb.ecall | io.LSWB.CsrWb.mret | io.Mtip
+    val csrwen =io.LSWB.CsrWb.csrflag | io.LSWB.CsrWb.ecall | io.LSWB.CsrWb.mret | io.CLINTWB.Mtip
     io.WBREG.CsrAddr := Mux(csrwen,io.LSWB.CsrWb.CsrAddr,"b00000000".U)
     
     //io.CsrWb_o := io.CsrWb_i
@@ -78,7 +78,7 @@ class WBU extends Module{
 
     val MieFlag  = (io.LSWB.CsrWb.CSR.mstatus &parm.MIE.U(parm.REGWIDTH.W)) =/= 0.U
     val MtieFlag = (io.LSWB.CsrWb.CSR.mie & parm.MTIE.U(parm.REGWIDTH.W)) =/= 0.U 
-    val MtipFlag = MieFlag & MtieFlag & io.Mtip
+    val MtipFlag = MieFlag & MtieFlag & io.CLINTWB.Mtip
     val MtipHigh = io.LSWB.CsrWb.CSR.mip | parm.MTIP.U(parm.REGWIDTH.W)
     //val MtipLow = io.LSWB.CsrWb.CSR.mip & (~parm.MTIP.U(parm.REGWIDTH.W))
     //如果有写入的话，优先写入  否则根据MTIPflag对mip寄存器写入 当然也有可能还有其他信号，后面再加
