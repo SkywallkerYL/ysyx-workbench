@@ -52,7 +52,7 @@ class EXU extends Module{
     //val rdaddr_i = Input(UInt(parm.REGADDRWIDTH.W))
     //val rden_i = Input(Bool())
     val pc_o = Output(UInt(parm.PCWIDTH.W))
-    val instr_o = Output(UInt(parm.INSTWIDTH.W))
+    //val instr_o = Output(UInt(parm.INSTWIDTH.W))
     //val expres = Output(UInt(parm.REGWIDTH.W))
     val ex =new EX
     val ls = new EXLSIO
