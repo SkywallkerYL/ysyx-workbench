@@ -51,6 +51,7 @@ class IFU extends Module{
     io.IFID.inst := io.instr_i
   }
   else io.IFID.inst := Mux(io.IFRAM.r.fire,FetchInst,0.U)
+  io.IFID.instvalid := io.IFRAM.r.fire
   //write no 
   io.IFRAM.aw.valid := false.B
   io.IFRAM.aw.bits.addr := 0.U

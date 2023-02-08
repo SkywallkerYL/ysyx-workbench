@@ -18,6 +18,7 @@ class Ifu2Sram extends Bundle{
 class Ifu2Idu extends Bundle{
   val inst = Output(UInt(parm.INSTWIDTH.W))
   val pc   = Output(UInt(parm.PCWIDTH.W))
+  val instvalid = Output(Bool())
 }
 //ID --- NPCMUX
 class Idu2Npc extends Bundle{
