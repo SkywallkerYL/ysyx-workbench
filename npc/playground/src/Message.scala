@@ -48,7 +48,7 @@ class Idu2Regfile extends Bundle{
 }
 
 class Regfile2Idu extends Bundle{
-    //val CSRs    = new CSRIO
+    val CSRs    = new CSRIO
     val rdata1  = Output(UInt(parm.REGWIDTH.W))
     val rdata2  = Output(UInt(parm.REGWIDTH.W))
 }

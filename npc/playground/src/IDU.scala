@@ -137,7 +137,7 @@ class IDU extends Module{
                 parm.CSRMIE.U   ->"b00010000".U(parm.CSRNUMBER.W),
                 parm.CSRMIP.U   ->"b00100000".U(parm.CSRNUMBER.W)
             ))
-            
+            /*
             CSRs := MuxLookup(CSRTYPE, 0.U(parm.REGWIDTH.W),Seq(    
                 parm.MEPC.U     ->io.RegFileID.CSRs.mepc,
                 parm.MCAUSE.U   ->io.RegFileID.CSRs.mcause,
@@ -146,6 +146,7 @@ class IDU extends Module{
                 parm.CSRMIE.U   ->io.RegFileID.CSRs.mie,
                 parm.CSRMIP.U   ->io.RegFileID.CSRs.mip
             ))
+            */
             //io.idex.CsrWb.CSRs := CSRs
             io.idex.CsrWb.csrflag := csrflag
             io.idex.CsrWb.CsrAddr := csraddr//Mux(csrflag,csraddr,"b0000".U)
