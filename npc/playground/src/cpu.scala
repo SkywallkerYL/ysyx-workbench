@@ -50,13 +50,17 @@ class  RiscvCpu extends Module{
     Ifu.io.IFRAM <> SRAM.io.Sram
     //Ifu.io.pc_i := PcReg.io.pc_o
     //Ifu.io.instr_i := instr
-    /*
-    if(parm.DPI){
-        val instrread = Module(new InstrReadDPI)
-        instrread.io.a := PcReg.io.PcIf.pc
-        Ifu.io.instr_i := instrread.io.b
+    if(parm.MODE == "single"){
+        if(parm.DPI){
+            val instrread = Module(new InstrReadDPI)
+            instrread.io.a := PcReg.io.PcIf.pc
+            Ifu.io.instr_i := instrread.io.b
+        }
     }
-    */
+    else {
+        Ifu.io.instr_i := 0.U
+        //Ifu.io.IFRAM <> SRAM.io.Sram
+    }
 //if_id
     Idu.io.IFID  <> Ifu.io.IFID 
     //If_Id.io.nop := NpcMux.io.NOP

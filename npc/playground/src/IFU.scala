@@ -8,7 +8,7 @@ import chisel3.util._
 class IFU extends Module{
     val io = IO(new Bundle {
     val PcIf  = Flipped((new Pc2Ifu))
-    //val instr_i = Input(UInt(parm.INSTWIDTH.W))
+    val instr_i = Input(UInt(parm.INSTWIDTH.W))
     val IFID  = new Ifu2Idu
     val IFRAM = Flipped((new Axi4LiteRAMIO))
   })
@@ -47,7 +47,10 @@ class IFU extends Module{
       }
     }
   }
-  io.IFID.inst := Mux(io.IFRAM.r.fire,FetchInst,0.U)
+  if(MODE == "single"){
+    io.IFID.inst := io.instr_i
+  }
+  else io.IFID.inst := Mux(io.IFRAM.r.fire,FetchInst,0.U)
   //write no 
   io.IFRAM.aw.valid := false.B
   io.IFRAM.aw.bits.addr := 0.U

@@ -5,6 +5,7 @@ import chisel3.util._
 
 
 object  parm{
+    val MODE        : String = "single" //single multi   单周期，多周期
     val CPUWIDTH    : Int = 64
     val REGWIDTH    : Int = 64
     val INSTWIDTH   : Int = 32
