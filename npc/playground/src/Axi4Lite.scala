@@ -63,8 +63,8 @@ class Axi4LiteSRAM extends Module{
     }
     
     //READ
-    val ReadWait :: Read :: Nil = Enum(2)
-    val ReadState = RegInit(ReadWait)
+    val readWait :: read :: Nil = Enum(2)
+    val ReadState = RegInit(readWait)
     //Intial
     io.Sram.ar.ready = false.B
     io.Sram.r.bits.resp = "b00".U
@@ -76,7 +76,7 @@ class Axi4LiteSRAM extends Module{
         Ram.io.raddr := RegRaddr
     }
     switch(ReadState){
-        is(ReadWait){
+        is(readWait){
             io.Sram.ar.ready = true.B
             io.Sram.r.valid = false.B
             //fire = ready & valid
@@ -85,7 +85,7 @@ class Axi4LiteSRAM extends Module{
                 ReadState       := Read
             }
         }
-        is(Read){
+        is(read){
             io.Sram.r.valid = true.B
             io.Sram.ar.ready = false.B
             when(io.Sram.r.fire){
