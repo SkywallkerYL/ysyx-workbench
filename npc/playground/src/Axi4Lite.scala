@@ -143,3 +143,101 @@ class Axi4LiteSRAM extends Module{
     }
 
 }
+
+class Axi4LiteSRAMLSU extends Module{
+    val io = IO(new Bundle{
+        val Sram = new Axi4LiteRAMIO
+        //val wen  = Input(Bool())
+    })
+    //RAM  replaced by DPI-C
+    val Ram = Module(new LSUDPI) 
+    if(parm.DPI){
+        //val Ram = Module(new LSUDPI) 
+        Ram.io.wflag := io.Sram.w.fire
+        Ram.io.rflag := io.Sram.r.fire
+        Ram.io.raddr := 0.U  
+        Ram.io.waddr := 0.U 
+        Ram.io.wdata := 0.U 
+        Ram.io.wmask := 0.U
+    }
+    
+    //READ
+    val readWait :: read :: Nil = Enum(2)
+    val ReadState = RegInit(readWait)
+    //Intial
+    io.Sram.ar.ready := false.B
+    //io.Sram.r.bits.resp := "b00".U
+    io.Sram.r.bits.data := 0.U
+    io.Sram.r.valid := false.B
+    //state transfer
+    val RegRaddr = RegInit(0.U(AxiParm.AxiAddrWidth.W))
+    if(parm.DPI){
+        Ram.io.raddr := RegRaddr
+    }
+    switch(ReadState){
+        is(readWait){
+            io.Sram.ar.ready := true.B
+            io.Sram.r.valid := false.B
+            //fire = ready & valid
+            when(io.Sram.ar.fire){
+                RegRaddr        := io.Sram.ar.bits.addr
+                ReadState       := read
+            }
+        }
+        is(read){
+            io.Sram.r.valid := true.B
+            io.Sram.ar.ready := false.B
+            when(io.Sram.r.fire){
+                if(parm.DPI){
+                   io.Sram.r.bits.data := Ram.io.rdata
+                   //io.Sram.r.bits.resp := "b00".U //No implement 
+                   //The out of bound case will be handled in Cpp
+                }
+                ReadState := readWait
+            }
+        }
+    }
+    //WRITE
+    val writeWait :: write :: writeResp :: Nil = Enum(3)
+    val WriteState = RegInit(writeWait)
+    //Initial
+    io.Sram.b.bits.resp := "b00".U
+    io.Sram.b.valid := false.B
+    io.Sram.aw.ready := false.B    
+    io.Sram.w.ready := false.B
+    val RegWAddr = RegInit(0.U(AxiParm.AxiAddrWidth.W))
+    if(parm.DPI){
+        Ram.io.waddr := RegWAddr
+    }
+    switch(WriteState){
+        is(writeWait){
+            io.Sram.aw.ready := true.B
+            io.Sram.w.ready := false.B
+            io.Sram.b.valid := false.B
+            when(io.Sram.aw.fire){
+                WriteState := write
+                RegWAddr := io.Sram.aw.bits.addr
+            }
+        }
+        is(write){
+            io.Sram.aw.ready := false.B
+            io.Sram.w.ready := true.B
+            io.Sram.b.valid := false.B
+            when(io.Sram.w.fire){
+                WriteState := writeWait
+                Ram.io.wdata := io.Sram.w.bits.data
+                Ram.io.wmask := io.Sram.w.bits.strb
+            }
+        }
+        is(writeResp){
+            io.Sram.aw.ready := false.B
+            io.Sram.w.ready := false.B
+            io.Sram.b.valid := true.B
+            when(io.Sram.b.fire){
+                WriteState := writeWait
+                io.Sram.b.bits.resp := "b00".U
+            }
+        }
+    }
+
+}
