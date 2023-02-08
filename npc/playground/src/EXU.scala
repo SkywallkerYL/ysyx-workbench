@@ -65,21 +65,6 @@ class EXU extends Module{
   io.EXLS.choose := io.id.choose
   io.EXLS.lsumask := io.id.lsumask
   io.EXLS.CsrWb <> io.id.CsrWb
-  /*
-  io.EXLS.CsrAddr :=  io.id.CsrAddr
-  io.EXLS.CsrExuChoose := io.id.CsrExuChoose
-  io.EXLS.ecall := io.id.ecall
-  io.EXLS.mret  := io.id.mret
-  */
-  //val src1 = Wire(UInt(parm.REGWIDTH.W))
-  //val src2 = Wire(UInt(parm.REGWIDTH.W))
-
-  //alu.io.a := src1
-  //alu.io.b := src2
-
-  //src1 := 0.U
-  //src2 := 0.U
-  //io.EXLS.rddata := 0.U
   /*-----------------------ALU---------------------*/
   val src1 = io.id.AluOp.rd1
 

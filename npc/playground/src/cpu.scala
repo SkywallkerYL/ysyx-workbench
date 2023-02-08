@@ -19,6 +19,7 @@ class  RiscvCpu extends Module{
     //chisel里变量还未命名好像不能直接用
     val PcReg = Module(new PC_REG()) 
     val NpcMux = Module(new NPCMUX())
+    val SRAM = Module(new Axi4LiteSRAM)
     val Ifu = Module(new IFU())
     //val If_Id = Module(new IF_ID())
     val Regfile = Module(new RegFile)
@@ -46,13 +47,16 @@ class  RiscvCpu extends Module{
 //ifu
     //val Ifu = Module(new IFU())
     PcReg.io.PcIf  <> Ifu.io.PcIf
+    Ifu.IFRAM <> SRAM.io.Sram
     //Ifu.io.pc_i := PcReg.io.pc_o
     //Ifu.io.instr_i := instr
+    /*
     if(parm.DPI){
         val instrread = Module(new InstrReadDPI)
         instrread.io.a := PcReg.io.PcIf.pc
         Ifu.io.instr_i := instrread.io.b
     }
+    */
 //if_id
     Idu.io.IFID  <> Ifu.io.IFID 
     //If_Id.io.nop := NpcMux.io.NOP
