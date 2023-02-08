@@ -52,8 +52,9 @@ class Axi4LiteSRAM extends Module{
         //val wen  = Input(Bool())
     })
     //RAM  replaced by DPI-C
+    val Ram = Module(new LSUDPI) 
     if(parm.DPI){
-        val Ram = Module(new LSUDPI) 
+        //val Ram = Module(new LSUDPI) 
         Ram.io.wflag := io.Sram.w.fire
         Ram.io.rflag := io.Sram.r.fire
         Ram.io.raddr := 0.U  
@@ -67,7 +68,7 @@ class Axi4LiteSRAM extends Module{
     val ReadState = RegInit(readWait)
     //Intial
     io.Sram.ar.ready := false.B
-    io.Sram.r.bits.resp := "b00".U
+    //io.Sram.r.bits.resp := "b00".U
     io.Sram.r.bits.data := 0.U
     io.Sram.r.valid := false.B
     //state transfer
@@ -105,14 +106,14 @@ class Axi4LiteSRAM extends Module{
     io.Sram.b.bits.resp := "b00".U
     io.Sram.b.valid := false.B
     io.Sram.aw.ready := false.B    
-    io.Sram.a.ready := false.B
+    io.Sram.w.ready := false.B
     RegWAddr = RegInit(0.U(AxiParm.AxiAddrWidth.W))
     if(parm.DPI){
         Ram.io.waddr := RegWAddr
     }
     switch(writeState){
         is(WriteWait){
-            io.Sram.a.ready := true.B
+            io.Sram.w.ready := true.B
             io.Sram.aw.ready := false.B
             io.Sram.b.valid := false.B
             when(io.Sram.a.fire){
@@ -121,7 +122,7 @@ class Axi4LiteSRAM extends Module{
             }
         }
         is(write){
-            io.Sram.a.ready := false.B
+            io.Sram.w.ready := false.B
             io.Sram.aw.ready := true.B
             io.Sram.b.valid := false.B
             when(io.Sram.aw.fire){
@@ -131,7 +132,7 @@ class Axi4LiteSRAM extends Module{
             }
         }
         is(writeResp){
-            io.Sram.a.ready := false.B
+            io.Sram.w.ready := false.B
             io.Sram.aw.ready := false.B
             io.Sram.b.valid := true.B
             when(io.Sram.b.fire){
