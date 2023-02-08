@@ -111,8 +111,8 @@ class Axi4LiteSRAM extends Module{
     if(parm.DPI){
         Ram.io.waddr := RegWAddr
     }
-    switch(writeState){
-        is(WriteWait){
+    switch(WriteState){
+        is(writeWait){
             io.Sram.aw.ready := true.B
             io.Sram.w.ready := false.B
             io.Sram.b.valid := false.B

@@ -48,9 +48,9 @@ class IFU extends Module{
   io.IFID.inst := Mux(io.IFRAM.r.fire,FetchInst,0.U)
   //write no 
   io.IFRAM.aw.valid := false.B
-  io.IFRAM.aw.addr := 0.U
+  io.IFRAM.aw.bits..addr := 0.U
   io.IFRAM.w.valid := false.B
-  io.IFRAM.w.data := 0.U
-  io.IFRAM.w.strb := 0.U
+  io.IFRAM.w.bits.data := 0.U
+  io.IFRAM.w.bits.strb := 0.U
   io.IFRAM.b.ready := false.B
 }
