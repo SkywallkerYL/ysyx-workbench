@@ -15,33 +15,33 @@ class IFU extends Module{
   //io.IFID.inst := io.instr_i
   io.IFID.pc   := io.PcIf.pc
   //READ
-  val ReadWait :: Read :: Nil = Enum(2)
-  val ReadState = RegInit(ReadWait)
+  val readWait :: read :: Nil = Enum(2)
+  val ReadState = RegInit(readWait)
   //Intial
-  io.IFRAM.ar.valid = false.B
+  io.IFRAM.ar.valid := false.B
   //io.IFRAM.r.bits.resp = "b00".U
-  io.IFRAM.r.bits.data = 0.U
-  io.IFRAM.r.ready = false.B
+  io.IFRAM.r.bits.data := 0.U
+  io.IFRAM.r.ready := false.B
   val FetchInst = Wire(UInt(parm.INSTWIDTH.W))
   //state transfer
   //val RegRaddr = RegInit(0.U(AxiParm.AxiAddrWidth.W))
   switch(ReadState){
-    is(ReadWait){
-      io.IFRAM.ar.valid = true.B
-      io.IFRAM.r.ready  = false.B
+    is(readWait){
+      io.IFRAM.ar.valid := true.B
+      io.IFRAM.r.ready  := false.B
       //fire = ready & valid
       when(io.IFRAM.ar.fire){
         io.IFRAM.ar.bits.addr := io.PcIf.pc
         //RegRaddr        := io.IFRAM.ar.bits.addr
-        ReadState       := Read
+        ReadState       := read
       }
     }
-    is(Read){
-      io.IFRAM.ar.valid = false.B
-      io.IFRAM.r.ready = true.B
+    is(read){
+      io.IFRAM.ar.valid := false.B
+      io.IFRAM.r.ready := true.B
       when(io.IFRAM.r.fire){
         FetchInst := io.IFRAM.r.bits.data(31,0)
-        ReadState := ReadWait
+        ReadState := readWait
       }
     }
   }
