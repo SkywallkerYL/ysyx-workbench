@@ -19,12 +19,12 @@ class  RiscvCpu extends Module{
     //chisel里变量还未命名好像不能直接用
     val PcReg = Module(new PC_REG()) 
     val NpcMux = Module(new NPCMUX())
-    val IfU = Module(new IFU())
+    val Ifu = Module(new IFU())
     //val If_Id = Module(new IF_ID())
     val Regfile = Module(new RegFile)
     val Idu = Module(new IDU())
     //val Id_Ex = Module(new ID_EX())
-    val exu = Module(new EXU())
+    val Exu = Module(new EXU())
     //val Ex_Ls = Module(new EX_LS())
     val Lsu = Module(new LSU())
     val Clint = Module(new CLINT())
@@ -44,22 +44,22 @@ class  RiscvCpu extends Module{
     PcReg.io.RegPc <> NpcMux.io.RegPc
     NpcMux.io.NPC  <> PcReg.io.NPC
 //ifu
-    //val IfU = Module(new IFU())
-    PcReg.io.PcIf  <> IfU.io.PcIf
-    //IfU.io.pc_i := PcReg.io.pc_o
-    //IfU.io.instr_i := instr
+    //val Ifu = Module(new IFU())
+    PcReg.io.PcIf  <> Ifu.io.PcIf
+    //Ifu.io.pc_i := PcReg.io.pc_o
+    //Ifu.io.instr_i := instr
     if(parm.DPI){
         val instrread = Module(new InstrReadDPI)
         instrread.io.a := PcReg.io.PcIf.pc
-        IfU.io.instr_i := instrread.io.b
+        Ifu.io.instr_i := instrread.io.b
     }
 //if_id
-    Idu.io.IFID  <> IfU.io.IFID 
+    Idu.io.IFID  <> Ifu.io.IFID 
     //If_Id.io.nop := NpcMux.io.NOP
 // regfile
     Regfile.io.IDRegFile <> Idu.io.IDRegFile
     Regfile.io.WBREG <> Wbu.io.WBREG 
-    Regfile.io.pc := IfU.io.IFID.pc//
+    Regfile.io.pc := Ifu.io.IFID.pc//
 //id
     //val Idu = Module(new IDU())
     Idu.io.NPC <> NpcMux.io.NPCId
@@ -68,11 +68,11 @@ class  RiscvCpu extends Module{
 //ID_EX
     //val Id_Ex = Module(new ID_EX())
     //Idu.io.
-    exu.io.id <> Idu.io.idex  // RegEnable
+    Exu.io.id <> Idu.io.idex  // RegEnable
 //EXU
-    //val exu = Module(new EXU())
+    //val Exu = Module(new EXU())
 //EX_LS
-    Lsu.io.EXLS <> exu.io.EXLS
+    Lsu.io.EXLS <> Exu.io.EXLS
 // LSU
     
 // CLINT
@@ -103,7 +103,7 @@ class  RiscvCpu extends Module{
     if (parm.DIFFTEST){
     io.SkipRef := Lsu.io.SkipRef
 }   else io.SkipRef := false.B
-    //io.res := exu.io.expres
+    //io.res := Exu.io.expres
 
 }
 //for AXI-LITE signals , use these function
