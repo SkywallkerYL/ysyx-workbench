@@ -67,7 +67,7 @@ class IDU extends Module{
     val S_imm = Fill((parm.REGWIDTH-12),sign) ## io.IFID.inst(31,25) ## io.IFID.inst(11,7)
 //CSR
     val zimm    = func.UsignExt(io.IFID.inst(19,15),5)
-    val CSRTYPE = io.IFID.inst(31,20)//func.UsignExt(io.IFID.inst(31,20),12)
+    val CSRTYPE = func.UsignExt(io.IFID.inst(31,20),12)
     val CSRs = Wire(UInt(parm.REGWIDTH.W))
     CSRs := 0.U
     //io.idex.CsrWb.CSRs := CSRs
@@ -137,7 +137,7 @@ class IDU extends Module{
                 parm.CSRMIE.U   ->"b00010000".U(parm.CSRNUMBER.W),
                 parm.CSRMIP.U   ->"b00100000".U(parm.CSRNUMBER.W)
             ))
-            /*
+            
             CSRs := MuxLookup(CSRTYPE, 0.U(parm.REGWIDTH.W),Seq(    
                 parm.MEPC.U     ->io.RegFileID.CSRs.mepc,
                 parm.MCAUSE.U   ->io.RegFileID.CSRs.mcause,
@@ -146,7 +146,6 @@ class IDU extends Module{
                 parm.CSRMIE.U   ->io.RegFileID.CSRs.mie,
                 parm.CSRMIP.U   ->io.RegFileID.CSRs.mip
             ))
-            */
             //io.idex.CsrWb.CSRs := CSRs
             io.idex.CsrWb.csrflag := csrflag
             io.idex.CsrWb.CsrAddr := csraddr//Mux(csrflag,csraddr,"b0000".U)
@@ -263,7 +262,7 @@ class IDU extends Module{
             io.idex.src1mask := lsuflag(34,30)
         }
         is (InstrType.BAD){
-            io.instrnoimpl := true.B & io.IFID.instvalid
+            io.instrnoimpl := true.B 
             io.idex.rden := 0.U
         }
     }

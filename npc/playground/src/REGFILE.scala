@@ -41,12 +41,19 @@ class CSRWB extends Bundle{
 
 class RegFile extends Module{
     val io = IO(new Bundle {
+    //val wen = Input(Bool())
+    //val waddr = Input(UInt(parm.REGADDRWIDTH.W))
+    //val wdata = Input(UInt(parm.REGWIDTH.W))
     val IDRegFile = Flipped((new Idu2Regfile))
     val WBREG = Flipped((new Wbu2Regfile))
     val REGWB = new Regfile2Wbu
     val pc = Input(UInt(parm.PCWIDTH.W))
     val RegFileID = ((new Regfile2Idu))
     val a0data = Output(UInt(parm.REGWIDTH.W))
+    //val Reg17  = Output(UInt(parm.REGWIDTH.W))
+
+      
+
   })
   val reg = RegInit(VecInit(Seq.fill(parm.RegNumber)(0.U(parm.REGWIDTH.W))))
   val mepc    = RegInit(0.U(parm.REGWIDTH.W))

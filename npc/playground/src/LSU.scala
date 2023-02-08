@@ -12,10 +12,18 @@ class LSU extends Module{
     val io = IO(new Bundle {
       val EXLS = Flipped(new Exu2Lsu)
       val LSWB = new Lsu2Wbu
+      //val Regfile_i = Flipped(new REGFILEIO)
+      //val LsuRes = Output(UInt(parm.REGWIDTH.W))
+      //val AluRes = Output(UInt(parm.REGWIDTH.W))
+      //val choose = Output(UInt(parm.RegFileChooseWidth.W))
+      //val pc     = Output(UInt(parm.PCWIDTH.W))
+      //val NextPc  = Output(UInt(parm.PCWIDTH.W))
 //if(parm.DIFFTEST){
       val SkipRef = Output(Bool())
 //}
       val LSCLINT = new Lsu2Clint
+      //val Clintls = new CLINTLS 
+      //val CsrWb = new CSRWB
   })
   val CLINTREAD  = (io.EXLS.readaddr< parm.CLINTEND.U) && (io.EXLS.readaddr>=parm.CLINTBASE.U)
   val CLINTWRITE = (io.EXLS.writeaddr< parm.CLINTEND.U) && (io.EXLS.writeaddr>=parm.CLINTBASE.U)
