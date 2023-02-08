@@ -10,6 +10,7 @@ class IFU extends Module{
     val PcIf  = Flipped((new Pc2Ifu))
     val instr_i = Input(UInt(parm.INSTWIDTH.W))
     val IFID  = new Ifu2Idu
+    val IFNPC = new Ifu2Npc
     val IFRAM = Flipped((new Axi4LiteRAMIO))
   })
   //io.IFID.inst := io.instr_i
@@ -49,9 +50,15 @@ class IFU extends Module{
   }
   if(parm.MODE == "single"){
     io.IFID.inst := io.instr_i
+    io.IFID.instvalid := true.B
+    io.IFNPC.instvalid := true.B
   }
-  else io.IFID.inst := Mux(io.IFRAM.r.fire,FetchInst,0.U)
-  io.IFID.instvalid := io.IFRAM.r.fire
+  else {
+    io.IFID.inst := Mux(io.IFRAM.r.fire,FetchInst,0.U)
+    io.IFID.instvalid := io.IFRAM.r.fire
+    io.IFNPC.instvalid := io.IFRAM.r.fire
+  }
+
   //write no 
   io.IFRAM.aw.valid := false.B
   io.IFRAM.aw.bits.addr := 0.U

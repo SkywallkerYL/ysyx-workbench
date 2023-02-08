@@ -14,6 +14,10 @@ class Pc2Ifu extends Bundle{
 class Ifu2Sram extends Bundle{
     val Axi = Flipped(new Axi4LiteRAMIO)
 }
+//IF --- NPC
+class Ifu2Npc extends Bundle{
+    val instvalid = Output(Bool())
+}
 //IF --- ID
 class Ifu2Idu extends Bundle{
   val inst = Output(UInt(parm.INSTWIDTH.W))
