@@ -5,6 +5,7 @@ import chisel3.util._
 
 trait AxiParm{
     val AxiDataWidth = parm.REGWIDTH
+    val AxiMaskWidth = AxiDataWidth/8
     val AxiAddrWidth = parm.REGWIDTH//log2Ceil(parm.MSIZE/4)-1
 }
 
@@ -17,7 +18,7 @@ class Axi4LiteWA extends Bundle with AxiParm{
 //write data and mask
 class Axi4LiteWD extends Bundle with AxiParm{
     val data = Output(UInt(AxiDataWidth.W))
-    val strb = Output(UInt((AxiDataWidth/8)).W)   
+    val strb = Output(UInt(AxiMaskWidth.W))   
 }
 //write resp
 //intro the master the write operation is success
