@@ -10,10 +10,19 @@ import chisel3.util._
 class Pc2Ifu extends Bundle{
   val pc   = Output(UInt(parm.PCWIDTH.W))
 }
+//IF --- SRAM
+class Ifu2Sram extends Bundle{
+    val Axi = Flipped(new Axi4LiteRAMIO)
+}
+//IF --- NPC
+class Ifu2Npc extends Bundle{
+    val instvalid = Output(Bool())
+}
 //IF --- ID
 class Ifu2Idu extends Bundle{
   val inst = Output(UInt(parm.INSTWIDTH.W))
   val pc   = Output(UInt(parm.PCWIDTH.W))
+  val instvalid = Output(Bool())
 }
 //ID --- NPCMUX
 class Idu2Npc extends Bundle{
