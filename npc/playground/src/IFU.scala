@@ -21,8 +21,10 @@ class IFU extends Module{
   io.IFRAM.ar.valid := false.B
   //io.IFRAM.r.bits.resp = "b00".U
   //io.IFRAM.r.bits.data := 0.U
+  io.IFRAM.ar.bits.addr := io.PcIf.pc
   io.IFRAM.r.ready := false.B
   val FetchInst = Wire(UInt(parm.INSTWIDTH.W))
+  FetchInst := 0.U
   //state transfer
   //val RegRaddr = RegInit(0.U(AxiParm.AxiAddrWidth.W))
   switch(ReadState){
