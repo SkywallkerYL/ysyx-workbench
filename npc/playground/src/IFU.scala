@@ -47,7 +47,7 @@ class IFU extends Module{
       }
     }
   }
-  if(MODE == "single"){
+  if(parm.MODE == "single"){
     io.IFID.inst := io.instr_i
   }
   else io.IFID.inst := Mux(io.IFRAM.r.fire,FetchInst,0.U)
