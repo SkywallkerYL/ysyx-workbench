@@ -32,9 +32,9 @@
 
 #define VGA
 
-//#define WAVE
+#define WAVE
 
-#define WAVE_BEGIN 6
+#define WAVE_BEGIN 0
 #define WAVE_END   100
 
 #define TRACE_CONDITION(a,begin,end)   ((a>=begin)&&(a<end))
