@@ -19,7 +19,8 @@ class  RiscvCpu extends Module{
     //chisel里变量还未命名好像不能直接用
     val PcReg = Module(new PC_REG()) 
     val NpcMux = Module(new NPCMUX())
-    val SRAM = Module(new Axi4LiteSRAM)
+    val SRAM    = Module(new Axi4LiteSRAM)
+    val SRAMLSU = Module(new Axi4LiteSRAM)
     val Ifu = Module(new IFU())
     //val If_Id = Module(new IF_ID())
     val Regfile = Module(new RegFile)
@@ -83,7 +84,7 @@ class  RiscvCpu extends Module{
 //EX_LS
     Lsu.io.EXLS <> Exu.io.EXLS
 // LSU
-    
+    Lsu.io.LSRAM.Axi <> SRAMLSU.Sram
 // CLINT
     Clint.io.LsuIn <> Lsu.io.LSCLINT
 //LS_WB

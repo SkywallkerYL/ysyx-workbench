@@ -12,6 +12,7 @@ class LSU extends Module{
     val io = IO(new Bundle {
       val EXLS = Flipped(new Exu2Lsu)
       val LSWB = new Lsu2Wbu
+      val LSRAM = new Lsu2Sram
 //if(parm.DIFFTEST){
       val SkipRef = Output(Bool())
 //}
@@ -21,16 +22,115 @@ class LSU extends Module{
   val CLINTWRITE = (io.EXLS.writeaddr< parm.CLINTEND.U) && (io.EXLS.writeaddr>=parm.CLINTBASE.U)
   val readdata = Wire(UInt(parm.REGWIDTH.W))
   val LsuDpidata = Wire(UInt(parm.REGWIDTH.W))
-  if(parm.DPI){
-    val LsuDPI = Module(new LSUDPI) 
-    LsuDPI.io.wflag := io.EXLS.wflag & !CLINTWRITE
-    LsuDPI.io.rflag := io.EXLS.rflag & !CLINTREAD
-    LsuDPI.io.raddr := io.EXLS.readaddr  
-    LsuDPI.io.waddr := io.EXLS.writeaddr 
-    LsuDPI.io.wdata := io.EXLS.writedata 
-    LsuDPI.io.wmask := io.EXLS.wmask 
-    LsuDpidata := LsuDPI.io.rdata
-    //io.LsuRes := LsuDPI.io.rdata
+  //asTypeOf
+  val LsuResReg = RegInit(0.U)//*
+  val chooseReg = RegInit(0.U)//*
+  val IoRegfile = RegInit(0.U.asTypeOf(new REGFILEIO)) //*
+  if(parm.MODE == "single"){
+    if(parm.DPI){
+      val LsuDPI = Module(new LSUDPI) 
+      LsuDPI.io.wflag := io.EXLS.wflag & !CLINTWRITE
+      LsuDPI.io.rflag := io.EXLS.rflag & !CLINTREAD
+      LsuDPI.io.raddr := io.EXLS.readaddr  
+      LsuDPI.io.waddr := io.EXLS.writeaddr 
+      LsuDPI.io.wdata := io.EXLS.writedata 
+      LsuDPI.io.wmask := io.EXLS.wmask 
+      LsuDpidata := LsuDPI.io.rdata
+      //io.LsuRes := LsuDPI.io.rdata
+    }
+    io.LSRAM.Axi.ar.valid := false.B
+    io.LSRAM.Axi.ar.bits.addr := 0.U
+    io.LSRAM.Axi.r.ready := false.B
+    io.LSRAM.Axi.aw.valid := false.B
+    io.LSRAM.Axi.aw.bits.addr := 0.U
+    io.LSRAM.Axi.w.valid := false.B
+    io.LSRAM.Axi.w.bits.data := 0.U
+    io.LSRAM.Axi.w.bits.strb := 0.U
+    io.LSRAM.Axi.b.ready := false.B
+    //io.LSRAM.Axi.
+  }
+  else{
+    //READ
+    val readWait :: read :: Nil = Enum(2)
+    val ReadState = RegInit(readWait)
+    //Intial
+    io.LSRAM.Axi.ar.valid := false.B
+    io.LSRAM.Axi.ar.bits.addr := io.EXLS.readaddr  
+    io.LSRAM.Axi.r.ready := false.B
+    //val FetchInst = Wire(UInt(parm.INSTWIDTH.W))
+    //FetchInst := 0.U
+    //state transfer
+    //val RegRaddr = RegInit(0.U(AxiParm.AxiAddrWidth.W))
+    switch(ReadState){
+      is(readWait){
+        io.LSRAM.Axi.ar.valid := io.EXLS.rflag & !CLINTREAD
+        io.LSRAM.Axi.r.ready  := false.B
+        //fire = ready & valid
+        when(io.LSRAM.Axi.ar.fire){
+          io.LSRAM.Axi.ar.bits.addr := io.EXLS.readaddr 
+          //RegRaddr  := io.EXLS.readaddr 
+          //记录当前对通用寄存器的使能信息
+          chooseReg := io.EXLS.choose
+          IoRegfile := io.EXLS.RegFileIO
+          ReadState := read
+        }
+      }
+      is(read){
+        io.LSRAM.Axi.ar.valid := false.B
+        io.LSRAM.Axi.r.ready := true.B
+        when(io.LSRAM.Axi.r.fire){
+          LsuDpidata := io.LSRAM.Axi.r.bits.data
+          //FetchInst := io.LSRAM.Axi.r.bits.data(31,0)
+          ReadState := readWait
+        }
+      }
+    }
+    io.LSRAM.Axi.aw.valid := false.B
+    io.LSRAM.Axi.aw.bits.addr := io.EXLS.writeaddr 
+    io.LSRAM.Axi.w.valid := false.B
+    io.LSRAM.Axi.w.bits.data := io.EXLS.writedata 
+    io.LSRAM.Axi.w.bits.strb := io.EXLS.wmask
+    io.LSRAM.Axi.b.ready := false.B
+    val writeWait :: write :: writeResp :: Nil = Enum(3)
+    val WriteState = RegInit(writeWait)
+    val RegWData = RegInit(0.U(AxiParm.AxiDataWidth.W))
+    val RegWMask = RegInit(0.U(AxiParm.AxiDataWidth.W))
+    switch(WriteState){
+      is(writeWait){
+        io.LSRAM.Axi.aw.valid := io.EXLS.wflag & !CLINTREAD
+        io.LSRAM.Axi.w.valid := false.B
+        io.LSRAM.Axi.b.ready := false.B
+        when(io.LSRAM.Axi.aw.fire){
+            WriteState := write
+            io.LSRAM.Axi.aw.bits.addr := io.EXLS.writeaddr
+            RegWData := io.EXLS.writedata
+            RegWMask := io.EXLS.wmask
+            //RegWAddr := io.LSRAM.Axi.aw.bits.addr
+        }
+      }
+      is(write){
+        io.LSRAM.Axi.aw.valid := false.B
+        io.LSRAM.Axi.w.valid := true.B
+        io.LSRAM.Axi.b.ready := false.B
+        when(io.LSRAM.Axi.w.fire){
+            WriteState := writeWait
+            io.LSRAM.Axi.w.bits.data := RegWData
+            io.LSRAM.Axi.w.bits.strb := RegWMask
+            //Ram.io.wdata := io.LSRAM.Axi.w.bits.data
+            //Ram.io.wmask := io.LSRAM.Axi.w.bits.strb
+        }
+      }
+      is(writeResp){
+        io.LSRAM.Axi.aw.valid := false.B
+        io.LSRAM.Axi.w.valid := false.B
+        io.LSRAM.Axi.b.ready := true.B
+        when(io.LSRAM.Axi.b.fire){
+            WriteState := writeWait
+            io.LSRAM.Axi.b.bits.resp := "b00".U
+        }
+      }
+    }
+
   }
 
   readdata := Mux(CLINTREAD,io.LSCLINT.Clintls.rdata,LsuDpidata)
@@ -52,9 +152,11 @@ class LSU extends Module{
   ))
   io.LSWB.LsuRes := maskRes
   io.LSWB.AluRes := io.EXLS.alures
-  io.LSWB.choose := io.EXLS.choose
+  //并且当前周期的使能要拉低即如果当前周期是发送读请求的那个周期
+  //
+  io.LSWB.choose := Mux(io.LSRAM.Axi.r.fire,chooseReg,Mux(io.LSRAM.Axi.ar.fire,0.U,io.EXLS.choose))//* 读数据延后一个周期，需要的是那个周期的使能和选择信号
   io.LSWB.CsrWb <> io.EXLS.CsrWb
-  io.LSWB.Regfile <> io.EXLS.RegFileIO
+  io.LSWB.Regfile <> Mux(io.LSRAM.Axi.r.fire,IoRegfile,Mux(io.LSRAM.Axi.ar.fire,0.U.asTypeOf(new REGFILEIO),io.EXLS.RegFileIO))//*
   io.LSWB.pc := io.EXLS.pc
   io.LSWB.NextPc := io.EXLS.NextPc
   io.LSCLINT.Clintls.wen    := io.EXLS.wflag
