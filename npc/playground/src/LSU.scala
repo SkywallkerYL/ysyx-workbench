@@ -64,10 +64,9 @@ class LSU extends Module{
     //val RegRaddr = RegInit(0.U(AxiParm.AxiAddrWidth.W))
     //keep the valid high until it got into read state
     //源端valid信号有效之后要等待目的端ready之后才拉低
-    val ArValid = RegInit(0.U(1.W)) 
+    val ArValidReg = RegInit(0.U(1.W)) 
     switch(ReadState){
       is(readWait){
-        ArValidReg := Mux(ArValidReg,1.U,io.EXLS.rflag & !CLINTREAD)
         when(io.EXLS.rflag & !CLINTREAD){
           io.LSRAM.Axi.ar.valid := true.B
           ArValidReg := 1.U

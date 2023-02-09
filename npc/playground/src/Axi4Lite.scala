@@ -176,8 +176,8 @@ class RamArbiter extends Module{
     io.sram.Axi.w.valid := io.ifu.Axi.w.valid || io.lsu.Axi.w.valid
     io.ifu.Axi.w.ready := io.ifu.Axi.w.valid && io.sram.Axi.w.ready
     io.lsu.Axi.w.ready := io.lsu.Axi.w.valid && io.sram.Axi.w.ready &&(!io.ifu.Axi.w.valid)
-    io.sram.Axi.w.bits.addr := Mux(io.ifu.Axi.w.ready,io.ifu.Axi.w.bits.addr,
-    Mux(io.lsu.Axi.w.ready,io.lsu.Axi.w.bits.addr,0.U))
+    io.sram.Axi.w.bits.data := Mux(io.ifu.Axi.w.ready,io.ifu.Axi.w.bits.data,
+    Mux(io.lsu.Axi.w.ready,io.lsu.Axi.w.bits.data,0.U))
     //b
     io.sram.Axi.b.ready := io.ifu.Axi.b.ready || io.lsu.Axi.b.ready
     io.ifu.Axi.b.valid := io.ifu.Axi.b.ready && io.sram.Axi.b.valid
