@@ -105,7 +105,6 @@ class LSU extends Module{
             io.LSRAM.Axi.aw.bits.addr := io.EXLS.writeaddr
             RegWData := io.EXLS.writedata
             RegWMask := io.EXLS.wmask
-            //RegWAddr := io.LSRAM.Axi.aw.bits.addr
         }
       }
       is(write){
@@ -116,8 +115,6 @@ class LSU extends Module{
             WriteState := writeWait
             io.LSRAM.Axi.w.bits.data := RegWData
             io.LSRAM.Axi.w.bits.strb := RegWMask
-            //Ram.io.wdata := io.LSRAM.Axi.w.bits.data
-            //Ram.io.wmask := io.LSRAM.Axi.w.bits.strb
         }
       }
       is(writeResp){
@@ -154,7 +151,7 @@ class LSU extends Module{
   io.LSWB.AluRes := io.EXLS.alures
   //并且当前周期的使能要拉低即如果当前周期是发送读请求的那个周期
   //
-  val ZeroRegfileIO = Reg(new REGFILEIO)
+  val ZeroRegfileIO = RegInit(0.U.asTypeOf(new REGFILEIO))
   ZeroRegfileIO.wen := 0.U
   ZeroRegfileIO.waddr := 0.U
   ZeroRegfileIO.wdata := 0.U
