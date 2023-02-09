@@ -34,7 +34,7 @@ class  RiscvCpu extends Module{
     //val Ls_Wb = Module(new LS_WB())
     val Wbu = Module(new WBU())
 // Ram
-    SRAM.io.sram <> SramArb.io.sram.Axi
+    SRAM.io.Sram <> SramArb.io.sram.Axi
 //pc   
     val PcRegOut = Wire(UInt(parm.PCWIDTH.W))
     //val addr  = (PcRegOut-parm.INITIAL_PC.U)>>2
