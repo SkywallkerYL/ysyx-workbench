@@ -125,6 +125,7 @@ extern "C" void pmem_write(long long waddr, long long wdata,char wmask){
         }
     }
     else if(waddr == 0xa00003f8){ // serial port
+        //printf("pc:0x%08x\n",Pc_Fetch());
         printf("%c",c);
     }
     else {

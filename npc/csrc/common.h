@@ -17,7 +17,7 @@
 #define vaddr_t uint64_t
 //#define CONFIG_DIFFTEST
 //Itrace
-#define CONFIG_ITRACE
+//#define CONFIG_ITRACE
 
 #define ITRACE_BEGIN 4
 #define ITRACE_END   10000
@@ -32,10 +32,10 @@
 
 #define VGA
 
-#define WAVE
+//#define WAVE
 
 #define WAVE_BEGIN 0
-#define WAVE_END   100
+#define WAVE_END   1000
 
 #define TRACE_CONDITION(a,begin,end)   ((a>=begin)&&(a<end))
 
