@@ -30,14 +30,14 @@ class LSU extends Module{
   val RdAddrReg = RegInit(0.U(parm.REGWIDTH.W))
   if(parm.MODE == "single"){
     if(parm.DPI){
-      //val LsuDPI = Module(new LSUDPI) 
-      //LsuDPI.io.wflag := io.EXLS.wflag & !CLINTWRITE
-      //LsuDPI.io.rflag := io.EXLS.rflag & !CLINTREAD
-      //LsuDPI.io.raddr := io.EXLS.readaddr  
-      //LsuDPI.io.waddr := io.EXLS.writeaddr 
-      //LsuDPI.io.wdata := io.EXLS.writedata 
-      //LsuDPI.io.wmask := io.EXLS.wmask 
-      //LsuDpidata := LsuDPI.io.rdata
+      val LsuDPI = Module(new LSUDPI) 
+      LsuDPI.io.wflag := io.EXLS.wflag & !CLINTWRITE
+      LsuDPI.io.rflag := io.EXLS.rflag & !CLINTREAD
+      LsuDPI.io.raddr := io.EXLS.readaddr  
+      LsuDPI.io.waddr := io.EXLS.writeaddr 
+      LsuDPI.io.wdata := io.EXLS.writedata 
+      LsuDPI.io.wmask := io.EXLS.wmask 
+      LsuDpidata := LsuDPI.io.rdata
       //io.LsuRes := LsuDPI.io.rdata
     }
     io.LSRAM.Axi.ar.valid := false.B
