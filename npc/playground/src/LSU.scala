@@ -27,6 +27,7 @@ class LSU extends Module{
   val LsumaskReg = RegInit(0.U(parm.MaskWidth.W))//*
   val chooseReg  = RegInit(0.U(parm.RegFileChooseWidth.W))//*
   val IoRegfile = RegInit(0.U.asTypeOf(new REGFILEIO)) //*
+  val RdAddrReg = RegInit(0.U(parm.REGWIDTH.W))
   if(parm.MODE == "single"){
     if(parm.DPI){
       val LsuDPI = Module(new LSUDPI) 
@@ -73,6 +74,7 @@ class LSU extends Module{
           LsumaskReg := io.EXLS.lsumask
           chooseReg := io.EXLS.choose
           IoRegfile := io.EXLS.RegFileIO
+          RdAddrReg := io.EXLS.readaddr 
         }.otherwise{
           io.LSRAM.Axi.ar.valid := ArValidReg
         }
@@ -81,7 +83,13 @@ class LSU extends Module{
         //fire = ready & valid
         when(io.LSRAM.Axi.ar.fire){
           ArValidReg := 0.U
-          io.LSRAM.Axi.ar.bits.addr := io.EXLS.readaddr 
+          RdAddrReg := 0.U
+          when(io.EXLS.rflag & !CLINTREAD){
+            io.LSRAM.Axi.ar.bits.addr := io.EXLS.readaddr 
+          }.otherwise{
+            io.LSRAM.Axi.ar.bits.addr := RdAddrReg
+          }
+          
           ReadState := read
         }
       }
@@ -91,6 +99,9 @@ class LSU extends Module{
         io.LSRAM.Axi.r.ready := true.B
         when(io.LSRAM.Axi.r.fire){
           LsuDpidata := io.LSRAM.Axi.r.bits.data
+          LsumaskReg := 0.U
+          chooseReg := 0.U 
+          IoRegfile := 0.U
           //FetchInst := io.LSRAM.Axi.r.bits.data(31,0)
           ReadState := readWait
         }
