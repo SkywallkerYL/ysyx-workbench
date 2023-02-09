@@ -84,7 +84,7 @@ class  RiscvCpu extends Module{
 //EX_LS
     Lsu.io.EXLS <> Exu.io.EXLS
 // LSU
-    Lsu.io.LSRAM.Axi <> SRAMLSU.Sram
+    Lsu.io.LSRAM.Axi <> SRAMLSU.io.Sram
 // CLINT
     Clint.io.LsuIn <> Lsu.io.LSCLINT
 //LS_WB
