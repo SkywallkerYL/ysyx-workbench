@@ -157,7 +157,7 @@ class LSU extends Module{
   ZeroRegfileIO.wdata := 0.U
   io.LSWB.choose := Mux(io.LSRAM.Axi.r.fire,chooseReg,Mux(io.LSRAM.Axi.ar.fire,0.U,io.EXLS.choose))//* 读数据延后一个周期，需要的是那个周期的使能和选择信号
   io.LSWB.CsrWb <> io.EXLS.CsrWb
-  io.LSWB.Regfile <> Mux(io.LSRAM.Axi.r.fire,IoRegfile,Mux(io.LSRAM.Axi.ar.fire,ZeroRegfileIO,io.EXLS.RegFileIO))//*
+  io.LSWB.Regfile.wen <> Mux(io.LSRAM.Axi.r.fire,IoRegfile.wen,Mux(io.LSRAM.Axi.ar.fire,ZeroRegfileIO.wen,io.EXLS.RegFileIO))//*
   io.LSWB.pc := io.EXLS.pc
   io.LSWB.NextPc := io.EXLS.NextPc
   io.LSCLINT.Clintls.wen    := io.EXLS.wflag
