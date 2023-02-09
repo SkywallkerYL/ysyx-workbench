@@ -24,8 +24,8 @@ class LSU extends Module{
   val LsuDpidata = Wire(UInt(parm.REGWIDTH.W))
   LsuDpidata := 0.U
   //asTypeOf
-  val LsuResReg = RegInit(0.U)//*
-  val chooseReg = RegInit(0.U)//*
+  val LsumaskReg = RegInit(0.U(parm.RegFileChooseWidth.W))//*
+  val chooseReg  = RegInit(0.U(parm.MaskWidth.W))//*
   val IoRegfile = RegInit(0.U.asTypeOf(new REGFILEIO)) //*
   if(parm.MODE == "single"){
     if(parm.DPI){
@@ -71,6 +71,7 @@ class LSU extends Module{
           io.LSRAM.Axi.ar.bits.addr := io.EXLS.readaddr 
           //RegRaddr  := io.EXLS.readaddr 
           //记录当前对通用寄存器的使能信息
+          LsumaskReg := io.EXLS.lsumask
           chooseReg := io.EXLS.choose
           IoRegfile := io.EXLS.RegFileIO
           ReadState := read
@@ -138,8 +139,8 @@ class LSU extends Module{
       val writeskip= (io.EXLS.writeaddr< parm.PMEM_RIGHT.U) && (io.EXLS.writeaddr>=parm.PMEM_LEFT.U)
       io.SkipRef := (!readskip& io.EXLS.rflag)| (!writeskip&io.EXLS.wflag)
   }
-
-  val maskRes = MuxLookup(io.EXLS.lsumask, readdata,Seq(
+  val LocalMask = Mux(io.LSRAM.Axi.r.fire,LsumaskReg,Mux(io.LSRAM.Axi.ar.fire,0.U,io.EXLS.lsumask))
+  val maskRes = MuxLookup(LocalMask, readdata,Seq(
     "b11111".U   -> readdata,
     "b10111".U   ->func.SignExt(func.Mask ((readdata),"x00000000ffffffff".U),32),
     "b10011".U   ->func.SignExt(func.Mask ((readdata),"x000000000000ffff".U),16),
