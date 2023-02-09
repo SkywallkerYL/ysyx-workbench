@@ -154,9 +154,13 @@ class LSU extends Module{
   io.LSWB.AluRes := io.EXLS.alures
   //并且当前周期的使能要拉低即如果当前周期是发送读请求的那个周期
   //
+  val ZeroRegfileIO = new REGFILEIO
+  ZeroRegfileIO.wen := false.B
+  ZeroRegfileIO.waddr := 0.U
+  ZeroRegfileIO.wdata := 0.U
   io.LSWB.choose := Mux(io.LSRAM.Axi.r.fire,chooseReg,Mux(io.LSRAM.Axi.ar.fire,0.U,io.EXLS.choose))//* 读数据延后一个周期，需要的是那个周期的使能和选择信号
   io.LSWB.CsrWb <> io.EXLS.CsrWb
-  io.LSWB.Regfile <> Mux(io.LSRAM.Axi.r.fire,IoRegfile,Mux(io.LSRAM.Axi.ar.fire,0.U.asTypeOf(new REGFILEIO),io.EXLS.RegFileIO))//*
+  io.LSWB.Regfile <> Mux(io.LSRAM.Axi.r.fire,IoRegfile,Mux(io.LSRAM.Axi.ar.fire,ZeroRegfileIO,io.EXLS.RegFileIO))//*
   io.LSWB.pc := io.EXLS.pc
   io.LSWB.NextPc := io.EXLS.NextPc
   io.LSCLINT.Clintls.wen    := io.EXLS.wflag
