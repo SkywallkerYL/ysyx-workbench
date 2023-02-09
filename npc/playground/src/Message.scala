@@ -112,6 +112,10 @@ class Lsu2Wbu extends Bundle{
 class Lsu2Sram extends Bundle{
     val Axi = Flipped(new Axi4LiteRAMIO)
 }
+//ARBITER --- SRAM
+class Arb2Sram extends Bundle{
+    val Axi = Flipped(new Axi4LiteRAMIO)
+}
 //WB --- RegFile
 class Wbu2Regfile extends Bundle{
     //val Reg17       = Input(UInt(parm.REGWIDTH.W))

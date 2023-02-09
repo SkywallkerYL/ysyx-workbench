@@ -44,7 +44,7 @@ class LSU extends Module{
     io.LSRAM.Axi.r.ready := false.B
     io.LSRAM.Axi.aw.valid := false.B
     io.LSRAM.Axi.aw.bits.addr := 0.U
-    io.LSRAM.Axi.w.valid := false.B
+    io.LSRAM.Axi.w.valid := false.B     
     io.LSRAM.Axi.w.bits.data := 0.U
     io.LSRAM.Axi.w.bits.strb := 0.U
     io.LSRAM.Axi.b.ready := false.B
@@ -62,22 +62,32 @@ class LSU extends Module{
     //FetchInst := 0.U
     //state transfer
     //val RegRaddr = RegInit(0.U(AxiParm.AxiAddrWidth.W))
+    //keep the valid high until it got into read state
+    //源端valid信号有效之后要等待目的端ready之后才拉低
+    val ArValid = RegInit(0.U(1.W)) 
     switch(ReadState){
       is(readWait){
+        ArValidReg := Mux(ArValidReg,1.U,io.EXLS.rflag & !CLINTREAD)
+        when(io.EXLS.rflag & !CLINTREAD){
+          io.LSRAM.Axi.ar.valid := true.B
+          ArValidReg := 1.U
+          LsumaskReg := io.EXLS.lsumask
+          chooseReg := io.EXLS.choose
+          IoRegfile := io.EXLS.RegFileIO
+        }.otherwise{
+          io.LSRAM.Axi.ar.valid := ArValidReg
+        }
         io.LSRAM.Axi.ar.valid := io.EXLS.rflag & !CLINTREAD
         io.LSRAM.Axi.r.ready  := false.B
         //fire = ready & valid
         when(io.LSRAM.Axi.ar.fire){
+          ArValidReg := 0.U
           io.LSRAM.Axi.ar.bits.addr := io.EXLS.readaddr 
-          //RegRaddr  := io.EXLS.readaddr 
-          //记录当前对通用寄存器的使能信息
-          LsumaskReg := io.EXLS.lsumask
-          chooseReg := io.EXLS.choose
-          IoRegfile := io.EXLS.RegFileIO
           ReadState := read
         }
       }
       is(read){
+        //ArValidReg := 0.U
         io.LSRAM.Axi.ar.valid := false.B
         io.LSRAM.Axi.r.ready := true.B
         when(io.LSRAM.Axi.r.fire){
@@ -97,16 +107,23 @@ class LSU extends Module{
     val WriteState = RegInit(writeWait)
     val RegWData = RegInit(0.U(AxiParm.AxiDataWidth.W))
     val RegWMask = RegInit(0.U(AxiParm.AxiDataWidth.W))
+    val wValidReg = RegInit(0.U(1.W))
     switch(WriteState){
       is(writeWait){
-        io.LSRAM.Axi.aw.valid := io.EXLS.wflag & !CLINTREAD
+        when(io.EXLS.wflag & !CLINTREAD){
+          io.LSRAM.Axi.aw.valid := true.B
+          RegWData := io.EXLS.writedata
+          RegWMask := io.EXLS.wmask
+          wValidReg := 1.U
+        }.otherwise{
+          io.LSRAM.Axi.aw.valid := wValidReg
+        }
         io.LSRAM.Axi.w.valid := false.B
         io.LSRAM.Axi.b.ready := false.B
         when(io.LSRAM.Axi.aw.fire){
-            WriteState := write
-            io.LSRAM.Axi.aw.bits.addr := io.EXLS.writeaddr
-            RegWData := io.EXLS.writedata
-            RegWMask := io.EXLS.wmask
+          wValidReg := 0.U
+          WriteState := write
+          io.LSRAM.Axi.aw.bits.addr := io.EXLS.writeaddr
         }
       }
       is(write){
