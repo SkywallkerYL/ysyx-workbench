@@ -76,7 +76,7 @@ class LSU extends Module{
         }.otherwise{
           io.LSRAM.Axi.ar.valid := ArValidReg
         }
-        io.LSRAM.Axi.ar.valid := io.EXLS.rflag & !CLINTREAD
+        //io.LSRAM.Axi.ar.valid := io.EXLS.rflag & !CLINTREAD
         io.LSRAM.Axi.r.ready  := false.B
         //fire = ready & valid
         when(io.LSRAM.Axi.ar.fire){
