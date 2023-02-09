@@ -25,7 +25,7 @@
 #define FTRACE_BEGIN 0
 #define FTRACE_END   1000
 
-//#define CONFIG_MTRACE
+#define CONFIG_MTRACE
 
 #define MTRACE_BEGIN 0
 #define MTRACE_END   10000
