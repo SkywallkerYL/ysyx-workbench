@@ -101,7 +101,7 @@ class LSU extends Module{
           LsuDpidata := io.LSRAM.Axi.r.bits.data
           LsumaskReg := 0.U
           chooseReg := 0.U 
-          IoRegfile := 0.U
+          IoRegfile := 0.U.asTypeOf(new REGFILEIO)
           //FetchInst := io.LSRAM.Axi.r.bits.data(31,0)
           ReadState := readWait
         }
