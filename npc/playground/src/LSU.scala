@@ -136,7 +136,12 @@ class LSU extends Module{
           wValidReg := 0.U
           RegWAddr  := 0.U
           WriteState := write
-          io.LSRAM.Axi.aw.bits.addr := io.EXLS.writeaddr
+          when(io.EXLS.wflag & !CLINTREAD){
+            io.LSRAM.Axi.aw.bits.addr := io.EXLS.writeaddr
+          }.otherwise{
+            io.LSRAM.Axi.aw.bits.addr := RegWAddr
+          }
+          
         }
       }
       is(write){
