@@ -155,7 +155,7 @@ class LSU extends Module{
   //并且当前周期的使能要拉低即如果当前周期是发送读请求的那个周期
   //
   val ZeroRegfileIO = new REGFILEIO
-  ZeroRegfileIO.wen := false.B
+  ZeroRegfileIO.wen := 0.U
   ZeroRegfileIO.waddr := 0.U
   ZeroRegfileIO.wdata := 0.U
   io.LSWB.choose := Mux(io.LSRAM.Axi.r.fire,chooseReg,Mux(io.LSRAM.Axi.ar.fire,0.U,io.EXLS.choose))//* 读数据延后一个周期，需要的是那个周期的使能和选择信号
