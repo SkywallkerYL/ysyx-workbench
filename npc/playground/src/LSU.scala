@@ -22,6 +22,7 @@ class LSU extends Module{
   val CLINTWRITE = (io.EXLS.writeaddr< parm.CLINTEND.U) && (io.EXLS.writeaddr>=parm.CLINTBASE.U)
   val readdata = Wire(UInt(parm.REGWIDTH.W))
   val LsuDpidata = Wire(UInt(parm.REGWIDTH.W))
+  LsuDpidata := 0.U
   //asTypeOf
   val LsuResReg = RegInit(0.U)//*
   val chooseReg = RegInit(0.U)//*
@@ -151,10 +152,6 @@ class LSU extends Module{
   io.LSWB.AluRes := io.EXLS.alures
   //并且当前周期的使能要拉低即如果当前周期是发送读请求的那个周期
   //
-  val ZeroRegfileIO = RegInit(0.U.asTypeOf(new REGFILEIO))
-  ZeroRegfileIO.wen := 0.U
-  ZeroRegfileIO.waddr := 0.U
-  ZeroRegfileIO.wdata := 0.U
   io.LSWB.choose := Mux(io.LSRAM.Axi.r.fire,chooseReg,Mux(io.LSRAM.Axi.ar.fire,0.U,io.EXLS.choose))//* 读数据延后一个周期，需要的是那个周期的使能和选择信号
   io.LSWB.CsrWb <> io.EXLS.CsrWb
   when(io.LSRAM.Axi.r.fire){
