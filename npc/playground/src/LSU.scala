@@ -23,9 +23,9 @@ class LSU extends Module{
   val readdata = Wire(UInt(parm.REGWIDTH.W))
   val LsuDpidata = Wire(UInt(parm.REGWIDTH.W))
   LsuDpidata := 0.U
-  //asTypeOf
-  val LsumaskReg = RegInit(0.U(parm.RegFileChooseWidth.W))//*
-  val chooseReg  = RegInit(0.U(parm.MaskWidth.W))//*
+  //asTypeOf MaskWidth
+  val LsumaskReg = RegInit(0.U(parm.MaskWidth.W))//*
+  val chooseReg  = RegInit(0.U(parm.RegFileChooseWidth.W))//*
   val IoRegfile = RegInit(0.U.asTypeOf(new REGFILEIO)) //*
   if(parm.MODE == "single"){
     if(parm.DPI){
