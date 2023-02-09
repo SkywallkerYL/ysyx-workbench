@@ -11,7 +11,7 @@ class IFU extends Module{
     val instr_i = Input(UInt(parm.INSTWIDTH.W))
     val IFID  = new Ifu2Idu
     val IFNPC = new Ifu2Npc
-    val IFRAM = new Ifu2Sram  //Flipped((new Axi4LiteRAMIO))
+    val IFRAM = Flipped((new Axi4LiteRAMIO))
   })
   //io.IFID.inst := io.instr_i
   io.IFID.pc   := io.PcIf.pc
@@ -19,31 +19,31 @@ class IFU extends Module{
   val readWait :: read :: Nil = Enum(2)
   val ReadState = RegInit(readWait)
   //Intial
-  io.IFRAM.Axi.ar.valid := false.B
-  //io.IFRAM.Axi.r.bits.resp = "b00".U
-  //io.IFRAM.Axi.r.bits.data := 0.U
-  io.IFRAM.Axi.ar.bits.addr := io.PcIf.pc
-  io.IFRAM.Axi.r.ready := false.B
+  io.IFRAM.ar.valid := false.B
+  //io.IFRAM.r.bits.resp = "b00".U
+  //io.IFRAM.r.bits.data := 0.U
+  io.IFRAM.ar.bits.addr := io.PcIf.pc
+  io.IFRAM.r.ready := false.B
   val FetchInst = Wire(UInt(parm.INSTWIDTH.W))
   FetchInst := 0.U
   //state transfer
   //val RegRaddr = RegInit(0.U(AxiParm.AxiAddrWidth.W))
   switch(ReadState){
     is(readWait){
-      io.IFRAM.Axi.ar.valid := true.B
-      io.IFRAM.Axi.r.ready  := false.B
+      io.IFRAM.ar.valid := true.B
+      io.IFRAM.r.ready  := false.B
       //fire = ready & valid
-      when(io.IFRAM.Axi.ar.fire){
-        io.IFRAM.Axi.ar.bits.addr := io.PcIf.pc
-        //RegRaddr        := io.IFRAM.Axi.ar.bits.addr
+      when(io.IFRAM.ar.fire){
+        io.IFRAM.ar.bits.addr := io.PcIf.pc
+        //RegRaddr        := io.IFRAM.ar.bits.addr
         ReadState       := read
       }
     }
     is(read){
-      io.IFRAM.Axi.ar.valid := false.B
-      io.IFRAM.Axi.r.ready := true.B
-      when(io.IFRAM.Axi.r.fire){
-        FetchInst := io.IFRAM.Axi.r.bits.data(31,0)
+      io.IFRAM.ar.valid := false.B
+      io.IFRAM.r.ready := true.B
+      when(io.IFRAM.r.fire){
+        FetchInst := io.IFRAM.r.bits.data(31,0)
         ReadState := readWait
       }
     }
@@ -54,16 +54,16 @@ class IFU extends Module{
     io.IFNPC.instvalid := true.B
   }
   else {
-    io.IFID.inst := Mux(io.IFRAM.Axi.r.fire,FetchInst,0.U)
-    io.IFID.instvalid := io.IFRAM.Axi.r.fire
-    io.IFNPC.instvalid := io.IFRAM.Axi.r.fire
+    io.IFID.inst := Mux(io.IFRAM.r.fire,FetchInst,0.U)
+    io.IFID.instvalid := io.IFRAM.r.fire
+    io.IFNPC.instvalid := io.IFRAM.r.fire
   }
 
   //write no 
-  io.IFRAM.Axi.aw.valid := false.B
-  io.IFRAM.Axi.aw.bits.addr := 0.U
-  io.IFRAM.Axi.w.valid := false.B
-  io.IFRAM.Axi.w.bits.data := 0.U
-  io.IFRAM.Axi.w.bits.strb := 0.U
-  io.IFRAM.Axi.b.ready := false.B
+  io.IFRAM.aw.valid := false.B
+  io.IFRAM.aw.bits.addr := 0.U
+  io.IFRAM.w.valid := false.B
+  io.IFRAM.w.bits.data := 0.U
+  io.IFRAM.w.bits.strb := 0.U
+  io.IFRAM.b.ready := false.B
 }

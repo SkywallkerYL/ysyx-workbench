@@ -25,7 +25,7 @@
 #define FTRACE_BEGIN 0
 #define FTRACE_END   1000
 
-#define CONFIG_MTRACE
+//#define CONFIG_MTRACE
 
 #define MTRACE_BEGIN 0
 #define MTRACE_END   10000
@@ -35,7 +35,7 @@
 #define WAVE
 
 #define WAVE_BEGIN 0
-#define WAVE_END   1000
+#define WAVE_END   100
 
 #define TRACE_CONDITION(a,begin,end)   ((a>=begin)&&(a<end))
 

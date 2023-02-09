@@ -33,21 +33,14 @@ class LSUDPI extends BlackBox with HasBlackBoxInline{
     |import "DPI-C" function void pmem_write(input longint waddr, input longint wdata,input byte wmask);
     |
     |wire [63:0] rdata1;
-    |always@(wflag)begin
-    |   if(wflag) pmem_write(waddr,wdata,wmask);
-    |end
-    |always@(rflag)begin
-    |   if(rflag) pmem_read(raddr,rdata1);
-    |end
-    |/*
+    |
     |always@(wflag or rflag)begin
     |   if(wflag) pmem_write(waddr,wdata,wmask);
     |   else ;//pmem_write(0,0,0);
     |   if(rflag) pmem_read(raddr,rdata1);
     |   else ;//pmem_read(0,rdata1);
     |end
-    |*/
-    |assign rdata = rflag?rdata1:0;
+    |assign rdata = rdata1;
     |
     |endmodule
     """.stripMargin
