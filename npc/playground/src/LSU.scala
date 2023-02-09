@@ -24,7 +24,10 @@ class LSU extends Module{
   val LsuDpidata = Wire(UInt(parm.REGWIDTH.W))
   LsuDpidata := 0.U
   //asTypeOf MaskWidth
-
+  val LsumaskReg = RegInit(0.U(parm.MaskWidth.W))//*
+  val chooseReg  = RegInit(0.U(parm.RegFileChooseWidth.W))//*
+  val IoRegfile = RegInit(0.U.asTypeOf(new REGFILEIO)) //*
+  val RdAddrReg = RegInit(0.U(parm.REGWIDTH.W))
   if(parm.MODE == "single"){
     if(parm.DPI){
       val LsuDPI = Module(new LSUDPI) 
@@ -62,10 +65,6 @@ class LSU extends Module{
     //val RegRaddr = RegInit(0.U(AxiParm.AxiAddrWidth.W))
     //keep the valid high until it got into read state
     //源端valid信号有效之后要等待目的端ready之后才拉低
-    val LsumaskReg = RegInit(0.U(parm.MaskWidth.W))//*
-    val chooseReg  = RegInit(0.U(parm.RegFileChooseWidth.W))//*
-    val IoRegfile = RegInit(0.U.asTypeOf(new REGFILEIO)) //*
-    val RdAddrReg = RegInit(0.U(parm.REGWIDTH.W))
     val ArValidReg = RegInit(0.U(1.W)) 
     switch(ReadState){
       is(readWait){
