@@ -126,7 +126,7 @@ class LSU extends Module{
         io.LSRAM.Axi.b.ready := true.B
         when(io.LSRAM.Axi.b.fire){
             WriteState := writeWait
-            io.LSRAM.Axi.b.bits.resp := "b00".U
+            //io.LSRAM.Axi.b.bits.resp := "b00".U
         }
       }
     }
