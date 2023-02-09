@@ -154,7 +154,7 @@ class LSU extends Module{
   io.LSWB.AluRes := io.EXLS.alures
   //并且当前周期的使能要拉低即如果当前周期是发送读请求的那个周期
   //
-  val ZeroRegfileIO = Wire(new REGFILEIO)
+  val ZeroRegfileIO = Reg(new REGFILEIO)
   ZeroRegfileIO.wen := 0.U
   ZeroRegfileIO.waddr := 0.U
   ZeroRegfileIO.wdata := 0.U
