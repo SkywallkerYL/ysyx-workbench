@@ -124,7 +124,7 @@ long initial_default_img(){
   //RiscvCpu__DOT__M_ext__DOT__Memory[0]
   //自己写失败了，之间memcpy
   //memcpy(&p_mem[0],(uint8_t*)&instr_mem,MSIZE);
-  for (size_t i = 0; i < MSIZE/4; i++)
+  for (size_t i = 0; i < 10; i++)
   {
     memcpy(&p_mem[4*i],(uint8_t*)&instr_mem[i],4);
   }

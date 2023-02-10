@@ -15,7 +15,7 @@
 #define word_t uint64_t
 #define paddr_t uint64_t
 #define vaddr_t uint64_t
-#define CONFIG_DIFFTEST
+//#define CONFIG_DIFFTEST
 //Itrace
 #define CONFIG_ITRACE
 
@@ -51,9 +51,10 @@ enum { DIFFTEST_TO_DUT, DIFFTEST_TO_REF };
 #define RESET_VECTOR (PMEM_LEFT + CONFIG_PC_RESET_OFFSET)
 #define FMT_PADDR "0x%016lx"
 #define instr_break 0b00000000000100000000000001110011
-#define MSIZE 6553600 //this should be same with npc 
+#define MSIZE 655360000  //this should be same with npc 
 //this should be big enough,otherwise some program could not run
-uint32_t instr_mem[MSIZE/4];
+//This is important or it may cause some behavior difficault to understand
+uint32_t instr_mem[10];
 uint8_t p_mem[MSIZE];
 
 
