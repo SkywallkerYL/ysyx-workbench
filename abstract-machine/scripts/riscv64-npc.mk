@@ -1,15 +1,12 @@
 include $(AM_HOME)/scripts/isa/riscv64.mk
 
-AM_SRCS := riscv/npc/start.S \
-           riscv/npc/trm.c \
+AM_SRCS := riscv/npc/trm.c \
            riscv/npc/ioe.c \
            riscv/npc/timer.c \
            riscv/npc/input.c \
-           riscv/npc/cte.c \
-           riscv/npc/trap.S \
-           platform/dummy/vme.c \
-           platform/dummy/mpe.c
-
+           riscv/npc/gpu.c \
+           platform/nemu/mpe.c 
+           
 CFLAGS    += -fdata-sections -ffunction-sections
 LDFLAGS   += -T $(AM_HOME)/scripts/linker.ld --defsym=_pmem_start=0x80000000 --defsym=_entry_offset=0x0
 LDFLAGS   += --gc-sections -e _start
@@ -34,3 +31,9 @@ image: $(IMAGE).elf
 run: image
 	echo "$(IMAGE)" "$(NEMUFLAGS )" "$(NEMUFLAG)"
 	$(MAKE) -C $(NPC_HOME) run NPCMODE+=-l NPCMODE+=$(FILENAME) NPCMODE+=-f NPCMODE+=$(ELFFILE) NPCMODE+=-v NPCMODE+=$(ELFLOGFILE) NPCMODE+=-d NPCMODE+=$(DIFFTESTNEMUFILE)  IMG=$(IMAGE).bin
+CFLAGS  += -DISA_H=\"riscv/riscv.h\"
+
+AM_SRCS += riscv/nemu/start.S \
+           riscv/nemu/cte.c \
+           riscv/nemu/trap.S \
+           riscv/nemu/vme.c    
