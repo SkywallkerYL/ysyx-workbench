@@ -35,7 +35,7 @@
 #define WAVE
 
 #define WAVE_BEGIN 506500
-#define WAVE_END   507500
+#define WAVE_END   508000
 
 #define TRACE_CONDITION(a,begin,end)   ((a>=begin)&&(a<end))
 
