@@ -30,8 +30,8 @@ int64_t wavecount = 0;
 void step_and_dump_wave(){
   top->eval();
 #ifdef WAVE
-  if(!TRACE_CONDITION(wavecount,WAVE_BEGIN,WAVE_END)) {if(top->clock == 1)wavecount++;return;}
-  if(top->clock == 1)wavecount++;
+  if(!TRACE_CONDITION(wavecount,WAVE_BEGIN,WAVE_END)) {wavecount++;return;}
+  wavecount++;
   contextp->timeInc(1);
   tfp->dump(contextp->time());
 #endif
@@ -85,11 +85,10 @@ bool checkebreak ()
   return flag;
 }
 
-extern int64_t instnum;
+
 void assert_fail_msg() {
 #ifdef CONFIG_ITRACE
-  Log("Total Instr num:%ld",instnum );
-  printiringbuf((iringbufind+iringbufsize-1)%iringbufsize);  
+  printiringbuf((iringbufind+iringbufsize-1)%iringbufsize);
 #endif
   isa_reg_display();
 }
