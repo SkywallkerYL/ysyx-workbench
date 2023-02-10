@@ -149,7 +149,7 @@ class IDU extends Module{
             */
             //io.idex.CsrWb.CSRs := CSRs
             io.idex.CsrWb.csrflag := csrflag
-            io.idex.CsrWb.CsrAddr := csraddr & Fill(parm.CSRNUMBER,csrflag) //Mux(csrflag,csraddr,"b0000".U)
+            io.idex.CsrWb.CsrAddr := csraddr//Mux(csrflag,csraddr,"b0000".U)
             io.idex.CsrWb.CsrExuChoose := csraddr //正好要写入的Csr时，就使用EXU的计算结果，因此直接接过来
             when(DecodeRes(InstrTable.InstrN) === OpIType.JALR)
             {
