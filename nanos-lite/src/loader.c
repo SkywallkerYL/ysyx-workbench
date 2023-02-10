@@ -20,7 +20,7 @@
 # error Unsupported ISA
 #endif
 size_t ramdisk_read(void *buf, size_t offset, size_t len);
-int fs_open(const char *pathname, int flags, int mode,size_t *file_offset);
+int fs_open(const char *pathname, int flags, int mode);
 size_t fs_write(int fd, const void *buf, size_t len);
 size_t fs_read(int fd, void *buf, size_t len);
 size_t fs_lseek(int fd, size_t offset, int whence);
@@ -31,12 +31,11 @@ int fs_close(int fd);
 static uintptr_t loader(PCB *pcb, const char *filename) {
   //TODO();
   // 多个文件要根据文件名字确定read的起始地址
-  size_t fileoffset ;
-  int fd = fs_open(filename,0,0,&fileoffset);
+  int fd = fs_open(filename,0,0);
   assert(fd >=2); 
   //assert((fd != FD_STDIN)&&( fd != FD_STDOUT) && (fd != FD_STDERR));
-  //size_t fileoffset = file_table[fd].disk_offset; 
-  Log("file %s offset:%d",filename,fileoffset);
+  size_t fileoffset = file_table[fd].disk_offset; 
+  Log("file %s offset:%d",file_table[fd].name,fileoffset);
   
   Elf_Ehdr elf_head;
   //这种方式读取文件的范式
