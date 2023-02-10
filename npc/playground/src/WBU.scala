@@ -36,7 +36,7 @@ class WBU extends Module{
     //Mtip部分要打开了TIP才有效，不然会csrwen也拉高之后
     //如果某条指令的inst正好跟CSR那条部分匹配了(x300) 等。就会造成CSR的写入
     val OpenMtip = io.CLINTWB.Mtip & io.REGWB.CSRs.mie(7) //中断启用位
-    val csrwen =io.LSWB.CsrWb.csrflag | io.LSWB.CsrWb.ecall | io.LSWB.CsrWb.mret | io.CLINTWB.Mtip
+    val csrwen =io.LSWB.CsrWb.csrflag | io.LSWB.CsrWb.ecall | io.LSWB.CsrWb.mret |OpenMtip
     io.WBREG.CsrAddr := Mux(csrwen,io.LSWB.CsrWb.CsrAddr,"b00000000".U)
     
     //io.CsrWb_o := io.CsrWb_i
