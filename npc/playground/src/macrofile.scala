@@ -5,7 +5,7 @@ import chisel3.util._
 
 
 object  parm{
-    val MODE        : String = "multi" //single multi   单周期，多周期(接入了AXI总线等等)
+    val MODE        : String = "single" //single multi   单周期，多周期(接入了AXI总线等等)
     val CPUWIDTH    : Int = 64
     val REGWIDTH    : Int = 64
     val INSTWIDTH   : Int = 32
@@ -101,7 +101,6 @@ object RV64IInstr {
     def SUB    = BitPat("b0100000_?????_?????_000_?????_0110011")
     def MUL    = BitPat("b0000001_?????_?????_000_?????_0110011")
     def DIVU   = BitPat("b0000001_?????_?????_101_?????_0110011")
-    def DIV    = BitPat("b0000001_?????_?????_100_?????_0110011")
     def XOR    = BitPat("b0000000_?????_?????_100_?????_0110011")
     def REMU   = BitPat("b0000001_?????_?????_111_?????_0110011")
     def SLT    = BitPat("b0000000_?????_?????_010_?????_0110011")
@@ -253,7 +252,6 @@ object  OpRType{
     val DIVUW   = 19.U(OPRNUMWIDTH.W)
     val MRET    = 20.U(OPRNUMWIDTH.W)
     val SRL     = 21.U(OPRNUMWIDTH.W)
-    val DIV     = 22.U(OPRNUMWIDTH.W)
     //val JALR    = 2.U(OPSNUMWIDTH.W)
 }
 
@@ -326,7 +324,6 @@ object InstrTable{
         RV64IInstr.MUL      -> List(InstrType.R,OpRType.MUL,OpType.MUL),
         RV64IInstr.DIVW     -> List(InstrType.R,OpRType.DIVW,OpType.DIVS),
         RV64IInstr.DIVU     -> List(InstrType.R,OpRType.DIVU,OpType.DIV),
-        RV64IInstr.DIV      -> List(InstrType.R,OpRType.DIV ,OpType.DIVS),
         RV64IInstr.DIVUW    -> List(InstrType.R,OpRType.DIVUW,OpType.DIV),
         RV64IInstr.REMW     -> List(InstrType.R,OpRType.REMW,OpType.REMS),
         RV64IInstr.REMU     -> List(InstrType.R,OpRType.REMU,OpType.REM),

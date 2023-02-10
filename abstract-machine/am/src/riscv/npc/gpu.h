@@ -1,5 +1,5 @@
-//#ifndef GPU_H
-//#define GPU_H
+#ifndef GPU_H
+#define GPU_H
 
 #include <am.h>
 #include <stdio.h>
@@ -57,4 +57,4 @@ void __am_gpu_status(AM_GPU_STATUS_T *status) {
   //status->ready = true;
   status->ready = (bool) inl(SYNC_ADDR);
 }
-//#endif
+#endif

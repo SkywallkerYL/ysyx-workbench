@@ -1,6 +1,5 @@
 #include <am.h>
-//#include <nemu.h>
-#include "../../platform/nemu/include/nemu.h"
+#include <nemu.h>
 #include <klib.h>
 
 static AddrSpace kas = {};
