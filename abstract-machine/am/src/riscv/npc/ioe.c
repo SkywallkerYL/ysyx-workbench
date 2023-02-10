@@ -12,7 +12,7 @@ void __am_gpu_config(AM_GPU_CONFIG_T *);
 void __am_gpu_status(AM_GPU_STATUS_T *);
 void __am_gpu_fbdraw(AM_GPU_FBDRAW_T *);
 void __am_gpu_init();
-//void __am_timer_rtc(AM_TIMER_RTC_T *);
+
 
 static void __am_timer_config(AM_TIMER_CONFIG_T *cfg) { cfg->present = true; cfg->has_rtc = true; }
 static void __am_input_config(AM_INPUT_CONFIG_T *cfg) { cfg->present = true;  }
@@ -29,11 +29,11 @@ static void *lut[128] = {
   [AM_GPU_STATUS  ] = __am_gpu_status,
 };
 
-//static void fail(void *buf) { panic("access nonexist register"); }
+static void fail(void *buf) { panic("access nonexist register"); }
 
 bool ioe_init() {
-  //for (int i = 0; i < LENGTH(lut); i++)
-    //if (!lut[i]) {printf("i:%d\n",i);lut[i] = fail;}
+  for (int i = 0; i < LENGTH(lut); i++)
+    if (!lut[i]) {lut[i] = fail;}
   __am_timer_init();
   __am_gpu_init();
   //printf("hhhhh\n");
