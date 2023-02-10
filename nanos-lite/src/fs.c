@@ -84,10 +84,10 @@ static int GetOpenInd(size_t fd)
 // 对于前三个特殊的占为表项也忽略
 int fs_open(const char *pathname, int flags, int mode)
 {
-  printf("%d\n",LENGTH(file_table));
+  //printf("%d\n",LENGTH(file_table));
   for (size_t i = 0; i < LENGTH(file_table); i++)
   {
-    printf("%s %s %d\n",pathname,file_table[i].name,file_table[i].size);
+    //printf("%s %s %d\n",pathname,file_table[i].name,file_table[i].size);
     //if(i>=6) printf("%s %s\n",pathname,file_table[i].name);
     if (strcmp(pathname, file_table[i].name) == 0)
     {
