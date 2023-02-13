@@ -57,7 +57,7 @@ void init_cache(int total_size_width, int associativity_width) {
   group_mask = mask_with_len(cache_group) << BLOCK_WIDTH;
   tag_mask   = ~mask_with_len(cache_group+BLOCK_WIDTH);
   //分配cache;
-  cache = (CACHE *)malloc(exp2(total_size_width - BLOCK_WIDTH));
+  cache = (struct CACHE *)malloc(exp2(total_size_width - BLOCK_WIDTH));
   assert(cache);
   for (size_t i = 0; i < exp2(total_size_width - BLOCK_WIDTH); i++)
   {
