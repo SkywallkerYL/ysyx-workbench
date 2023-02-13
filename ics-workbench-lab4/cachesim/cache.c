@@ -49,7 +49,7 @@ static uint32_t get4Bytes(uintptr_t addr,int index){
 }
 static void write4Bytes(struct CACHE* temp,intptr_t addr,uint32_t data, uint32_t mask){
   uintptr_t block_addr = get_block(addr);
-  uint32_t *cache_data = (uint32_t *)&(temp.data[block_addr]);
+  uint32_t *cache_data = (uint32_t *)&(temp->data[block_addr]);
   *(cache_data) = (data&mask) | (*(cache_data)&(~mask));
   return ;
 }
@@ -58,12 +58,12 @@ static int ramdchoose(int size){
 }
 //cache write back
 static void wirte_cache(struct CACHE* temp,intptr_t addr){
-  mem_write(get_blocknum(addr),(temp.data));
-  temp.dirty = false;
+  mem_write(get_blocknum(addr),&(temp->data));
+  temp->dirty = false;
 }
 //cache read from Mem
 static void read_cache(struct CACHE* temp,intptr_t addr){
-  mem_read(get_blocknum(addr),(temp.data));
+  mem_read(get_blocknum(addr),&(temp->data));
   temp->valid = 1;
   temp->dirty = 0;
   temp->tag = get_tag(addr);
@@ -87,9 +87,9 @@ uint32_t cache_read(uintptr_t addr) {
   //Not hit find it in Mem
   //ramdon replace
   int line = ramdchoose(exp2(assoc_width));
-  struct CACHE *cache_p = *cache+group_base+line;
+  struct CACHE *cache_p = &cache[group_base+line];
   //dirty 写回
-  if(cache_p.dirty && cache_p.valid) {
+  if(cache_p->dirty && cache_p->valid) {
     wirte_cache(cache_p,addr);
   }
   //
@@ -118,14 +118,14 @@ void cache_write(uintptr_t addr, uint32_t data, uint32_t wmask) {
   }
   //No hit 
   int line = ramdchoose(exp2(assoc_width));
-  struct CACHE *cache_p = *cache+group_base+line;
+  struct CACHE *cache_p = &cache[group_base+line];
   //如果是藏的，先写回内存
-  if(cache_p.dirty && cache_p.valid) {
+  if(cache_p->dirty && cache_p->valid) {
     wirte_cache(cache_p,addr);
   }
   read_cache(cache_p,addr);
   write4Bytes(cache_p,addr,data,wmask);
-  cache_p.dirty = true;
+  cache_p->dirty = true;
 }
 // 初始化一个数据大小为 2^total_size_width B，关联度为 2^associativity_width 的 cache
 // 例如 init_cache(14, 2) 将初始化一个 16KB，4 路组相联的cache
