@@ -62,8 +62,8 @@ static int ramdchoose(int size){
 }
 //cache write back
 static void wirte_cache(struct CACHE* temp,intptr_t addr){
-  //mem_write(get_blocknum(addr),(temp->data));
-  mem_write(get_blocknum_cache(temp->tag,get_group(addr)),(temp->data));
+  mem_write(get_blocknum(addr),(temp->data));
+  //mem_write(get_blocknum_cache(temp->tag,get_group(addr)),(temp->data));
   temp->dirty = false;
 }
 //cache read from Mem
