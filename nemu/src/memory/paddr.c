@@ -623,13 +623,13 @@ static word_t getlenBytes(uintptr_t addr,int index,int len){
   uintptr_t block_addr = get_block(addr);
   switch (len)
   {
-  case 1: return *(uint8_t *)&(cache[index].data[block_addr&~0x3]);
+  case 1: return *(uint8_t *)&(cache[index].data[block_addr]);
     break;
-  case 2: return *(uint16_t *)&(cache[index].data[block_addr&~0x3]);
+  case 2: return *(uint16_t *)&(cache[index].data[block_addr]);
     break; 
-  case 4: return *(uint32_t *)&(cache[index].data[block_addr&~0x3]);
+  case 4: return *(uint32_t *)&(cache[index].data[block_addr]);
     break;
-  case 8: return *(uint64_t *)&(cache[index].data[block_addr&~0x3]);
+  case 8: return *(uint64_t *)&(cache[index].data[block_addr]);
     break;
   default: return 0;
     break;
