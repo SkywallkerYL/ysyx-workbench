@@ -91,7 +91,7 @@ uint32_t cache_read(uintptr_t addr) {
   struct CACHE *cache_p = &cache[group_base+line];
   //dirty 写回
   if(cache_p->dirty) {
-    printf("dirty\n");
+    printf("dirty cacheline:%d\n",group_base+line);
     wirte_cache(cache_p,addr);
   }
   //
