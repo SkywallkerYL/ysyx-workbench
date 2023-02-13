@@ -5746,7 +5746,7 @@ word_t paddr_read(paddr_t addr, int len) {
 
     word_t value = cache_read(addr-0x80000000,len);
     word_t value2 = pmem_read(addr, len);
-    printf("cache:%lx cpu:%lx\n",value,value2);
+    printf("len:%d cache:%lx cpu:%lx\n",len,value,value2);
     
 # 482 "src/memory/paddr.c" 3 4
    ((void) sizeof ((

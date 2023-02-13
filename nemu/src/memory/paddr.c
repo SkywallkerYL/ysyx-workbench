@@ -478,7 +478,7 @@ word_t paddr_read(paddr_t addr, int len) {
 #else
     word_t value = cache_read(addr-CONFIG_MBASE,len);
     word_t value2 = pmem_read(addr, len);
-    printf("cache:%lx cpu:%lx\n",value,value2);
+    printf("len:%d cache:%lx cpu:%lx\n",len,value,value2);
     assert(value == value2);
 #endif
 #ifdef CONFIG_MTRACE 
