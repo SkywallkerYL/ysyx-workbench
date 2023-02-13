@@ -45,11 +45,11 @@ static int cache_line_addr(uintptr_t addr,int line){
 }
 static uint32_t get4Bytes(uintptr_t addr,int index){
   uintptr_t block_addr = get_block(addr);
-  return *(uint32_t *)&(cache[index].data[block_addr&~0x3]);
+  return *(uint32_t *)&(cache[index].data[block_addr]);
 }
 static void write4Bytes(struct CACHE* temp,intptr_t addr,uint32_t data, uint32_t mask){
   uintptr_t block_addr = get_block(addr);
-  uint32_t *cache_data = (uint32_t *)&(temp->data[block_addr&~0x3]);
+  uint32_t *cache_data = (uint32_t *)&(temp->data[block_addr]);
   *(cache_data) = (data&mask) | (*(cache_data)&(~mask));
   printf("Waddr:%lx write:%x\n",addr,*(cache_data) );
   return ;
