@@ -152,6 +152,7 @@ void init_cache(int total_size_width, int associativity_width) {
   tag_mask   = ~mask_with_len(group_width+BLOCK_WIDTH);
   //分配cache;
   cache = (struct CACHE *)malloc(exp2(total_size_width - BLOCK_WIDTH));
+  printf("aaaaa\n");
   assert(cache);
   for (size_t i = 0; i < exp2(total_size_width - BLOCK_WIDTH); i++)
   {
