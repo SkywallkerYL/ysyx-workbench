@@ -48,6 +48,7 @@ static uintptr_t get_blocknum_cache(uintptr_t tag,uint32_t group){
 static int cache_line_addr(uintptr_t addr,int line){
   return (get_group(addr)<<assoc_width)+line;
 }
+//读写的对地址操作的最小单位
 static uint32_t get4Bytes(uintptr_t addr,int index){
   uintptr_t block_addr = get_block(addr);
   return *(uint32_t *)&(cache[index].data[block_addr&~0x3]);
