@@ -92,9 +92,11 @@ uint32_t cache_read(uintptr_t addr) {
   struct CACHE *cache_p = &cache[group_base+line];
   //dirty 写回
   if(cache_p->dirty) {
+    printf("dirty\n");
     wirte_cache(cache_p,addr);
   }
   //
+  printf("no hit\n");
   read_cache(cache_p,addr);
   return get4Bytes(addr,cache_line_addr(addr,line));
   //return 0;
