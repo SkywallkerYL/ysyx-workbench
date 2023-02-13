@@ -23,8 +23,23 @@ struct CACHE
 };
 static struct CACHE *cache;
 
-static uint32_t cache_group;
+static uint32_t group_width,size_width,assoc_width,line_width;
 static uintptr_t tag_mask,group_mask,block_mask;
+static uintptr_t get_tag(uintptr_t addr){
+  return (addr&tag_mask) >> (group_width+BLOCK_WIDTH);
+}
+static uintptr_t get_group(uintptr_t addr){
+  return (addr&group_mask) >> (BLOCK_WIDTH);
+}
+static uintptr_t get_block(uintptr_t addr){
+  return (addr&block_mask);
+}
+//get the line in group for cache for an addr
+//change it to the i th cache
+// i = group*associati+line 
+static uintptr_t cache_line_addr(uintptr_t addr,int line){
+  return get_group(addr)<<assoc_width+line;
+}
 
 //从cache中读出 addr地址处的4字节数据
 //若确实，先从内存中读
@@ -52,10 +67,13 @@ void cache_write(uintptr_t addr, uint32_t data, uint32_t wmask) {
 // 将所有 valid bit 置为无效即可
 void init_cache(int total_size_width, int associativity_width) {
   //首先确定cache参数
-  cache_group = total_size_width - BLOCK_WIDTH - associativity_width;
+  size_width = total_size_width;
+  assoc_width = associativity_width;
+  line_width = total_size_width - BLOCK_WIDTH;
+  group_width = total_size_width - BLOCK_WIDTH - associativity_width;
   block_mask = mask_with_len(BLOCK_WIDTH);
-  group_mask = mask_with_len(cache_group) << BLOCK_WIDTH;
-  tag_mask   = ~mask_with_len(cache_group+BLOCK_WIDTH);
+  group_mask = mask_with_len(group_width) << BLOCK_WIDTH;
+  tag_mask   = ~mask_with_len(group_width+BLOCK_WIDTH);
   //分配cache;
   cache = (struct CACHE *)malloc(exp2(total_size_width - BLOCK_WIDTH));
   assert(cache);
