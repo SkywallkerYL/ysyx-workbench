@@ -704,7 +704,7 @@ word_t cache_read(uintptr_t addr,int len) {
     wirte_cache(cache_p,addr);
   }
   //
-  //printf("no hit cacheline:%d\n",group_base+line);
+  printf("no hit cacheline:%d\n",group_base+line);
   read_cache(cache_p,addr);
   /*
   for (size_t i = 0; i < BLOCK_SIZE; i++)
@@ -749,7 +749,7 @@ void cache_write(uintptr_t addr, word_t data, int len) {
   read_cache(cache_p,addr);
   writelenBytes(cache_p,addr,data,len);
   cache_p->dirty = true;
-  printf("No hit dirty cacheline:%d\n",group_base+line);
+  //printf("No hit dirty cacheline:%d\n",group_base+line);
   return;
 }
 // 初始化一个数据大小为 2^total_size_width B，关联度为 2^associativity_width 的 cache
