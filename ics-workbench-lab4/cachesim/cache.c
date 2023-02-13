@@ -64,7 +64,7 @@ static void wirte_cache(struct CACHE* temp,intptr_t addr){
 }
 //cache read from Mem
 static void read_cache(struct CACHE* temp,intptr_t addr){
-  mem_read(get_blocknum(addr),&(temp->data[0]));
+  mem_read(get_blocknum(addr),(temp->data));
   temp->valid = 1;
   temp->dirty = 0;
   temp->tag = get_tag(addr);
@@ -73,7 +73,7 @@ static void read_cache(struct CACHE* temp,intptr_t addr){
 //若确实，先从内存中读
 uint32_t cache_read(uintptr_t addr) {
   int group_base = cache_line_addr(addr,0);
-  for (int i = group_base; i < exp2(assoc_width); i++)
+  for (int i = group_base; i < group_base+exp2(assoc_width); i++)
   {
     if (cache[i].tag == get_tag(addr))
     {
@@ -107,7 +107,7 @@ uint32_t cache_read(uintptr_t addr) {
 void cache_write(uintptr_t addr, uint32_t data, uint32_t wmask) {
   int group_base = cache_line_addr(addr,0);
   
-  for (int i = group_base; i < exp2(assoc_width); i++)
+  for (int i = group_base; i < group_base+exp2(assoc_width); i++)
   {
     if (cache[i].tag == get_tag(addr))
     {
