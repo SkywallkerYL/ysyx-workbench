@@ -629,7 +629,7 @@ static word_t getlenBytes(uintptr_t addr,int index,int len){
     break; 
   case 4: return *(uint32_t *)&(cache[index].data[block_addr]);
     break;
-  case 8: printf("read 8\n");return *(uint64_t *)&(cache[index].data[block_addr]);
+  case 8: printf("read addr:%lx\n",addr);return *(uint64_t *)&(cache[index].data[block_addr]);
     break;
   default: return 0;
     break;
@@ -647,7 +647,7 @@ static void writelenBytes(struct CACHE* temp,intptr_t addr,word_t data,int len){
     break;
   case 4 : *(uint32_t *) cache_data = data;return ;
     break;
-  case 8 : *(uint64_t *) cache_data = data;printf("write 8\n");return ;
+  case 8 : *(uint64_t *) cache_data = data;printf("write addr:%lx\n",addr);return ;
     break;
   default: assert(0);
     break;
