@@ -14,6 +14,8 @@ void cycle_increase(int n) { cycle_cnt += n; }
 // a cache line 
 // valid | dirty | tag                                            | data area
 //   1   |  0    | addr>>(line_width(group_width)+block_width)    | data at addr(block_width-1：0)
+uint64_t  read_hit,read_count = 0;
+uint64_t  write_hit, write_count = 0;
 struct CACHE
 {
   bool valid ;
@@ -48,7 +50,8 @@ static uintptr_t get_blocknum_cache(uintptr_t tag,uint32_t group){
 static int cache_line_addr(uintptr_t addr,int line){
   return (get_group(addr)<<assoc_width)+line;
 }
-//读写的对地址操作的最小单位
+//读写的对地址操作的最小单位是4Bytes 要把最低两位给除掉
+//这里是和cpu统一
 static uint32_t get4Bytes(uintptr_t addr,int index){
   uintptr_t block_addr = get_block(addr);
   return *(uint32_t *)&(cache[index].data[block_addr&~0x3]);
@@ -66,11 +69,15 @@ static int ramdchoose(int size){
 //cache write back
 static void wirte_cache(struct CACHE* temp,intptr_t addr){
   //mem_write(get_blocknum(addr),(temp->data));
+  //这里是没有命中的写回，所以是把cache内的内容写回
+  //根据tag 以及组号复原出块号
+  //组号cache没有记录，通过addr得到
   mem_write(get_blocknum_cache(temp->tag,get_group(addr)),(temp->data));
   temp->dirty = false;
 }
 //cache read from Mem
 static void read_cache(struct CACHE* temp,intptr_t addr){
+  //没有命中的情况下，将内存中的值读到cache中
   mem_read(get_blocknum(addr),(temp->data));
   temp->valid = 1;
   temp->dirty = 0;
@@ -79,6 +86,7 @@ static void read_cache(struct CACHE* temp,intptr_t addr){
 //从cache中读出 addr地址处的4字节数据
 //若确实，先从内存中读
 uint32_t cache_read(uintptr_t addr) {
+  read_count++;
   int group_base = cache_line_addr(addr,0);
   for (int i = group_base; i < group_base+exp2(assoc_width); i++)
   {
@@ -87,6 +95,7 @@ uint32_t cache_read(uintptr_t addr) {
       if (cache[i].valid)
       {
         //hit
+        read_hit++;
         //printf("hit\n");
         return get4Bytes(addr,i);
       }
@@ -118,6 +127,7 @@ uint32_t cache_read(uintptr_t addr) {
 // 例如当 wmask 为 0xff 时，只写入低8比特
 // 若缺失，需要从先内存中读入数据
 void cache_write(uintptr_t addr, uint32_t data, uint32_t wmask) {
+  write_count++;
   int group_base = cache_line_addr(addr,0);
   
   for (int i = group_base; i < group_base+exp2(assoc_width); i++)
@@ -127,6 +137,7 @@ void cache_write(uintptr_t addr, uint32_t data, uint32_t wmask) {
       if (cache[i].valid)
       {
         //hit
+        write_hit++;
         //printf("hit dirty cacheline:%d\n",i);
         write4Bytes(&cache[i],addr,data,wmask);
         cache[i].dirty = true;

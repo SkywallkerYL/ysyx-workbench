@@ -1,6 +1,7 @@
 #include "common.h"
 #include <time.h>
 #include <unistd.h>
+extern uint64_t read_hit,read_count,write_hit, write_count;
 
 uint32_t cpu_read(uintptr_t addr, int len);
 void cpu_write(uintptr_t addr, int len, uint32_t data);
@@ -108,6 +109,7 @@ void replay_trace(void) {
     random_trace();
     check_diff();
     printf("Random test pass!\n");
+    printf("Readhit rate:%f Writehit rate%f\n",(double)(read_hit)/(double)(read_count),(double)write_hit/(double)write_count);
     return;
   }
 
