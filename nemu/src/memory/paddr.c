@@ -30,16 +30,20 @@ uint8_t *cache_pmem = &pmem[0];
 
 uint8_t* guest_to_host(paddr_t paddr) { return pmem + paddr - CONFIG_MBASE; }
 paddr_t host_to_guest(uint8_t *haddr) { return haddr - pmem + CONFIG_MBASE; }
+#define CACHE_CHECK 1
 #ifndef CONFIG_CACHE
+static void pmem_write(paddr_t addr, int len, word_t data) {
+  host_write(guest_to_host(addr), len, data);
+}
+#else
+#ifdef CACHE_CHECK
 static word_t pmem_read(paddr_t addr, int len) {
   word_t ret = host_read(guest_to_host(addr), len);
   return ret;
 }
 
-static void pmem_write(paddr_t addr, int len, word_t data) {
-  host_write(guest_to_host(addr), len, data);
-}
-#else
+
+#endif
 word_t cache_read(uintptr_t addr,int len);
 void cache_write(uintptr_t addr, word_t data, int len);
 #endif
@@ -473,6 +477,9 @@ word_t paddr_read(paddr_t addr, int len) {
     word_t value =pmem_read(addr, len);
 #else
     word_t value = cache_read(addr-CONFIG_MBASE,len);
+    word_t value2 = pmem_read(addr, len);
+    printf("cache:%lx cpu:%lx\n",value,value2);
+    assert(value == value2);
 #endif
 #ifdef CONFIG_MTRACE 
 mtrace(0,addr,len,value);
