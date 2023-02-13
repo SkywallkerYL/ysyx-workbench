@@ -95,7 +95,7 @@ uint32_t cache_read(uintptr_t addr) {
   }
   //
   read_cache(cache_p,addr);
-  return get4Bytes(addr,group_base+line);
+  return get4Bytes(addr,cache_line_addr(addr,line));
   //return 0;
 }
 // 往 cache 中 addr 地址所属的块写入数据 data，写掩码为 wmask
