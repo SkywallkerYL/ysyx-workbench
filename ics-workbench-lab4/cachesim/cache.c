@@ -133,6 +133,7 @@ void cache_write(uintptr_t addr, uint32_t data, uint32_t wmask) {
   //如果是藏的，先写回内存
   if(cache_p->dirty && cache_p->valid) {
     wirte_cache(cache_p,addr);
+    printf("No hit write\n");
   }
   read_cache(cache_p,addr);
   write4Bytes(cache_p,addr,data,wmask);
