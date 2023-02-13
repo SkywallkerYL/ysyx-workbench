@@ -163,6 +163,7 @@ void init_cache(int total_size_width, int associativity_width) {
       cache[i].data[j] = 0x00;
     }
   }
+  printf("aaaaa\n");
   return;
 }
 
