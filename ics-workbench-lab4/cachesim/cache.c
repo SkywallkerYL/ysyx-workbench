@@ -56,7 +56,7 @@ static void write4Bytes(struct CACHE* temp,intptr_t addr,uint32_t data, uint32_t
   uintptr_t block_addr = get_block(addr);
   uint32_t *cache_data = (uint32_t *)&(temp->data[block_addr]);
   *(cache_data) = (data&mask) | (*(cache_data)&(~mask));
-  printf("Waddr:%lx write:%x\n",addr,*(cache_data) );
+  //printf("Waddr:%lx write:%x\n",addr,*(cache_data) );
   return ;
 }
 static int ramdchoose(int size){
@@ -126,7 +126,7 @@ void cache_write(uintptr_t addr, uint32_t data, uint32_t wmask) {
       if (cache[i].valid)
       {
         //hit
-        printf("hit dirty\n");
+        printf("hit dirty cacheline:%d\n",i);
         write4Bytes(&cache[i],addr,data,wmask);
         cache[i].dirty = true;
         return;
