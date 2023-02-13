@@ -109,7 +109,7 @@ void replay_trace(void) {
     random_trace();
     check_diff();
     printf("Random test pass!\n");
-    printf("Readhit rate:%f Writehit rate%f\n",(double)(read_hit)/(double)(read_count),(double)write_hit/(double)write_count);
+    printf("Readhit rate:%f Writehit rate:%f\n",(double)(read_hit)/(double)(read_count),(double)write_hit/(double)write_count);
     return;
   }
 
