@@ -34,22 +34,98 @@ static uintptr_t get_group(uintptr_t addr){
 static uintptr_t get_block(uintptr_t addr){
   return (addr&block_mask);
 }
+static uintptr_t get_blocknum(uintptr_t addr){
+  return (addr&(~(block_mask)));
+}
 //get the line in group for cache for an addr
 //change it to the i th cache
 // i = group*associati+line 
-static uintptr_t cache_line_addr(uintptr_t addr,int line){
-  return get_group(addr)<<assoc_width+line;
+static int cache_line_addr(uintptr_t addr,int line){
+  return (get_group(addr)<<assoc_width)+line;
 }
-
+static uint32_t get4Bytes(uintptr_t addr,int index){
+  uintptr_t block_addr = get_block(addr);
+  return *(uint32_t *)&(cache[index].data[block_addr]);
+}
+static void write4Bytes(struct CACHE* temp,intptr_t addr,uint32_t data, uint32_t mask){
+  uintptr_t block_addr = get_block(addr);
+  uint32_t *cache_data = (uint32_t *)&(temp.data[block_addr]);
+  *(cache_data) = (data&mask) | (*(cache_data)&(~mask));
+  return ;
+}
+static int ramdchoose(int size){
+  return rand()%size;
+}
+//cache write back
+static void wirte_cache(struct CACHE* temp,intptr_t addr){
+  mem_write(get_blocknum(addr),(temp.data));
+  temp.dirty = false;
+}
+//cache read from Mem
+static void read_cache(struct CACHE* temp,intptr_t addr){
+  mem_read(get_blocknum(addr),(temp.data));
+  temp->valid = 1;
+  temp->dirty = 0;
+  temp->tag = get_tag(addr);
+}
 //从cache中读出 addr地址处的4字节数据
 //若确实，先从内存中读
 uint32_t cache_read(uintptr_t addr) {
-  return 0;
+  int group_base = cache_line_addr(addr,0);
+  for (int i = group_base; i < exp2(assoc_width); i++)
+  {
+    if (cache[i].tag == get_tag(addr))
+    {
+      if (cache[i].valid)
+      {
+        //hit
+        //注意这里一次读4字节，却只检验了第一个字节的valid，只有在写的时候保证了
+        return get4Bytes(addr,i);
+      }
+    }
+  }
+  //Not hit find it in Mem
+  //ramdon replace
+  int line = ramdchoose(exp2(assoc_width));
+  struct CACHE *cache_p = *cache+group_base+line;
+  //dirty 写回
+  if(cache_p.dirty && cache_p.valid) {
+    wirte_cache(cache_p,addr);
+  }
+  //
+  read_cache(cache_p,addr);
+  return get4Bytes(addr,group_base+line);
+  //return 0;
 }
 // 往 cache 中 addr 地址所属的块写入数据 data，写掩码为 wmask
 // 例如当 wmask 为 0xff 时，只写入低8比特
 // 若缺失，需要从先内存中读入数据
 void cache_write(uintptr_t addr, uint32_t data, uint32_t wmask) {
+  int group_base = cache_line_addr(addr,0);
+  
+  for (int i = group_base; i < exp2(assoc_width); i++)
+  {
+    if (cache[i].tag == get_tag(addr))
+    {
+      if (cache[i].valid)
+      {
+        //hit
+        write4Bytes(&cache[i],addr,data,wmask);
+        cache[i].dirty = true;
+        return;
+      }
+    }
+  }
+  //No hit 
+  int line = ramdchoose(exp2(assoc_width));
+  struct CACHE *cache_p = *cache+group_base+line;
+  //如果是藏的，先写回内存
+  if(cache_p.dirty && cache_p.valid) {
+    wirte_cache(cache_p,addr);
+  }
+  read_cache(cache_p,addr);
+  write4Bytes(cache_p,addr,data,wmask);
+  cache_p.dirty = true;
 }
 // 初始化一个数据大小为 2^total_size_width B，关联度为 2^associativity_width 的 cache
 // 例如 init_cache(14, 2) 将初始化一个 16KB，4 路组相联的cache
