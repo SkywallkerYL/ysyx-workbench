@@ -629,7 +629,7 @@ static word_t getlenBytes(uintptr_t addr,int index,int len){
     break; 
   case 4: return *(uint32_t *)&(cache[index].data[block_addr]);
     break;
-  case 8: return *(uint64_t *)&(cache[index].data[block_addr]);
+  case 8: printf("read 8\n");return *(uint64_t *)&(cache[index].data[block_addr]);
     break;
   default: return 0;
     break;
@@ -647,7 +647,7 @@ static void writelenBytes(struct CACHE* temp,intptr_t addr,word_t data,int len){
     break;
   case 4 : *(uint32_t *) cache_data = data;return ;
     break;
-  case 8 : *(uint64_t *) cache_data = data;return ;
+  case 8 : *(uint64_t *) cache_data = data;printf("write 8\n");return ;
     break;
   default: assert(0);
     break;
@@ -689,7 +689,7 @@ word_t cache_read(uintptr_t addr,int len) {
       {
         //hit
         //read_hit++;
-        printf("hit cacheline:%d\n",i);
+        //printf("hit cacheline:%d\n",i);
         return getlenBytes(addr,i,len);
       }
     }
@@ -704,7 +704,7 @@ word_t cache_read(uintptr_t addr,int len) {
     wirte_cache(cache_p,addr);
   }
   //
-  printf("no hit cacheline:%d\n",group_base+line);
+  //printf("no hit cacheline:%d\n",group_base+line);
   read_cache(cache_p,addr);
   /*
   for (size_t i = 0; i < BLOCK_SIZE; i++)
@@ -731,7 +731,7 @@ void cache_write(uintptr_t addr, word_t data, int len) {
       {
         //hit
         //write_hit++;
-        printf("hit dirty cacheline:%d\n",i);
+        //printf("hit dirty cacheline:%d\n",i);
         writelenBytes(&cache[i],addr,data,len);
         cache[i].dirty = true;
         return;
