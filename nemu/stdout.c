@@ -5705,17 +5705,7 @@ static void out_of_bound(paddr_t addr) {
 }
 
 void init_mem() {
-
-
-
-
-
-  uint32_t *p = (uint32_t *)pmem;
-  int i;
-  for (i = 0; i < (int) (0x8000000 / sizeof(p[0])); i ++) {
-    p[i] = rand();
-  }
-
+# 67 "src/memory/paddr.c"
   do { printf("\33[1;34m" "[%s:%d %s] " "physical memory area [" "0x%08"
 # 67 "src/memory/paddr.c" 3 4
  "x" 
@@ -5985,7 +5975,7 @@ static word_t getlenBytes(uintptr_t addr,int index,int len){
     break;
   case 4: return *(uint32_t *)&(cache[index].data[block_addr]);
     break;
-  case 8: return *(uint64_t *)&(cache[index].data[block_addr&~0x3]);
+  case 8: return *(uint64_t *)&(cache[index].data[block_addr]);
     break;
   default: return 0;
     break;
