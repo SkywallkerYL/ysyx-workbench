@@ -81,7 +81,6 @@ uint32_t cache_read(uintptr_t addr) {
       {
         //hit
         printf("hit\n");
-        //注意这里一次读4字节，却只检验了第一个字节的valid，只有在写的时候保证了
         return get4Bytes(addr,i);
       }
     }
@@ -98,6 +97,7 @@ uint32_t cache_read(uintptr_t addr) {
   //
   printf("no hit\n");
   read_cache(cache_p,addr);
+  assert(cache_p->data[0] == cache[group_base+line].data[0]);
   return get4Bytes(addr,cache_line_addr(addr,line));
   //return 0;
 }
