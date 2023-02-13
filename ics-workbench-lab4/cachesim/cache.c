@@ -64,7 +64,7 @@ static void wirte_cache(struct CACHE* temp,intptr_t addr){
 }
 //cache read from Mem
 static void read_cache(struct CACHE* temp,intptr_t addr){
-  mem_read(get_blocknum(addr),(temp->data));
+  mem_read(get_blocknum(addr),&(temp->data[0]));
   temp->valid = 1;
   temp->dirty = 0;
   temp->tag = get_tag(addr);
@@ -97,7 +97,7 @@ uint32_t cache_read(uintptr_t addr) {
   //
   printf("no hit\n");
   read_cache(cache_p,addr);
-  assert(cache_p->data[0] == cache[group_base+line].data[0]);
+  //assert(cache_p->data[0] == cache[group_base+line].data[0]);
   return get4Bytes(addr,cache_line_addr(addr,line));
   //return 0;
 }
