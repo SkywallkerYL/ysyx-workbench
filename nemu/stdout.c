@@ -5994,7 +5994,7 @@ static word_t getlenBytes(uintptr_t addr,int index,int len){
 }
 static void writelenBytes(struct CACHE* temp,intptr_t addr,word_t data,int len){
   uintptr_t block_addr = get_block(addr);
-  void *cache_data = (void *)&(temp->data[block_addr&~0x3]);
+  void *cache_data = (void *)&(temp->data[block_addr]);
   switch (len)
   {
   case 1 : *(uint8_t *) cache_data = data;return ;
