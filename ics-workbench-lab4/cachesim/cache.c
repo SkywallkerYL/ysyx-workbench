@@ -80,6 +80,7 @@ uint32_t cache_read(uintptr_t addr) {
       if (cache[i].valid)
       {
         //hit
+        printf("hit\n");
         //注意这里一次读4字节，却只检验了第一个字节的valid，只有在写的时候保证了
         return get4Bytes(addr,i);
       }
