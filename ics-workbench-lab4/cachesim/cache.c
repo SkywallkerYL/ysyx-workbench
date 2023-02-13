@@ -51,7 +51,7 @@ static void write4Bytes(struct CACHE* temp,intptr_t addr,uint32_t data, uint32_t
   uintptr_t block_addr = get_block(addr);
   uint32_t *cache_data = (uint32_t *)&(temp->data[block_addr&~0x3]);
   *(cache_data) = (data&mask) | (*(cache_data)&(~mask));
-  printf("write:%x\n",*(cache_data) );
+  printf("addr:%x write:%x\n",addr,*(cache_data) );
   return ;
 }
 static int ramdchoose(int size){
