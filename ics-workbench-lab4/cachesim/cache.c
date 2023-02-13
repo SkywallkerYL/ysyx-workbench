@@ -97,6 +97,11 @@ uint32_t cache_read(uintptr_t addr) {
   //
   printf("no hit\n");
   read_cache(cache_p,addr);
+  for (size_t i = 0; i < BLOCK_SIZE; i++)
+  {
+    assert(cache_p->data[i] == cache[group_base+line].data[i]);
+  }
+  
   //assert(cache_p->data[0] == cache[group_base+line].data[0]);
   return get4Bytes(addr,cache_line_addr(addr,line));
   //return 0;
@@ -130,6 +135,7 @@ void cache_write(uintptr_t addr, uint32_t data, uint32_t wmask) {
   read_cache(cache_p,addr);
   write4Bytes(cache_p,addr,data,wmask);
   cache_p->dirty = true;
+  return;
 }
 // 初始化一个数据大小为 2^total_size_width B，关联度为 2^associativity_width 的 cache
 // 例如 init_cache(14, 2) 将初始化一个 16KB，4 路组相联的cache
