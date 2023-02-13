@@ -86,7 +86,7 @@ uint32_t cache_read(uintptr_t addr) {
       if (cache[i].valid)
       {
         //hit
-        printf("hit\n");
+        //printf("hit\n");
         return get4Bytes(addr,i);
       }
     }
