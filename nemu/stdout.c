@@ -6061,7 +6061,7 @@ word_t cache_read(uintptr_t addr,int len) {
       {
 
 
-        printf("hit\n");
+        printf("hit cacheline:%d\n",i);
         return getlenBytes(addr,i,len);
       }
     }
