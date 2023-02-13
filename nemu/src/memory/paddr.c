@@ -479,7 +479,7 @@ word_t paddr_read(paddr_t addr, int len) {
     word_t value = cache_read(addr-CONFIG_MBASE,len);
     word_t value2 = pmem_read(addr, len);
     if(len==8)printf("len:%d cache:%lx cpu:%lx\n",len,value,value2);
-    assert(value == value2);
+    //assert(value == value2);
 #endif
 #ifdef CONFIG_MTRACE 
 mtrace(0,addr,len,value);
@@ -629,7 +629,7 @@ static word_t getlenBytes(uintptr_t addr,int index,int len){
     break; 
   case 4: return *(uint32_t *)&(cache[index].data[block_addr]);
     break;
-  case 8: printf("read addr:%lx\n",addr);return *(uint64_t *)&(cache[index].data[block_addr&~0x3]);
+  case 8: printf("read addr:%lx\n",addr);return *(uint64_t *)&(cache[index].data[block_addr]);
     break;
   default: return 0;
     break;

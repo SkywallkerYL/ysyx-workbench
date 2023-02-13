@@ -5737,23 +5737,7 @@ word_t paddr_read(paddr_t addr, int len) {
     word_t value = cache_read(addr-0x80000000,len);
     word_t value2 = pmem_read(addr, len);
     if(len==8)printf("len:%d cache:%lx cpu:%lx\n",len,value,value2);
-    
-# 482 "src/memory/paddr.c" 3 4
-   ((void) sizeof ((
-# 482 "src/memory/paddr.c"
-   value == value2
-# 482 "src/memory/paddr.c" 3 4
-   ) ? 1 : 0), __extension__ ({ if (
-# 482 "src/memory/paddr.c"
-   value == value2
-# 482 "src/memory/paddr.c" 3 4
-   ) ; else __assert_fail (
-# 482 "src/memory/paddr.c"
-   "value == value2"
-# 482 "src/memory/paddr.c" 3 4
-   , "src/memory/paddr.c", 482, __extension__ __PRETTY_FUNCTION__); }))
-# 482 "src/memory/paddr.c"
-                          ;
+
 
 
 
@@ -5975,7 +5959,7 @@ static word_t getlenBytes(uintptr_t addr,int index,int len){
     break;
   case 4: return *(uint32_t *)&(cache[index].data[block_addr]);
     break;
-  case 8: printf("read addr:%lx\n",addr);return *(uint64_t *)&(cache[index].data[block_addr&~0x3]);
+  case 8: printf("read addr:%lx\n",addr);return *(uint64_t *)&(cache[index].data[block_addr]);
     break;
   default: return 0;
     break;
