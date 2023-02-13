@@ -97,11 +97,11 @@ uint32_t cache_read(uintptr_t addr) {
   struct CACHE *cache_p = &cache[group_base+line];
   //dirty 写回
   if(cache_p->dirty) {
-    printf("dirty cacheline:%d\n",group_base+line);
+    //printf("dirty cacheline:%d\n",group_base+line);
     wirte_cache(cache_p,addr);
   }
   //
-  printf("no hit cacheline:%d\n",group_base+line);
+  //printf("no hit cacheline:%d\n",group_base+line);
   read_cache(cache_p,addr);
   /*
   for (size_t i = 0; i < BLOCK_SIZE; i++)
@@ -126,7 +126,7 @@ void cache_write(uintptr_t addr, uint32_t data, uint32_t wmask) {
       if (cache[i].valid)
       {
         //hit
-        printf("hit dirty cacheline:%d\n",i);
+        //printf("hit dirty cacheline:%d\n",i);
         write4Bytes(&cache[i],addr,data,wmask);
         cache[i].dirty = true;
         return;
@@ -139,12 +139,12 @@ void cache_write(uintptr_t addr, uint32_t data, uint32_t wmask) {
   //如果是藏的，先写回内存
   if(cache_p->dirty && cache_p->valid) {
     wirte_cache(cache_p,addr);
-    printf("No hit write\n");
+    //printf("No hit write\n");
   }
   read_cache(cache_p,addr);
   write4Bytes(cache_p,addr,data,wmask);
   cache_p->dirty = true;
-  printf("No hit dirty cacheline:%d\n",group_base+line);
+  //printf("No hit dirty cacheline:%d\n",group_base+line);
   return;
 }
 // 初始化一个数据大小为 2^total_size_width B，关联度为 2^associativity_width 的 cache
