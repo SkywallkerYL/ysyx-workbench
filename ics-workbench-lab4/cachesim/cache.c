@@ -35,7 +35,7 @@ static uintptr_t get_block(uintptr_t addr){
   return (addr&block_mask);
 }
 static uintptr_t get_blocknum(uintptr_t addr){
-  return (addr&(~(block_mask)));
+  return (addr&(~(block_mask)))>>BLOCK_WIDTH;
 }
 //get the line in group for cache for an addr
 //change it to the i th cache
