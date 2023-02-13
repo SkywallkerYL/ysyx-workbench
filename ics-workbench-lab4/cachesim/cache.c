@@ -106,7 +106,7 @@ uint32_t cache_read(uintptr_t addr) {
   int line = ramdchoose(exp2(assoc_width));
   struct CACHE *cache_p = &cache[group_base+line];
   //dirty 写回
-  if(cache_p->dirty&&cache->valid) {
+  if(cache_p->dirty) {
     //printf("dirty cacheline:%d\n",group_base+line);
     wirte_cache(cache_p,addr);
   }
