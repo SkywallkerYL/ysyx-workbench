@@ -101,7 +101,7 @@ uint32_t cache_read(uintptr_t addr) {
     wirte_cache(cache_p,addr);
   }
   //
-  printf("no hit\n");
+  printf("no hit cacheline:%d\n",group_base+line);
   read_cache(cache_p,addr);
   /*
   for (size_t i = 0; i < BLOCK_SIZE; i++)
