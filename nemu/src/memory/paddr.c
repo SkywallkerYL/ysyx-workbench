@@ -629,7 +629,7 @@ static word_t getlenBytes(uintptr_t addr,int index,int len){
     break; 
   case 4: return *(uint32_t *)&(cache[index].data[block_addr]);
     break;
-  case 8: return *(uint64_t *)&(cache[index].data[block_addr]);
+  case 8: return *(uint64_t *)&(cache[index].data[block_addr&~0x3]);
     break;
   default: return 0;
     break;
