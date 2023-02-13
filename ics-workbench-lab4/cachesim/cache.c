@@ -73,7 +73,8 @@ static void wirte_cache(struct CACHE* temp,intptr_t addr){
   //根据tag 以及组号复原出块号
   //组号cache没有记录，通过addr得到
   mem_write(get_blocknum_cache(temp->tag,get_group(addr)),(temp->data));
-  temp->dirty = false;
+  temp->dirty = 0;
+  temp->valid = 1;
 }
 //cache read from Mem
 static void read_cache(struct CACHE* temp,intptr_t addr){
@@ -106,7 +107,7 @@ uint32_t cache_read(uintptr_t addr) {
   int line = ramdchoose(exp2(assoc_width));
   struct CACHE *cache_p = &cache[group_base+line];
   //dirty 写回
-  if(cache_p->dirty) {
+  if(cache_p->dirty&&cache_p->valid) {
     //printf("dirty cacheline:%d\n",group_base+line);
     wirte_cache(cache_p,addr);
   }
