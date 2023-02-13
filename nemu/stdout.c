@@ -6103,7 +6103,7 @@ void cache_write(uintptr_t addr, word_t data, int len) {
       {
 
 
-
+        printf("hit dirty cacheline:%d\n",i);
         writelenBytes(&cache[i],addr,data,len);
         cache[i].dirty = 1;
         return;

@@ -731,7 +731,7 @@ void cache_write(uintptr_t addr, word_t data, int len) {
       {
         //hit
         //write_hit++;
-        //printf("hit dirty cacheline:%d\n",i);
+        printf("hit dirty cacheline:%d\n",i);
         writelenBytes(&cache[i],addr,data,len);
         cache[i].dirty = true;
         return;
