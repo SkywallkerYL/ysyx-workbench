@@ -138,7 +138,7 @@ void cache_write(uintptr_t addr, uint32_t data, uint32_t wmask) {
   read_cache(cache_p,addr);
   write4Bytes(cache_p,addr,data,wmask);
   cache_p->dirty = true;
-  printf("No hit dirty\n");
+  printf("No hit dirty cacheline:%d\n",group_base+line);
   return;
 }
 // 初始化一个数据大小为 2^total_size_width B，关联度为 2^associativity_width 的 cache
