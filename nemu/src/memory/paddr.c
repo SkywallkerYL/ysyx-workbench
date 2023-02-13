@@ -30,7 +30,7 @@ uint8_t *cache_pmem = &pmem[0];
 
 uint8_t* guest_to_host(paddr_t paddr) { return pmem + paddr - CONFIG_MBASE; }
 paddr_t host_to_guest(uint8_t *haddr) { return haddr - pmem + CONFIG_MBASE; }
-#define CACHE_CHECK 1
+//#define CACHE_CHECK 1
 #ifndef CONFIG_CACHE
 static void pmem_write(paddr_t addr, int len, word_t data) {
   host_write(guest_to_host(addr), len, data);
@@ -477,8 +477,8 @@ word_t paddr_read(paddr_t addr, int len) {
     word_t value =pmem_read(addr, len);
 #else
     word_t value = cache_read(addr-CONFIG_MBASE,len);
-    word_t value2 = pmem_read(addr, len);
-    if(len==8)printf("len:%d cache:%lx cpu:%lx\n",len,value,value2);
+    //word_t value2 = pmem_read(addr, len);
+    //if(len==8)printf("len:%d cache:%lx cpu:%lx\n",len,value,value2);
     //assert(value == value2);
 #endif
 #ifdef CONFIG_MTRACE 
@@ -629,7 +629,7 @@ static word_t getlenBytes(uintptr_t addr,int index,int len){
     break; 
   case 4: return *(uint32_t *)&(cache[index].data[block_addr]);
     break;
-  case 8: printf("read addr:%lx\n",addr);return *(uint64_t *)&(cache[index].data[block_addr]);
+  case 8:return *(uint64_t *)&(cache[index].data[block_addr]);
     break;
   default: return 0;
     break;
@@ -647,7 +647,7 @@ static void writelenBytes(struct CACHE* temp,intptr_t addr,word_t data,int len){
     break;
   case 4 : *(uint32_t *) cache_data = data;return ;
     break;
-  case 8 : *(uint64_t *) cache_data = data;printf("write addr:%lx\n",addr);return ;
+  case 8 : *(uint64_t *) cache_data = data;return ;
     break;
   default: assert(0);
     break;

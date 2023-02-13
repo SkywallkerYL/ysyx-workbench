@@ -5642,20 +5642,7 @@ uint8_t *cache_pmem = &pmem[0];
 
 uint8_t* guest_to_host(paddr_t paddr) { return pmem + paddr - 0x80000000; }
 paddr_t host_to_guest(uint8_t *haddr) { return haddr - pmem + 0x80000000; }
-
-
-
-
-
-
-
-static word_t pmem_read(paddr_t addr, int len) {
-  word_t ret = host_read(guest_to_host(addr), len);
-  return ret;
-}
-
-
-
+# 47 "src/memory/paddr.c"
 word_t cache_read(uintptr_t addr,int len);
 void cache_write(uintptr_t addr, word_t data, int len);
 
@@ -5735,14 +5722,7 @@ word_t paddr_read(paddr_t addr, int len) {
 
 
     word_t value = cache_read(addr-0x80000000,len);
-    word_t value2 = pmem_read(addr, len);
-    if(len==8)printf("len:%d cache:%lx cpu:%lx\n",len,value,value2);
-
-
-
-
-
-
+# 488 "src/memory/paddr.c"
     return value;
   }
   word_t value =mmio_read(addr, len); return value
@@ -5959,7 +5939,7 @@ static word_t getlenBytes(uintptr_t addr,int index,int len){
     break;
   case 4: return *(uint32_t *)&(cache[index].data[block_addr]);
     break;
-  case 8: printf("read addr:%lx\n",addr);return *(uint64_t *)&(cache[index].data[block_addr]);
+  case 8:return *(uint64_t *)&(cache[index].data[block_addr]);
     break;
   default: return 0;
     break;
@@ -5977,7 +5957,7 @@ static void writelenBytes(struct CACHE* temp,intptr_t addr,word_t data,int len){
     break;
   case 4 : *(uint32_t *) cache_data = data;return ;
     break;
-  case 8 : *(uint64_t *) cache_data = data;printf("write addr:%lx\n",addr);return ;
+  case 8 : *(uint64_t *) cache_data = data;return ;
     break;
   default: 
 # 652 "src/memory/paddr.c" 3 4
