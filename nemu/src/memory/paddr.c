@@ -25,11 +25,12 @@
 static uint8_t *pmem = NULL;
 #else // CONFIG_PMEM_GARRAY
 static uint8_t pmem[CONFIG_MSIZE] PG_ALIGN = {};
+uint8_t *cache_pmem = &pmem[0];
 #endif
 
 uint8_t* guest_to_host(paddr_t paddr) { return pmem + paddr - CONFIG_MBASE; }
 paddr_t host_to_guest(uint8_t *haddr) { return haddr - pmem + CONFIG_MBASE; }
-
+#ifndef CONFIG_CACHE
 static word_t pmem_read(paddr_t addr, int len) {
   word_t ret = host_read(guest_to_host(addr), len);
   return ret;
@@ -38,7 +39,10 @@ static word_t pmem_read(paddr_t addr, int len) {
 static void pmem_write(paddr_t addr, int len, word_t data) {
   host_write(guest_to_host(addr), len, data);
 }
-
+#else
+word_t cache_read(uintptr_t addr,int len);
+void cache_write(uintptr_t addr, word_t data, int len);
+#endif
 static void out_of_bound(paddr_t addr) {
   panic("address = " FMT_PADDR " is out of bound of pmem [" FMT_PADDR ", " FMT_PADDR "] at pc = " FMT_WORD,
       addr, PMEM_LEFT, PMEM_RIGHT, cpu.pc);
@@ -464,12 +468,18 @@ void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1,word_t s
 
 #endif
 word_t paddr_read(paddr_t addr, int len) {
-  if (likely(in_pmem(addr))){word_t value =pmem_read(addr, len);
+  if (likely(in_pmem(addr))){
+#ifndef CONFIG_CACHE
+    word_t value =pmem_read(addr, len);
+#else
+    word_t value = cache_read(addr-CONFIG_MBASE,len);
+#endif
 #ifdef CONFIG_MTRACE 
 mtrace(0,addr,len,value);
 //log_ftrace(value);
 #endif
-return value;}
+    return value;
+  }
   IFDEF(CONFIG_DEVICE, word_t value =mmio_read(addr, len); 
 #ifdef CONFIG_MTRACE 
 mtrace(0,addr,len,value);
@@ -481,7 +491,12 @@ mtrace(0,addr,len,value);
 }
 
 void paddr_write(paddr_t addr, int len, word_t data) {
-  if (likely(in_pmem(addr))) { pmem_write(addr, len, data); 
+  if (likely(in_pmem(addr))) { 
+#ifndef CONFIG_CACHE
+    pmem_write(addr, len, data);
+#else
+    cache_write(addr-CONFIG_MBASE,data,len);
+#endif
 #ifdef CONFIG_MTRACE 
   mtrace(1,addr,len,data);//  log_ftrace(data);
 #endif
