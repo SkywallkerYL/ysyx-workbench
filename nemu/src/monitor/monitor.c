@@ -21,7 +21,6 @@ void init_log(const char *log_file);
 void init_mem();
 void init_difftest(char *ref_so_file, long img_size, int port);
 void init_device();
-void init_cache(int total_size_width, int associativity_width);
 void init_sdb();
 void init_disasm(const char *triple);
 
@@ -151,7 +150,6 @@ void init_monitor(int argc, char *argv[])
   /* Initialize memory. */
   init_mem();
 
-  IFDEF(CONFIG_CACHE,init_cache(14,2));
   /* Initialize devices. */
   IFDEF(CONFIG_DEVICE, init_device());
 

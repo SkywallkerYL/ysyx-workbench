@@ -37,7 +37,6 @@ menu "DTRACE"
     default y
 endmenu
 
-
 menu "Watchpoint"
   config  WATHCPOINT
     bool "watchpoint for nemu"
@@ -50,11 +49,6 @@ menu "Etrace"
     default y 
 endmenu
 
-menu "CACHE"
-  config  CACHE
-    bool "Enable CACHE"
-    default n
-endmenu
 
 choice
   prompt "NEMU execution engine"
