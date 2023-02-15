@@ -20,6 +20,8 @@ class  RiscvCpu extends Module{
     val PcReg = Module(new PC_REG()) 
     val NpcMux = Module(new NPCMUX())
     val SRAM    = Module(new Axi4LiteSRAM)
+    val ICache   = Module(new CpuCache)
+    val DCache   = Module(new CpuCache)
     //val SRAMLSU = Module(new Axi4LiteSRAM)
     val SramArb = Module(new RamArbiter)
     val Ifu = Module(new IFU())
@@ -52,7 +54,8 @@ class  RiscvCpu extends Module{
 //ifu
     //val Ifu = Module(new IFU())
     PcReg.io.PcIf  <> Ifu.io.PcIf
-    Ifu.io.IFRAM <> SramArb.io.ifu//SRAM.io.Sram
+    Ifu.io.Cache <> ICache.io.Cache
+   // Ifu.io.IFRAM <> SramArb.io.ifu//SRAM.io.Sram
     //Ifu.io.pc_i := PcReg.io.pc_o
     //Ifu.io.instr_i := instr
     if(parm.MODE == "single"){
@@ -87,7 +90,8 @@ class  RiscvCpu extends Module{
 //EX_LS
     Lsu.io.EXLS <> Exu.io.EXLS
 // LSU
-    Lsu.io.LSRAM <> SramArb.io.lsu//SRAMLSU.io.Sram
+    Lsu.io.Cache <> DCache.io.Cache
+    //Lsu.io.LSRAM <> SramArb.io.lsu//SRAMLSU.io.Sram
 // CLINT
     Clint.io.LsuIn <> Lsu.io.LSCLINT
 //LS_WB

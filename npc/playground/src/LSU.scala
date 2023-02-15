@@ -1,4 +1,3 @@
-
 package  npc
 import chisel3._
 import chisel3.util._
@@ -12,7 +11,8 @@ class LSU extends Module{
     val io = IO(new Bundle {
       val EXLS = Flipped(new Exu2Lsu)
       val LSWB = new Lsu2Wbu
-      val LSRAM = new Lsu2Sram
+      val Cache = new Cpu2Cache
+      //val LSRAM = new Lsu2Sram
 //if(parm.DIFFTEST){
       val SkipRef = Output(Bool())
 //}
@@ -24,10 +24,16 @@ class LSU extends Module{
   val LsuDpidata = Wire(UInt(parm.REGWIDTH.W))
   LsuDpidata := 0.U
   //asTypeOf MaskWidth
+  val LsuBusyReg = RegInit(0.U(1.W))//指示Lsu模块是否繁忙，即是否处于读写内存的状态  默认0表示不忙
   val LsumaskReg = RegInit(0.U(parm.MaskWidth.W))//*
   val chooseReg  = RegInit(0.U(parm.RegFileChooseWidth.W))//*
   val IoRegfile = RegInit(0.U.asTypeOf(new REGFILEIO)) //*
   val RdAddrReg = RegInit(0.U(parm.REGWIDTH.W))
+  io.Cache.Cache.valid := false.B 
+  io.Cache.Cache.op    := 0.U
+  io.Cache.Cache.addr  := 0.U
+  io.Cache.Cache.wdata := 0.U
+  io.Cache.Cache.wstrb := 0.U
   if(parm.MODE == "single"){
     if(parm.DPI){
       val LsuDPI = Module(new LSUDPI) 
@@ -40,6 +46,7 @@ class LSU extends Module{
       LsuDpidata := LsuDPI.io.rdata
       //io.LsuRes := LsuDPI.io.rdata
     }
+    /*
     io.LSRAM.Axi.ar.valid := false.B
     io.LSRAM.Axi.ar.bits.addr := 0.U
     io.LSRAM.Axi.r.ready := false.B
@@ -49,9 +56,36 @@ class LSU extends Module{
     io.LSRAM.Axi.w.bits.data := 0.U
     io.LSRAM.Axi.w.bits.strb := 0.U
     io.LSRAM.Axi.b.ready := false.B
+    */
     //io.LSRAM.Axi.
   }
   else{
+    io.Cache.Cache.valid := (io.EXLS.rflag|io.EXLS.wflag) & !CLINTREAD
+    //不知道Op这样写有没有问题
+    io.Cache.Cache.op    := (io.EXLS.wflag) & (!io.EXLS.rflag)
+    when(io.EXLS.wflag){
+      io.Cache.Cache.addr  := io.EXLS.writeaddr 
+      io.Cache.Cache.wdata := io.EXLS.writedata 
+      io.Cache.Cache.wstrb := io.EXLS.wmask 
+      LsuBusyReg := 1.U
+    }.elsewhen(io.EXLS.rflag){
+      io.Cache.Cache.addr := io.EXLS.readaddr
+      LsuBusyReg := 1.U
+    }.otherwise{
+      io.Cache.Cache.addr := 0.U
+    }
+    //确认是读操作，
+    when(io.EXLS.rflag & !CLINTREAD){
+      LsumaskReg := io.EXLS.lsumask
+      chooseReg := io.EXLS.choose
+      IoRegfile := io.EXLS.RegFileIO
+    }
+    //读数据完成
+    when(io.Cache.Cache.dataok){
+      LsuDpidata := io.Cache.Cache.rdata
+      LsuBusyReg := 0.U
+    }
+    /*
     //READ
     val readWait :: read :: Nil = Enum(2)
     val ReadState = RegInit(readWait)
@@ -166,7 +200,7 @@ class LSU extends Module{
         }
       }
     }
-
+    */
   }
 
   readdata := Mux(CLINTREAD,io.LSCLINT.Clintls.rdata,LsuDpidata)
@@ -176,7 +210,8 @@ class LSU extends Module{
       val writeskip= (io.EXLS.writeaddr< parm.PMEM_RIGHT.U) && (io.EXLS.writeaddr>=parm.PMEM_LEFT.U)
       io.SkipRef := (!readskip& io.EXLS.rflag)| (!writeskip&io.EXLS.wflag)
   }
-  val LocalMask = Mux(io.LSRAM.Axi.r.fire,LsumaskReg,Mux(io.LSRAM.Axi.ar.fire,0.U,io.EXLS.lsumask))
+  //io.LSRAM.Axi.r.fire   io.LSRAM.Axi.ar.fire
+  val LocalMask = Mux(io.Cache.Cache.dataok,LsumaskReg,io.EXLS.lsumask)
   val maskRes = MuxLookup(LocalMask, readdata,Seq(
     "b11111".U   -> readdata,
     "b10111".U   ->func.SignExt(func.Mask ((readdata),"x00000000ffffffff".U),32),
@@ -190,12 +225,10 @@ class LSU extends Module{
   io.LSWB.AluRes := io.EXLS.alures
   //并且当前周期的使能要拉低即如果当前周期是发送读请求的那个周期
   //
-  io.LSWB.choose := Mux(io.LSRAM.Axi.r.fire,chooseReg,Mux(io.LSRAM.Axi.ar.fire,0.U,io.EXLS.choose))//* 读数据延后一个周期，需要的是那个周期的使能和选择信号
+  io.LSWB.choose := Mux(io.Cache.Cache.dataok,chooseReg,io.EXLS.choose)//* 读数据延后一个周期，需要的是那个周期的使能和选择信号
   io.LSWB.CsrWb <> io.EXLS.CsrWb
-  when(io.LSRAM.Axi.r.fire){
+  when(io.Cache.Cache.dataok){
     io.LSWB.Regfile := IoRegfile
-  }.elsewhen(io.LSRAM.Axi.ar.fire){
-    io.LSWB.Regfile := 0.U.asTypeOf(new REGFILEIO)
   }.otherwise{
     io.LSWB.Regfile := io.EXLS.RegFileIO
   }

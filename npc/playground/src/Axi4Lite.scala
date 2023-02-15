@@ -7,18 +7,38 @@ trait AxiParm{
     val AxiDataWidth = parm.REGWIDTH
     val AxiMaskWidth = AxiDataWidth/8
     val AxiAddrWidth = parm.REGWIDTH//log2Ceil(parm.MSIZE/4)-1
+    val AxiAxLENWidth = 8
+    val AxiAxSizeWidth = 3
+    val AxiAxBurstWidth = 2
 }
 
 object AxiParm extends AxiParm {}
-
+//add burst in addr    add last in data
 //write addr
 class Axi4LiteWA extends Bundle with AxiParm{
-    val addr = Output(UInt(AxiAddrWidth.W))
+    val addr    = Output(UInt(AxiAddrWidth.W))
+    val len   = Output(UInt(AxiAxLENWidth.W))
+    val size  = Output(UInt(AxiAxSizeWidth.W))
+    val burst = Output(UInt(AxiAxBurstWidth.W)) 
 }
+/*
+burst
+0b00 FIXED      //fifo  addr fix
+0b01 INCR       // addr add
+0b10 WRAP       // addr add / after highest to lowest
+0b11 Reserved
+*/
+/*
+size   : number bytes = 2^size  (1 2 4 8 .... 128)
+*/
+/*
+burst len = len+1
+*/
 //write data and mask
 class Axi4LiteWD extends Bundle with AxiParm{
     val data = Output(UInt(AxiDataWidth.W))
     val strb = Output(UInt(AxiMaskWidth.W))  
+    val last = Output(Bool())
     //3'b000:bytes 3'b001:half 3'b010:word 3'b100:cache line
     // if cache line strb is invalid 
 }
@@ -30,11 +50,15 @@ class Axi4LiteWR extends Bundle with AxiParm{
 } 
 //read addr
 class Axi4LiteRA extends Bundle with AxiParm{
-    val addr = Output(UInt(AxiAddrWidth.W))
+    val addr    = Output(UInt(AxiAddrWidth.W))
+    val len     = Output(UInt(AxiAxLENWidth.W))
+    val size    = Output(UInt(AxiAxSizeWidth.W))
+    val burst   = Output(UInt(AxiAxBurstWidth.W)) 
 }
 //read resp and data
 class Axi4LiteRD extends Bundle with AxiParm{
     val data = Output(UInt(AxiDataWidth.W))
+    val last = Output(Bool())
     //val resp = Output(UInt(2.W))
 }
 //SRAM IO for Axi4Lite
@@ -74,7 +98,12 @@ class Axi4LiteSRAM extends Module{
     io.Sram.r.bits.data := 0.U
     io.Sram.r.valid := false.B
     //state transfer
+    //目前ram仅支持INCR型突发传输  如果是非突发传输，len设置为0，即只传一个数数据
+    //并且size设置为 64 或者32
     val RegRaddr = RegInit(0.U(AxiParm.AxiAddrWidth.W))
+    val RegRlen  = RegInit(0.U(AxiParm.AxiAxLENWidth.W))
+    val RegSize  = RegInit(0.U(AxiParm.AxiAxSizeWidth.W))
+    val RegRbusrt= RegInit(0.U(AxiParm.AxiAxBurstWidth.W))
     if(parm.DPI){
         Ram.io.raddr := RegRaddr
     }
@@ -82,9 +111,13 @@ class Axi4LiteSRAM extends Module{
         is(readWait){
             io.Sram.ar.ready := true.B
             io.Sram.r.valid := false.B
+            io.Sram.r.bits.last  := false.B
             //fire = ready & valid
             when(io.Sram.ar.fire){
                 RegRaddr        := io.Sram.ar.bits.addr
+                RegRlen         := io.Sram.ar.bits.len
+                RegRbusrt       := io.Sram.ar.bits.burst
+                RegSize         := io.Sram.ar.bits.size
                 ReadState       := read
             }
         }
@@ -93,11 +126,30 @@ class Axi4LiteSRAM extends Module{
             io.Sram.ar.ready := false.B
             when(io.Sram.r.fire){
                 if(parm.DPI){
-                   io.Sram.r.bits.data := Ram.io.rdata
-                   //io.Sram.r.bits.resp := "b00".U //No implement 
-                   //The out of bound case will be handled in Cpp
+                    //dpi 那边最多读64 ,即8字节，因此这里更多的就没实现
+                   io.Sram.r.bits.data := MuxLookup(RegSize,Ram.io.rdata,Seq(
+                    "b000".U -> Ram.io.rdata(7,0),
+                    "b001".U -> Ram.io.rdata(15,0),
+                    "b010".U -> Ram.io.rdata(31,0),
+                    "b011".U -> Ram.io.rdata(63,0)
+                   ))
+                    //Ram.io.rdata
                 }
-                ReadState := readWait
+                //根据是否为突发传输决定状态跳转的情况
+                when(RegRlen=/=0.U){
+                    RegRlen := RegRlen-1.U
+                    //手册 the increment value depends on the size of the transfer
+                    val addradd = MuxLookup(RegSize,4.U,Seq(
+                    "b000".U -> 1.U,
+                    "b001".U -> 2.U,
+                    "b010".U -> 4.U,
+                    "b011".U -> 8.U
+                   ))
+                    RegRaddr := RegRaddr + addradd
+                }.otherwise{
+                   io.Sram.r.bits.last := true.B 
+                   ReadState := readWait
+                }
             }
         }
     }
@@ -110,6 +162,9 @@ class Axi4LiteSRAM extends Module{
     io.Sram.aw.ready := false.B    
     io.Sram.w.ready := false.B
     val RegWAddr = RegInit(0.U(AxiParm.AxiAddrWidth.W))
+    val RegWlen  = RegInit(0.U(AxiParm.AxiAxLENWidth.W))
+    val RegWsize = RegInit(0.U(AxiParm.AxiAxSizeWidth.W))
+    val RegWbusrt= RegInit(0.U(AxiParm.AxiAxBurstWidth.W))
     if(parm.DPI){
         Ram.io.waddr := RegWAddr
     }
@@ -118,9 +173,13 @@ class Axi4LiteSRAM extends Module{
             io.Sram.aw.ready := true.B
             io.Sram.w.ready := false.B
             io.Sram.b.valid := false.B
+            io.Sram.w.bits.last := false.B
             when(io.Sram.aw.fire){
                 WriteState := write
                 RegWAddr := io.Sram.aw.bits.addr
+                RegWlen  := io.Sram.aw.bits.len
+                RegWbusrt:= io.Sram.aw.bits.burst
+                RegWsize := io.Sram.aw.bits.size
             }
         }
         is(write){
@@ -128,9 +187,30 @@ class Axi4LiteSRAM extends Module{
             io.Sram.w.ready := true.B
             io.Sram.b.valid := false.B
             when(io.Sram.w.fire){
-                WriteState := writeWait
-                Ram.io.wdata := io.Sram.w.bits.data
+                //开始写
+                //WriteState := writeWait
+                //dpi最多实现了64 因此其他的没实现
+                Ram.io.wdata := MuxLookup(RegWsize,io.Sram.w.bits.data,Seq(
+                    "b000".U -> io.Sram.w.bits.data(7,0),
+                    "b001".U -> io.Sram.w.bits.data(15,0),
+                    "b010".U -> io.Sram.w.bits.data(31,0),
+                    "b011".U -> io.Sram.w.bits.data(63,0)
+                ))
                 Ram.io.wmask := io.Sram.w.bits.strb
+                //INCR 写的时候Burstlength必须小于16
+                when(RegWlen=/=0.U){
+                    RegWlen := RegWlen - 1.U
+                    val waddradd = MuxLookup(RegWsize,4.U,Seq(
+                    "b000".U -> 1.U,
+                    "b001".U -> 2.U,
+                    "b010".U -> 4.U,
+                    "b011".U -> 8.U
+                   ))
+                   RegWAddr := RegWAddr + waddradd
+                }.otherwise{
+                    io.Sram.w.bits.last := true.B
+                    WriteState := writeResp
+                }
             }
         }
         is(writeResp){
