@@ -27,7 +27,7 @@ trait  CacheParm {
     val groupmask = mask_with_len(GroupWidth) << BlockWidth
     def get_tag(addr : UInt) : UInt = {
         val local = addr
-        return (local & (~(extagmask(AddrWidth.W))))>>(GroupWidth+BlockWidth)
+        return (local & (~(extagmask(AddrWidth.W))))>>(GroupWidth+BlockWidth).U
     }
     def get_group(addr : UInt) :UInt = {
         return (addr & (groupmask(AddrWidth.W)))
