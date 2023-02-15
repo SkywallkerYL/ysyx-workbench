@@ -24,21 +24,23 @@ trait  CacheParm {
     val extagmask  = Wire(UInt(AddrWidth.W))
     extagmask := mask_with_len(GroupWidth+BlockWidth)
     //tagmask = ~extagmask(REGWIDTH.W)
-    val blockmask = mask_with_len(BlockWidth)
-    val groupmask = mask_with_len(GroupWidth) << BlockWidth
+    val blockmask = Wire(UInt(AddrWidth.W))
+    blockmask := mask_with_len(BlockWidth)
+    val groupmask = Wire(UInt(AddrWidth.W))
+    groupmask := mask_with_len(GroupWidth) << BlockWidth
     def get_tag(addr : UInt) : UInt = {
         val local = addr
         return (local & (~(extagmask)))>>(GroupWidth+BlockWidth).U
     }
     def get_group(addr : UInt) :UInt = {
-        return (addr & (groupmask(AddrWidth.W)))
+        return (addr & (groupmask))
     }
     def get_block(addr : UInt) : UInt = {
-        return (addr & (blockmask(AddrWidth.W)))
+        return (addr & (blockmask))
     } 
     //获取在主存中的块号
     def get_blocknum(addr : UInt): UInt = {
-        return (addr & (~(blockmask(AddrWidth.W))))>>BlockWidth
+        return (addr & (~(blockmask)))>>BlockWidth
     }
     //根据tag 获取在主存中的块号
     def get_blocknum_cache(tag : UInt,group:UInt) : UInt = {
