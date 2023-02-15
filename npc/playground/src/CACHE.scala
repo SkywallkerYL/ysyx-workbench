@@ -19,7 +19,7 @@ trait  CacheParm {
     
     //func
     def mask_with_len(x : Long):UInt = {
-        return ((1<<(x))-1)
+        return ((1.U<<(x.U))-1.U)
     }
     val extagmask = mask_with_len(GroupWidth+BlockWidth)
     //tagmask = ~extagmask(REGWIDTH.W)
