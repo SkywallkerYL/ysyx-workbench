@@ -226,7 +226,7 @@ class CpuCache extends Module with CacheParm{
                 }.otherwise{
                     for(i <- 0 until parm.REGWIDTH/CacheParm.DataWidth){
                         val writedata = RequestBufferwdata((parm.REGWIDTH/CacheParm.DataWidth-i)*DataWidth-1,(parm.REGWIDTH/CacheParm.DataWidth-1-i)*CacheParm.DataWidth)
-                        when(RequestBufferwstrb(parm.REGWIDTH/CacheParm.DataWidth-1-i)){ mem(RadomChoose).write(RequestBuffergroup*CacheParm.BlockNum+RequestBufferblock+i,writedata)}
+                        when(RequestBufferwstrb(parm.REGWIDTH/CacheParm.DataWidth-1-i)){ mem(RadomChoose).write(RequestBuffergroup*CacheParm.BlockNum.U+RequestBufferblock+i.U,writedata)}
                     }
                     valid(RadomChoose*CacheParm.GroupNum.U+RequestBuffergroup):= true.B
                     dirty(RadomChoose*CacheParm.GroupNum.U+RequestBuffergroup):= true.B
@@ -259,8 +259,8 @@ class CpuCache extends Module with CacheParm{
                 //受到ram的last信号
                 when(io.Sram.Axi.w.bits.last){
                     //写完成，向总线申请读//更新Dirty 和valid 返回Miss
-                    valid(RadomChoose*CacheParm.GroupNum+RequestBuffergroup):= true.B
-                    dirty(RadomChoose*CacheParm.GroupNum+RequestBuffergroup):= false.B
+                    valid(RadomChoose*CacheParm.GroupNum.U+RequestBuffergroup):= true.B
+                    dirty(RadomChoose*CacheParm.GroupNum.U+RequestBuffergroup):= false.B
                     RequestBufferblock := RequestBufferblockraw
                     MainState := miss
                 }.otherwise{
@@ -278,9 +278,9 @@ class CpuCache extends Module with CacheParm{
                 //突发读，读入 // 暂时不支持非对齐的访问
                 for(i <- 0 until parm.REGWIDTH/CacheParm.DataWidth){
                     val ramrdata = io.Sram.Axi.r.bits.data((parm.REGWIDTH/CacheParm.DataWidth-i)*CacheParm.DataWidth-1,(parm.REGWIDTH/CacheParm.DataWidth-1-i)*CacheParm.DataWidth)
-                    mem(RadomChoose).write(RequestBuffergroup*CacheParm.BlockNum+RequestBufferblock+i,ramrdata)
+                    mem(RadomChoose).write(RequestBuffergroup*CacheParm.BlockNum.U+RequestBufferblock+i.U,ramrdata)
                 }              
-                when (io.sram.Axi.r.bits.last){
+                when (io.Sram.Axi.r.bits.last){
                     MainState := idle
                     valid(RadomChoose*CacheParm.GroupNum+RequestBuffergroup):= true.B
                     dirty(RadomChoose*CacheParm.GroupNum+RequestBuffergroup):= false.B
