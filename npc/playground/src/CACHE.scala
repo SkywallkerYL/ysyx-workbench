@@ -282,15 +282,15 @@ class CpuCache extends Module with CacheParm{
                 }              
                 when (io.Sram.Axi.r.bits.last){
                     MainState := idle
-                    valid(RadomChoose*CacheParm.GroupNum+RequestBuffergroup):= true.B
-                    dirty(RadomChoose*CacheParm.GroupNum+RequestBuffergroup):= false.B
+                    valid(RadomChoose*CacheParm.GroupNum.U+RequestBuffergroup):= true.B
+                    dirty(RadomChoose*CacheParm.GroupNum.U+RequestBuffergroup):= false.B
                     RequestBufferblock := RequestBufferblockraw
                 }.otherwise{
                     when(RequestBufferblock === RequestBufferblockraw && !RequestBufferop){
                         io.Cache.Cache.rdata  := LoadRes
                         io.Cache.Cache.dataok := true.B
                     }
-                    RequestBufferblock := RequestBufferblock+parm.REGWIDTH/CacheParm.DataWidth.U
+                    RequestBufferblock := RequestBufferblock+(parm.REGWIDTH/CacheParm.DataWidth).U
                     MainState := refill
                 }
             }.otherwise{
