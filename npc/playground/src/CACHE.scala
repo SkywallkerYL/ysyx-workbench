@@ -30,14 +30,14 @@ trait  CacheParm {
         return (local & (~(extagmask(AddrWidth.W))))>>(GroupWidth+BlockWidth)
     }
     def get_group(addr : UInt) :UInt = {
-        return (addr & (groupmask(AddrWidth.W).U))
+        return (addr & (groupmask(AddrWidth.W)))
     }
     def get_block(addr : UInt) : UInt = {
-        return (addr & (blockmask(AddrWidth.W.U)))
+        return (addr & (blockmask(AddrWidth.W)))
     } 
     //获取在主存中的块号
     def get_blocknum(addr : UInt): UInt = {
-        return (addr & (~(blockmask(AddrWidth.W).U)))>>BlockWidth
+        return (addr & (~(blockmask(AddrWidth.W))))>>BlockWidth
     }
     //根据tag 获取在主存中的块号
     def get_blocknum_cache(tag : UInt,group:UInt) : UInt = {
@@ -123,7 +123,7 @@ class CpuCache extends Module with CacheParm{
             hit(i) := true.B
             hitway := i.U
             for( j <- 0 until parm.REGWIDTH/CacheParm.DataWidth){
-                LoadRes(parm.REGWIDTH/CacheParm.DataWidth-1-j) := mem(i).read(RequestBuffergroup*CacheParm.BlockNum.U+RequestBufferblock+j)
+                LoadRes(parm.REGWIDTH/CacheParm.DataWidth-1-j) := mem(i).read(RequestBuffergroup*CacheParm.BlockNum.U+RequestBufferblock+j.U)
             }
         }
     }
@@ -163,10 +163,10 @@ class CpuCache extends Module with CacheParm{
                 }.otherwise{
                     for(i <- 0 until parm.REGWIDTH/CacheParm.DataWidth){
                         val writedata = RequestBufferwdata((parm.REGWIDTH/CacheParm.DataWidth-i)*CacheParm.DataWidth-1,(parm.REGWIDTH/CacheParm.DataWidth-1-i)*CacheParm.DataWidth)
-                        when(RequestBufferwstrb(parm.REGWIDTH/CacheParm.DataWidth-1-i)){ mem(hitway).write(RequestBuffergroup*CacheParm.BlockNum.U+RequestBufferblock+i,writedata)}
+                        when(RequestBufferwstrb(parm.REGWIDTH/CacheParm.DataWidth-1-i)){ mem(hitway.toInt).write(RequestBuffergroup*CacheParm.BlockNum.U+RequestBufferblock+i.U,writedata)}
                     }
-                    valid(hitway*CacheParm.GroupNum+RequestBuffergroup):= true.B
-                    dirty(hitway*CacheParm.GroupNum+RequestBuffergroup):= true.B
+                    valid(hitway*CacheParm.GroupNum.U+RequestBuffergroup):= true.B
+                    dirty(hitway*CacheParm.GroupNum.U+RequestBuffergroup):= true.B
                     io.Cache.Cache.dataok := true.B
                 }
                 //io.Cache.Cache.rdata  := Mux(!RequestBufferop,LoadRes.asUInt,0.U) 
