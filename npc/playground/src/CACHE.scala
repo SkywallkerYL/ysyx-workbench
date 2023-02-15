@@ -216,8 +216,8 @@ class CpuCache extends Module with CacheParm{
                 when(!RequestBufferop){
                     io.Sram.Axi.ar.valid := true.B
                     when(io.Sram.Axi.ar.fire){
-                        io.Sram.Axi.ar.bits.addr := ((RequestBuffertag<<(CacheParm.GroupWidth)|RequestBuffergroup)<<BlockWidth)|RequestBufferblock
-                        io.Sram.Axi.ar.bits.len  := (CacheParm.BlockNum/(CacheParm.AddrWidth/CacheParm.DataWidth).U-1.U
+                        io.Sram.Axi.ar.bits.addr := ((RequestBuffertag<<(CacheParm.GroupWidth.U)|RequestBuffergroup)<<BlockWidth.U)|RequestBufferblock
+                        io.Sram.Axi.ar.bits.len  := (CacheParm.BlockNum/(CacheParm.AddrWidth/CacheParm.DataWidth)).U-1.U
                         io.Sram.Axi.aw.bits.size := "b10".U
                         MainState := refill
                     }.otherwise{
