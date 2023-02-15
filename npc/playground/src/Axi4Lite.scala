@@ -18,7 +18,9 @@ class Axi4LiteWA extends Bundle with AxiParm{
 //write data and mask
 class Axi4LiteWD extends Bundle with AxiParm{
     val data = Output(UInt(AxiDataWidth.W))
-    val strb = Output(UInt(AxiMaskWidth.W))   
+    val strb = Output(UInt(AxiMaskWidth.W))  
+    //3'b000:bytes 3'b001:half 3'b010:word 3'b100:cache line
+    // if cache line strb is invalid 
 }
 //write resp
 //intro the master the write operation is success

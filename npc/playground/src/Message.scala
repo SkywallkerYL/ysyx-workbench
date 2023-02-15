@@ -14,6 +14,12 @@ class Pc2Ifu extends Bundle{
 class Ifu2Sram extends Bundle{
     val Axi = Flipped(new Axi4LiteRAMIO)
 }
+class Cpu2Cache extends Bundle{
+    val Cache = Flipped(new CacheIO)
+}
+class Cache2Sram extends Bundle{
+    val Axi = Flipped(new Axi4LiteRAMIO)
+}
 //IF --- NPC
 class Ifu2Npc extends Bundle{
     val instvalid = Output(Bool())

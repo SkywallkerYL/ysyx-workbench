@@ -36,10 +36,12 @@ static uintptr_t get_group(uintptr_t addr){
 static uintptr_t get_block(uintptr_t addr){
   return (addr&block_mask);
 }
+//获取在主存中的块号
 static uintptr_t get_blocknum(uintptr_t addr){
   return (addr&(~(block_mask)))>>BLOCK_WIDTH;
 }
 /**/
+//根据tag 获取在主存中的块号
 static uintptr_t get_blocknum_cache(uintptr_t tag,uint32_t group){
   return (tag<<group_width)| group;
 }
