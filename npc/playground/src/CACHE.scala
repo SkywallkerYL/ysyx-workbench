@@ -166,7 +166,7 @@ class CpuCache extends Module with CacheParm{
                 }.otherwise{
                     for(i <- 0 until parm.REGWIDTH/CacheParm.DataWidth){
                         val writedata = RequestBufferwdata((parm.REGWIDTH/CacheParm.DataWidth-i)*CacheParm.DataWidth-1,(parm.REGWIDTH/CacheParm.DataWidth-1-i)*CacheParm.DataWidth)
-                        when(RequestBufferwstrb(parm.REGWIDTH/CacheParm.DataWidth-1-i)){ mem(hitway.toInt).write(RequestBuffergroup*CacheParm.BlockNum.U+RequestBufferblock+i.U,writedata)}
+                        when(RequestBufferwstrb(parm.REGWIDTH/CacheParm.DataWidth-1-i)){ mem(hitway).write(RequestBuffergroup*CacheParm.BlockNum.U+RequestBufferblock+i.U,writedata)}
                     }
                     valid(hitway*CacheParm.GroupNum.U+RequestBuffergroup):= true.B
                     dirty(hitway*CacheParm.GroupNum.U+RequestBuffergroup):= true.B
@@ -196,7 +196,7 @@ class CpuCache extends Module with CacheParm{
             //此时的group是当前cache对应的group，不是读入的group
             //由此得到addr在主存中的块号
             blocknum := get_blocknum_cache(tag(RadomChoose).read(RequestBuffergroup),RequestBuffergroup)
-            axivalid := valid(RadomChoose*CacheParm.GroupNum+RequestBuffergroup) & dirty(RadomChoose*CacheParm.GroupNum+RequestBuffergroup)
+            axivalid := valid(RadomChoose*CacheParm.GroupNum.U+RequestBuffergroup) & dirty(RadomChoose*CacheParm.GroupNum.U+RequestBuffergroup)
             //此时需要写回，向总线申请写
             when(axivalid){
                 io.Sram.Axi.aw.valid := true.B
@@ -204,7 +204,7 @@ class CpuCache extends Module with CacheParm{
                     io.Sram.Axi.aw.bits.addr := (blocknum << CacheParm.BlockWidth) | RequestBufferblock
                     //突发写
                     //一次传的位宽为bits data的位宽 ，分多次把一行cache line的读出去
-                    io.Sram.Axi.aw.bits.len := CacheParm.BlockNum/(CacheParm.AddrWidth/CacheParm.DataWidth)-1.U
+                    io.Sram.Axi.aw.bits.len := (CacheParm.BlockNum/(CacheParm.AddrWidth/CacheParm.DataWidth)).U-1.U
                     io.Sram.Axi.aw.bits.size:= "b10".U
                     //写的时候要对齐
                     //RequestBufferblock := RequestBufferblock&(~"x3".U(BlockWidth.W))
@@ -217,7 +217,7 @@ class CpuCache extends Module with CacheParm{
                     io.Sram.Axi.ar.valid := true.B
                     when(io.Sram.Axi.ar.fire){
                         io.Sram.Axi.ar.bits.addr := ((RequestBuffertag<<(CacheParm.GroupWidth)|RequestBuffergroup)<<BlockWidth)|RequestBufferblock
-                        io.Sram.Axi.ar.bits.len  := CacheParm.BlockNum/(CacheParm.AddrWidth/CacheParm.DataWidth)-1.U
+                        io.Sram.Axi.ar.bits.len  := (CacheParm.BlockNum/(CacheParm.AddrWidth/CacheParm.DataWidth).U-1.U
                         io.Sram.Axi.aw.bits.size := "b10".U
                         MainState := refill
                     }.otherwise{
@@ -228,8 +228,8 @@ class CpuCache extends Module with CacheParm{
                         val writedata = RequestBufferwdata((parm.REGWIDTH/CacheParm.DataWidth-i)*DataWidth-1,(parm.REGWIDTH/CacheParm.DataWidth-1-i)*CacheParm.DataWidth)
                         when(RequestBufferwstrb(parm.REGWIDTH/CacheParm.DataWidth-1-i)){ mem(RadomChoose).write(RequestBuffergroup*CacheParm.BlockNum+RequestBufferblock+i,writedata)}
                     }
-                    valid(RadomChoose*CacheParm.GroupNum+RequestBuffergroup):= true.B
-                    dirty(RadomChoose*CacheParm.GroupNum+RequestBuffergroup):= true.B
+                    valid(RadomChoose*CacheParm.GroupNum.U+RequestBuffergroup):= true.B
+                    dirty(RadomChoose*CacheParm.GroupNum.U+RequestBuffergroup):= true.B
                     io.Cache.Cache.dataok := true.B
                     when(io.Cache.Cache.valid){
                         RequestBufferop := io.Cache.Cache.op
