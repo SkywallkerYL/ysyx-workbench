@@ -7,14 +7,14 @@ trait  CacheParm {
     val AddrWidth = parm.REGWIDTH // Cache接受的地址数据位宽
     val DataWidth  : Int =  8 //1 Bytes
     val BlockWidth : Int =  4 // 数据区大小，2^BlockWidth B
-    val BlockNum   = scala.math.pow(BlockWidth,2)
+    val BlockNum   = scala.math.pow(BlockWidth,2).toInt
     val SizeWidth  : Int = 14 // Cache 大小   2^sizewidth Bytes(data is 1 Bytes)
     val AssoWidth  : Int =  2 // 组相连内部组数 2^cacheasso
-    val AssoNum    = scala.math.pow(AssoWidth,2)
+    val AssoNum    = scala.math.pow(AssoWidth,2).toInt
     val GroupWidth = SizeWidth - AssoWidth - BlockWidth // 组数2^group
-    val GroupNum   = scala.math.pow(GroupWidth,2)
+    val GroupNum   = scala.math.pow(GroupWidth,2).toInt
     val LineWidth  = SizeWidth - BlockWidth
-    val NumEntries = scala.math.pow(LineWidth,2)
+    val NumEntries = scala.math.pow(LineWidth,2).toInt
     val TagWidth   = AddrWidth - GroupWidth
     
     //func
