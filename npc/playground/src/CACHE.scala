@@ -26,17 +26,17 @@ trait  CacheParm {
     val blockmask = mask_with_len(BlockWidth)
     val groupmask = mask_with_len(GroupWidth) << BlockWidth
     def get_tag(addr : UInt) : UInt = {
-        return (addr & (~(extagmask.U(AddrWidth.W))))>>(GroupWidth+BlockWidth)
+        return (addr & (~(extagmask(AddrWidth.W))))>>(GroupWidth+BlockWidth)
     }
     def get_group(addr : UInt) :UInt = {
-        return (addr & (groupmask.U(AddrWidth.W)))
+        return (addr & (groupmask(AddrWidth.W)))
     }
     def get_block(addr : UInt) : UInt = {
-        return (addr & (blockmask.U(AddrWidth.W)))
+        return (addr & (blockmask(AddrWidth.W)))
     } 
     //获取在主存中的块号
     def get_blocknum(addr : UInt): UInt = {
-        return (addr & (~(blockmask.U(AddrWidth.W))))>>BlockWidth
+        return (addr & (~(blockmask(AddrWidth.W))))>>BlockWidth
     }
     //根据tag 获取在主存中的块号
     def get_blocknum_cache(tag : UInt,group:UInt) : UInt = {
@@ -105,7 +105,6 @@ class CpuCache extends Module with CacheParm{
     val Intag = get_tag(io.Cache.Cache.addr)
     val Ingroup = get_group(io.Cache.Cache.addr)
     val Inblock = get_block(io.Cache.Cache.addr)
-    val RequestBuffer = RegInit(0.U.asTypeOf(new RequestBufferIO))
     val RequestBufferop    = RegInit(0.U(1.W))
     val RequestBuffertag   = RegInit(0.U(CacheParm.TagWidth.W))
     val RequestBuffergroup = RegInit(0.U(CacheParm.GroupWidth.W))
@@ -121,9 +120,9 @@ class CpuCache extends Module with CacheParm{
     for (i <- 0 until CacheParm.AssoNum){
         when(RequestBuffertag === tag(i).read(RequestBuffergroup)){
             hit(i) := true.B
-            hitway := i
+            hitway := i.U
             for( j <- 0 until parm.REGWIDTH/CacheParm.DataWidth){
-                LoadRes(parm.REGWIDTH/CacheParm.DataWidth-1-j) := mem(i).read(RequestBuffergroup*CacheParm.BlockNum+RequestBufferblock+j)
+                LoadRes(parm.REGWIDTH/CacheParm.DataWidth-1-j) := mem(i).read(RequestBuffergroup*CacheParm.BlockNum.U+RequestBufferblock+j)
             }
         }
     }
@@ -163,7 +162,7 @@ class CpuCache extends Module with CacheParm{
                 }.otherwise{
                     for(i <- 0 until parm.REGWIDTH/CacheParm.DataWidth){
                         val writedata = RequestBufferwdata((parm.REGWIDTH/CacheParm.DataWidth-i)*CacheParm.DataWidth-1,(parm.REGWIDTH/CacheParm.DataWidth-1-i)*CacheParm.DataWidth)
-                        when(RequestBufferwstrb(parm.REGWIDTH/CacheParm.DataWidth-1-i)){ mem(hitway).write(RequestBuffergroup*CacheParm.BlockNum+RequestBufferblock+i,writedata)}
+                        when(RequestBufferwstrb(parm.REGWIDTH/CacheParm.DataWidth-1-i)){ mem(hitway).write(RequestBuffergroup*CacheParm.BlockNum.U+RequestBufferblock+i,writedata)}
                     }
                     valid(hitway*CacheParm.GroupNum+RequestBuffergroup):= true.B
                     dirty(hitway*CacheParm.GroupNum+RequestBuffergroup):= true.B
