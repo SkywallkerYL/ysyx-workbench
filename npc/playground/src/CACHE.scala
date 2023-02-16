@@ -183,7 +183,7 @@ class CpuCache extends Module with CacheParm{
             when(cachehit){
                 
                 when(!RequestBufferop){
-                    io.Cache.Cache.rdata  := LoadRes
+                    io.Cache.Cache.rdata  := LoadRes.asUInt
                     io.Cache.Cache.dataok := true.B
                 }.otherwise{
                     for(i <- 0 until parm.REGWIDTH/DataWidth){
