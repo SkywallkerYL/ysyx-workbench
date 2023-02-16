@@ -152,7 +152,8 @@ class CpuCache extends Module with CacheParm{
     val axivalid = Wire(Bool())
     val idle :: lookup :: miss :: replace :: refill :: Nil = Enum(5)
     val MainState = RegInit(idle)
-    val RadomLine = LFSR(CacheParm.AssoWidth,1.U,Some(1)) // 取模，Assonum正好2的幂次，保留低位 
+    val lfsr = Module(new myLFSR)
+    val RadomLine = lfsr.io.out(AssoWidth-1,0) // 取模，Assonum正好2的幂次，保留低位 
     val RadomChoose = RegInit(0.U(CacheParm.AssoWidth.W))
     val ChooseAsso = Wire(Vec(AssoNum,Bool()))
     for(i <- 0 until AssoNum){
