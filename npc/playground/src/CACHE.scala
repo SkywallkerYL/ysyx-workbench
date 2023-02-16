@@ -193,7 +193,7 @@ class CpuCache extends Module with CacheParm{
             when(cachehit){
                 when(!RequestBufferop){
                     io.Cache.Cache.dataok := RegDataOk
-                    when(RegDataOk){
+                    when(RegDataOk.B){
                         RegDataOk := 0.U
                     }.otherwise{
                         RegDataOk := 1.U
