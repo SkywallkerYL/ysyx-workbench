@@ -125,6 +125,7 @@ class CpuCache extends Module with CacheParm{
     val Intag = get_tag(io.Cache.Cache.addr)
     val Ingroup = get_group(io.Cache.Cache.addr)
     val Inblock = get_block(io.Cache.Cache.addr)
+    val RegDataOk = RegInit(0.U(1.W))
     val RequestBufferop    = RegInit(0.U(1.W))
     val RequestBuffertag   = RegInit(0.U(TagWidth.W))
     val RequestBuffergroup = RegInit(0.U(GroupWidth.W))
@@ -191,11 +192,16 @@ class CpuCache extends Module with CacheParm{
             //lookup->idle
             when(cachehit){
                 when(!RequestBufferop){
+                    io.Cache.Cache.dataok := RegDataOk
+                    when(RegDataOk){
+                        RegDataOk := 0.U
+                    }.otherwise{
+                        RegDataOk := 1.U
+                    }
                     for(i <- 0 until AssoNum ){
                         when(hit(i)){
                             io.Cache.Cache.rdata  := LoadRes(i).asUInt
-                            val ok = true.B
-                            io.Cache.Cache.dataok := RegNext(true.B)
+                            //io.Cache.Cache.dataok := RegNext(true.B)
                         }
                     }
                 }.otherwise{
