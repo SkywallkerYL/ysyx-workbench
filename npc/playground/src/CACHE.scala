@@ -71,9 +71,9 @@ class CpuCache extends Module with CacheParm{
     //容量大的采用mem实现
     //val mem = Seq.fill(AssoNum)(Seq.fill(GroupNum)(SyncReadMem(BlockNum,UInt(DataWidth.W))))
     //mem 实例化Assonum*BlockNum块 深度为GroupNum 的宽度为datawidth的Ram
-    val mem = Seq.fill(CacheParm.AssoNum)((SyncReadMem(CacheParm.GroupNum*CacheParm.BlockNum,UInt(DataWidth.W))))
+    val mem = Vec(Seq.fill(CacheParm.AssoNum)((SyncReadMem(CacheParm.GroupNum*CacheParm.BlockNum,UInt(DataWidth.W)))))
     //tag 实例化Assonum块 深度为Groupnum 的宽度为
-    val tag = Seq.fill(CacheParm.AssoNum)((SyncReadMem(CacheParm.GroupNum,UInt(TagWidth.W))))
+    val tag = Vec(Seq.fill(CacheParm.AssoNum)((SyncReadMem(CacheParm.GroupNum,UInt(TagWidth.W)))))
     //val mem = Vec(GroupNum,Vec(AssoNum,SyncReadMem(BlockNum,UInt(DataWidth.W))))
     //容量小的用Reg实现
     val valid = RegInit(VecInit(Seq.fill(CacheParm.AssoNum*CacheParm.GroupNum)((false.B))))
