@@ -196,6 +196,7 @@ class CpuCache extends Module with CacheParm{
                     when(RegDataOk === 1.U){
                         RegDataOk := 0.U
                     }.otherwise{
+                        MainState := lookup
                         RegDataOk := 1.U
                     }
                     for(i <- 0 until AssoNum ){
