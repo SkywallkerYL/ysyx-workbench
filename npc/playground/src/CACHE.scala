@@ -195,6 +195,18 @@ class CpuCache extends Module with CacheParm{
                     io.Cache.Cache.dataok := RegDataOk
                     when(RegDataOk === 1.U){
                         RegDataOk := 0.U
+                        when(io.Cache.Cache.valid){
+                            RequestBufferop := io.Cache.Cache.op
+                            RequestBuffertag := Intag
+                            RequestBuffergroup := Ingroup
+                            RequestBufferblock := Inblock
+                            RequestBufferblockraw := Inblock
+                            RequestBufferwdata := io.Cache.Cache.wdata
+                            RequestBufferwstrb := io.Cache.Cache.wstrb
+                            MainState := lookup
+                        }.otherwise{
+                            MainState := idle
+                        }   
                     }.otherwise{
                         MainState := lookup
                         RegDataOk := 1.U
@@ -219,21 +231,19 @@ class CpuCache extends Module with CacheParm{
                     valid(hitway*GroupNum.U+RequestBuffergroup):= true.B
                     dirty(hitway*GroupNum.U+RequestBuffergroup):= true.B
                     io.Cache.Cache.dataok := true.B
-                }
-                //io.Cache.Cache.rdata  := Mux(!RequestBufferop,LoadRes.asUInt,0.U) 
-                //io.Cache.Cache.dataok := Mux(!RequestBufferop,1.U,0.U)
-                when(io.Cache.Cache.valid){
-                    RequestBufferop := io.Cache.Cache.op
-                    RequestBuffertag := Intag
-                    RequestBuffergroup := Ingroup
-                    RequestBufferblock := Inblock
-                    RequestBufferblockraw := Inblock
-                    RequestBufferwdata := io.Cache.Cache.wdata
-                    RequestBufferwstrb := io.Cache.Cache.wstrb
-                    MainState := lookup
-                }.otherwise{
-                    MainState := idle
-                }   
+                    when(io.Cache.Cache.valid){
+                        RequestBufferop := io.Cache.Cache.op
+                        RequestBuffertag := Intag
+                        RequestBuffergroup := Ingroup
+                        RequestBufferblock := Inblock
+                        RequestBufferblockraw := Inblock
+                        RequestBufferwdata := io.Cache.Cache.wdata
+                        RequestBufferwstrb := io.Cache.Cache.wstrb
+                        MainState := lookup
+                    }.otherwise{
+                        MainState := idle
+                    }   
+                } 
             }.otherwise{
                 MainState := miss
                 RadomChoose := RadomLine
