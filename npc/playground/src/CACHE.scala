@@ -141,16 +141,15 @@ class CpuCache extends Module with CacheParm{
         when(RequestBuffertag === tag(i).read(RequestBuffergroup)&&valid((i*GroupNum).U+RequestBuffergroup)){
             hit(i) := true.B
             hitway := i.U
-            for( j <- 0 until parm.REGWIDTH/DataWidth){
-                LoadRes(parm.REGWIDTH/DataWidth-1-j) := mem(i).read(RequestBuffergroup*BlockNum.U+RequestBufferblock+j.U)
-            }
         }
     }
     for (i <- 0 until AssoNum){
         for( j <- 0 until parm.REGWIDTH/DataWidth){
            when(hit(i)) {
+                
                 LoadRes(parm.REGWIDTH/DataWidth-1-j) := mem(i).read(RequestBuffergroup*BlockNum.U+RequestBufferblock+j.U)
-           }
+                printf(p"j=${j} LoadRes=${Hexadecimal(LoadRes(parm.REGWIDTH/DataWidth-1-j))} \n")
+            }
         }
     }
     val cachehit = hit.asUInt.orR

@@ -60,7 +60,7 @@ VERILATOR_CFLAGS += -cc --exe
 #-Os -x-assign 0
 VERILATOR_CFLAGS +=	--x-assign fast --x-initial fast
 VERILATOR_CFLAGS += --trace --coverage --build
-VERILATOR_CFLAGS += -Wno-fatal -O3
+VERILATOR_CFLAGS += -Wno-fatal -O3 
 
 VERILATOR_CFLAGS += --top-module $(TOPNAMETEST)
 #VERILATOR_CFLAGS += --x-initial fast --noassert
@@ -98,7 +98,7 @@ include $(NVBOARD_HOME)/scripts/nvboard.mk
 #rules for verilator
 INCFLAGS = $(addprefix -I, $(INC_PATH))
 CFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""
-CFLAGS += $(shell llvm-config --cxxflags) -fPIE
+CFLAGS += $(shell llvm-config --cxxflags) -fPIE 
 LDFLAGS += -lSDL2 -lSDL2_image 
 LDFLAGS += $(shell llvm-config --libs)
 LDFLAGS += -lreadline
