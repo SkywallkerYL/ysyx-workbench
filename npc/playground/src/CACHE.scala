@@ -138,7 +138,7 @@ class CpuCache extends Module with CacheParm{
     hitway := 0.U
     //val mask   = Wire(Vec())
     for (i <- 0 until AssoNum){
-        when(RequestBuffertag === tag(i).read(RequestBuffergroup)&&valid(i*GroupNum.U+RequestBuffergroup)){
+        when(RequestBuffertag === tag(i).read(RequestBuffergroup)&&valid((i*GroupNum).U+RequestBuffergroup)){
             hit(i) := true.B
             hitway := i.U
             for( j <- 0 until parm.REGWIDTH/DataWidth){
