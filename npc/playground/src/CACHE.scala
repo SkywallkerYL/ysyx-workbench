@@ -151,7 +151,7 @@ class CpuCache extends Module with CacheParm{
     for (i <- 0 until AssoNum){
         when(hit(i)) {
             for( j <- 0 until parm.REGWIDTH/DataWidth){
-            when((RequestBufferblock+j.U)<=BlockNum)
+            when((RequestBufferblock+j.U)<=BlockNum.U)
                 LoadRes(j) := mem(i).read(RequestBuffergroup*BlockNum.U)(RequestBufferblock+j.U)
             }
         }
@@ -201,7 +201,7 @@ class CpuCache extends Module with CacheParm{
                             for(i <- 0 until parm.REGWIDTH/DataWidth){
                                 WriteDataBuffer(RequestBufferblock+i.U) := RequestBufferwdata((parm.REGWIDTH/DataWidth-i)*DataWidth-1,(parm.REGWIDTH/DataWidth-1-i)*DataWidth)
                                 when(RequestBufferwstrb(parm.REGWIDTH/DataWidth-1-i)){ 
-                                    writemask(i)  =  true.B
+                                    writemask(RequestBufferblock+i.U)  :=  true.B
                                 }
                             } 
                             mem(j).write(RequestBuffergroup*BlockNum.U,WriteDataBuffer,writemask)  
@@ -273,11 +273,11 @@ class CpuCache extends Module with CacheParm{
                         when(ChooseAsso(j)){
                             tag(j).write(RequestBuffergroup,RequestBuffertag)
                             for(i <- 0 until parm.REGWIDTH/DataWidth){ 
-                                val writedata = RequestBufferwdata((parm.REGWIDTH/DataWidth-i)*DataWidth-1,(parm.REGWIDTH/DataWidth-1-i)*DataWidth)
+                                WriteDataBuffer(RequestBufferblock+i.U) := RequestBufferwdata((parm.REGWIDTH/DataWidth-i)*DataWidth-1,(parm.REGWIDTH/DataWidth-1-i)*DataWidth)
                                 when(RequestBufferwstrb(parm.REGWIDTH/DataWidth-1-i)){ 
-                                    mem(j).write(RequestBuffergroup*BlockNum.U+RequestBufferblock+i.U,writedata)
-                                    
+                                    writemask(RequestBufferblock+i.U) := true.B
                                 }
+                                mem(j).write(RequestBuffergroup*BlockNum.U,WriteDataBuffer,writemask)
                             }
                         }
                     }
