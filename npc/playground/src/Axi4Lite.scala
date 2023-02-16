@@ -96,6 +96,7 @@ class Axi4LiteSRAM extends Module{
     io.Sram.ar.ready := false.B
     //io.Sram.r.bits.resp := "b00".U
     io.Sram.r.bits.data := 0.U
+    io.Sram.r.bits.last := false.B
     io.Sram.r.valid := false.B
     //state transfer
     //目前ram仅支持INCR型突发传输  如果是非突发传输，len设置为0，即只传一个数数据
@@ -239,11 +240,18 @@ class RamArbiter extends Module{
     io.lsu.Axi.ar.ready := io.lsu.Axi.ar.valid && io.sram.Axi.ar.ready //&&(!io.ifu.Axi.ar.valid)
     io.sram.Axi.ar.bits.addr := Mux(io.lsu.Axi.ar.ready,io.lsu.Axi.ar.bits.addr,
     Mux(io.ifu.Axi.ar.ready,io.ifu.Axi.ar.bits.addr,0.U))
-    //r
+    io.sram.Axi.ar.bits.len := Mux(io.lsu.Axi.ar.ready,io.lsu.Axi.ar.bits.len,
+    Mux(io.ifu.Axi.ar.ready,io.ifu.Axi.ar.bits.len,0.U))
+    io.sram.Axi.ar.bits.size := Mux(io.lsu.Axi.ar.ready,io.lsu.Axi.ar.bits.size,
+    Mux(io.ifu.Axi.ar.ready,io.ifu.Axi.ar.bits.size,"b011".U))
+    io.sram.Axi.ar.bits.burst := Mux(io.lsu.Axi.ar.ready,io.lsu.Axi.ar.bits.burst,
+    Mux(io.ifu.Axi.ar.ready,io.ifu.Axi.ar.bits.burst,"b01".U))
+    /r
     io.sram.Axi.r.ready := io.ifu.Axi.r.ready || io.lsu.Axi.r.ready
     io.ifu.Axi.r.valid := io.ifu.Axi.r.ready && io.sram.Axi.r.valid &&(!io.lsu.Axi.r.ready)
     io.lsu.Axi.r.valid := io.lsu.Axi.r.ready && io.sram.Axi.r.valid //&&(!io.ifu.Axi.r.ready)
     io.ifu.Axi.r.bits.data := io.sram.Axi.r.bits.data
+    io.ifu.Axi.r.bits.last := io.sram.Axi.r.bits.last
     io.lsu.Axi.r.bits.data := io.sram.Axi.r.bits.data
     //actually write signal from ifu is always false
     // 
@@ -253,6 +261,12 @@ class RamArbiter extends Module{
     io.lsu.Axi.aw.ready := io.lsu.Axi.aw.valid && io.sram.Axi.aw.ready 
     io.sram.Axi.aw.bits.addr := Mux(io.lsu.Axi.aw.ready,io.lsu.Axi.aw.bits.addr,
     Mux(io.ifu.Axi.aw.ready,io.ifu.Axi.aw.bits.addr,0.U))
+    io.sram.Axi.aw.bits.size := Mux(io.lsu.Axi.aw.ready,io.lsu.Axi.aw.bits.size,
+    Mux(io.ifu.Axi.aw.ready,io.ifu.Axi.aw.bits.size,"b011".U))
+    io.sram.Axi.aw.bits.len := Mux(io.lsu.Axi.aw.ready,io.lsu.Axi.aw.bits.len,
+    Mux(io.ifu.Axi.aw.ready,io.ifu.Axi.aw.bits.len,0.U))
+    io.sram.Axi.aw.bits.burst := Mux(io.lsu.Axi.aw.ready,io.lsu.Axi.aw.bits.burst,
+    Mux(io.ifu.Axi.aw.ready,io.ifu.Axi.aw.bits.burst,"b01".U))
 
     //w
     io.sram.Axi.w.valid := io.ifu.Axi.w.valid || io.lsu.Axi.w.valid
@@ -262,6 +276,8 @@ class RamArbiter extends Module{
     Mux(io.ifu.Axi.w.ready,io.ifu.Axi.w.bits.data,0.U))
     io.sram.Axi.w.bits.strb := Mux(io.lsu.Axi.w.ready,io.lsu.Axi.w.bits.strb,
     Mux(io.ifu.Axi.w.ready,io.ifu.Axi.w.bits.strb,0.U))
+    io.sram.Axi.w.bits.last := Mux(io.lsu.Axi.w.ready,io.lsu.Axi.w.bits.last,
+    Mux(io.ifu.Axi.w.ready,io.ifu.Axi.w.bits.last,0.U))
     //b
     io.sram.Axi.b.ready := io.ifu.Axi.b.ready || io.lsu.Axi.b.ready
     io.ifu.Axi.b.valid := io.ifu.Axi.b.ready && io.sram.Axi.b.valid&&(!io.lsu.Axi.b.ready)

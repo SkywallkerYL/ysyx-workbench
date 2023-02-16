@@ -131,12 +131,11 @@ class CpuCache extends Module with CacheParm{
     val RequestBufferwdata = RegInit(0.U(parm.REGWIDTH.W))
     val RequestBufferwstrb = RegInit(0.U(parm.BYTEWIDTH.W))
     val hit = Wire(Vec(AssoNum,Bool()))
-    val memDataIn = Wire(Vec(AssoNum,UInt(DataWidth.W)))
-    val tagDataIn = Wire(Vec(AssoNum,UInt(DataWidth.W)))
     for (i <- 0 until AssoNum){hit(i):= 0.U}
     val LoadRes = Wire(Vec(parm.REGWIDTH/DataWidth,UInt(DataWidth.W)))
     for (i <- 0 until parm.REGWIDTH/DataWidth){LoadRes(i) := 0.U}
     val hitway = Wire(UInt(AssoWidth.W))
+    hitway := 0.U
     //val mask   = Wire(Vec())
     for (i <- 0 until AssoNum){
         when(RequestBuffertag === tag(i).read(RequestBuffergroup)){
@@ -149,7 +148,9 @@ class CpuCache extends Module with CacheParm{
     }
     val cachehit = hit.asUInt.orR
     val blocknum = Wire(UInt((DataWidth-BlockWidth).W))
+    blocknum := 0.U
     val axivalid = Wire(Bool())
+    axivalid := false.B
     val idle :: lookup :: miss :: replace :: refill :: Nil = Enum(5)
     val MainState = RegInit(idle)
     val lfsr = Module(new myLFSR)
