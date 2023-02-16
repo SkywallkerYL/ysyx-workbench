@@ -289,10 +289,10 @@ class CpuCache extends Module with CacheParm{
             when(io.Sram.Axi.r.fire){
                 //io.Sram.Axi.ar.bits.rtype := "b100".U
                 //突发读，读入 // 暂时不支持非对齐的访问
-                for(i <- 0 until parm.REGWIDTH/CacheParm.DataWidth){
+                for(i <- 0 until parm.REGWIDTH/DataWidth){
                     val ramrdata = io.Sram.Axi.r.bits.data((parm.REGWIDTH/DataWidth-i)*DataWidth-1,(parm.REGWIDTH/DataWidth-1-i)*DataWidth)
-                    val memDataIn(RadomChoose) := ramrdata
-                    mem.write(RequestBuffergroup*CacheParm.BlockNum.U+RequestBufferblock+i.U,memDataIn,ChooseAsso)
+                    val memDataIn(RadomChoose) := 0=
+                    mem.write(RequestBuffergroup*BlockNum.U+RequestBufferblock+i.U,memDataIn,ChooseAsso)
                 }              
                 when (io.Sram.Axi.r.bits.last){
                     MainState := idle
