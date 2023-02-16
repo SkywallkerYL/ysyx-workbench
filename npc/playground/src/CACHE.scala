@@ -335,7 +335,7 @@ class CpuCache extends Module with CacheParm{
                     RequestBufferblock := RequestBufferblockraw
                 }.otherwise{
                     when(RequestBufferblock === RequestBufferblockraw && !RequestBufferop){
-                        io.Cache.Cache.rdata  := LoadRes.asUInt
+                        io.Cache.Cache.rdata  := io.Sram.Axi.r.bits.data
                         io.Cache.Cache.dataok := true.B
                     }
                     RequestBufferblock := RequestBufferblock+(parm.REGWIDTH/CacheParm.DataWidth).U
