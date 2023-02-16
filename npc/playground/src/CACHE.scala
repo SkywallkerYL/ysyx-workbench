@@ -124,7 +124,7 @@ class CpuCache extends Module with CacheParm{
     for (i <- 0 until parm.REGWIDTH/CacheParm.DataWidth){LoadRes(i) := 0.U}
     val hitway = Wire(0.U(AssoNum.W))
     for (i <- 0 until CacheParm.AssoNum){
-        when(RequestBuffertag === tag(i).read(RequestBuffergroup)){
+        when(RequestBuffertag === tag.read(RequestBuffergroup)(i)){
             hit(i) := true.B
             hitway := i.U
             for( j <- 0 until parm.REGWIDTH/CacheParm.DataWidth){
