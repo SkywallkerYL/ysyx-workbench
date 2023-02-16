@@ -299,7 +299,7 @@ class CpuCache extends Module with CacheParm{
                 
                 io.Sram.Axi.w.bits.strb  := "xff".U //invalid
                 //给ram last信号指示写回数据发送完成
-                io.Sram.Axi.w.bits.last := RequestBufferblock === RequestBufferblockraw&"x3".U+(BlockNum-parm.REGWIDTH/DataWidth).U
+                io.Sram.Axi.w.bits.last := RequestBufferblock === (BlockNum-parm.REGWIDTH/DataWidth).U
                 when(io.Sram.Axi.w.bits.last){
                     //写完成，向总线申请读//更新Dirty 和valid 返回Miss
                     valid(RadomChoose*GroupNum.U+RequestBuffergroup):= true.B
@@ -325,6 +325,7 @@ class CpuCache extends Module with CacheParm{
                         for(i <- 0 until parm.REGWIDTH/DataWidth){
                             val ramrdata = io.Sram.Axi.r.bits.data((parm.REGWIDTH/DataWidth-i)*DataWidth-1,(parm.REGWIDTH/DataWidth-1-i)*DataWidth)
                         //val memDataIn(RadomChoose) := ramrdata
+                            printf(p"ramrdata=${Hexadecimal(ramrdata)} \n")
                             mem(j).write(RequestBuffergroup*BlockNum.U+RequestBufferblock+i.U,ramrdata)
                         }      
                     }   
