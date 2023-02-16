@@ -178,7 +178,7 @@ class CpuCache extends Module with CacheParm{
                         val writedata = RequestBufferwdata((parm.REGWIDTH/DataWidth-i)*DataWidth-1,(parm.REGWIDTH/DataWidth-1-i)*DataWidth)
                         when(RequestBufferwstrb(parm.REGWIDTH/DataWidth-1-i)){ 
                             for (j <- 0 until AssoNum){
-                                when(j === hitway){mem(j).write(RequestBuffergroup*BlockNum.U+RequestBufferblock+i.U,writedata)}
+                                when(hit(j)) {mem(j).write(RequestBuffergroup*BlockNum.U+RequestBufferblock+i.U,writedata)}
                             } 
                         }
                     }
