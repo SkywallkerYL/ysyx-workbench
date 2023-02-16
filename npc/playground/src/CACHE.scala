@@ -143,15 +143,7 @@ class CpuCache extends Module with CacheParm{
             hitway := i.U
         }
     }
-    for (i <- 0 until AssoNum){
-        when(hit(i)) {
-            for( j <- 0 until parm.REGWIDTH/DataWidth){
-                LoadRes(parm.REGWIDTH/DataWidth-1-j) := mem(i).read(RequestBuffergroup*BlockNum.U+RequestBufferblock+j.U)
-                printf(p"j=${j} LoadRes=${Hexadecimal(LoadRes(parm.REGWIDTH/DataWidth-1-j))} \n")
-                
-            }
-        }
-    }
+
     val cachehit = hit.asUInt.orR
     val blocknum = Wire(UInt((DataWidth-BlockWidth).W))
     blocknum := 0.U
@@ -189,6 +181,13 @@ class CpuCache extends Module with CacheParm{
             //lookup->idle
             when(cachehit){
                 when(!RequestBufferop){
+                    for (i <- 0 until AssoNum){
+                        when(hit(i)) {
+                            for( j <- 0 until parm.REGWIDTH/DataWidth){
+                                LoadRes(parm.REGWIDTH/DataWidth-1-j) := mem(i).read(RequestBuffergroup*BlockNum.U+RequestBufferblock+j.U)
+                            }
+                        }
+                    }
                     io.Cache.Cache.rdata  := LoadRes.asUInt
                     io.Cache.Cache.dataok := true.B
                 }.otherwise{
@@ -302,7 +301,13 @@ class CpuCache extends Module with CacheParm{
                 //一次写一个data 宽的
                 io.Sram.Axi.w.bits.data  := LoadRes.asUInt    //a cacheline data ***
                 //一次data
-                
+                for (i <- 0 until AssoNum){
+                    when(hit(i)) {
+                        for( j <- 0 until parm.REGWIDTH/DataWidth){
+                            LoadRes(parm.REGWIDTH/DataWidth-1-j) := mem(i).read(RequestBuffergroup*BlockNum.U+RequestBufferblock+j.U)
+                        }
+                    }
+                }
                 io.Sram.Axi.w.bits.strb  := "xff".U //invalid
                 //给ram last信号指示写回数据发送完成
                 io.Sram.Axi.w.bits.last := RequestBufferblock === (BlockNum-parm.REGWIDTH/DataWidth).U
