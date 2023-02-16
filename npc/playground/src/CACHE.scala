@@ -86,9 +86,9 @@ class CpuCache extends Module with CacheParm{
     //val mem = SyncReadMem(GroupNum*BlockNum,Vec(AssoNum,UInt(DataWidth.W)))
     //SyncReadMem 是同步读写  会被综合成Mem，设置读地址的下一个周期才能拿到数据
     //Mem 是同步写，异步读，会被综合成触发器，
-    val mem = (Seq.fill(AssoNum)(Mem(GroupNum*BlockNum,UInt(DataWidth.W))))
+    val mem = (Seq.fill(AssoNum)(SyncReadMem(GroupNum*BlockNum,UInt(DataWidth.W))))
     //tag 实例化Assonum块 深度为Groupnum 的宽度为
-    val tag = Seq.fill(AssoNum)(Mem(GroupNum,UInt(TagWidth.W)))
+    val tag = Seq.fill(AssoNum)(SyncReadMem(GroupNum,UInt(TagWidth.W)))
     //val tag = VecInit(Seq.fill(CacheParm.AssoNum)((SyncReadMem(CacheParm.GroupNum,UInt(TagWidth.W)))))
     //val mem = Vec(GroupNum,Vec(AssoNum,SyncReadMem(BlockNum,UInt(DataWidth.W))))
     //容量小的用Reg实现
@@ -169,7 +169,7 @@ class CpuCache extends Module with CacheParm{
         ChooseAsso(i) := RadomChoose === i.U
     }
     switch(MainState){
-        is(idle){
+        is(idle){ 
             //接收到读写请求
             //idle -> lookup
             when(io.Cache.Cache.valid ){
@@ -194,7 +194,8 @@ class CpuCache extends Module with CacheParm{
                     for(i <- 0 until AssoNum ){
                         when(hit(i)){
                             io.Cache.Cache.rdata  := LoadRes(i).asUInt
-                            io.Cache.Cache.dataok := true.B
+                            val ok = true.B
+                            io.Cache.Cache.dataok := RegNext(true.B)
                         }
                     }
                 }.otherwise{
