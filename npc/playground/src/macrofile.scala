@@ -5,7 +5,7 @@ import chisel3.util._
 
 
 object  parm{
-    val MODE        : String = "multi" //single multi   单周期，多周期(接入了AXI总线等等)
+    val MODE        : String = "single" //single multi   单周期，多周期(接入了AXI总线等等)
     val CPUWIDTH    : Int = 64
     val REGWIDTH    : Int = 64
     val INSTWIDTH   : Int = 32
