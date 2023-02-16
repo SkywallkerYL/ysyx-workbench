@@ -296,15 +296,16 @@ class CpuCache extends Module with CacheParm{
                 //一次data
                 
                 io.Sram.Axi.w.bits.strb  := "xff".U //invalid
-                //受到ram的last信号
+                //给ram last信号指示写回数据发送完成
+                io.Sram.Axi.w.bits.last := RequestBufferblock === RequestBufferblockraw+(BlockNum-parm.REGWIDTH/DataWidth).U
                 when(io.Sram.Axi.w.bits.last){
                     //写完成，向总线申请读//更新Dirty 和valid 返回Miss
-                    valid(RadomChoose*CacheParm.GroupNum.U+RequestBuffergroup):= true.B
-                    dirty(RadomChoose*CacheParm.GroupNum.U+RequestBuffergroup):= false.B
+                    valid(RadomChoose*GroupNum.U+RequestBuffergroup):= true.B
+                    dirty(RadomChoose*GroupNum.U+RequestBuffergroup):= false.B
                     RequestBufferblock := RequestBufferblockraw
                     MainState := miss
                 }.otherwise{
-                    RequestBufferblock := RequestBufferblock + (parm.REGWIDTH/CacheParm.DataWidth).U
+                    RequestBufferblock := RequestBufferblock + (parm.REGWIDTH/DataWidth).U
                     //requestblock 要复原
                     MainState := replace
                 }

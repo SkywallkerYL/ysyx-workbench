@@ -173,7 +173,7 @@ class Axi4LiteSRAM extends Module{
             io.Sram.aw.ready := true.B
             io.Sram.w.ready := false.B
             io.Sram.b.valid := false.B
-            io.Sram.w.bits.last := false.B
+            //io.Sram.w.bits.last := false.B
             when(io.Sram.aw.fire){
                 WriteState := write
                 RegWAddr := io.Sram.aw.bits.addr
@@ -208,7 +208,7 @@ class Axi4LiteSRAM extends Module{
                    ))
                    RegWAddr := RegWAddr + waddradd
                 }.otherwise{
-                    io.Sram.w.bits.last := true.B
+                    //io.Sram.w.bits.last := true.B
                     WriteState := writeResp
                 }
             }
