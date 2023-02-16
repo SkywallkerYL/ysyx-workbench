@@ -142,7 +142,7 @@ class CpuCache extends Module with CacheParm{
     val MainState = RegInit(idle)
     val RadomLine = LFSR(CacheParm.AssoWidth,1.U,Some(1)) // 取模，Assonum正好2的幂次，保留低位 
     val RadomChoose = RegInit(0.U(CacheParm.AssoWidth.W))
-    val ChooseAsso = Wire(AssoNum,Bool())
+    val ChooseAsso = Wire(Vec(AssoNum,Bool()))
     for(i <- 0 until AssoNum){
         ChooseAsso(i) := RadomChoose === i
     }
@@ -291,7 +291,7 @@ class CpuCache extends Module with CacheParm{
                 //突发读，读入 // 暂时不支持非对齐的访问
                 for(i <- 0 until parm.REGWIDTH/DataWidth){
                     val ramrdata = io.Sram.Axi.r.bits.data((parm.REGWIDTH/DataWidth-i)*DataWidth-1,(parm.REGWIDTH/DataWidth-1-i)*DataWidth)
-                    val memDataIn(RadomChoose) := 0=
+                    val memDataIn(RadomChoose) := ramrdata
                     mem.write(RequestBuffergroup*BlockNum.U+RequestBufferblock+i.U,memDataIn,ChooseAsso)
                 }              
                 when (io.Sram.Axi.r.bits.last){
