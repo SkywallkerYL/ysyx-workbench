@@ -84,9 +84,11 @@ class CpuCache extends Module with CacheParm{
     //mem 实例化Assonum*BlockNum块 深度为GroupNum 的宽度为datawidth的Ram
     //val mem = VecInit(Seq.fill(CacheParm.AssoNum)((SyncReadMem(CacheParm.GroupNum*CacheParm.BlockNum,UInt(DataWidth.W)))))
     //val mem = SyncReadMem(GroupNum*BlockNum,Vec(AssoNum,UInt(DataWidth.W)))
-    val mem = (Seq.fill(AssoNum)(SyncReadMem(GroupNum*BlockNum,UInt(DataWidth.W))))
+    //SyncReadMem 是同步读写  会被综合成Mem，设置读地址的下一个周期才能拿到数据
+    //Mem 是同步写，异步读，会被综合成触发器，
+    val mem = (Seq.fill(AssoNum)(Mem(GroupNum*BlockNum,UInt(DataWidth.W))))
     //tag 实例化Assonum块 深度为Groupnum 的宽度为
-    val tag = Seq.fill(AssoNum)(SyncReadMem(GroupNum,UInt(TagWidth.W)))
+    val tag = Seq.fill(AssoNum)(Mem(GroupNum,UInt(TagWidth.W)))
     //val tag = VecInit(Seq.fill(CacheParm.AssoNum)((SyncReadMem(CacheParm.GroupNum,UInt(TagWidth.W)))))
     //val mem = Vec(GroupNum,Vec(AssoNum,SyncReadMem(BlockNum,UInt(DataWidth.W))))
     //容量小的用Reg实现
