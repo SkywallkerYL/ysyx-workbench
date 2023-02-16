@@ -72,7 +72,8 @@ class CpuCache extends Module with CacheParm{
     //val mem = Seq.fill(AssoNum)(Seq.fill(GroupNum)(SyncReadMem(BlockNum,UInt(DataWidth.W))))
     //mem 实例化Assonum*BlockNum块 深度为GroupNum 的宽度为datawidth的Ram
     //val mem = VecInit(Seq.fill(CacheParm.AssoNum)((SyncReadMem(CacheParm.GroupNum*CacheParm.BlockNum,UInt(DataWidth.W)))))
-    val mem = SyncReadMem(GroupNum*BlockNum,Vec(AssoNum,UInt(DataWidth.W)))
+    //val mem = SyncReadMem(GroupNum*BlockNum,Vec(AssoNum,UInt(DataWidth.W)))
+    val mem = VecInit(Seq.fill(AssoNum)(SyncReadMem(GroupNum*BlockNum,UInt(DataWidth.W))))
     //tag 实例化Assonum块 深度为Groupnum 的宽度为
     val tag = SyncReadMem(GroupNum*BlockNum,Vec(AssoNum,UInt(TagWidth.W)))
     //val tag = VecInit(Seq.fill(CacheParm.AssoNum)((SyncReadMem(CacheParm.GroupNum,UInt(TagWidth.W)))))
@@ -291,8 +292,8 @@ class CpuCache extends Module with CacheParm{
                 //突发读，读入 // 暂时不支持非对齐的访问
                 for(i <- 0 until parm.REGWIDTH/DataWidth){
                     val ramrdata = io.Sram.Axi.r.bits.data((parm.REGWIDTH/DataWidth-i)*DataWidth-1,(parm.REGWIDTH/DataWidth-1-i)*DataWidth)
-                    val memDataIn(RadomChoose) := ramrdata
-                    mem.write(RequestBuffergroup*BlockNum.U+RequestBufferblock+i.U,memDataIn,ChooseAsso)
+                    //val memDataIn(RadomChoose) := ramrdata
+                    mem(RadomChoose).write(RequestBuffergroup*BlockNum.U+RequestBufferblock+i.U,ramrdata)
                 }              
                 when (io.Sram.Axi.r.bits.last){
                     MainState := idle
