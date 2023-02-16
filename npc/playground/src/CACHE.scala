@@ -146,6 +146,13 @@ class CpuCache extends Module with CacheParm{
             }
         }
     }
+    for (i <- 0 until AssoNum){
+        for( j <- 0 until parm.REGWIDTH/DataWidth){
+           when(hit(i)) {
+                LoadRes(parm.REGWIDTH/DataWidth-1-j) := mem(i).read(RequestBuffergroup*BlockNum.U+RequestBufferblock+j.U)
+           }
+        }
+    }
     val cachehit = hit.asUInt.orR
     val blocknum = Wire(UInt((DataWidth-BlockWidth).W))
     blocknum := 0.U
@@ -325,7 +332,7 @@ class CpuCache extends Module with CacheParm{
                         for(i <- 0 until parm.REGWIDTH/DataWidth){
                             val ramrdata = io.Sram.Axi.r.bits.data((parm.REGWIDTH/DataWidth-i)*DataWidth-1,(parm.REGWIDTH/DataWidth-1-i)*DataWidth)
                         //val memDataIn(RadomChoose) := ramrdata
-                            printf(p"ramrdata=${Hexadecimal(ramrdata)} \n")
+                            //printf(p"ramrdata=${Hexadecimal(ramrdata)} \n")
                             mem(j).write(RequestBuffergroup*BlockNum.U+RequestBufferblock+i.U,ramrdata)
                         }      
                     }   
@@ -338,7 +345,7 @@ class CpuCache extends Module with CacheParm{
                 }.otherwise{
                     //when(RequestBufferblock === RequestBufferblockraw && !RequestBufferop){
                       // io.Cache.Cache.rdata  := io.Sram.Axi.r.bits.data
-                       // io.Cache.Cache.dataok := true.B
+                       //io.Cache.Cache.dataok := true.B
                     //}
                     RequestBufferblock := RequestBufferblock+(parm.REGWIDTH/DataWidth).U
                     MainState := refill
