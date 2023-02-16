@@ -238,7 +238,7 @@ class CpuCache extends Module with CacheParm{
                     //突发写
                     //一次传的位宽为bits data的位宽 ，分多次把一行cache line的读出去
                     io.Sram.Axi.aw.bits.len := (CacheParm.BlockNum/(CacheParm.AddrWidth/CacheParm.DataWidth)).U-1.U
-                    io.Sram.Axi.aw.bits.size:= "b10".U
+                    io.Sram.Axi.aw.bits.size:= "b11".U
                     //写的时候要对齐
                     //RequestBufferblock := RequestBufferblock&(~"x3".U(BlockWidth.W))
                     MainState := replace
@@ -251,7 +251,7 @@ class CpuCache extends Module with CacheParm{
                     when(io.Sram.Axi.ar.fire){
                         io.Sram.Axi.ar.bits.addr := ((RequestBuffertag<<(GroupWidth.U)|RequestBuffergroup)<<BlockWidth.U)|RequestBufferblock
                         io.Sram.Axi.ar.bits.len  := (BlockNum/(AddrWidth/DataWidth)).U-1.U
-                        io.Sram.Axi.aw.bits.size := "b10".U
+                        io.Sram.Axi.aw.bits.size := "b11".U
                         MainState := refill
                     }.otherwise{
                         MainState := miss
@@ -338,7 +338,7 @@ class CpuCache extends Module with CacheParm{
                         io.Cache.Cache.rdata  := io.Sram.Axi.r.bits.data
                         io.Cache.Cache.dataok := true.B
                     }
-                    RequestBufferblock := RequestBufferblock+(parm.REGWIDTH/CacheParm.DataWidth).U
+                    RequestBufferblock := RequestBufferblock+(parm.REGWIDTH/DataWidth).U
                     MainState := refill
                 }
             }.otherwise{
