@@ -184,6 +184,7 @@ class CpuCache extends Module with CacheParm{
                     for (i <- 0 until AssoNum){
                         when(hit(i)) {
                             for( j <- 0 until parm.REGWIDTH/DataWidth){
+                                printf(p"readdata=${Hexadecimal(mem(i).read(RequestBuffergroup*BlockNum.U+RequestBufferblock+j.U))} \n")
                                 LoadRes(parm.REGWIDTH/DataWidth-1-j) := mem(i).read(RequestBuffergroup*BlockNum.U+RequestBufferblock+j.U)
                             }
                         }
