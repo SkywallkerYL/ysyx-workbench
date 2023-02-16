@@ -132,8 +132,9 @@ class CpuCache extends Module with CacheParm{
     val RequestBufferwstrb = RegInit(0.U(parm.BYTEWIDTH.W))
     val hit = Wire(Vec(AssoNum,Bool()))
     for (i <- 0 until AssoNum){hit(i):= 0.U}
-    val LoadRes = Wire(Vec(parm.REGWIDTH/DataWidth,UInt(DataWidth.W)))
-    for (i <- 0 until parm.REGWIDTH/DataWidth){LoadRes(i) := 0.U}
+    val LoadRes = Seq.fill(AssoNum)(Wire(Vec(parm.REGWIDTH/DataWidth,UInt(DataWidth.W))))
+    for (j <- 0 until AssoNum)
+        for (i <- 0 until parm.REGWIDTH/DataWidth){LoadRes(j)(i) := 0.U}
     val hitway = Wire(UInt(AssoWidth.W))
     hitway := 0.U
     //val mask   = Wire(Vec())
@@ -143,7 +144,14 @@ class CpuCache extends Module with CacheParm{
             hitway := i.U
         }
     }
-
+    for (i <- 0 until AssoNum){
+        //when(hit(i)) {
+            for( j <- 0 until parm.REGWIDTH/DataWidth){
+                //printf(p"readdata=${Hexadecimal(mem(i).read(RequestBuffergroup*BlockNum.U+RequestBufferblock+j.U))} \n")
+                LoadRes(i)(parm.REGWIDTH/DataWidth-1-j) := mem(i).read(RequestBuffergroup*BlockNum.U+RequestBufferblock+j.U)
+            }
+        //}
+    }
     val cachehit = hit.asUInt.orR
     val blocknum = Wire(UInt((DataWidth-BlockWidth).W))
     blocknum := 0.U
@@ -181,16 +189,12 @@ class CpuCache extends Module with CacheParm{
             //lookup->idle
             when(cachehit){
                 when(!RequestBufferop){
-                    for (i <- 0 until AssoNum){
-                        when(hit(i)) {
-                            for( j <- 0 until parm.REGWIDTH/DataWidth){
-                                printf(p"readdata=${Hexadecimal(mem(i).read(RequestBuffergroup*BlockNum.U+RequestBufferblock+j.U))} \n")
-                                LoadRes(parm.REGWIDTH/DataWidth-1-j) := mem(i).read(RequestBuffergroup*BlockNum.U+RequestBufferblock+j.U)
-                            }
+                    for(i <- 0 until AssoNum ){
+                        when(hit(i)){
+                            io.Cache.Cache.rdata  := LoadRes(i).asUInt
+                            io.Cache.Cache.dataok := true.B
                         }
                     }
-                    io.Cache.Cache.rdata  := LoadRes.asUInt
-                    io.Cache.Cache.dataok := true.B
                 }.otherwise{
                     for(i <- 0 until parm.REGWIDTH/DataWidth){
                         val writedata = RequestBufferwdata((parm.REGWIDTH/DataWidth-i)*DataWidth-1,(parm.REGWIDTH/DataWidth-1-i)*DataWidth)
@@ -300,15 +304,12 @@ class CpuCache extends Module with CacheParm{
             when(io.Sram.Axi.w.fire){
                 //写数据的data位宽也要该，改称cache line 一行的datawidth (datawith*blocknum)
                 //一次写一个data 宽的
-                io.Sram.Axi.w.bits.data  := LoadRes.asUInt    //a cacheline data ***
-                //一次data
-                for (i <- 0 until AssoNum){
-                    when(hit(i)) {
-                        for( j <- 0 until parm.REGWIDTH/DataWidth){
-                            LoadRes(parm.REGWIDTH/DataWidth-1-j) := mem(i).read(RequestBuffergroup*BlockNum.U+RequestBufferblock+j.U)
-                        }
+                for(i <- 0 until AssoNum ){
+                    when(ChooseAsso(i)){
+                        io.Sram.Axi.w.bits.data  := LoadRes(i).asUInt    //a cacheline data ***
                     }
                 }
+                //一次data
                 io.Sram.Axi.w.bits.strb  := "xff".U //invalid
                 //给ram last信号指示写回数据发送完成
                 io.Sram.Axi.w.bits.last := RequestBufferblock === (BlockNum-parm.REGWIDTH/DataWidth).U
