@@ -246,7 +246,7 @@ class RamArbiter extends Module{
     Mux(io.ifu.Axi.ar.ready,io.ifu.Axi.ar.bits.size,"b011".U))
     io.sram.Axi.ar.bits.burst := Mux(io.lsu.Axi.ar.ready,io.lsu.Axi.ar.bits.burst,
     Mux(io.ifu.Axi.ar.ready,io.ifu.Axi.ar.bits.burst,"b01".U))
-    /r
+    
     io.sram.Axi.r.ready := io.ifu.Axi.r.ready || io.lsu.Axi.r.ready
     io.ifu.Axi.r.valid := io.ifu.Axi.r.ready && io.sram.Axi.r.valid &&(!io.lsu.Axi.r.ready)
     io.lsu.Axi.r.valid := io.lsu.Axi.r.ready && io.sram.Axi.r.valid //&&(!io.ifu.Axi.r.ready)
