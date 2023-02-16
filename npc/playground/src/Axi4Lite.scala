@@ -253,6 +253,7 @@ class RamArbiter extends Module{
     io.ifu.Axi.r.bits.data := io.sram.Axi.r.bits.data
     io.ifu.Axi.r.bits.last := io.sram.Axi.r.bits.last
     io.lsu.Axi.r.bits.data := io.sram.Axi.r.bits.data
+    io.lsu.Axi.r.bits.last := io.sram.Axi.r.bits.last
     //actually write signal from ifu is always false
     // 
     //aw
