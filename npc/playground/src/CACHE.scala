@@ -153,7 +153,7 @@ class CpuCache extends Module with CacheParm{
             for( j <- 0 until parm.REGWIDTH/DataWidth){
             //when((RequestBufferblock+j.U)<=BlockNum.U)
             LoadRes(j) := mem(i).read(RequestBuffergroup*BlockNum.U)(RequestBufferblock+j.U)
-            //}
+            }
         }
     }
     val cachehit = hit.asUInt.orR
