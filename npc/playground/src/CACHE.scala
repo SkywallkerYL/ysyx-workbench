@@ -138,7 +138,7 @@ class CpuCache extends Module with CacheParm{
     hitway := 0.U
     //val mask   = Wire(Vec())
     for (i <- 0 until AssoNum){
-        when(RequestBuffertag === tag(i).read(RequestBuffergroup)){
+        when(RequestBuffertag === tag(i).read(RequestBuffergroup)&&valid(i*GroupNum.U+RequestBuffergroup)){
             hit(i) := true.B
             hitway := i.U
             for( j <- 0 until parm.REGWIDTH/DataWidth){
@@ -182,7 +182,6 @@ class CpuCache extends Module with CacheParm{
         is(lookup){
             //lookup->idle
             when(cachehit){
-                
                 when(!RequestBufferop){
                     io.Cache.Cache.rdata  := LoadRes.asUInt
                     io.Cache.Cache.dataok := true.B
@@ -234,10 +233,11 @@ class CpuCache extends Module with CacheParm{
             when(axivalid){
                 io.Sram.Axi.aw.valid := true.B
                 when(io.Sram.Axi.aw.fire){
-                    io.Sram.Axi.aw.bits.addr := (blocknum << CacheParm.BlockWidth) | RequestBufferblock
+                    io.Sram.Axi.aw.bits.addr := (blocknum <<BlockWidth) 
                     //突发写
+                    RequestBufferblock := 0.U //地址对齐到cacheline行的首地址//block归0
                     //一次传的位宽为bits data的位宽 ，分多次把一行cache line的读出去
-                    io.Sram.Axi.aw.bits.len := (CacheParm.BlockNum/(CacheParm.AddrWidth/CacheParm.DataWidth)).U-1.U
+                    io.Sram.Axi.aw.bits.len := (BlockNum/(AddrWidth/DataWidth)).U-1.U
                     io.Sram.Axi.aw.bits.size:= "b11".U
                     //写的时候要对齐
                     //RequestBufferblock := RequestBufferblock&(~"x3".U(BlockWidth.W))
@@ -249,8 +249,9 @@ class CpuCache extends Module with CacheParm{
                 when(!RequestBufferop){
                     io.Sram.Axi.ar.valid := true.B
                     when(io.Sram.Axi.ar.fire){
-                        io.Sram.Axi.ar.bits.addr := ((RequestBuffertag<<(GroupWidth.U)|RequestBuffergroup)<<BlockWidth.U)|RequestBufferblock
+                        io.Sram.Axi.ar.bits.addr := ((RequestBuffertag<<(GroupWidth.U)|RequestBuffergroup)<<BlockWidth.U)
                         io.Sram.Axi.ar.bits.len  := (BlockNum/(AddrWidth/DataWidth)).U-1.U
+                        RequestBufferblock := 0.U
                         io.Sram.Axi.ar.bits.size := "b11".U
                         MainState := refill
                     }.otherwise{
@@ -298,7 +299,7 @@ class CpuCache extends Module with CacheParm{
                 
                 io.Sram.Axi.w.bits.strb  := "xff".U //invalid
                 //给ram last信号指示写回数据发送完成
-                io.Sram.Axi.w.bits.last := RequestBufferblock === RequestBufferblockraw+(BlockNum-parm.REGWIDTH/DataWidth).U
+                io.Sram.Axi.w.bits.last := RequestBufferblock === RequestBufferblockraw&"x3".U+(BlockNum-parm.REGWIDTH/DataWidth).U
                 when(io.Sram.Axi.w.bits.last){
                     //写完成，向总线申请读//更新Dirty 和valid 返回Miss
                     valid(RadomChoose*GroupNum.U+RequestBuffergroup):= true.B
