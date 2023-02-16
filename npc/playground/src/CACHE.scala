@@ -209,7 +209,7 @@ class CpuCache extends Module with CacheParm{
             //cache 缺失，有效且脏的情况下向AXI总线申请写入
             //此时的group是当前cache对应的group，不是读入的group
             //由此得到addr在主存中的块号
-            blocknum := get_blocknum_cache(tag.read(RequestBuffergroup)(RadomChoose),RequestBuffergroup)
+            blocknum := get_blocknum_cache(tag(RadomChoose).read(RequestBuffergroup),RequestBuffergroup)
             axivalid := valid(RadomChoose*CacheParm.GroupNum.U+RequestBuffergroup) & dirty(RadomChoose*CacheParm.GroupNum.U+RequestBuffergroup)
             //此时需要写回，向总线申请写
             when(axivalid){
@@ -238,11 +238,9 @@ class CpuCache extends Module with CacheParm{
                         MainState := miss
                     }
                 }.otherwise{
-                    for(i <- 0 until parm.REGWIDTH/DataWidth){
-                        
+                    for(i <- 0 until parm.REGWIDTH/DataWidth){ 
                         val writedata = RequestBufferwdata((parm.REGWIDTH/DataWidth-i)*DataWidth-1,(parm.REGWIDTH/DataWidth-1-i)*DataWidth)
-                        memDataIn(RadomChoose) := writedata
-                        when(RequestBufferwstrb(parm.REGWIDTH/DataWidth-1-i)){ mem.write(RequestBuffergroup*BlockNum.U+RequestBufferblock+i.U,memDataIn,ChooseAsso)}
+                        when(RequestBufferwstrb(parm.REGWIDTH/DataWidth-1-i)){ mem(hitway).write(RequestBuffergroup*BlockNum.U+RequestBufferblock+i.U,writedata)}
                     }
                     valid(RadomChoose*GroupNum.U+RequestBuffergroup):= true.B
                     dirty(RadomChoose*GroupNum.U+RequestBuffergroup):= true.B
