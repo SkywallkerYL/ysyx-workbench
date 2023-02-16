@@ -107,13 +107,13 @@ class CpuCache extends Module with CacheParm{
     io.Sram.Axi.ar.valid := false.B
     io.Sram.Axi.ar.bits.addr := 0.U
     io.Sram.Axi.ar.bits.len  := 0.U
-    io.Sram.Axi.ar.bits.size := "b010".U //4 bytes
+    io.Sram.Axi.ar.bits.size := "b011".U //8 bytes  regwidth
     io.Sram.Axi.ar.bits.burst:= "b01".U //INCR
     io.Sram.Axi.r.ready := false.B
     io.Sram.Axi.aw.valid := false.B
     io.Sram.Axi.aw.bits.addr := 0.U
     io.Sram.Axi.aw.bits.len  := 0.U
-    io.Sram.Axi.aw.bits.size := "b010".U
+    io.Sram.Axi.aw.bits.size := "b011".U
     io.Sram.Axi.aw.bits.burst:= "b01".U 
     io.Sram.Axi.w.valid := false.B
     io.Sram.Axi.w.bits.data := 0.U
