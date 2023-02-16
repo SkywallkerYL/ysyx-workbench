@@ -62,6 +62,17 @@ class CacheIO extends Bundle{
     val rdata = Output(UInt(parm.REGWIDTH.W))
     
 }
+class myLFSR(increment : Bool = true.B) extends Module{
+    val io = IO(new Bundle{
+        val out = Output(UInt(16.W))
+    })
+    val width = 16
+    val lfsr = RegInit(1.U(width.W))
+    when(increment){
+        lfsr := Cat(lfsr(0)^lfsr(2)^lfsr(3)^lfsr(5),lfsr(width-1,1))
+    }
+    io.out := lfsr
+}
 class CpuCache extends Module with CacheParm{
     val io = IO(new Bundle{
         val Cache = Flipped(new Cpu2Cache) 
@@ -75,7 +86,7 @@ class CpuCache extends Module with CacheParm{
     //val mem = SyncReadMem(GroupNum*BlockNum,Vec(AssoNum,UInt(DataWidth.W)))
     val mem = (Seq.fill(AssoNum)(SyncReadMem(GroupNum*BlockNum,UInt(DataWidth.W))))
     //tag 实例化Assonum块 深度为Groupnum 的宽度为
-    val tag = Seq.fill(AssoNum)(SyncReadMem(GroupNum*BlockNum,UInt(TagWidth.W)))
+    val tag = Seq.fill(AssoNum)(SyncReadMem(GroupNum,UInt(TagWidth.W)))
     //val tag = VecInit(Seq.fill(CacheParm.AssoNum)((SyncReadMem(CacheParm.GroupNum,UInt(TagWidth.W)))))
     //val mem = Vec(GroupNum,Vec(AssoNum,SyncReadMem(BlockNum,UInt(DataWidth.W))))
     //容量小的用Reg实现
@@ -178,7 +189,9 @@ class CpuCache extends Module with CacheParm{
                         val writedata = RequestBufferwdata((parm.REGWIDTH/DataWidth-i)*DataWidth-1,(parm.REGWIDTH/DataWidth-1-i)*DataWidth)
                         when(RequestBufferwstrb(parm.REGWIDTH/DataWidth-1-i)){ 
                             for (j <- 0 until AssoNum){
-                                when(hit(j)) {mem(j).write(RequestBuffergroup*BlockNum.U+RequestBufferblock+i.U,writedata)}
+                                when(hit(j)) {
+                                    mem(j).write(RequestBuffergroup*BlockNum.U+RequestBufferblock+i.U,writedata)
+                                }
                             } 
                         }
                     }
@@ -242,12 +255,14 @@ class CpuCache extends Module with CacheParm{
                         MainState := miss
                     }
                 }.otherwise{
-                    for(i <- 0 until parm.REGWIDTH/DataWidth){ 
-                        val writedata = RequestBufferwdata((parm.REGWIDTH/DataWidth-i)*DataWidth-1,(parm.REGWIDTH/DataWidth-1-i)*DataWidth)
-                        for(j <- 0 until AssoNum){
-                            when(hit(j)){
+                    for(j <- 0 until AssoNum){
+                        when(ChooseAsso(j)){
+                            tag(j).write(RequestBuffergroup,RequestBuffertag)
+                            for(i <- 0 until parm.REGWIDTH/DataWidth){ 
+                                val writedata = RequestBufferwdata((parm.REGWIDTH/DataWidth-i)*DataWidth-1,(parm.REGWIDTH/DataWidth-1-i)*DataWidth)
                                 when(RequestBufferwstrb(parm.REGWIDTH/DataWidth-1-i)){ 
                                     mem(j).write(RequestBuffergroup*BlockNum.U+RequestBufferblock+i.U,writedata)
+                                    
                                 }
                             }
                         }
@@ -300,15 +315,16 @@ class CpuCache extends Module with CacheParm{
             when(io.Sram.Axi.r.fire){
                 //io.Sram.Axi.ar.bits.rtype := "b100".U
                 //突发读，读入 // 暂时不支持非对齐的访问
-                for(i <- 0 until parm.REGWIDTH/DataWidth){
-                    val ramrdata = io.Sram.Axi.r.bits.data((parm.REGWIDTH/DataWidth-i)*DataWidth-1,(parm.REGWIDTH/DataWidth-1-i)*DataWidth)
-                    //val memDataIn(RadomChoose) := ramrdata
-                    for(j <- 0 until AssoNum){
-                        when(ChooseAsso(j)){
+                for(j <- 0 until AssoNum){
+                    when(ChooseAsso(j)){
+                        tag(j).write(RequestBuffergroup,RequestBuffertag)
+                        for(i <- 0 until parm.REGWIDTH/DataWidth){
+                            val ramrdata = io.Sram.Axi.r.bits.data((parm.REGWIDTH/DataWidth-i)*DataWidth-1,(parm.REGWIDTH/DataWidth-1-i)*DataWidth)
+                        //val memDataIn(RadomChoose) := ramrdata
                             mem(j).write(RequestBuffergroup*BlockNum.U+RequestBufferblock+i.U,ramrdata)
-                        }
-                    }
-                }              
+                        }      
+                    }   
+                }        
                 when (io.Sram.Axi.r.bits.last){
                     MainState := idle
                     valid(RadomChoose*CacheParm.GroupNum.U+RequestBuffergroup):= true.B
