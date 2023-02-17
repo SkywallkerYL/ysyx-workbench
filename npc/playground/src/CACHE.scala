@@ -141,7 +141,7 @@ class CpuCache extends Module with CacheParm{
     val hitway = Wire(UInt(AssoWidth.W))
     hitway := 0.U
     //val mask   = Wire(Vec())
-
+    //val datavalid = RegInit(0.U(1.W))
     val useblock = Wire(UInt(BlockWidth.W))
     useblock := 0.U
     val usegroup = Wire(UInt(BlockWidth.W))
@@ -195,7 +195,6 @@ class CpuCache extends Module with CacheParm{
                 io.Cache.Cache.addrok:= true.B
                 useblock := Inblock//这个周期就发送读请求，下个周期能拿到mem中的数据
                 usegroup := Ingroup
-                
                 MainState := lookup
             }.otherwise{
                 MainState := idle
@@ -229,20 +228,8 @@ class CpuCache extends Module with CacheParm{
                 }
                 //io.Cache.Cache.rdata  := Mux(!RequestBufferop,LoadRes.asUInt,0.U) 
                 //io.Cache.Cache.dataok := Mux(!RequestBufferop,1.U,0.U)
-                when(io.Cache.Cache.valid){
-                    RequestBufferop := io.Cache.Cache.op
-                    RequestBuffertag := Intag
-                    RequestBuffergroup := Ingroup
-                    RequestBufferblock := Inblock
-                    RequestBufferblockraw := Inblock
-                    RequestBufferwdata := io.Cache.Cache.wdata
-                    RequestBufferwstrb := io.Cache.Cache.wstrb
-                    MainState := lookup
-                    useblock := Inblock//这个周期就发送读请求，下个周期能拿到mem中的数据
-                    usegroup := Ingroup
-                }.otherwise{
-                    MainState := idle
-                }   
+                //不能连续取，因为发送ok信号后，才会更新地址，因此直接条会lookup的话，拿到的还是旧地址
+                MainState := idle
             }.otherwise{
                 useblock := RequestBufferblock
                 usegroup := RequestBuffergroup
@@ -371,6 +358,8 @@ class CpuCache extends Module with CacheParm{
                     }   
                 }        
                 when (io.Sram.Axi.r.bits.last){
+                    useblock := RequestBufferblockraw
+                    usegroup := RequestBuffergroup
                     MainState := lookup
                     valid(RadomChoose*GroupNum.U+RequestBuffergroup):= true.B
                     dirty(RadomChoose*GroupNum.U+RequestBuffergroup):= false.B
