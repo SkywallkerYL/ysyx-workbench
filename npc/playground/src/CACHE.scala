@@ -350,7 +350,7 @@ class CpuCache extends Module with CacheParm{
                         tag(j).write(RequestBuffergroup,RequestBuffertag)
                         for (i <- 0 until BlockNum){
                             when(BlockChoose(i)){
-                                printf(p"ramrdata=${Hexadecimal(ramrdata >> (i*DataWidth))(DataWidth-1,0))} \n")
+                                printf(p"ramrdata=${Hexadecimal(ramrdata >> (i*DataWidth))(DataWidth-1,0)} \n")
                                 mem(j*AssoNum+i).write(RequestBuffergroup,(ramrdata >> (i*DataWidth))(DataWidth-1,0))
                             }
                         }
