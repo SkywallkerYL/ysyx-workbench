@@ -185,12 +185,12 @@ class CpuCache extends Module with CacheParm{
         //换成倒过来的顺序就没有问题。
         //ReadAxiData(i) := ramrdata((i+1)*DataWidth-1,i*DataWidth)
         //parm.REGWIDTH/DataWidth-i
-        ReadAxiData(parm.REGWIDTH/DataWidth-i) := ramrdata((parm.REGWIDTH/DataWidth-i)*DataWidth-1,(parm.REGWIDTH/DataWidth-i-1)*DataWidth)
+        ReadAxiData(parm.REGWIDTH/DataWidth-1-i) := ramrdata((parm.REGWIDTH/DataWidth-i)*DataWidth-1,(parm.REGWIDTH/DataWidth-i-1)*DataWidth)
     }
     val WriteBufferData = Wire(Vec(parm.REGWIDTH/DataWidth,UInt(DataWidth.W)))
     for (i <- 0 until parm.REGWIDTH/DataWidth){
         //WriteBufferData(i) := RequestBufferwdata((i+1)*DataWidth-1,i*DataWidth)
-        WriteBufferData(parm.REGWIDTH/DataWidth-i) := RequestBufferwdata((parm.REGWIDTH/DataWidth-i)*DataWidth-1,(parm.REGWIDTH/DataWidth-i-1)*DataWidth)
+        WriteBufferData(parm.REGWIDTH/DataWidth-1-i) := RequestBufferwdata((parm.REGWIDTH/DataWidth-i)*DataWidth-1,(parm.REGWIDTH/DataWidth-i-1)*DataWidth)
     }
     switch(MainState){
         is(idle){ 
