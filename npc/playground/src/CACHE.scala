@@ -360,7 +360,7 @@ class CpuCache extends Module with CacheParm{
                         //val memDataIn(RadomChoose) := ramrdata
                             //printf(p"ramrdata=${Hexadecimal(ramrdata)} \n")
                             //ramrdata := ramrdata >> DataWidth
-                            mem(j).write(RequestBuffergroup*BlockNum.U+RequestBufferblock+i.U,ReadAxiData(i))
+                            mem(j).write(RequestBuffergroup*BlockNum.U+RequestBufferblock+i.U,ReadAxiDataFlip(i))
                         }      
                     }   
                 }        
