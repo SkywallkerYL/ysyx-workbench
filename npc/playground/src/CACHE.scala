@@ -86,6 +86,8 @@ class CpuCache extends Module with CacheParm{
     //val mem = SyncReadMem(GroupNum*BlockNum,Vec(AssoNum,UInt(DataWidth.W)))
     //SyncReadMem 是同步读写  会被综合成Mem，设置读地址的下一个周期才能拿到数据
     //Mem 是同步写，异步读，会被综合成触发器，
+    //不同的block例化到同一个mem里是不合理的，因为会在一个周期内收集好几个Block的数据，这样的话，在同一个
+    //会导致在同一个周期内，对不同的地址进行读写，这样子就不符实际，因此代码也会出现难以理解的行为
     val mem = (Seq.fill(AssoNum*BlockNum)(SyncReadMem(GroupNum,UInt(DataWidth.W))))
     //tag 实例化Assonum块 深度为Groupnum 的宽度为
     val tag = Seq.fill(AssoNum)(SyncReadMem(GroupNum,UInt(TagWidth.W)))
@@ -152,6 +154,7 @@ class CpuCache extends Module with CacheParm{
             hitway := i.U
         }
     }
+    printf(p"block = ${BlockNum}\n")
     val BlockChoose = Wire(Vec(BlockNum,Bool()))
     for (i <- 0 until BlockNum) {
         BlockChoose(i) := (i.U>=useblock) & (i.U<useblock+(parm.REGWIDTH/DataWidth).U)
@@ -186,26 +189,11 @@ class CpuCache extends Module with CacheParm{
     val ramrdata = Wire(UInt((BlockNum*DataWidth).W))
     ramrdata := io.Sram.Axi.r.bits.data << (useblock*DataWidth.U)
     //val ramrdata = io.Sram.Axi.r.bits.data
-    val ReadAxiData = Wire(Vec(parm.REGWIDTH/DataWidth,UInt(DataWidth.W)))
-    //val ReadAxiDataFlip = Wire(Vec(parm.REGWIDTH/DataWidth,UInt(DataWidth.W)))
-    for (i <- 0 until parm.REGWIDTH/DataWidth){
-        //如果按照下面这种顺序写的话，会导致verilator生成的C代码运行产生munmap_chunk(): invalid pointer
-        //换成倒过来的顺序就没有问题。
-        //ReadAxiData(i) := ramrdata((i+1)*DataWidth-1,i*DataWidth)
-        //parm.REGWIDTH/DataWidth-i
-        //ReadAxiData(i)  也必须顺序写，不然也会触发无效指针
-        ReadAxiData(i) := ramrdata((parm.REGWIDTH/DataWidth-i)*DataWidth-1,(parm.REGWIDTH/DataWidth-i-1)*DataWidth)
-        //ReadAxiDataFlip(parm.REGWIDTH/DataWidth-i-1) := ReadAxiData(i)
-    }
     val WriteBufferData = Wire(Vec(parm.REGWIDTH/DataWidth,UInt(DataWidth.W)))
     val lineData = Wire(UInt((BlockNum*DataWidth).W))
     lineData := RequestBufferwdata << (useblock*DataWidth.U)
     val linemask = Wire(UInt((BlockNum).W))
     linemask := RequestBufferwstrb << useblock
-    for (i <- 0 until parm.REGWIDTH/DataWidth){
-        //WriteBufferData(i) := RequestBufferwdata((i+1)*DataWidth-1,i*DataWidth)
-        WriteBufferData(i) := RequestBufferwdata((parm.REGWIDTH/DataWidth-i)*DataWidth-1,(parm.REGWIDTH/DataWidth-i-1)*DataWidth)
-    }
     switch(MainState){
         is(idle){ 
             //接收到读写请求
@@ -395,6 +383,7 @@ class CpuCache extends Module with CacheParm{
                       // io.Cache.Cache.rdata  := io.Sram.Axi.r.bits.data
                        //io.Cache.Cache.dataok := true.B
                     //}
+                    useblock := RequestBufferblock+(parm.REGWIDTH/DataWidth).U
                     RequestBufferblock := RequestBufferblock+(parm.REGWIDTH/DataWidth).U
                     MainState := refill
                 }
