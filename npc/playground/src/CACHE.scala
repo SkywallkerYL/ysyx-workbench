@@ -158,7 +158,7 @@ class CpuCache extends Module with CacheParm{
     val rdData  = Seq.fill(AssoNum)(Wire(Vec(BlockNum,UInt(DataWidth.W))))
     for(i <- 0 until AssoNum){
         for(j <- 0 until BlockNum){
-            rdData(i)(BlockNum-1-j) := mem(i*AssoNum+j).read(usegroup)
+            rdData(i)(j) := mem(i*AssoNum+j).read(usegroup)
         }
     }
     //以选中的起始地址开始的64位数据
