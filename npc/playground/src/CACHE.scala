@@ -277,13 +277,13 @@ class CpuCache extends Module with CacheParm{
                     }
                 }.otherwise{
                     for(j <- 0 until AssoNum){
+                        val writedata = RequestBufferwdata
                         when(ChooseAsso(j)){
                             tag(j).write(RequestBuffergroup,RequestBuffertag)
                             for(i <- 0 until parm.REGWIDTH/DataWidth){ 
-                                val writedata = RequestBufferwdata((i+1)*DataWidth-1,(i)*DataWidth)
-                                when(RequestBufferwstrb(parm.REGWIDTH/DataWidth-1-i)){ 
-                                    mem(j).write(RequestBuffergroup*BlockNum.U+RequestBufferblock+i.U,writedata)
-                                    
+                                when(RequestBufferwstrb(i)){ 
+                                    writedata := writedata >> DataWidth
+                                    mem(j).write(RequestBuffergroup*BlockNum.U+RequestBufferblock+i.U,writedata(DataWidth-1,0))  
                                 }
                             }
                         }
@@ -334,14 +334,17 @@ class CpuCache extends Module with CacheParm{
                 //io.Sram.Axi.ar.bits.rtype := "b100".U
                 //突发读，读入 // 暂时不支持非对齐的访问
                 for(j <- 0 until AssoNum){
+                    val ramrdata = io.Sram.Axi.r.bits.data
                     when(ChooseAsso(j)){
                         tag(j).write(RequestBuffergroup,RequestBuffertag)
                         for(i <- 0 until parm.REGWIDTH/DataWidth){
                             //val ramrdata = io.Sram.Axi.r.bits.data((parm.REGWIDTH/DataWidth-i)*DataWidth-1,(parm.REGWIDTH/DataWidth-1-i)*DataWidth)
-                            val ramrdata = io.Sram.Axi.r.bits.data((i+1)*DataWidth-1,(i)*DataWidth)
+                            //这样子写verilator产生的C代码会触发 munmap_chunk(): invalid pointer
+                            //val ramrdata = io.Sram.Axi.r.bits.data((i+1)*DataWidth-1,(i)*DataWidth)
                         //val memDataIn(RadomChoose) := ramrdata
                             //printf(p"ramrdata=${Hexadecimal(ramrdata)} \n")
-                            mem(j).write(RequestBuffergroup*BlockNum.U+RequestBufferblock+i.U,ramrdata)
+                            ramrdata := ramrdata >> DataWidth
+                            mem(j).write(RequestBuffergroup*BlockNum.U+RequestBufferblock+i.U,ramrdata(DataWidth-1,0))
                         }      
                     }   
                 }        
