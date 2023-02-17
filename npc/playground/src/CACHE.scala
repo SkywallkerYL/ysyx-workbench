@@ -143,6 +143,8 @@ class CpuCache extends Module with CacheParm{
     useblock := 0.U
     val writeblock = Wire(UInt(BlockWidth.W))
     writeblock := RequestBufferblock
+    val right =  Wire(UInt((BlockWidth+1).W))
+    right := writeblock+(parm.REGWIDTH/DataWidth).U
     val usegroup = Wire(UInt(BlockWidth.W))
     usegroup := 0.U
     for (i <- 0 until AssoNum){
@@ -153,8 +155,8 @@ class CpuCache extends Module with CacheParm{
     }
     val BlockChoose = dontTouch(Wire(Vec(BlockNum,Bool())))
     for (i <- 0 until BlockNum) {
-        printf(p"i=${i} block=${writeblock} right=${writeblock+(parm.REGWIDTH/DataWidth).U} choose=${BlockChoose(i)}\n ")
-        BlockChoose(i) := (i.U>=writeblock) && (i.U<(writeblock+(parm.REGWIDTH/DataWidth).U))
+        //printf(p"i=${i} block=${writeblock} right=${writeblock+(parm.REGWIDTH/DataWidth).U} choose=${BlockChoose(i)}\n ")
+        BlockChoose(i) := (i.U>=writeblock) && (i.U<(right))
     }
     //left most bits in vec is low order bits 
     val rdData  = Seq.fill(AssoNum)(Wire(Vec(BlockNum,UInt(DataWidth.W))))
