@@ -180,7 +180,7 @@ class CpuCache extends Module with CacheParm{
     val RadomLine = lfsr.io.out(AssoWidth-1,0) // 取模，Assonum正好2的幂次，保留低位 
     val ramrdata = io.Sram.Axi.r.bits.data
     val ReadAxiData = Wire(Vec(parm.REGWIDTH/DataWidth,UInt(DataWidth.W)))
-    val ReadAxiDataFlip = Wire(Vec(parm.REGWIDTH/DataWidth,UInt(DataWidth.W)))
+    //val ReadAxiDataFlip = Wire(Vec(parm.REGWIDTH/DataWidth,UInt(DataWidth.W)))
     for (i <- 0 until parm.REGWIDTH/DataWidth){
         //如果按照下面这种顺序写的话，会导致verilator生成的C代码运行产生munmap_chunk(): invalid pointer
         //换成倒过来的顺序就没有问题。
