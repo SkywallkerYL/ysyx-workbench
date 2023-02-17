@@ -141,6 +141,8 @@ class CpuCache extends Module with CacheParm{
     //val datavalid = RegInit(0.U(1.W))
     val useblock = Wire(UInt(BlockWidth.W))
     useblock := 0.U
+    val writeblock = Wire(UInt(BlockWidth.W))
+    writeblock := 0.U
     val usegroup = Wire(UInt(BlockWidth.W))
     usegroup := 0.U
     for (i <- 0 until AssoNum){
@@ -151,7 +153,7 @@ class CpuCache extends Module with CacheParm{
     }
     val BlockChoose = Wire(Vec(BlockNum,Bool()))
     for (i <- 0 until BlockNum) {
-        BlockChoose(i) := (i.U>=useblock) & (i.U<useblock+(parm.REGWIDTH/DataWidth).U)
+        BlockChoose(i) := (i.U>=writeblock) & (i.U<writeblock+(parm.REGWIDTH/DataWidth).U)
     }
     val rdData  = Seq.fill(AssoNum)(Wire(Vec(BlockNum,UInt(DataWidth.W))))
     for(i <- 0 until AssoNum){
@@ -220,7 +222,7 @@ class CpuCache extends Module with CacheParm{
                         }
                     }
                 }.otherwise{
-                    useblock := RequestBufferblock
+                    writeblock := RequestBufferblock
                     for (j <- 0 until AssoNum){
                         when(hit(j)) {
                             for (i <- 0 until BlockNum){
@@ -286,6 +288,7 @@ class CpuCache extends Module with CacheParm{
                         MainState := miss
                     }
                 }.otherwise{
+                    writeblock := RequestBufferblock
                     for(j <- 0 until AssoNum){
                         //val writedata = RequestBufferwdata
                         when(ChooseAsso(j)){
@@ -378,7 +381,7 @@ class CpuCache extends Module with CacheParm{
                       // io.Cache.Cache.rdata  := io.Sram.Axi.r.bits.data
                        //io.Cache.Cache.dataok := true.B
                     //}
-                    useblock := RequestBufferblock
+                    writeblock := RequestBufferblock
                     usegroup := RequestBuffergroup
                     //useblock := RequestBufferblock+(parm.REGWIDTH/DataWidth).U
                     RequestBufferblock := RequestBufferblock+(parm.REGWIDTH/DataWidth).U
