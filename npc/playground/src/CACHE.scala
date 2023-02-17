@@ -158,6 +158,11 @@ class CpuCache extends Module with CacheParm{
             LoadRes(i)(parm.REGWIDTH/DataWidth-1-j) := mem(i).read(usegroup*BlockNum.U+useblock+j.U)
         }
     }    
+    val RadomChoose = RegInit(0.U(AssoWidth.W))
+    val ChooseAsso = Wire(Vec(AssoNum,Bool()))
+    for(i <- 0 until AssoNum){
+        ChooseAsso(i) := RadomChoose === i.U
+    }
     val blocknum = Wire(UInt((DataWidth-BlockWidth).W))
     blocknum := 0.U
     for (i <- 0 until AssoNum){
@@ -173,11 +178,7 @@ class CpuCache extends Module with CacheParm{
     val MainState = RegInit(idle)
     val lfsr = Module(new myLFSR)
     val RadomLine = lfsr.io.out(AssoWidth-1,0) // 取模，Assonum正好2的幂次，保留低位 
-    val RadomChoose = RegInit(0.U(CacheParm.AssoWidth.W))
-    val ChooseAsso = Wire(Vec(AssoNum,Bool()))
-    for(i <- 0 until AssoNum){
-        ChooseAsso(i) := RadomChoose === i.U
-    }
+
     switch(MainState){
         is(idle){ 
             //接收到读写请求
