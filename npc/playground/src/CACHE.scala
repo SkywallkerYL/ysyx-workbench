@@ -344,11 +344,12 @@ class CpuCache extends Module with CacheParm{
         }
         is(refill){
             io.Sram.Axi.r.ready := true.B
+            writeblock := RequestBufferblock
             when(io.Sram.Axi.r.fire){
                 //io.Sram.Axi.ar.bits.rtype := "b100".U
                 //突发读，读入 // 暂时不支持非对齐的访问
                 for(j <- 0 until AssoNum){
-                    writeblock := RequestBufferblock
+                   
                     //val ramrdata = io.Sram.Axi.r.bits.data
                     when(ChooseAsso(j)){
                         tag(j).write(RequestBuffergroup,RequestBuffertag)
@@ -378,7 +379,7 @@ class CpuCache extends Module with CacheParm{
                     dirty(RadomChoose*GroupNum.U+RequestBuffergroup):= false.B
                     RequestBufferblock := RequestBufferblockraw
                 }.otherwise{
-                    writeblock := RequestBufferblock
+                    
                     usegroup := RequestBuffergroup
                     RequestBufferblock := RequestBufferblock+(parm.REGWIDTH/DataWidth).U
                     MainState := refill
