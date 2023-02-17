@@ -189,7 +189,6 @@ class CpuCache extends Module with CacheParm{
     val ramrdata = Wire(UInt((BlockNum*DataWidth).W))
     ramrdata := io.Sram.Axi.r.bits.data << (useblock*DataWidth.U)
     //val ramrdata = io.Sram.Axi.r.bits.data
-    val WriteBufferData = Wire(Vec(parm.REGWIDTH/DataWidth,UInt(DataWidth.W)))
     val lineData = Wire(UInt((BlockNum*DataWidth).W))
     lineData := RequestBufferwdata << (useblock*DataWidth.U)
     val linemask = Wire(UInt((BlockNum).W))
