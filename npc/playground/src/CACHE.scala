@@ -141,23 +141,32 @@ class CpuCache extends Module with CacheParm{
     val hitway = Wire(UInt(AssoWidth.W))
     hitway := 0.U
     //val mask   = Wire(Vec())
+
+    val useblock = Wire(UInt(BlockWidth.W))
+    useblock := 0.U
+    val usegroup = Wire(UInt(BlockWidth.W))
+    usegroup := 0.U
     for (i <- 0 until AssoNum){
-        when(RequestBuffertag === tag(i).read(RequestBuffergroup)&&valid((i*GroupNum).U+RequestBuffergroup)){
+        when(RequestBuffertag === tag(i).read(usegroup)&&valid((i*GroupNum).U+RequestBuffergroup)){
             hit(i) := true.B
             hitway := i.U
         }
     }
     for (i <- 0 until AssoNum){
-        //when(hit(i)) {
-            for( j <- 0 until parm.REGWIDTH/DataWidth){
-                //printf(p"readdata=${Hexadecimal(mem(i).read(RequestBuffergroup*BlockNum.U+RequestBufferblock+j.U))} \n")
-                LoadRes(i)(parm.REGWIDTH/DataWidth-1-j) := mem(i).read(RequestBuffergroup*BlockNum.U+RequestBufferblock+j.U)
-            }
-        //}
-    }
-    val cachehit = hit.asUInt.orR
+        for( j <- 0 until parm.REGWIDTH/DataWidth){
+            //printf(p"readdata=${Hexadecimal(mem(i).read(RequestBuffergroup*BlockNum.U+RequestBufferblock+j.U))} \n")
+            LoadRes(i)(parm.REGWIDTH/DataWidth-1-j) := mem(i).read(usegroup*BlockNum.U+useblock+j.U)
+        }
+    }    
     val blocknum = Wire(UInt((DataWidth-BlockWidth).W))
     blocknum := 0.U
+    for (i <- 0 until AssoNum){
+        when(ChooseAsso(i)){
+            blocknum := get_blocknum_cache(tag(i).read(usegroup),RequestBuffergroup)
+        }   
+    }
+    val cachehit = hit.asUInt.orR
+
     val axivalid = Wire(Bool())
     axivalid := false.B
     val idle :: lookup :: miss :: replace :: refill :: Nil = Enum(5)
@@ -183,6 +192,9 @@ class CpuCache extends Module with CacheParm{
                 RequestBufferwdata := io.Cache.Cache.wdata
                 RequestBufferwstrb := io.Cache.Cache.wstrb
                 io.Cache.Cache.addrok:= true.B
+                useblock := Inblock//这个周期就发送读请求，下个周期能拿到mem中的数据
+                usegroup := Ingroup
+                
                 MainState := lookup
             }.otherwise{
                 MainState := idle
@@ -192,13 +204,7 @@ class CpuCache extends Module with CacheParm{
             //lookup->idle
             when(cachehit){
                 when(!RequestBufferop){
-                    io.Cache.Cache.dataok := RegDataOk
-                    when(RegDataOk === 1.U){
-                        RegDataOk := 0.U
-                    }.otherwise{
-                        MainState := lookup
-                        RegDataOk := 1.U
-                    }
+                    io.Cache.Cache.dataok := true.B
                     for(i <- 0 until AssoNum ){
                         when(hit(i)){
                             io.Cache.Cache.rdata  := LoadRes(i).asUInt
@@ -231,10 +237,14 @@ class CpuCache extends Module with CacheParm{
                     RequestBufferwdata := io.Cache.Cache.wdata
                     RequestBufferwstrb := io.Cache.Cache.wstrb
                     MainState := lookup
+                    useblock := Inblock//这个周期就发送读请求，下个周期能拿到mem中的数据
+                    usegroup := Ingroup
                 }.otherwise{
                     MainState := idle
                 }   
             }.otherwise{
+                useblock := RequestBufferblock
+                usegroup := RequestBuffergroup
                 MainState := miss
                 RadomChoose := RadomLine
             }
@@ -243,11 +253,8 @@ class CpuCache extends Module with CacheParm{
             //cache 缺失，有效且脏的情况下向AXI总线申请写入
             //此时的group是当前cache对应的group，不是读入的group
             //由此得到addr在主存中的块号
-            for (i <- 0 until AssoNum){
-                when(ChooseAsso(i)){
-                    blocknum := get_blocknum_cache(tag(i).read(RequestBuffergroup),RequestBuffergroup)
-                }   
-            }
+            useblock := RequestBufferblock
+            usegroup := RequestBuffergroup
             axivalid := valid(RadomChoose*CacheParm.GroupNum.U+RequestBuffergroup) & dirty(RadomChoose*CacheParm.GroupNum.U+RequestBuffergroup)
             //此时需要写回，向总线申请写
             when(axivalid){
@@ -260,6 +267,9 @@ class CpuCache extends Module with CacheParm{
                     io.Sram.Axi.aw.bits.len := (BlockNum/(AddrWidth/DataWidth)).U-1.U
                     io.Sram.Axi.aw.bits.size:= "b11".U
                     //写的时候要对齐
+                    //replace 要用到Loadres 读地址提前一周期送进去
+                    useblock := RequestBufferblock
+                    usegroup := RequestBuffergroup
                     //RequestBufferblock := RequestBufferblock&(~"x3".U(BlockWidth.W))
                     MainState := replace
                 }
@@ -302,6 +312,8 @@ class CpuCache extends Module with CacheParm{
                         RequestBufferwdata := io.Cache.Cache.wdata
                         RequestBufferwstrb := io.Cache.Cache.wstrb
                         MainState := lookup
+                        useblock := Inblock
+                        usegroup := Ingroup
                     }.otherwise{
                         MainState := idle
                     } 
@@ -310,7 +322,9 @@ class CpuCache extends Module with CacheParm{
         }
         is(replace){
             //向总线写回cacheline
-            io.Sram.Axi.w.valid := true.B     
+            io.Sram.Axi.w.valid := true.B  
+            useblock := RequestBufferblock
+            usegroup := RequestBuffergroup   
             when(io.Sram.Axi.w.fire){
                 //写数据的data位宽也要该，改称cache line 一行的datawidth (datawith*blocknum)
                 //一次写一个data 宽的
@@ -327,9 +341,11 @@ class CpuCache extends Module with CacheParm{
                     //写完成，向总线申请读//更新Dirty 和valid 返回Miss
                     valid(RadomChoose*GroupNum.U+RequestBuffergroup):= true.B
                     dirty(RadomChoose*GroupNum.U+RequestBuffergroup):= false.B
+                    useblock := RequestBufferblockraw
                     RequestBufferblock := RequestBufferblockraw
                     MainState := miss
                 }.otherwise{
+                    useblock := RequestBufferblock + (parm.REGWIDTH/DataWidth).U
                     RequestBufferblock := RequestBufferblock + (parm.REGWIDTH/DataWidth).U
                     //requestblock 要复原
                     MainState := replace
