@@ -213,8 +213,8 @@ class CpuCache extends Module with CacheParm{
                     }
                 }.otherwise{
                     for(i <- 0 until parm.REGWIDTH/DataWidth){
-                        val writedata = RequestBufferwdata((parm.REGWIDTH/DataWidth-i)*DataWidth-1,(parm.REGWIDTH/DataWidth-1-i)*DataWidth)
-                        when(RequestBufferwstrb(parm.REGWIDTH/DataWidth-1-i)){ 
+                        val writedata = RequestBufferwdata((i+1)*DataWidth-1,(i)*DataWidth)
+                        when(RequestBufferwstrb(i)){ 
                             for (j <- 0 until AssoNum){
                                 when(hit(j)) {
                                     mem(j).write(RequestBuffergroup*BlockNum.U+RequestBufferblock+i.U,writedata)
@@ -280,7 +280,7 @@ class CpuCache extends Module with CacheParm{
                         when(ChooseAsso(j)){
                             tag(j).write(RequestBuffergroup,RequestBuffertag)
                             for(i <- 0 until parm.REGWIDTH/DataWidth){ 
-                                val writedata = RequestBufferwdata((parm.REGWIDTH/DataWidth-i)*DataWidth-1,(parm.REGWIDTH/DataWidth-1-i)*DataWidth)
+                                val writedata = RequestBufferwdata((i+1)*DataWidth-1,(i)*DataWidth)
                                 when(RequestBufferwstrb(parm.REGWIDTH/DataWidth-1-i)){ 
                                     mem(j).write(RequestBuffergroup*BlockNum.U+RequestBufferblock+i.U,writedata)
                                     
