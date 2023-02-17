@@ -181,11 +181,14 @@ class CpuCache extends Module with CacheParm{
     val ramrdata = io.Sram.Axi.r.bits.data
     val ReadAxiData = Wire(Vec(parm.REGWIDTH/DataWidth,UInt(DataWidth.W)))
     for (i <- 0 until parm.REGWIDTH/DataWidth){
-        ReadAxiData(i) := ramrdata((i+1)*DataWidth-1,i*DataWidth)
+        //ReadAxiData(i) := ramrdata((i+1)*DataWidth-1,i*DataWidth)
+        //parm.REGWIDTH/DataWidth-i
+        ReadAxiData(i) := ramrdata((parm.REGWIDTH/DataWidth-i)*DataWidth-1,(parm.REGWIDTH/DataWidth-i-1)*DataWidth)
     }
     val WriteBufferData = Wire(Vec(parm.REGWIDTH/DataWidth,UInt(DataWidth.W)))
     for (i <- 0 until parm.REGWIDTH/DataWidth){
-        WriteBufferData(i) := RequestBufferwdata((i+1)*DataWidth-1,i*DataWidth)
+        //WriteBufferData(i) := RequestBufferwdata((i+1)*DataWidth-1,i*DataWidth)
+        WriteBufferData(i) := RequestBufferwdata((parm.REGWIDTH/DataWidth-i)*DataWidth-1,(parm.REGWIDTH/DataWidth-i-1)*DataWidth)
     }
     switch(MainState){
         is(idle){ 
