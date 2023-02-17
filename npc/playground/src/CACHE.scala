@@ -33,7 +33,7 @@ trait  CacheParm {
         return (local & (~(extagmask)))>>(GroupWidth+BlockWidth).U
     }
     def get_group(addr : UInt) :UInt = {
-        return (addr & (groupmask))
+        return (addr & (groupmask)) >> BlockWidth
     }
     def get_block(addr : UInt) : UInt = {
         return (addr & (blockmask))
@@ -283,7 +283,8 @@ class CpuCache extends Module with CacheParm{
                 when(!RequestBufferop){
                     io.Sram.Axi.ar.valid := true.B
                     when(io.Sram.Axi.ar.fire){
-                        io.Sram.Axi.ar.bits.addr := ((RequestBuffertag<<(GroupWidth.U)|RequestBuffergroup))
+                        //group要移回去，并且屏蔽掉低位，这样子才能读入整行
+                        io.Sram.Axi.ar.bits.addr := ((RequestBuffertag<<((BlockWidth+GroupWidth).U)|(RequestBuffergroup<<(GroupWidth).U)))
                         io.Sram.Axi.ar.bits.len  := (BlockNum/(AddrWidth/DataWidth)).U-1.U
                         RequestBufferblock := 0.U
                         io.Sram.Axi.ar.bits.size := "b11".U
