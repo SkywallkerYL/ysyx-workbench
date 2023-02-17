@@ -159,20 +159,10 @@ class CpuCache extends Module with CacheParm{
     val rdData  = Seq.fill(AssoNum)(Wire(Vec(BlockNum,UInt(DataWidth.W))))
     for(i <- 0 until AssoNum){
         for(j <- 0 until BlockNum){
-            rdData(i)(j) := mem(i*AssoNum+j).read(usegroup)
+            rdData(i)(BlockNum-1-j) := mem(i*AssoNum+j).read(usegroup)
         }
     }
     //以选中的起始地址开始的64位数据
-    for (i <- 0 until AssoNum){
-        var init :Int  = 0
-        for( j <- 0 until BlockNum){
-                when(BlockChoose(j)) {
-                    LoadRes(i)(parm.REGWIDTH/DataWidth-1-init) := rdData(i)(j)
-                    init = init+1
-                } 
-            //printf(p"readdata=${Hexadecimal(mem(i).read(RequestBuffergroup*BlockNum.U+RequestBufferblock+j.U))} \n")
-        }
-    }    
     val RadomChoose = RegInit(0.U(AssoWidth.W))
     val ChooseAsso = Wire(Vec(AssoNum,Bool()))
     for(i <- 0 until AssoNum){
@@ -238,7 +228,7 @@ class CpuCache extends Module with CacheParm{
                     io.Cache.Cache.dataok := true.B
                     for(i <- 0 until AssoNum ){
                         when(hit(i)){
-                            io.Cache.Cache.rdata  := LoadRes(i).asUInt
+                            io.Cache.Cache.rdata  := ((rdData(i).asUInt)>>(useblock*DataWidth))(parm.REGWIDTH-1,0)//LoadRes(i).asUInt
                             //io.Cache.Cache.dataok := RegNext(true.B)
                         }
                     }
@@ -250,7 +240,7 @@ class CpuCache extends Module with CacheParm{
                             for (i <- 0 until BlockNum){
                                 when(BlockChoose(i)){
                                     when(RequestBufferwstrb(base)){
-                                        mem(j*AssoNum+i).write(RequestBuffergroup,WriteBufferData(parm.REGWIDTH/DataWidth-1-base))
+                                        mem(j*AssoNum+i).write(RequestBuffergroup,RequestBufferwdata)
                                         
                                     }
                                     base = base+1
@@ -345,7 +335,7 @@ class CpuCache extends Module with CacheParm{
                 //一次写一个data 宽的
                 for(i <- 0 until AssoNum ){
                     when(ChooseAsso(i)){
-                        io.Sram.Axi.w.bits.data  := LoadRes(i).asUInt    //a cacheline data ***
+                        io.Sram.Axi.w.bits.data  := ((rdData(i).asUInt)>>(useblock*DataWidth))(parm.REGWIDTH-1,0)//LoadRes(i).asUInt    //a cacheline data ***
                     }
                 }
                 //一次data
