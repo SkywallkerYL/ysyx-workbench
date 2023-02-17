@@ -228,7 +228,7 @@ class CpuCache extends Module with CacheParm{
                     io.Cache.Cache.dataok := true.B
                     for(i <- 0 until AssoNum ){
                         when(hit(i)){
-                            io.Cache.Cache.rdata  := ((rdData(i).asUInt)>>(useblock*DataWidth))(parm.REGWIDTH-1,0)//LoadRes(i).asUInt
+                            io.Cache.Cache.rdata  := ((rdData(i).asUInt)>>(useblock*DataWidth.U))(parm.REGWIDTH-1,0)//LoadRes(i).asUInt
                             //io.Cache.Cache.dataok := RegNext(true.B)
                         }
                     }
@@ -335,7 +335,7 @@ class CpuCache extends Module with CacheParm{
                 //一次写一个data 宽的
                 for(i <- 0 until AssoNum ){
                     when(ChooseAsso(i)){
-                        io.Sram.Axi.w.bits.data  := ((rdData(i).asUInt)>>(useblock*DataWidth))(parm.REGWIDTH-1,0)//LoadRes(i).asUInt    //a cacheline data ***
+                        io.Sram.Axi.w.bits.data  := ((rdData(i).asUInt)>>(useblock*DataWidth.U))(parm.REGWIDTH-1,0)//LoadRes(i).asUInt    //a cacheline data ***
                     }
                 }
                 //一次data
