@@ -162,6 +162,7 @@ class CpuCache extends Module with CacheParm{
             rdData(i)(j) := mem(i*AssoNum+j).read(usegroup)
         }
     }
+    //以选中的起始地址开始的64位数据
     for (i <- 0 until AssoNum){
         var init :Int  = 0
         for( j <- 0 until BlockNum){
@@ -242,12 +243,17 @@ class CpuCache extends Module with CacheParm{
                         }
                     }
                 }.otherwise{
+                    useblock := RequestBufferblock
                     for (j <- 0 until AssoNum){
                         when(hit(j)) {
-                            for(i <- 0 until parm.REGWIDTH/DataWidth){
-                               // val writedata = RequestBufferwdata((i+1)*DataWidth-1,(i)*DataWidth)
-                                when(RequestBufferwstrb(i)){ 
-                                    mem(j+RequestBufferblock+i.U).write(RequestBuffergroup*BlockNum.U,WriteBufferData(i))
+                            var base = 0
+                            for (i <- 0 until BlockNum){
+                                when(BlockChoose(i)){
+                                    when(RequestBufferwstrb(base)){
+                                        mem(j*AssoNum+i).write(RequestBuffergroup,WriteBufferData(parm.REGWIDTH/DataWidth-base))
+                                        
+                                    }
+                                    base = base+1
                                 }
                             }
                         }
@@ -310,10 +316,14 @@ class CpuCache extends Module with CacheParm{
                         //val writedata = RequestBufferwdata
                         when(ChooseAsso(j)){
                             tag(j).write(RequestBuffergroup,RequestBuffertag)
-                            for(i <- 0 until parm.REGWIDTH/DataWidth){ 
-                                when(RequestBufferwstrb(i)){ 
-                                    //writedata := writedata >> DataWidth
-                                    mem(j+RequestBufferblock+i).write(RequestBuffergroup*BlockNum.U,WriteBufferData(i))  
+                            var base = 0
+                            for (i <- 0 until BlockNum){
+                                when(BlockChoose(i)){
+                                    when(RequestBufferwstrb(base)){
+                                        mem(j*AssoNum+i).write(RequestBuffergroup,WriteBufferData(parm.REGWIDTH/DataWidth-base))
+                                        
+                                    }
+                                    base = base+1
                                 }
                             }
                         }
@@ -367,15 +377,25 @@ class CpuCache extends Module with CacheParm{
                     //val ramrdata = io.Sram.Axi.r.bits.data
                     when(ChooseAsso(j)){
                         tag(j).write(RequestBuffergroup,RequestBuffertag)
-                        for(i <- 0 until parm.REGWIDTH/DataWidth){
+                        var base = 0
+                        for (i <- 0 until BlockNum){
+                            when(BlockChoose(i)){
+                                when(RequestBufferwstrb(base)){
+                                    mem(j*AssoNum+i).write(RequestBuffergroup,ReadAxiData(parm.REGWIDTH/DataWidth-base))
+                                    
+                                }
+                                base = base+1
+                            }
+                        }
+                        //for(i <- 0 until parm.REGWIDTH/DataWidth){
                             //val ramrdata = io.Sram.Axi.r.bits.data((parm.REGWIDTH/DataWidth-i)*DataWidth-1,(parm.REGWIDTH/DataWidth-1-i)*DataWidth)
                             //这样子写verilator产生的C代码会触发 munmap_chunk(): invalid pointer
                             //val ramrdata = io.Sram.Axi.r.bits.data((i+1)*DataWidth-1,(i)*DataWidth)
                         //val memDataIn(RadomChoose) := ramrdata
                             //printf(p"ramrdata=${Hexadecimal(ramrdata)} \n")
                             //ramrdata := ramrdata >> DataWidth
-                            mem(j+RequestBufferblock+i).write(RequestBuffergroup*BlockNum.U,ReadAxiData(i))
-                        }      
+                            //mem(j+RequestBufferblock+i).write(RequestBuffergroup*BlockNum.U,ReadAxiData(i))
+                        //}      
                     }   
                 }        
                 when (io.Sram.Axi.r.bits.last){
