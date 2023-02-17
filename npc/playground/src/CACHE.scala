@@ -142,7 +142,7 @@ class CpuCache extends Module with CacheParm{
     val useblock = Wire(UInt(BlockWidth.W))
     useblock := 0.U
     val writeblock = Wire(UInt(BlockWidth.W))
-    writeblock := 0.U
+    writeblock := RequestBufferblock
     val usegroup = Wire(UInt(BlockWidth.W))
     usegroup := 0.U
     for (i <- 0 until AssoNum){
@@ -344,7 +344,7 @@ class CpuCache extends Module with CacheParm{
         }
         is(refill){
             io.Sram.Axi.r.ready := true.B
-            writeblock := RequestBufferblock
+            
             when(io.Sram.Axi.r.fire){
                 //io.Sram.Axi.ar.bits.rtype := "b100".U
                 //突发读，读入 // 暂时不支持非对齐的访问
@@ -379,8 +379,6 @@ class CpuCache extends Module with CacheParm{
                     dirty(RadomChoose*GroupNum.U+RequestBuffergroup):= false.B
                     RequestBufferblock := RequestBufferblockraw
                 }.otherwise{
-                    
-                    usegroup := RequestBuffergroup
                     RequestBufferblock := RequestBufferblock+(parm.REGWIDTH/DataWidth).U
                     MainState := refill
                 }
