@@ -80,10 +80,7 @@ class CpuCache extends Module with CacheParm{
     })
     //Cache Initial
     //容量大的采用mem实现
-    //val mem = Seq.fill(AssoNum)(Seq.fill(GroupNum)(SyncReadMem(BlockNum,UInt(DataWidth.W))))
     //mem 实例化Assonum*BlockNum块 深度为GroupNum 的宽度为datawidth的Ram
-    //val mem = VecInit(Seq.fill(CacheParm.AssoNum)((SyncReadMem(CacheParm.GroupNum*CacheParm.BlockNum,UInt(DataWidth.W)))))
-    //val mem = SyncReadMem(GroupNum*BlockNum,Vec(AssoNum,UInt(DataWidth.W)))
     //SyncReadMem 是同步读写  会被综合成Mem，设置读地址的下一个周期才能拿到数据
     //Mem 是同步写，异步读，会被综合成触发器，
     //不同的block例化到同一个mem里是不合理的，因为会在一个周期内收集好几个Block的数据，这样的话，在同一个
@@ -91,8 +88,6 @@ class CpuCache extends Module with CacheParm{
     val mem = (Seq.fill(AssoNum*BlockNum)(SyncReadMem(GroupNum,UInt(DataWidth.W))))
     //tag 实例化Assonum块 深度为Groupnum 的宽度为
     val tag = Seq.fill(AssoNum)(SyncReadMem(GroupNum,UInt(TagWidth.W)))
-    //val tag = VecInit(Seq.fill(CacheParm.AssoNum)((SyncReadMem(CacheParm.GroupNum,UInt(TagWidth.W)))))
-    //val mem = Vec(GroupNum,Vec(AssoNum,SyncReadMem(BlockNum,UInt(DataWidth.W))))
     //容量小的用Reg实现
     val valid = RegInit(VecInit(Seq.fill(AssoNum*GroupNum)((false.B))))
     val dirty = RegInit(VecInit(Seq.fill(AssoNum*GroupNum)((false.B))))
@@ -137,9 +132,9 @@ class CpuCache extends Module with CacheParm{
     val RequestBufferwstrb = RegInit(0.U(parm.BYTEWIDTH.W))
     val hit = Wire(Vec(AssoNum,Bool()))
     for (i <- 0 until AssoNum){hit(i):= 0.U}
-    val LoadRes = Seq.fill(AssoNum)(Wire(Vec(parm.REGWIDTH/DataWidth,UInt(DataWidth.W))))
-    for (j <- 0 until AssoNum)
-        for (i <- 0 until parm.REGWIDTH/DataWidth){LoadRes(j)(i) := 0.U}
+    //val LoadRes = Seq.fill(AssoNum)(Wire(Vec(parm.REGWIDTH/DataWidth,UInt(DataWidth.W))))
+    //for (j <- 0 until AssoNum)
+      //  for (i <- 0 until parm.REGWIDTH/DataWidth){LoadRes(j)(i) := 0.U}
     val hitway = Wire(UInt(AssoWidth.W))
     hitway := 0.U
     //val mask   = Wire(Vec())
@@ -154,7 +149,6 @@ class CpuCache extends Module with CacheParm{
             hitway := i.U
         }
     }
-    printf(p"block = ${BlockNum}\n")
     val BlockChoose = Wire(Vec(BlockNum,Bool()))
     for (i <- 0 until BlockNum) {
         BlockChoose(i) := (i.U>=useblock) & (i.U<useblock+(parm.REGWIDTH/DataWidth).U)
@@ -356,6 +350,7 @@ class CpuCache extends Module with CacheParm{
                         tag(j).write(RequestBuffergroup,RequestBuffertag)
                         for (i <- 0 until BlockNum){
                             when(BlockChoose(i)){
+                                printf(p"ramrdata=${Hexadecimal(ramrdata >> (i*DataWidth))(DataWidth-1,0))} \n")
                                 mem(j*AssoNum+i).write(RequestBuffergroup,(ramrdata >> (i*DataWidth))(DataWidth-1,0))
                             }
                         }
@@ -387,6 +382,7 @@ class CpuCache extends Module with CacheParm{
                     MainState := refill
                 }
             }.otherwise{
+
                 MainState:=refill
             }
         }
