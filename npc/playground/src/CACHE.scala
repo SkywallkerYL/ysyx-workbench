@@ -312,7 +312,7 @@ class CpuCache extends Module with CacheParm{
                             for (i <- 0 until BlockNum){
                                 when(BlockChoose(i)){
                                     when(linemask(i)){
-                                        mem(j*AssoNum+i).write(RequestBuffergroup,lineData>>(i*DataWidth)(DataWidth-1,0))    
+                                        mem(j*AssoNum+i).write(RequestBuffergroup,(lineData>>(i*DataWidth))(DataWidth-1,0))    
                                     }
                                 }
                             }
@@ -369,7 +369,7 @@ class CpuCache extends Module with CacheParm{
                         tag(j).write(RequestBuffergroup,RequestBuffertag)
                         for (i <- 0 until BlockNum){
                             when(BlockChoose(i)){
-                                mem(j*AssoNum+i).write(RequestBuffergroup,ramrdata >> (i*DataWidth)(DataWidth-1,0))
+                                mem(j*AssoNum+i).write(RequestBuffergroup,(ramrdata >> (i*DataWidth))(DataWidth-1,0))
                             }
                         }
                         //for(i <- 0 until parm.REGWIDTH/DataWidth){
