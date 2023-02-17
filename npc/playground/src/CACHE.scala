@@ -153,8 +153,10 @@ class CpuCache extends Module with CacheParm{
     }
     val BlockChoose = dontTouch(Wire(Vec(BlockNum,Bool())))
     for (i <- 0 until BlockNum) {
+        printf(p"i=${i} block=${writeblock}\n ")
         BlockChoose(i) := (i.U>=writeblock) && (i.U<(writeblock+(parm.REGWIDTH/DataWidth).U))
     }
+    //left most bits in vec is low order bits 
     val rdData  = Seq.fill(AssoNum)(Wire(Vec(BlockNum,UInt(DataWidth.W))))
     for(i <- 0 until AssoNum){
         for(j <- 0 until BlockNum){
