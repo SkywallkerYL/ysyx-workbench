@@ -354,7 +354,7 @@ class CpuCache extends Module with CacheParm{
                         for (i <- 0 until BlockNum){
                             when(BlockChoose(i)){
                                 val writedata = (ramrdata >> (i*DataWidth))(DataWidth-1,0)
-                                printf(p"block= ${useblock} ramrdata=${Hexadecimal(writedata)} \n")
+                                printf(p"block= ${writeblock} ramrdata=${Hexadecimal(writedata)} \n")
                                 mem(j*AssoNum+i).write(RequestBuffergroup,(ramrdata >> (i*DataWidth))(DataWidth-1,0))
                             }
                         }
@@ -377,13 +377,8 @@ class CpuCache extends Module with CacheParm{
                     dirty(RadomChoose*GroupNum.U+RequestBuffergroup):= false.B
                     RequestBufferblock := RequestBufferblockraw
                 }.otherwise{
-                    //when(RequestBufferblock === RequestBufferblockraw && !RequestBufferop){
-                      // io.Cache.Cache.rdata  := io.Sram.Axi.r.bits.data
-                       //io.Cache.Cache.dataok := true.B
-                    //}
                     writeblock := RequestBufferblock
                     usegroup := RequestBuffergroup
-                    //useblock := RequestBufferblock+(parm.REGWIDTH/DataWidth).U
                     RequestBufferblock := RequestBufferblock+(parm.REGWIDTH/DataWidth).U
                     MainState := refill
                 }
