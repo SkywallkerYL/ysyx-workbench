@@ -184,7 +184,7 @@ class CpuCache extends Module with CacheParm{
     val lfsr = Module(new myLFSR)
     val RadomLine = lfsr.io.out(AssoWidth-1,0) // 取模，Assonum正好2的幂次，保留低位 
     val ramrdata = Wire(UInt((BlockNum*DataWidth).W))
-    ramdata := io.Sram.Axi.r.bits.data << (useblock*DataWidth)
+    ramrdata := io.Sram.Axi.r.bits.data << (useblock*DataWidth.U)
     //val ramrdata = io.Sram.Axi.r.bits.data
     val ReadAxiData = Wire(Vec(parm.REGWIDTH/DataWidth,UInt(DataWidth.W)))
     //val ReadAxiDataFlip = Wire(Vec(parm.REGWIDTH/DataWidth,UInt(DataWidth.W)))
@@ -199,8 +199,8 @@ class CpuCache extends Module with CacheParm{
     }
     val WriteBufferData = Wire(Vec(parm.REGWIDTH/DataWidth,UInt(DataWidth.W)))
     val lineData = Wire(UInt((BlockNum*DataWidth).W))
-    lineData := RequestBufferwdata << (useblock*DataWidth)
-    val linemask = Wire(UInt(BlockNum).W)
+    lineData := RequestBufferwdata << (useblock*DataWidth.U)
+    val linemask = Wire(UInt((BlockNum).W))
     linemask := RequestBufferwstrb << useblock
     for (i <- 0 until parm.REGWIDTH/DataWidth){
         //WriteBufferData(i) := RequestBufferwdata((i+1)*DataWidth-1,i*DataWidth)
@@ -245,7 +245,7 @@ class CpuCache extends Module with CacheParm{
                             for (i <- 0 until BlockNum){
                                 when(BlockChoose(i)){
                                     when(linemask(i)){
-                                        mem(j*AssoNum+i).write(RequestBuffergroup,lineData>>(i*DataWidth)(DataWidth-1,0))
+                                        mem(j*AssoNum+i).write(RequestBuffergroup,(lineData>>(i*DataWidth))(DataWidth-1,0))
                                     }
                                 }
                             }
