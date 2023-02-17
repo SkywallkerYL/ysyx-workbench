@@ -337,9 +337,10 @@ class CpuCache extends Module with CacheParm{
                     when(ChooseAsso(j)){
                         tag(j).write(RequestBuffergroup,RequestBuffertag)
                         for(i <- 0 until parm.REGWIDTH/DataWidth){
-                            val ramrdata = io.Sram.Axi.r.bits.data((parm.REGWIDTH/DataWidth-i)*DataWidth-1,(parm.REGWIDTH/DataWidth-1-i)*DataWidth)
+                            //val ramrdata = io.Sram.Axi.r.bits.data((parm.REGWIDTH/DataWidth-i)*DataWidth-1,(parm.REGWIDTH/DataWidth-1-i)*DataWidth)
+                            val ramrdata = io.Sram.Axi.r.bits.data((i+1)*DataWidth-1,(i)*DataWidth)
                         //val memDataIn(RadomChoose) := ramrdata
-                            printf(p"ramrdata=${Hexadecimal(ramrdata)} \n")
+                            //printf(p"ramrdata=${Hexadecimal(ramrdata)} \n")
                             mem(j).write(RequestBuffergroup*BlockNum.U+RequestBufferblock+i.U,ramrdata)
                         }      
                     }   
