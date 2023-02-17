@@ -2,7 +2,7 @@ package npc
 
 import chisel3._
 import chisel3.util._
-
+import chisel3.dontTouch
 trait  CacheParm {
     val AddrWidth = parm.REGWIDTH // Cache接受的地址数据位宽
     val DataWidth  : Int =  8 //1 Bytes
@@ -151,7 +151,7 @@ class CpuCache extends Module with CacheParm{
             hitway := i.U
         }
     }
-    val BlockChoose = Wire(Vec(BlockNum,Bool()))
+    val BlockChoose = dontTouch(Wire(Vec(BlockNum,Bool())))
     for (i <- 0 until BlockNum) {
         BlockChoose(i) := (i.U>=writeblock) & (i.U<writeblock+(parm.REGWIDTH/DataWidth).U)
     }

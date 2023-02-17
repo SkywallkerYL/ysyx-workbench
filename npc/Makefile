@@ -47,8 +47,8 @@ INC_PATH?=
 
 #include ../../include
 
-
-VERILATOR = ccache verilator
+#add ccache speed up
+VERILATOR = ccache verilator 
 # Generate C++ in executable form
 #for nvboard
 VERILATOR_FLAGS += -MMD --build -cc
