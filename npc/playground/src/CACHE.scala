@@ -146,7 +146,7 @@ class CpuCache extends Module with CacheParm{
     val right =  Wire(UInt((BlockWidth+1).W))
     right := writeblock+&(parm.REGWIDTH/DataWidth).U
     val usegroup = Wire(UInt(BlockWidth.W))
-    usegroup := 0.U
+    usegroup := RequestBuffergroup
     for (i <- 0 until AssoNum){
         when(RequestBuffertag === tag(i).read(usegroup)&&valid((i*GroupNum).U+RequestBuffergroup)){
             hit(i) := true.B
@@ -156,7 +156,7 @@ class CpuCache extends Module with CacheParm{
     val BlockChoose = dontTouch(Wire(Vec(BlockNum,Bool())))
     for (i <- 0 until BlockNum) {
         //这里的加法注意位宽，不会自动拓展，不修改位宽的话，8+8=16 超过了4位，归0，导致判断错误
-        printf(p"i=${i} block=${writeblock} right=${right} choose=${BlockChoose(i)}\n ")
+        //printf(p"i=${i} block=${writeblock} right=${right} choose=${BlockChoose(i)}\n ")
         BlockChoose(i) := (i.U>=writeblock) && (i.U<(right))
     }
     //left most bits in vec is low order bits 
@@ -338,6 +338,7 @@ class CpuCache extends Module with CacheParm{
                     MainState := miss
                 }.otherwise{
                     useblock := RequestBufferblock + (parm.REGWIDTH/DataWidth).U
+                    usegroup := RequestBuffergroup
                     RequestBufferblock := RequestBufferblock + (parm.REGWIDTH/DataWidth).U
                     //requestblock 要复原
                     MainState := replace
@@ -359,7 +360,7 @@ class CpuCache extends Module with CacheParm{
                         for (i <- 0 until BlockNum){
                             when(BlockChoose(i)){
                                 val writedata = (ramrdata >> (i*DataWidth))(DataWidth-1,0)
-                                printf(p"buffer=${RequestBufferblock} block= ${writeblock} ramrdata=${Hexadecimal(writedata)} \n")
+                                //printf(p"buffer=${RequestBufferblock} block= ${writeblock} ramrdata=${Hexadecimal(writedata)} \n")
                                 mem(j*AssoNum+i).write(RequestBuffergroup,(ramrdata >> (i*DataWidth))(DataWidth-1,0))
                             }
                         }
