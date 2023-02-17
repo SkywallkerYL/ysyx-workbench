@@ -183,12 +183,12 @@ class CpuCache extends Module with CacheParm{
     val lfsr = Module(new myLFSR)
     val RadomLine = lfsr.io.out(AssoWidth-1,0) // 取模，Assonum正好2的幂次，保留低位 
     val ramrdata = Wire(UInt((BlockNum*DataWidth).W))
-    ramrdata := io.Sram.Axi.r.bits.data << (useblock*DataWidth.U)
+    ramrdata := io.Sram.Axi.r.bits.data << (writeblock*DataWidth.U)
     //val ramrdata = io.Sram.Axi.r.bits.data
     val lineData = Wire(UInt((BlockNum*DataWidth).W))
-    lineData := RequestBufferwdata << (useblock*DataWidth.U)
+    lineData := RequestBufferwdata << (writeblock*DataWidth.U)
     val linemask = Wire(UInt((BlockNum).W))
-    linemask := RequestBufferwstrb << useblock
+    linemask := RequestBufferwstrb << writeblock
     switch(MainState){
         is(idle){ 
             //接收到读写请求
