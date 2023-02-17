@@ -154,7 +154,7 @@ class CpuCache extends Module with CacheParm{
     }
     val BlockChoose = Wire(Vec(BlockNum,Bool()))
     for (i <- 0 until BlockNum) {
-        BlockChoose(i) := (i.U>=useblock) & (i.U<=useblock+(parm.REGWIDTH/DataWidth).U)
+        BlockChoose(i) := (i.U>=useblock) & (i.U<useblock+(parm.REGWIDTH/DataWidth).U)
     }
     val rdData  = Seq.fill(AssoNum)(Wire(Vec(BlockNum,UInt(DataWidth.W))))
     for(i <- 0 until AssoNum){
@@ -250,7 +250,7 @@ class CpuCache extends Module with CacheParm{
                             for (i <- 0 until BlockNum){
                                 when(BlockChoose(i)){
                                     when(RequestBufferwstrb(base)){
-                                        mem(j*AssoNum+i).write(RequestBuffergroup,WriteBufferData(parm.REGWIDTH/DataWidth-base))
+                                        mem(j*AssoNum+i).write(RequestBuffergroup,WriteBufferData(parm.REGWIDTH/DataWidth-1-base))
                                         
                                     }
                                     base = base+1
@@ -320,7 +320,7 @@ class CpuCache extends Module with CacheParm{
                             for (i <- 0 until BlockNum){
                                 when(BlockChoose(i)){
                                     when(RequestBufferwstrb(base)){
-                                        mem(j*AssoNum+i).write(RequestBuffergroup,WriteBufferData(parm.REGWIDTH/DataWidth-base))
+                                        mem(j*AssoNum+i).write(RequestBuffergroup,WriteBufferData(parm.REGWIDTH/DataWidth-1-base))
                                         
                                     }
                                     base = base+1
@@ -381,7 +381,7 @@ class CpuCache extends Module with CacheParm{
                         for (i <- 0 until BlockNum){
                             when(BlockChoose(i)){
                                 when(RequestBufferwstrb(base)){
-                                    mem(j*AssoNum+i).write(RequestBuffergroup,ReadAxiData(parm.REGWIDTH/DataWidth-base))
+                                    mem(j*AssoNum+i).write(RequestBuffergroup,ReadAxiData(parm.REGWIDTH/DataWidth-1-base))
                                     
                                 }
                                 base = base+1
