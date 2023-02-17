@@ -181,14 +181,16 @@ class CpuCache extends Module with CacheParm{
     val ramrdata = io.Sram.Axi.r.bits.data
     val ReadAxiData = Wire(Vec(parm.REGWIDTH/DataWidth,UInt(DataWidth.W)))
     for (i <- 0 until parm.REGWIDTH/DataWidth){
+        //如果按照下面这种顺序写的话，会导致verilator生成的C代码运行产生munmap_chunk(): invalid pointer
+        //换成倒过来的顺序就没有问题。
         //ReadAxiData(i) := ramrdata((i+1)*DataWidth-1,i*DataWidth)
         //parm.REGWIDTH/DataWidth-i
-        ReadAxiData(i) := ramrdata((parm.REGWIDTH/DataWidth-i)*DataWidth-1,(parm.REGWIDTH/DataWidth-i-1)*DataWidth)
+        ReadAxiData(parm.REGWIDTH/DataWidth-i) := ramrdata((parm.REGWIDTH/DataWidth-i)*DataWidth-1,(parm.REGWIDTH/DataWidth-i-1)*DataWidth)
     }
     val WriteBufferData = Wire(Vec(parm.REGWIDTH/DataWidth,UInt(DataWidth.W)))
     for (i <- 0 until parm.REGWIDTH/DataWidth){
         //WriteBufferData(i) := RequestBufferwdata((i+1)*DataWidth-1,i*DataWidth)
-        WriteBufferData(i) := RequestBufferwdata((parm.REGWIDTH/DataWidth-i)*DataWidth-1,(parm.REGWIDTH/DataWidth-i-1)*DataWidth)
+        WriteBufferData(parm.REGWIDTH/DataWidth-i) := RequestBufferwdata((parm.REGWIDTH/DataWidth-i)*DataWidth-1,(parm.REGWIDTH/DataWidth-i-1)*DataWidth)
     }
     switch(MainState){
         is(idle){ 
