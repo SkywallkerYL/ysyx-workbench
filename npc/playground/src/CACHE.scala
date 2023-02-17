@@ -152,12 +152,19 @@ class CpuCache extends Module with CacheParm{
             hitway := i.U
         }
     }
+    val BlockChoose = Wire(UInt(BlockNum.W))
+    for (i <- 0 until BlockNum) {
+        BlockChoose(i) := (i.U>=useblock) & (i.U<=useblock+(parm.REGWIDTH/DataWidth).U)
+    }
+    val rdData  = Seq.fill(AssoNum)(Wire(Vec(BlockNum,UInt(DataWidth.W))))
+    for(i <- 0 until AssoNum){
+        for(j <- 0 until BlockNum){
+            rdData(i)(j) := mem(i*AssoNum+j).read(usegroup)
+        }
+    }
     for (i <- 0 until AssoNum){
-        for( j <- 0 until parm.REGWIDTH/DataWidth){
-            val base = useblock 
-            for (k <- 0 until BlockNum ){
-                when(j.U+useblock>=k.U) LoadRes(i)(parm.REGWIDTH/DataWidth-1-j) := mem(i*AssoNum+k).read(usegroup*BlockNum.U)
-            }
+        for( j <- 0 until BlockNum){
+                when(BlockChoose(j)) LoadRes(i)(parm.REGWIDTH/DataWidth-1-(j-useblock)) := rdData(i)(j) 
             //printf(p"readdata=${Hexadecimal(mem(i).read(RequestBuffergroup*BlockNum.U+RequestBufferblock+j.U))} \n")
         }
     }    
