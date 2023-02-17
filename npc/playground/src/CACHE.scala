@@ -217,12 +217,12 @@ class CpuCache extends Module with CacheParm{
                     io.Cache.Cache.dataok := true.B
                     for(i <- 0 until AssoNum ){
                         when(hit(i)){
-                            io.Cache.Cache.rdata  := ((rdData(i).asUInt)>>(useblock*DataWidth.U))(parm.REGWIDTH-1,0)//LoadRes(i).asUInt
+                            io.Cache.Cache.rdata  := ((rdData(i).asUInt)>>(RequestBufferblock*DataWidth.U))(parm.REGWIDTH-1,0)//LoadRes(i).asUInt
                             //io.Cache.Cache.dataok := RegNext(true.B)
                         }
                     }
                 }.otherwise{
-                    writeblock := RequestBufferblock
+                    //writeblock := RequestBufferblock
                     for (j <- 0 until AssoNum){
                         when(hit(j)) {
                             for (i <- 0 until BlockNum){
@@ -253,8 +253,7 @@ class CpuCache extends Module with CacheParm{
             //cache 缺失，有效且脏的情况下向AXI总线申请写入
             //此时的group是当前cache对应的group，不是读入的group
             //由此得到addr在主存中的块号
-            useblock := RequestBufferblock
-            usegroup := RequestBuffergroup
+
             axivalid := valid(RadomChoose*CacheParm.GroupNum.U+RequestBuffergroup) & dirty(RadomChoose*CacheParm.GroupNum.U+RequestBuffergroup)
             //此时需要写回，向总线申请写
             when(axivalid){
@@ -288,7 +287,7 @@ class CpuCache extends Module with CacheParm{
                         MainState := miss
                     }
                 }.otherwise{
-                    writeblock := RequestBufferblock
+                    //writeblock := RequestBufferblock
                     for(j <- 0 until AssoNum){
                         //val writedata = RequestBufferwdata
                         when(ChooseAsso(j)){
@@ -312,14 +311,13 @@ class CpuCache extends Module with CacheParm{
         is(replace){
             //向总线写回cacheline
             io.Sram.Axi.w.valid := true.B  
-            useblock := RequestBufferblock
-            usegroup := RequestBuffergroup   
+
             when(io.Sram.Axi.w.fire){
                 //写数据的data位宽也要该，改称cache line 一行的datawidth (datawith*blocknum)
                 //一次写一个data 宽的
                 for(i <- 0 until AssoNum ){
                     when(ChooseAsso(i)){
-                        io.Sram.Axi.w.bits.data  := ((rdData(i).asUInt)>>(useblock*DataWidth.U))(parm.REGWIDTH-1,0)//LoadRes(i).asUInt    //a cacheline data ***
+                        io.Sram.Axi.w.bits.data  := ((rdData(i).asUInt)>>(RequestBufferblock*DataWidth.U))(parm.REGWIDTH-1,0)//LoadRes(i).asUInt    //a cacheline data ***
                     }
                 }
                 //一次data

@@ -48,7 +48,7 @@ INC_PATH?=
 #include ../../include
 
 #add ccache speed up
-VERILATOR = ccache verilator 
+VERILATOR = verilator 
 # Generate C++ in executable form
 #for nvboard
 VERILATOR_FLAGS += -MMD --build -cc
@@ -60,7 +60,7 @@ VERILATOR_CFLAGS += -cc --exe
 #-Os -x-assign 0
 VERILATOR_CFLAGS +=	--x-assign fast --x-initial fast
 VERILATOR_CFLAGS += --trace --coverage --build
-VERILATOR_CFLAGS += -Wno-fatal -O1 
+VERILATOR_CFLAGS += -Wno-fatal -O0 
 
 VERILATOR_CFLAGS += --top-module $(TOPNAMETEST)
 #VERILATOR_CFLAGS += --x-initial fast --noassert
