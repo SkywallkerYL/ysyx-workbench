@@ -163,7 +163,7 @@ class CpuCache extends Module with CacheParm{
         }
     }
     for (i <- 0 until AssoNum){
-        val init :Int  = 0
+        var init :Int  = 0
         for( j <- 0 until BlockNum){
                 when(BlockChoose(j)) {
                     LoadRes(i)(parm.REGWIDTH/DataWidth-1-init) := rdData(i)(j)
