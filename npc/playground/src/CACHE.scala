@@ -185,12 +185,13 @@ class CpuCache extends Module with CacheParm{
         //换成倒过来的顺序就没有问题。
         //ReadAxiData(i) := ramrdata((i+1)*DataWidth-1,i*DataWidth)
         //parm.REGWIDTH/DataWidth-i
-        ReadAxiData(parm.REGWIDTH/DataWidth-1-i) := ramrdata((parm.REGWIDTH/DataWidth-i)*DataWidth-1,(parm.REGWIDTH/DataWidth-i-1)*DataWidth)
+        //ReadAxiData(i)  也必须顺序写，不然也会触发无效指针
+        ReadAxiData(i) := ramrdata((parm.REGWIDTH/DataWidth-i)*DataWidth-1,(parm.REGWIDTH/DataWidth-i-1)*DataWidth)
     }
     val WriteBufferData = Wire(Vec(parm.REGWIDTH/DataWidth,UInt(DataWidth.W)))
     for (i <- 0 until parm.REGWIDTH/DataWidth){
         //WriteBufferData(i) := RequestBufferwdata((i+1)*DataWidth-1,i*DataWidth)
-        WriteBufferData(parm.REGWIDTH/DataWidth-1-i) := RequestBufferwdata((parm.REGWIDTH/DataWidth-i)*DataWidth-1,(parm.REGWIDTH/DataWidth-i-1)*DataWidth)
+        WriteBufferData(i) := RequestBufferwdata((parm.REGWIDTH/DataWidth-i)*DataWidth-1,(parm.REGWIDTH/DataWidth-i-1)*DataWidth)
     }
     switch(MainState){
         is(idle){ 
@@ -296,7 +297,7 @@ class CpuCache extends Module with CacheParm{
                             for(i <- 0 until parm.REGWIDTH/DataWidth){ 
                                 when(RequestBufferwstrb(i)){ 
                                     //writedata := writedata >> DataWidth
-                                    mem(j).write(RequestBuffergroup*BlockNum.U+RequestBufferblock+i.U,WriteBufferData(i))  
+                                    mem(j).write(RequestBuffergroup*BlockNum.U+RequestBufferblock+i.U,WriteBufferData(parm.REGWIDTH/DataWidth-1-i))  
                                 }
                             }
                         }
