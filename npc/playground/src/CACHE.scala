@@ -180,6 +180,7 @@ class CpuCache extends Module with CacheParm{
     val RadomLine = lfsr.io.out(AssoWidth-1,0) // 取模，Assonum正好2的幂次，保留低位 
     val ramrdata = io.Sram.Axi.r.bits.data
     val ReadAxiData = Wire(Vec(parm.REGWIDTH/DataWidth,UInt(DataWidth.W)))
+    val ReadAxiDataFlip = Wire(Vec(parm.REGWIDTH/DataWidth,UInt(DataWidth.W)))
     for (i <- 0 until parm.REGWIDTH/DataWidth){
         //如果按照下面这种顺序写的话，会导致verilator生成的C代码运行产生munmap_chunk(): invalid pointer
         //换成倒过来的顺序就没有问题。
@@ -187,6 +188,7 @@ class CpuCache extends Module with CacheParm{
         //parm.REGWIDTH/DataWidth-i
         //ReadAxiData(i)  也必须顺序写，不然也会触发无效指针
         ReadAxiData(i) := ramrdata((parm.REGWIDTH/DataWidth-i)*DataWidth-1,(parm.REGWIDTH/DataWidth-i-1)*DataWidth)
+        ReadAxiDataFlip(i) := ReadAxiData(parm.REGWIDTH/DataWidth-i-1)
     }
     val WriteBufferData = Wire(Vec(parm.REGWIDTH/DataWidth,UInt(DataWidth.W)))
     for (i <- 0 until parm.REGWIDTH/DataWidth){
@@ -231,7 +233,7 @@ class CpuCache extends Module with CacheParm{
                             for(i <- 0 until parm.REGWIDTH/DataWidth){
                                // val writedata = RequestBufferwdata((i+1)*DataWidth-1,(i)*DataWidth)
                                 when(RequestBufferwstrb(i)){ 
-                                    mem(j).write(RequestBuffergroup*BlockNum.U+RequestBufferblock+i.U,WriteBufferData(parm.REGWIDTH/DataWidth-1-i))
+                                    mem(j).write(RequestBuffergroup*BlockNum.U+RequestBufferblock+i.U,WriteBufferData(i))
                                 }
                             }
                         }
@@ -297,7 +299,7 @@ class CpuCache extends Module with CacheParm{
                             for(i <- 0 until parm.REGWIDTH/DataWidth){ 
                                 when(RequestBufferwstrb(i)){ 
                                     //writedata := writedata >> DataWidth
-                                    mem(j).write(RequestBuffergroup*BlockNum.U+RequestBufferblock+i.U,WriteBufferData(parm.REGWIDTH/DataWidth-1-i))  
+                                    mem(j).write(RequestBuffergroup*BlockNum.U+RequestBufferblock+i.U,WriteBufferData(i))  
                                 }
                             }
                         }
@@ -358,7 +360,7 @@ class CpuCache extends Module with CacheParm{
                         //val memDataIn(RadomChoose) := ramrdata
                             //printf(p"ramrdata=${Hexadecimal(ramrdata)} \n")
                             //ramrdata := ramrdata >> DataWidth
-                            mem(j).write(RequestBuffergroup*BlockNum.U+RequestBufferblock+i.U,ReadAxiData(parm.REGWIDTH/DataWidth-1-i))
+                            mem(j).write(RequestBuffergroup*BlockNum.U+RequestBufferblock+i.U,ReadAxiDataFlip(i))
                         }      
                     }   
                 }        
