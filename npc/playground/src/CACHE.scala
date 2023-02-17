@@ -183,7 +183,9 @@ class CpuCache extends Module with CacheParm{
     val MainState = RegInit(idle)
     val lfsr = Module(new myLFSR)
     val RadomLine = lfsr.io.out(AssoWidth-1,0) // 取模，Assonum正好2的幂次，保留低位 
-    val ramrdata = io.Sram.Axi.r.bits.data
+    val ramrdata = Wire(UInt((BlockNum*DataWidth).W))
+    ramdata := io.Sram.Axi.r.bits.data << (useblock*DataWidth)
+    //val ramrdata = io.Sram.Axi.r.bits.data
     val ReadAxiData = Wire(Vec(parm.REGWIDTH/DataWidth,UInt(DataWidth.W)))
     //val ReadAxiDataFlip = Wire(Vec(parm.REGWIDTH/DataWidth,UInt(DataWidth.W)))
     for (i <- 0 until parm.REGWIDTH/DataWidth){
@@ -196,6 +198,10 @@ class CpuCache extends Module with CacheParm{
         //ReadAxiDataFlip(parm.REGWIDTH/DataWidth-i-1) := ReadAxiData(i)
     }
     val WriteBufferData = Wire(Vec(parm.REGWIDTH/DataWidth,UInt(DataWidth.W)))
+    val lineData = Wire(UInt((BlockNum*DataWidth).W))
+    lineData := RequestBufferwdata << (useblock*DataWidth)
+    val linemask = Wire(UInt(BlockNum).W)
+    linemask := RequestBufferwstrb << useblock
     for (i <- 0 until parm.REGWIDTH/DataWidth){
         //WriteBufferData(i) := RequestBufferwdata((i+1)*DataWidth-1,i*DataWidth)
         WriteBufferData(i) := RequestBufferwdata((parm.REGWIDTH/DataWidth-i)*DataWidth-1,(parm.REGWIDTH/DataWidth-i-1)*DataWidth)
@@ -236,14 +242,11 @@ class CpuCache extends Module with CacheParm{
                     useblock := RequestBufferblock
                     for (j <- 0 until AssoNum){
                         when(hit(j)) {
-                            var base = 0
                             for (i <- 0 until BlockNum){
                                 when(BlockChoose(i)){
-                                    when(RequestBufferwstrb(base)){
-                                        mem(j*AssoNum+i).write(RequestBuffergroup,RequestBufferwdata)
-                                        
+                                    when(linemask(i)){
+                                        mem(j*AssoNum+i).write(RequestBuffergroup,lineData>>(i*DataWidth)(DataWidth-1,0))
                                     }
-                                    base = base+1
                                 }
                             }
                         }
@@ -306,14 +309,11 @@ class CpuCache extends Module with CacheParm{
                         //val writedata = RequestBufferwdata
                         when(ChooseAsso(j)){
                             tag(j).write(RequestBuffergroup,RequestBuffertag)
-                            var base = 0
                             for (i <- 0 until BlockNum){
                                 when(BlockChoose(i)){
-                                    when(RequestBufferwstrb(base)){
-                                        mem(j*AssoNum+i).write(RequestBuffergroup,WriteBufferData(parm.REGWIDTH/DataWidth-1-base))
-                                        
+                                    when(linemask(i)){
+                                        mem(j*AssoNum+i).write(RequestBuffergroup,lineData>>(i*DataWidth)(DataWidth-1,0))    
                                     }
-                                    base = base+1
                                 }
                             }
                         }
@@ -367,14 +367,9 @@ class CpuCache extends Module with CacheParm{
                     //val ramrdata = io.Sram.Axi.r.bits.data
                     when(ChooseAsso(j)){
                         tag(j).write(RequestBuffergroup,RequestBuffertag)
-                        var base = 0
                         for (i <- 0 until BlockNum){
                             when(BlockChoose(i)){
-                                when(RequestBufferwstrb(base)){
-                                    mem(j*AssoNum+i).write(RequestBuffergroup,ReadAxiData(parm.REGWIDTH/DataWidth-1-base))
-                                    
-                                }
-                                base = base+1
+                                mem(j*AssoNum+i).write(RequestBuffergroup,ramrdata >> (i*DataWidth)(DataWidth-1,0))
                             }
                         }
                         //for(i <- 0 until parm.REGWIDTH/DataWidth){
