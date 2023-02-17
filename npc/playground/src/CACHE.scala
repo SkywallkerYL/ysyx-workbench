@@ -151,7 +151,7 @@ class CpuCache extends Module with CacheParm{
             hitway := i.U
         }
     }
-    val BlockChoose = Wire(Vec(BlockNum,Bool()))
+    val BlockChoose = Wire(Vec(BlockNum+1,Bool()))
     for (i <- 0 until BlockNum) {
         BlockChoose(i) := (i.U>=writeblock) & (i.U<writeblock+(parm.REGWIDTH/DataWidth).U)
     }
