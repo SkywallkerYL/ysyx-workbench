@@ -17,7 +17,7 @@
 #define vaddr_t uint64_t
 //#define CONFIG_DIFFTEST
 //Itrace
-//#define CONFIG_ITRACE
+#define CONFIG_ITRACE
 
 #define ITRACE_BEGIN 0
 #define ITRACE_END   1000

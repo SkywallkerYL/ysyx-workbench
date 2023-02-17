@@ -283,7 +283,7 @@ class CpuCache extends Module with CacheParm{
                 when(!RequestBufferop){
                     io.Sram.Axi.ar.valid := true.B
                     when(io.Sram.Axi.ar.fire){
-                        //group要移回去，并且屏蔽掉低位，这样子才能读入整行
+                        //group要移回去，并且屏蔽block位，这样子才能读入整行
                         io.Sram.Axi.ar.bits.addr := ((RequestBuffertag<<((BlockWidth+GroupWidth).U)|(RequestBuffergroup<<(BlockWidth).U)))
                         io.Sram.Axi.ar.bits.len  := (BlockNum/(AddrWidth/DataWidth)).U-1.U
                         RequestBufferblock := 0.U
