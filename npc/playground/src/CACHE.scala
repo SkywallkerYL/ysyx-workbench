@@ -144,7 +144,7 @@ class CpuCache extends Module with CacheParm{
     val writeblock = Wire(UInt(BlockWidth.W))
     writeblock := RequestBufferblock
     val right =  Wire(UInt((BlockWidth+1).W))
-    right := writeblock+(parm.REGWIDTH/DataWidth).U
+    right := writeblock+&(parm.REGWIDTH/DataWidth).U
     val usegroup = Wire(UInt(BlockWidth.W))
     usegroup := 0.U
     for (i <- 0 until AssoNum){
@@ -155,7 +155,8 @@ class CpuCache extends Module with CacheParm{
     }
     val BlockChoose = dontTouch(Wire(Vec(BlockNum,Bool())))
     for (i <- 0 until BlockNum) {
-        //printf(p"i=${i} block=${writeblock} right=${writeblock+(parm.REGWIDTH/DataWidth).U} choose=${BlockChoose(i)}\n ")
+        //这里的加法注意位宽，不会自动拓展，不修改位宽的话，8+8=16 超过了4位，归0，导致判断错误
+        printf(p"i=${i} block=${writeblock} right=${right} choose=${BlockChoose(i)}\n ")
         BlockChoose(i) := (i.U>=writeblock) && (i.U<(right))
     }
     //left most bits in vec is low order bits 
