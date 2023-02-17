@@ -163,8 +163,12 @@ class CpuCache extends Module with CacheParm{
         }
     }
     for (i <- 0 until AssoNum){
+        val init = 0
         for( j <- 0 until BlockNum){
-                when(BlockChoose(j)) LoadRes(i)(parm.REGWIDTH/DataWidth-1-(j.U-useblock)) := rdData(i)(j) 
+                when(BlockChoose(j)) {
+                    LoadRes(i)(parm.REGWIDTH/DataWidth-1-init) := rdData(i)(j)
+                    init := init+1
+                } 
             //printf(p"readdata=${Hexadecimal(mem(i).read(RequestBuffergroup*BlockNum.U+RequestBufferblock+j.U))} \n")
         }
     }    
