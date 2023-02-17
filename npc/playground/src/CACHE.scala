@@ -154,8 +154,12 @@ class CpuCache extends Module with CacheParm{
     }
     for (i <- 0 until AssoNum){
         for( j <- 0 until parm.REGWIDTH/DataWidth){
+            val base = useblock 
+            for (k <- 0 until BlockNum ){
+                when(j+useblock>=k) LoadRes(i)(parm.REGWIDTH/DataWidth-1-j) := mem(i*AssoNum+k).read(usegroup*BlockNum.U)
+            }
             //printf(p"readdata=${Hexadecimal(mem(i).read(RequestBuffergroup*BlockNum.U+RequestBufferblock+j.U))} \n")
-            LoadRes(i)(parm.REGWIDTH/DataWidth-1-j) := mem(i*AssoNum+useblock+j).read(usegroup*BlockNum.U)
+
         }
     }    
     val RadomChoose = RegInit(0.U(AssoWidth.W))
