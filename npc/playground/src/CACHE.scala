@@ -291,20 +291,7 @@ class CpuCache extends Module with CacheParm{
                     valid(RadomChoose*GroupNum.U+RequestBuffergroup):= true.B
                     dirty(RadomChoose*GroupNum.U+RequestBuffergroup):= true.B
                     io.Cache.Cache.dataok := true.B
-                    when(io.Cache.Cache.valid){
-                        RequestBufferop := io.Cache.Cache.op
-                        RequestBuffertag := Intag
-                        RequestBuffergroup := Ingroup
-                        RequestBufferblock := Inblock
-                        RequestBufferblockraw := Inblock
-                        RequestBufferwdata := io.Cache.Cache.wdata
-                        RequestBufferwstrb := io.Cache.Cache.wstrb
-                        MainState := lookup
-                        useblock := Inblock
-                        usegroup := Ingroup
-                    }.otherwise{
-                        MainState := idle
-                    } 
+                    MainState := idle
                 }
             }
         }
@@ -352,7 +339,7 @@ class CpuCache extends Module with CacheParm{
                         for(i <- 0 until parm.REGWIDTH/DataWidth){
                             val ramrdata = io.Sram.Axi.r.bits.data((parm.REGWIDTH/DataWidth-i)*DataWidth-1,(parm.REGWIDTH/DataWidth-1-i)*DataWidth)
                         //val memDataIn(RadomChoose) := ramrdata
-                            //printf(p"ramrdata=${Hexadecimal(ramrdata)} \n")
+                            printf(p"ramrdata=${Hexadecimal(ramrdata)} \n")
                             mem(j).write(RequestBuffergroup*BlockNum.U+RequestBufferblock+i.U,ramrdata)
                         }      
                     }   
