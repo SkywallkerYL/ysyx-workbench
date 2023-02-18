@@ -89,7 +89,8 @@ class CpuCache extends Module with CacheParm{
     val mem = (Seq.fill(AssoNum*BlockNum)(SyncReadMem(GroupNum,UInt(DataWidth.W))))
     //tag 实例化Assonum块 深度为Groupnum 的宽度为
     val tag = Seq.fill(AssoNum)(SyncReadMem(GroupNum,UInt(TagWidth.W)))
-    //容量小的用Reg实现
+    //容量小的用Reg实现//还是有点多，用Mem
+    //val valid = Seq.fill(AssoNum)(SyncReadMem(GroupNum,Bool()))
     val valid = RegInit(VecInit(Seq.fill(AssoNum*GroupNum)((false.B))))
     val dirty = RegInit(VecInit(Seq.fill(AssoNum*GroupNum)((false.B))))
     //Look Up| Hit Write | Replace | Refill//对Cache的4种操作
@@ -263,7 +264,7 @@ class CpuCache extends Module with CacheParm{
             //此时的group是当前cache对应的group，不是读入的group
             //由此得到addr在主存中的块号
 
-            axivalid := valid(RadomChoose*CacheParm.GroupNum.U+RequestBuffergroup) & dirty(RadomChoose*CacheParm.GroupNum.U+RequestBuffergroup)
+            axivalid := valid(RadomChoose*GroupNum.U+RequestBuffergroup) & dirty(RadomChoose*GroupNum.U+RequestBuffergroup)
             //此时需要写回，向总线申请写
             when(axivalid){
                 io.Sram.Axi.aw.valid := true.B
@@ -288,7 +289,7 @@ class CpuCache extends Module with CacheParm{
                     io.Sram.Axi.ar.valid := true.B
                     when(io.Sram.Axi.ar.fire){
                         //group要移回去，并且屏蔽block位，这样子才能读入整行
-                        printf(p"tag:${Hexadecimal(RequestBuffertag)} addr: ${Hexadecimal(io.Sram.Axi.ar.bits.addr)}\n")
+                        printf(p"groupnum:${GroupNum} tag:${Hexadecimal(RequestBuffertag)} addr: ${Hexadecimal(io.Sram.Axi.ar.bits.addr)}\n")
                         io.Sram.Axi.ar.bits.addr := ((RequestBuffertag<<((BlockWidth+GroupWidth).U)|(RequestBuffergroup<<(BlockWidth).U)))
                         io.Sram.Axi.ar.bits.len  := (BlockNum/(AddrWidth/DataWidth)).U-1.U
                         RequestBufferblock := 0.U
