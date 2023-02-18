@@ -57,7 +57,8 @@ class IFU extends Module{
   if(parm.MODE == "single"){
     io.IFID.inst := io.instr_i
     io.IFID.instvalid := true.B
-    io.IFNPC.instvalid := true.B
+    //io.IFNPC.instvalid := true.B
+    io.instvalid :=true.B
   }
   else {
     io.IFID.inst := FetchInst
