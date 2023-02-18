@@ -6,7 +6,7 @@ import chisel3.dontTouch
 trait  CacheParm {
     val AddrWidth = parm.REGWIDTH // Cache接受的地址数据位宽
     val DataWidth  : Int =  8 //1 Bytes
-    val BlockWidth : Int =  4 // 数据区大小，2^BlockWidth B
+    val BlockWidth : Int =  3 // 数据区大小，2^BlockWidth B
     val BlockNum   = scala.math.pow(2,BlockWidth).toInt
     val SizeWidth  : Int =  8 // Cache 大小   2^sizewidth Bytes(data is 1 Bytes)
     val AssoWidth  : Int =  2 // 组相连内部组数 2^cacheasso
