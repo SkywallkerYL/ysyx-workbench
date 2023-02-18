@@ -112,5 +112,5 @@ class LSU extends Module{
   io.LSCLINT.Clintls.waddr  := io.EXLS.writeaddr
   io.LSCLINT.Clintls.wdata  := io.EXLS.writedata
 
-  io.PC.Lsuvalid := !LsuBusyReg//Mux(io.Cache.Cache.dataok,1.U,!LsuBusyReg)
+  io.PC.Lsuvalid := Mux(io.Cache.Cache.dataok,1.U,!LsuBusyReg)
 }
