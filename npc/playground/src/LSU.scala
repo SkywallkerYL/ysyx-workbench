@@ -17,6 +17,7 @@ class LSU extends Module{
       val SkipRef = Output(Bool())
 //}
       val LSCLINT = new Lsu2Clint
+      val Lsuvalid = Output(Bool())
   })
   val CLINTREAD  = (io.EXLS.readaddr< parm.CLINTEND.U) && (io.EXLS.readaddr>=parm.CLINTBASE.U)
   val CLINTWRITE = (io.EXLS.writeaddr< parm.CLINTEND.U) && (io.EXLS.writeaddr>=parm.CLINTBASE.U)
@@ -241,4 +242,5 @@ class LSU extends Module{
   io.LSCLINT.Clintls.waddr  := io.EXLS.writeaddr
   io.LSCLINT.Clintls.wdata  := io.EXLS.writedata
 
+  io.Lsuvalid := !(LsuBusyReg&io.Cache.Cache.dataok)
 }

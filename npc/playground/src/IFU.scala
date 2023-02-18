@@ -10,7 +10,8 @@ class IFU extends Module{
     val PcIf  = Flipped((new Pc2Ifu))
     val instr_i = Input(UInt(parm.INSTWIDTH.W))
     val IFID  = new Ifu2Idu
-    val IFNPC = new Ifu2Npc
+    //val IFNPC = new Ifu2Npc
+    val instvalid = Output(Bool())
     val Cache = new Cpu2Cache 
     //val IFRAM = new Ifu2Sram  //Flipped((new Axi4LiteRAMIO))
 
@@ -61,7 +62,7 @@ class IFU extends Module{
   else {
     io.IFID.inst := FetchInst
     io.IFID.instvalid := io.Cache.Cache.dataok
-    io.IFNPC.instvalid := io.Cache.Cache.dataok
+    io.instvalid := io.Cache.Cache.dataok
   }
   io.Cache.Cache.valid := true.B
   io.Cache.Cache.op    := false.B
