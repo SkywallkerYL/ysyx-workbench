@@ -200,7 +200,7 @@ static void execute(uint64_t n) {
     }
   while (n--){
 
-      //这个n用来决定是否打印指令
+      //这个n用来决定是否打印指令 而不是执行多少次
       sim_once(n);
 
       //printf("hhhh\n");
@@ -227,10 +227,12 @@ static void execute(uint64_t n) {
       //printf("pc:0x%016lx \n",cpu_gpr[32]);
     }
     else {
-      uint64_t localpc = Pc_Fetch();
-      uint64_t localnpc = Dnpc_Fetch();
-      //printf("hhhh\n");
-      difftest_step(localpc,localnpc);
+      if(top->io_instvalid){
+        uint64_t localpc = Pc_Fetch();
+        uint64_t localnpc = Dnpc_Fetch();
+        //printf("hhhh\n");
+        difftest_step(localpc,localnpc);
+      }
     }
 #endif
 #ifdef VGA
