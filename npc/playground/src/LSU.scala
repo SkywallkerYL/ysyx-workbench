@@ -4,9 +4,6 @@ import chisel3.util._
 
 import chisel3.util.HasBlackBoxInline
 
-
-
-
 class LSU extends Module{
     val io = IO(new Bundle {
       val EXLS = Flipped(new Exu2Lsu)
@@ -114,5 +111,5 @@ class LSU extends Module{
   io.LSCLINT.Clintls.waddr  := io.EXLS.writeaddr
   io.LSCLINT.Clintls.wdata  := io.EXLS.writedata
 
-  io.Lsuvalid := Mux(io.Cache.Cache.dataok,1.U,!LsuBusyReg)
+  io.Lsuvalid := !LsuBusyReg//Mux(io.Cache.Cache.dataok,1.U,!LsuBusyReg)
 }

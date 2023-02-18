@@ -8,7 +8,8 @@ import chisel3.util._
 //This file define the Message between each module
 //PCReg ---- IF
 class Pc2Ifu extends Bundle{
-  val pc   = Output(UInt(parm.PCWIDTH.W))
+  val pc        = Output(UInt(parm.PCWIDTH.W))
+  val pcvalid   = Output(UInt(parm.PCWIDTH.W))
 }
 //IF --- SRAM
 class Ifu2Sram extends Bundle{
@@ -40,6 +41,7 @@ class Idu2Npc extends Bundle{
     val rs1     = Output(UInt(parm.REGWIDTH.W))
     val ecallpc = Output(UInt(parm.PCWIDTH.W))
     val mretpc  = Output(UInt(parm.PCWIDTH.W))
+    val instvalid = Output(Bool())
 }
 class Npc2Idu extends Bundle{
     val NextPc  = Output(UInt(parm.PCWIDTH.W))
@@ -47,6 +49,7 @@ class Npc2Idu extends Bundle{
 //NPCMUX --- PCREG
 class Npc2Pcreg extends Bundle{
     val npc     = Output(UInt(parm.PCWIDTH.W))
+    val pcvalid = Output(Bool())
 }
 class Pcreg2Npc extends Bundle{
     val RegPc   = Output(UInt(parm.PCWIDTH.W))
