@@ -61,8 +61,10 @@ class LSU extends Module{
     }.otherwise{
       io.Cache.Cache.addr := 0.U
     }
-    //确认是读操作，
-    when(io.EXLS.rflag & !CLINTREAD){
+    //确认是读操作，  
+    // 读写操作都所存一下，因为后面是根据dataok判断
+    //只识别读的话，如果是写操作的dataok，会导致用所存的reg，对通用寄存器发生错误的读写
+    when(io.Cache.Cache.valid){
       LsumaskReg := io.EXLS.lsumask
       chooseReg := io.EXLS.choose
       IoRegfile := io.EXLS.RegFileIO
@@ -98,7 +100,7 @@ class LSU extends Module{
   //
   io.LSWB.choose := Mux(io.Cache.Cache.dataok,chooseReg,io.EXLS.choose)//* 读数据延后一个周期，需要的是那个周期的使能和选择信号
   io.LSWB.CsrWb <> io.EXLS.CsrWb
-  when(io.Cache.Cache.dataok){
+  when(io.Cache.Cache.dataok ){
     io.LSWB.Regfile := IoRegfile
   }.otherwise{
     io.LSWB.Regfile := io.EXLS.RegFileIO
