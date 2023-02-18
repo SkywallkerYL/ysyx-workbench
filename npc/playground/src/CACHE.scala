@@ -284,7 +284,7 @@ class CpuCache extends Module with CacheParm{
                     io.Sram.Axi.ar.valid := true.B
                     when(io.Sram.Axi.ar.fire){
                         //group要移回去，并且屏蔽block位，这样子才能读入整行
-                        printf(p"addr: ${Hexadecimal(io.Sram.Axi.ar.bits.addr)}\n")
+                        printf(p"tag:${Hexadecimal(RequestBuffertag)} addr: ${Hexadecimal(io.Sram.Axi.ar.bits.addr)}\n")
                         io.Sram.Axi.ar.bits.addr := ((RequestBuffertag<<((BlockWidth+GroupWidth).U)|(RequestBuffergroup<<(BlockWidth).U)))
                         io.Sram.Axi.ar.bits.len  := (BlockNum/(AddrWidth/DataWidth)).U-1.U
                         RequestBufferblock := 0.U
