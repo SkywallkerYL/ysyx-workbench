@@ -175,6 +175,7 @@ class CpuCache extends Module with CacheParm{
     }
     val blocknum = Wire(UInt((parm.REGWIDTH).W))
     val readtag = dontTouch(Wire(UInt(TagWidth.W)))
+    readtag := 0.U
     blocknum := 0.U
     for (i <- 0 until AssoNum){
         when(ChooseAsso(i)){
