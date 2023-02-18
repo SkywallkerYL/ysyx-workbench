@@ -147,8 +147,8 @@ class CpuCache extends Module with CacheParm{
     writeblock := RequestBufferblock
     val right =  Wire(UInt((BlockWidth+1).W))
     right := writeblock+&(parm.REGWIDTH/DataWidth).U
-    val usegroup = Wire(UInt(GroupWidth.W))
-    usegroup := 0.U
+    val usegroup = dontTouch(Wire(UInt(GroupWidth.W)))
+    usegroup := RequestBuffergroup
     for (i <- 0 until AssoNum){
         when(RequestBuffertag === tag(i).read(usegroup)&&valid((i*GroupNum).U+RequestBuffergroup)){
             hit(i) := true.B
