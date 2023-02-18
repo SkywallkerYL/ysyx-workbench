@@ -230,7 +230,7 @@ static void execute(uint64_t n) {
       if(top->io_instvalid){
         uint64_t localpc = Pc_Fetch();
         uint64_t localnpc = Dnpc_Fetch();
-        //printf("hhhh\n");
+        printf("localpc:0x%llx\n",localpc);
         difftest_step(localpc,localnpc);
       }
     }
