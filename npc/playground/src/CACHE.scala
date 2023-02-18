@@ -44,7 +44,7 @@ trait  CacheParm {
     }
     //根据tag 获取在主存中的块号
     def get_blocknum_cache(tag : UInt,group:UInt) : UInt = {
-        return (tag<<GroupWidth)|group
+        return (tag<<(GroupWidth+BlockWidth))|(group<<BlockWidth)
     }
 
 }
