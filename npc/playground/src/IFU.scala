@@ -57,12 +57,12 @@ class IFU extends Module{
     io.IFID.inst := io.instr_i
     io.IFID.instvalid := true.B
     //io.IFNPC.instvalid := true.B
-    io.instvalid :=true.B
+    //io.instvalid :=true.B
   }
   else {
     io.IFID.inst := FetchInst
     io.IFID.instvalid := io.Cache.Cache.dataok
-    io.instvalid := io.Cache.Cache.dataok
+    //io.instvalid := io.Cache.Cache.dataok
   }
   io.Cache.Cache.valid := io.PcIf.pcvalid
   io.Cache.Cache.op    := false.B
