@@ -172,7 +172,7 @@ class CpuCache extends Module with CacheParm{
     for(i <- 0 until AssoNum){
         ChooseAsso(i) := RadomChoose === i.U
     }
-    val blocknum = Wire(UInt((DataWidth-BlockWidth).W))
+    val blocknum = Wire(UInt((parm.REGWIDTH-BlockWidth).W))
     blocknum := 0.U
     for (i <- 0 until AssoNum){
         when(ChooseAsso(i)){
@@ -264,7 +264,7 @@ class CpuCache extends Module with CacheParm{
             when(axivalid){
                 io.Sram.Axi.aw.valid := true.B
                 when(io.Sram.Axi.aw.fire){
-                    io.Sram.Axi.aw.bits.addr := (blocknum <<BlockWidth) 
+                    io.Sram.Axi.aw.bits.addr := (blocknum) 
                     //突发写
                     RequestBufferblock := 0.U //地址对齐到cacheline行的首地址//block归0
                     //一次传的位宽为bits data的位宽 ，分多次把一行cache line的读出去
