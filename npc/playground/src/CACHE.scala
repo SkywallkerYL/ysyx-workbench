@@ -10,11 +10,11 @@ trait  CacheParm {
     val BlockNum   = scala.math.pow(BlockWidth,2).toInt
     val SizeWidth  : Int = 14 // Cache 大小   2^sizewidth Bytes(data is 1 Bytes)
     val AssoWidth  : Int =  2 // 组相连内部组数 2^cacheasso
-    val AssoNum    = scala.math.pow(AssoWidth,2).toInt
+    val AssoNum    = scala.math.pow(2,AssoWidth).toInt
     val GroupWidth = SizeWidth - AssoWidth - BlockWidth // 组数2^group
-    val GroupNum   = scala.math.pow(GroupWidth,2).toInt
+    val GroupNum   = scala.math.pow(2,GroupWidth).toInt
     val LineWidth  = SizeWidth - BlockWidth
-    val NumEntries = scala.math.pow(LineWidth,2).toInt
+    val NumEntries = scala.math.pow(2,LineWidth).toInt
     val TagWidth   = AddrWidth - GroupWidth
     
     //func
