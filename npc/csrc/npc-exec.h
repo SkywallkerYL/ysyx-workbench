@@ -159,7 +159,7 @@ CPU_state npc_r;
 void sim_once(uint64_t n){
   //clockntimes(1);
 #ifdef CONFIG_ITRACE
-  instr_tracelog(n<=max_instr_printnum);
+  if(top->io_instvalid)instr_tracelog(n<=max_instr_printnum);
   uint64_t dnpc = Dnpc_Fetch();
   bool jalrflag = top->io_jalr;
   int d = rd_Fetch();
@@ -168,11 +168,11 @@ void sim_once(uint64_t n){
   uint64_t imm = imm_Fetch();
   //if (cpu_gpr[32] == 0x80000014)printf("jalr:%d rd:%d rs1:%d imm:0x%016lx\n",jalrflag,d,rs1,imm);
   //if(jalrflag&(d==0)&(rs1==1)&(imm==0)) printf("pc:0x%016lx\n",cpu_gpr[32]);
-  log_ftrace(dnpc,jalrflag,d,imm,rs1,src1);
+  if(top->io_instvalid)log_ftrace(dnpc,jalrflag,d,imm,rs1,src1);
 #endif
   if(checkebreak()||top->io_abort){
-     npc_state.state = NPC_ABORT;
-     return;
+    npc_state.state = NPC_ABORT;
+    return;
   }
   clockntimes(1);
 #ifdef CONFIG_DIFFTEST
