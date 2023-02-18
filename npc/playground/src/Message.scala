@@ -9,7 +9,7 @@ import chisel3.util._
 //PCReg ---- IF
 class Pc2Ifu extends Bundle{
   val pc        = Output(UInt(parm.PCWIDTH.W))
-  val pcvalid   = Output(UInt(parm.PCWIDTH.W))
+  val pcvalid   = Output(Bool())
 }
 //IF --- SRAM
 class Ifu2Sram extends Bundle{

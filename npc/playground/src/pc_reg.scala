@@ -36,6 +36,7 @@ class PC_REG extends Module{
     }
     is(valid){
       io.PcIf.pcvalid := true.B
+      state := swait
     }
   }
   //io.PcIf.pcvalid := RegNext(io.NPC.pcvalid,true.B)
