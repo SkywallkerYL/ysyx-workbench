@@ -121,6 +121,9 @@ class Lsu2Wbu extends Bundle{
 class Lsu2Sram extends Bundle{
     val Axi = Flipped(new Axi4LiteRAMIO)
 }
+class Lsu2pc extends Bundle{
+    val Lsuvalid = Output(Bool())
+}
 //ARBITER --- SRAM
 class Arb2Sram extends Bundle{
     val Axi = Flipped(new Axi4LiteRAMIO)

@@ -94,6 +94,7 @@ class  RiscvCpu extends Module{
     Lsu.io.EXLS <> Exu.io.EXLS
 // LSU
     Lsu.io.Cache <> DCache.io.Cache
+    Lsu.io.PC <> PcReg.io.LSU
     //Lsu.io.LSRAM <> SramArb.io.lsu//SRAMLSU.io.Sram
 // CLINT
     Clint.io.LsuIn <> Lsu.io.LSCLINT
