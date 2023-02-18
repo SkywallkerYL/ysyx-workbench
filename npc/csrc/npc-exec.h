@@ -32,6 +32,7 @@ void step_and_dump_wave(){
 #ifdef WAVE
   if(!TRACE_CONDITION(wavecount,WAVE_BEGIN,WAVE_END)) {if(top->clock == 1)wavecount++;return;}
   if(top->clock == 1)wavecount++;
+  //printf("pc:%x wavecount:%d\n",Pc_Fetch(),wavecount);
   contextp->timeInc(1);
   tfp->dump(contextp->time());
 #endif
@@ -230,7 +231,7 @@ static void execute(uint64_t n) {
       if(top->io_pcvalid){
         uint64_t localpc = Pc_Fetch();
         uint64_t localnpc = Dnpc_Fetch();
-        printf("localpc:0x%lx\n",localpc);
+        //printf("localpc:0x%lx\n",localpc);
         difftest_step(localpc,localnpc);
       }
     }
