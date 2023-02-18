@@ -8,7 +8,7 @@ trait  CacheParm {
     val DataWidth  : Int =  8 //1 Bytes
     val BlockWidth : Int =  4 // 数据区大小，2^BlockWidth B
     val BlockNum   = scala.math.pow(2,BlockWidth).toInt
-    val SizeWidth  : Int = 14 // Cache 大小   2^sizewidth Bytes(data is 1 Bytes)
+    val SizeWidth  : Int =  8 // Cache 大小   2^sizewidth Bytes(data is 1 Bytes)
     val AssoWidth  : Int =  2 // 组相连内部组数 2^cacheasso
     val AssoNum    = scala.math.pow(2,AssoWidth).toInt
     val GroupWidth = SizeWidth - AssoWidth - BlockWidth // 组数2^group
@@ -289,7 +289,7 @@ class CpuCache extends Module with CacheParm{
                     io.Sram.Axi.ar.valid := true.B
                     when(io.Sram.Axi.ar.fire){
                         //group要移回去，并且屏蔽block位，这样子才能读入整行
-                        printf(p"with:${GroupWidth} groupnum:${GroupNum} tag:${Hexadecimal(RequestBuffertag)} addr: ${Hexadecimal(io.Sram.Axi.ar.bits.addr)}\n")
+                        //printf(p"with:${GroupWidth} groupnum:${GroupNum} tag:${Hexadecimal(RequestBuffertag)} addr: ${Hexadecimal(io.Sram.Axi.ar.bits.addr)}\n")
                         io.Sram.Axi.ar.bits.addr := ((RequestBuffertag<<((BlockWidth+GroupWidth).U)|(RequestBuffergroup<<(BlockWidth).U)))
                         io.Sram.Axi.ar.bits.len  := (BlockNum/(AddrWidth/DataWidth)).U-1.U
                         RequestBufferblock := 0.U
