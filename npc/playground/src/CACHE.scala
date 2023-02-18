@@ -170,9 +170,11 @@ class CpuCache extends Module with CacheParm{
     }
     //以选中的起始地址开始的64位数据
     val RadomChoose = RegInit(0.U(AssoWidth.W))
+    val usechoose = Wire(UInt(AssoWidth.W))
+    usechoose := RadomChoose
     val ChooseAsso = Wire(Vec(AssoNum,Bool()))
     for(i <- 0 until AssoNum){
-        ChooseAsso(i) := RadomChoose === i.U
+        ChooseAsso(i) := usechoose === i.U
     }
     val blocknum = Wire(UInt((parm.REGWIDTH).W))
     val readtag = dontTouch(Wire(UInt(TagWidth.W)))
@@ -253,9 +255,13 @@ class CpuCache extends Module with CacheParm{
                 //不能连续取，因为发送ok信号后，才会更新地址，因此直接条会lookup的话，拿到的还是旧地址
                 MainState := idle
             }.otherwise{
+                //注意readtag同时和choose以及usegroup有关系，因此在跳转到Miss的时候
+                //Radomchoose才切换过来，相当于进入miss，还要一个周期，才能得到想要的数据
+                //因此要搞一个usechoose，来使得和usegroup同步
                 useblock := RequestBufferblock
                 usegroup := RequestBuffergroup
                 MainState := miss
+                usechoose := RadomLine
                 RadomChoose := RadomLine
             }
         }
