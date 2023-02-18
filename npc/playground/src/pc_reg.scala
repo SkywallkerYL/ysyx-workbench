@@ -18,7 +18,7 @@ class PC_REG extends Module{
   //pcvalid 要等到ifu取道指令   lsu空闲才能拉高
   io.PcIf.pcvalid := false.B
   val swait :: waitlsu :: valid ::Nil = Enum(3)
-  val state = RegInit(swait)
+  val state = RegInit(valid)
   switch(state){
     is(swait){
       when(io.NPC.pcvalid){
