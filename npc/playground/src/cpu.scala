@@ -12,6 +12,7 @@ class  RiscvCpu extends Module{
         val abort = Output(Bool())
         val jalr = Output(Bool())
         val instvalid = Output(Bool())
+        val pcvalid = Output(Bool())
 //if (parm.DIFFTEST){
         val SkipRef = Output(Bool())
 //}
@@ -120,6 +121,7 @@ class  RiscvCpu extends Module{
     }
     //when it is not need ,it can be removed
     io.instvalid := Ifu.io.IFID.instvalid
+    io.pcvalid := PcReg.io.Pc2Ifu.pcvalid
     io.halt := Idu.io.ebreak&&(Regfile.io.a0data===0.U)
     io.abort := Idu.io.instrnoimpl
     io.jalr := Idu.io.IDNPC.jal === 2.U

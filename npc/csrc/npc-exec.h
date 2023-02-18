@@ -227,10 +227,10 @@ static void execute(uint64_t n) {
       //printf("pc:0x%016lx \n",cpu_gpr[32]);
     }
     else {
-      if(top->io_instvalid){
+      if(top->io_pcvalid){
         uint64_t localpc = Pc_Fetch();
         uint64_t localnpc = Dnpc_Fetch();
-        printf("localpc:0x%llx\n",localpc);
+        printf("localpc:0x%lx\n",localpc);
         difftest_step(localpc,localnpc);
       }
     }

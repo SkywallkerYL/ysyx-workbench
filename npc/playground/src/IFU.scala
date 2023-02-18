@@ -64,6 +64,7 @@ class IFU extends Module{
     io.IFID.instvalid := io.Cache.Cache.dataok
     //io.instvalid := io.Cache.Cache.dataok
   }
+
   io.Cache.Cache.valid := io.PcIf.pcvalid
   io.Cache.Cache.op    := false.B
   io.Cache.Cache.addr  := io.PcIf.pc
