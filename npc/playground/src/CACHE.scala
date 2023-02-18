@@ -174,10 +174,13 @@ class CpuCache extends Module with CacheParm{
         ChooseAsso(i) := RadomChoose === i.U
     }
     val blocknum = Wire(UInt((parm.REGWIDTH).W))
+    val readtag = dontTouch(Wire(UInt(TagWidth).W))
+    readtag := tag(i).read(usegroup)
     blocknum := 0.U
     for (i <- 0 until AssoNum){
         when(ChooseAsso(i)){
-            blocknum := get_blocknum_cache(tag(i).read(usegroup),RequestBuffergroup)
+            readtag := tag(i).read(usegroup)
+            blocknum := get_blocknum_cache(readtag,RequestBuffergroup)
         }   
     }
     val cachehit = hit.asUInt.orR
