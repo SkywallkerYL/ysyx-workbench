@@ -210,7 +210,7 @@ class Axi4LiteSRAM extends Module{
                    RegWAddr := RegWAddr + waddradd
                 }.otherwise{
                     //io.Sram.w.bits.last := true.B
-                    WriteState := writeResp
+                    WriteState := writeWait
                 }
             }
         }
