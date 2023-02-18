@@ -98,7 +98,7 @@ class LSU extends Module{
   io.LSWB.AluRes := io.EXLS.alures
   //并且当前周期的使能要拉低即如果当前周期是发送读请求的那个周期
   //
-  io.LSWB := Mux(io.Cache.Cache.dataok,chooseReg,io.EXLS.choose)//* 读数据延后一个周期，需要的是那个周期的使能和选择信号
+  io.LSWB.choose := Mux(io.Cache.Cache.dataok,chooseReg,io.EXLS.choose)//* 读数据延后一个周期，需要的是那个周期的使能和选择信号
   io.LSWB.CsrWb <> io.EXLS.CsrWb
   when(io.Cache.Cache.dataok){
     io.LSWB.Regfile := IoRegfile
