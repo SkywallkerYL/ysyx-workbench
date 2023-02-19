@@ -78,7 +78,7 @@ class myLFSR(increment : Bool = true.B) extends Module{
     }
     io.out := lfsr
 }
-class CpuCache extends Module with CacheParm{
+class CpuCache(Icache : Boolean = false) extends Module with CacheParm{
     val io = IO(new Bundle{
         val Cache = Flipped(new Cpu2Cache) 
         val Sram  = new Cache2Sram
@@ -258,6 +258,7 @@ class CpuCache extends Module with CacheParm{
                     io.Cache.Cache.dataok := true.B
                     for(i <- 0 until AssoNum ){
                         when(hit(i)){
+                            if(Icache) printf(p"hitway=${i} group=${RequestBuffergroup} ramrdata=${Hexadecimal(io.Cache.Cache.rdata)} \n")
                             io.Cache.Cache.rdata  := ((rdData(i).asUInt)>>(RequestBufferblock*DataWidth.U))(parm.REGWIDTH-1,0)//LoadRes(i).asUInt
                             //io.Cache.Cache.dataok := RegNext(true.B)
                         }
@@ -413,8 +414,8 @@ class CpuCache extends Module with CacheParm{
                    
                     //val ramrdata = io.Sram.Axi.r.bits.data
                     when(ChooseAsso(j)){
-                        printf("/*******write********/\n")
-                        printf(p"j=${j} group=${RequestBuffergroup} ramrdata=${Hexadecimal(ramrdata)} \n")
+                        if(Icache)printf("/*******write********/\n")
+                        if(Icache)printf(p"choose=${j} group=${RequestBuffergroup} ramrdata=${Hexadecimal(ramrdata)} \n")
                         tag(j).write(RequestBuffergroup,RequestBuffertag)
                         for (i <- 0 until BlockNum){
                             when(BlockChoose(i)){

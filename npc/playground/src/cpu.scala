@@ -22,7 +22,7 @@ class  RiscvCpu extends Module{
     val PcReg = Module(new PC_REG()) 
     val NpcMux = Module(new NPCMUX())
     val SRAM    = Module(new Axi4LiteSRAM)
-    val ICache   = Module(new CpuCache)
+    val ICache   = Module(new CpuCache(true))
     val DCache   = Module(new CpuCache)
     val SRAMLSU = Module(new Axi4LiteSRAM)
     //val SramArb = Module(new RamArbiter)
