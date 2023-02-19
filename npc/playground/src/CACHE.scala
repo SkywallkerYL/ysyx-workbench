@@ -324,9 +324,13 @@ class CpuCache(Icache : Boolean = false) extends Module with CacheParm{
                     for (i <- 0 until AssoNum){
                         when(ChooseAsso(i)){
                             //rdTag(i) := tag(i).read(usegroup)
-                            for (j <- 0 until GroupNum)
-                            when(j.U === usegroup)
-                            blocknum := get_blocknum_cache(tag(j.U).read(i),RequestBuffergroup)
+                            for (j <- 0 until GroupNum){
+                                when(j.U === usegroup){
+                                    blocknum := get_blocknum_cache(tag(j).read(i.U),RequestBuffergroup)
+                                }
+                            
+                            }
+                            
                         }
                     }
                     io.Sram.Axi.aw.bits.addr := (blocknum) 
@@ -393,7 +397,7 @@ class CpuCache(Icache : Boolean = false) extends Module with CacheParm{
                 when(k.U === usegroup){
                     for(i <- 0 until AssoNum){
                         for(j <- 0 until BlockNum){
-                            rdData(i)(j) := mem(k*BlockNum+j).read(i)
+                            rdData(i)(j) := mem(k*BlockNum+j).read(i.U)
                         }
                     }
                 }
@@ -441,12 +445,12 @@ class CpuCache(Icache : Boolean = false) extends Module with CacheParm{
                         if(Icache)printf(p"choose=${j} group=${RequestBuffergroup} tag=${Hexadecimal(RequestBuffertag)} ramrdata=${Hexadecimal(ramrdata)} \n")
                         for (k <- 0 until GroupNum){
                             when(k.U === RequestBuffergroup){
-                                tag(k).write(j,RequestBuffertag)
+                                tag(k).write(j.U,RequestBuffertag)
                                 for (i <- 0 until BlockNum){
                                     when(BlockChoose(i)){
                                         val writedata = (ramrdata >> (i*DataWidth))(DataWidth-1,0)
                                         //printf(p"buffer=${RequestBufferblock} block= ${writeblock} ramrdata=${Hexadecimal(writedata)} \n")
-                                        mem(k*BlockNum+i).write(j,(ramrdata >> (i*DataWidth))(DataWidth-1,0))
+                                        mem(k*BlockNum+i).write(j.U,(ramrdata >> (i*DataWidth))(DataWidth-1,0))
                                     }
                                 }   
                             }
