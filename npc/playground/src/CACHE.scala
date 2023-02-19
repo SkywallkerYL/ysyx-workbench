@@ -240,7 +240,7 @@ class CpuCache extends Module with CacheParm{
         }
         is(lookup){
             for (i <- 0 until AssoNum){
-                when(rdTag(i) == RequestBuffertag &&valid((i*GroupNum).U+RequestBuffergroup)){
+                when(rdTag(i) === RequestBuffertag &&valid((i*GroupNum).U+RequestBuffergroup)){
                     hit(i) := true.B
                     hitway := i.U
                 }
