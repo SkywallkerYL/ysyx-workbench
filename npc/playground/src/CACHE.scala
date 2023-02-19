@@ -90,9 +90,9 @@ class CpuCache(Icache : Boolean = false) extends Module with CacheParm{
     //Mem 是同步写，异步读，会被综合成触发器，
     //不同的block例化到同一个mem里是不合理的，因为会在一个周期内收集好几个Block的数据，这样的话，在同一个
     //会导致在同一个周期内，对不同的地址进行读写，这样子就不符实际，因此代码也会出现难以理解的行为
-    val mem = (Seq.fill(AssoNum*BlockNum)(SyncReadMem(GroupNum,UInt(DataWidth.W))))
+    val mem = (Seq.fill(AssoNum*BlockNum)(Mem(GroupNum,UInt(DataWidth.W))))
     //tag 实例化Assonum块 深度为Groupnum 的宽度为
-    val tag = Seq.fill(AssoNum)(SyncReadMem(GroupNum,UInt(TagWidth.W)))
+    val tag = Seq.fill(AssoNum)(Mem(GroupNum,UInt(TagWidth.W)))
     //容量小的用Reg实现//还是有点多，用Mem
     //val valid = Seq.fill(AssoNum)(SyncReadMem(GroupNum,Bool()))
     val valid = RegInit(VecInit(Seq.fill(AssoNum*GroupNum)((false.B))))
