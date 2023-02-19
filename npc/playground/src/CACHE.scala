@@ -229,17 +229,7 @@ class CpuCache extends Module with CacheParm{
                 usegroup := Ingroup
                 MainState := lookup
                 //取tag lookup 态用取出的数据现场判断cachehit
-                for(i <- 0 until AssoNum){
-                    rdTag(i) := tag(i).read(usegroup)
-                }
-                //确认读操作，提前一周期发送读数据请求
-                when(!io.Cache.Cache.op){
-                    for(i <- 0 until AssoNum){
-                        for(j <- 0 until BlockNum){
-                            rdData(i)(j) := mem(i*AssoNum+j).read(usegroup)
-                        }
-                    }
-                }
+
             }.otherwise{
                 MainState := idle
             }
@@ -296,12 +286,7 @@ class CpuCache extends Module with CacheParm{
                 useblock := RequestBufferblock
                 usegroup := RequestBuffergroup
                 MainState := miss
-                for (i <- 0 until AssoNum){
-                    when(ChooseAsso(i)){
-                        //rdTag(i) := tag(i).read(usegroup)
-                        blocknum := get_blocknum_cache(tag(i).read(usegroup),RequestBuffergroup)
-                    }
-                }
+
                 usechoose := RadomLine
                 RadomChoose := RadomLine
             }
@@ -316,6 +301,12 @@ class CpuCache extends Module with CacheParm{
             when(axivalid){
                 io.Sram.Axi.aw.valid := true.B
                 when(io.Sram.Axi.aw.fire){
+                    for (i <- 0 until AssoNum){
+                        when(ChooseAsso(i)){
+                            //rdTag(i) := tag(i).read(usegroup)
+                            blocknum := get_blocknum_cache(tag(i).read(usegroup),RequestBuffergroup)
+                        }
+                    }
                     io.Sram.Axi.aw.bits.addr := (blocknum) 
                     //突发写
                     RequestBufferblock := 0.U //地址对齐到cacheline行的首地址//block归0
@@ -329,11 +320,7 @@ class CpuCache extends Module with CacheParm{
                     //RequestBufferblock := RequestBufferblock&(~"x3".U(BlockWidth.W))
                     MainState := replace
                     //提前一周期拿data数据
-                    for(i <- 0 until AssoNum){
-                        for(j <- 0 until BlockNum){
-                            rdData(i)(j) := mem(i*AssoNum+j).read(usegroup)
-                        }
-                    }
+
                 }
             }.otherwise{
                 //不需要写回
@@ -445,16 +432,7 @@ class CpuCache extends Module with CacheParm{
                     useblock := RequestBufferblockraw
                     usegroup := RequestBuffergroup
                     //提前一周期发送读请求，进入Lookup是检验Hit
-                    for (i <- 0 until AssoNum){
-                        rdTag (i) := tag(i).read(usegroup)
-                    }
-                    when(!RequestBufferop){
-                        for(i <- 0 until AssoNum){
-                            for(j <- 0 until BlockNum){
-                                rdData(i)(j) := mem(i*AssoNum+j).read(usegroup)
-                            }
-                        }
-                    }
+
                     MainState := lookup
                     valid(RadomChoose*GroupNum.U+RequestBuffergroup):= true.B
                     dirty(RadomChoose*GroupNum.U+RequestBuffergroup):= false.B
