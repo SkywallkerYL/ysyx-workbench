@@ -158,6 +158,12 @@ class CpuCache extends Module with CacheParm{
           //  hitway := i.U
         //}
     }
+    for (i <- 0 until AssoNum){
+        when(rdTag(i) === RequestBuffertag &&valid((i*GroupNum).U+RequestBuffergroup)){
+            hit(i) := true.B
+            hitway := i.U
+        }
+    }
     val BlockChoose = dontTouch(Wire(Vec(BlockNum,Bool())))
     for (i <- 0 until BlockNum) {
         //这里的加法注意位宽，不会自动拓展，不修改位宽的话，8+8=16 超过了4位，归0，导致判断错误
@@ -239,12 +245,7 @@ class CpuCache extends Module with CacheParm{
             }
         }
         is(lookup){
-            for (i <- 0 until AssoNum){
-                when(rdTag(i) === RequestBuffertag &&valid((i*GroupNum).U+RequestBuffergroup)){
-                    hit(i) := true.B
-                    hitway := i.U
-                }
-            }
+
             //lookup->idle
             when(cachehit){
                 when(!RequestBufferop){
