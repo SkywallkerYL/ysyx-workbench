@@ -271,7 +271,7 @@ class CpuCache(Icache : Boolean = false) extends Module with CacheParm{
                     io.Cache.Cache.dataok := true.B
                     for(i <- 0 until AssoNum ){
                         when(hit(i)){
-                            if(Icache) printf(p"hitway=${i} group=${RequestBuffergroup} tag=${Hexadecimal(rdTag(i))} ramrdata=${Hexadecimal(io.Cache.Cache.rdata)} \n")
+                            //if(Icache) printf(p"hitway=${i} group=${RequestBuffergroup} tag=${Hexadecimal(rdTag(i))} ramrdata=${Hexadecimal(io.Cache.Cache.rdata)} \n")
                             io.Cache.Cache.rdata  := ((rdData(i).asUInt)>>(RequestBufferblock*DataWidth.U))(parm.REGWIDTH-1,0)//LoadRes(i).asUInt
                             //io.Cache.Cache.dataok := RegNext(true.B)
                         }
@@ -281,6 +281,8 @@ class CpuCache(Icache : Boolean = false) extends Module with CacheParm{
                     //writeblock := RequestBufferblock
                     for (j <- 0 until AssoNum){
                         when(hit(j)) {
+                            if(!Icache) printf("/*******hit write*********/")
+                            if(!Icache) printf(p"hitway=${j} group=${RequestBuffergroup} tag=${Hexadecimal(RequestBuffertag)} ramrdata=${Hexadecimal(lineData)} \n")
                             for (k <- 0 until GroupNum){
                                 when(k.U === RequestBuffergroup){
                                     for (i <- 0 until BlockNum){
@@ -317,7 +319,6 @@ class CpuCache(Icache : Boolean = false) extends Module with CacheParm{
             //cache 缺失，有效且脏的情况下向AXI总线申请写入
             //此时的group是当前cache对应的group，不是读入的group
             //由此得到addr在主存中的块号
-            usechoose := RadomChoose
             axivalid := valid(RequestBuffergroup*AssoNum.U+RadomChoose) & dirty(RequestBuffergroup*AssoNum.U+RadomChoose)
             //此时需要写回，向总线申请写
             when(axivalid){
@@ -408,6 +409,8 @@ class CpuCache(Icache : Boolean = false) extends Module with CacheParm{
                 //一次写一个data 宽的
                 for(i <- 0 until AssoNum ){
                     when(ChooseAsso(i)){
+                        //if(!Icache)printf("/*******write back********/\n")
+                        //if(!Icache)printf(p"choose=${i} writedata=${Hexadecimal(io.Sram.Axi.w.bits.data)} \n")
                         io.Sram.Axi.w.bits.data  := ((rdData(i).asUInt)>>(RequestBufferblock*DataWidth.U))(parm.REGWIDTH-1,0)//LoadRes(i).asUInt    //a cacheline data ***
                     }
                 }
@@ -442,8 +445,8 @@ class CpuCache(Icache : Boolean = false) extends Module with CacheParm{
                    
                     //val ramrdata = io.Sram.Axi.r.bits.data
                     when(ChooseAsso(j)){
-                        if(Icache)printf("/*******write********/\n")
-                        if(Icache)printf(p"choose=${j} group=${RequestBuffergroup} tag=${Hexadecimal(RequestBuffertag)} ramrdata=${Hexadecimal(ramrdata)} \n")
+                        //if(Icache)printf("/*******write********/\n")
+                        //if(Icache)printf(p"choose=${j} group=${RequestBuffergroup} tag=${Hexadecimal(RequestBuffertag)} ramrdata=${Hexadecimal(ramrdata)} \n")
                         for (k <- 0 until GroupNum){
                             when(k.U === RequestBuffergroup){
                                 tag(k).write(j.U,RequestBuffertag)
