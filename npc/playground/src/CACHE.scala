@@ -275,7 +275,7 @@ class CpuCache(Icache : Boolean = false) extends Module with CacheParm{
                     for(i <- 0 until AssoNum ){
                         when(hit(i)){
                             if(!Icache) printf("/*******hit read*********/\n")
-                            if(!Icache) printf(p"hitway=${j} group=${RequestBuffergroup} tag=${Hexadecimal(RequestBuffertag)} ramrdata=${Hexadecimal(io.Cache.Cache.rdata)} \n")
+                            if(!Icache) printf(p"hitway=${i} group=${RequestBuffergroup} tag=${Hexadecimal(RequestBuffertag)} ramrdata=${Hexadecimal(io.Cache.Cache.rdata)} \n")
                             //if(Icache) printf(p"hitway=${i} group=${RequestBuffergroup} tag=${Hexadecimal(rdTag(i))} ramrdata=${Hexadecimal(io.Cache.Cache.rdata)} \n")
                             io.Cache.Cache.rdata  := ((rdData(i).asUInt)>>(RequestBufferblock*DataWidth.U))(parm.REGWIDTH-1,0)//LoadRes(i).asUInt
                             //io.Cache.Cache.dataok := RegNext(true.B)
