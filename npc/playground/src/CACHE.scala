@@ -9,13 +9,17 @@ trait  CacheParm {
     val BlockWidth : Int =  3 // 数据区大小，2^BlockWidth B
     val BlockNum   = scala.math.pow(2,BlockWidth).toInt
     val SizeWidth  : Int =  8 // Cache 大小   2^sizewidth Bytes(data is 1 Bytes)
-    val AssoWidth  : Int =  2 // 组相连内部组数 2^cacheasso assowitdth should > 0
+    //这里别把概念高混淆了 group是 组数，即划分成多少个组
+    //asso 是一个组内有多少行，即2^s路组相连
+    //hit 是根据是否属于当前的组，然后依次比较内部的行 
+    //即一个地址确定的映射到某一个组，组内可能是任意的行 
+    val AssoWidth  : Int =  2 // 组相连内部行数 2^cacheasso assowitdth should > 0
     val AssoNum    = scala.math.pow(2,AssoWidth).toInt
     val GroupWidth = SizeWidth - AssoWidth - BlockWidth // 组数2^group
     val GroupNum   = scala.math.pow(2,GroupWidth).toInt
     val LineWidth  = SizeWidth - BlockWidth
     val NumEntries = scala.math.pow(2,LineWidth).toInt
-    val TagWidth   = AddrWidth - GroupWidth
+    val TagWidth   = AddrWidth - GroupWidth -BlockWidth
     
     //func
     def mask_with_len(x : Long):UInt = {
@@ -149,7 +153,7 @@ class CpuCache extends Module with CacheParm{
     right := writeblock+&(parm.REGWIDTH/DataWidth).U
     val usegroup = dontTouch(Wire(UInt(GroupWidth.W)))
     usegroup := RequestBuffergroup
-    //同样的tag 也不能一直读
+    //同样的tag 也不能一直读 // 用于取出当前组所有的行用于tag进行比较
     val rdTag = Wire(Vec(AssoNum,UInt(TagWidth.W)))
     for (i <- 0 until AssoNum){
         rdTag(i) := 0.U // 用于提前一周期取tag数据
@@ -159,7 +163,7 @@ class CpuCache extends Module with CacheParm{
         //}
     }
     for (i <- 0 until AssoNum){
-        when(rdTag(i) === RequestBuffertag &&valid((i*GroupNum).U+RequestBuffergroup)){
+        when(rdTag(i) === RequestBuffertag &&valid((RequestBuffergroup*AssoNum.U)+i.U)){
             hit(i) := true.B
             hitway := i.U
         }
@@ -171,6 +175,7 @@ class CpuCache extends Module with CacheParm{
         BlockChoose(i) := (i.U>=writeblock) && (i.U<(right))
     }
     //left most bits in vec is low order bits 
+    //用于取出当前组数的所有行的数据
     val rdData  = Seq.fill(AssoNum)(Wire(Vec(BlockNum,UInt(DataWidth.W))))
     //这里写读的话相当于每个周期都在读，这是不合理的，得放到状态及里面取
     for(i <- 0 until AssoNum){
@@ -179,6 +184,7 @@ class CpuCache extends Module with CacheParm{
         }
     }
     //以选中的起始地址开始的64位数据
+    //记录选中的行
     val RadomChoose = RegInit(0.U(AssoWidth.W))
     val usechoose = Wire(UInt(AssoWidth.W))
     usechoose := RadomChoose
@@ -270,8 +276,8 @@ class CpuCache extends Module with CacheParm{
                             }
                         }
                     }
-                    valid(hitway*GroupNum.U+RequestBuffergroup):= true.B
-                    dirty(hitway*GroupNum.U+RequestBuffergroup):= true.B
+                    valid(RequestBuffergroup*AssoNum.U+hitway):= true.B
+                    dirty(RequestBuffergroup*AssoNum.U+hitway):= true.B
                     io.Cache.Cache.dataok := true.B
                 }
                 //io.Cache.Cache.rdata  := Mux(!RequestBufferop,LoadRes.asUInt,0.U) 
@@ -296,7 +302,7 @@ class CpuCache extends Module with CacheParm{
             //此时的group是当前cache对应的group，不是读入的group
             //由此得到addr在主存中的块号
             usechoose := RadomChoose
-            axivalid := valid(RadomChoose*GroupNum.U+RequestBuffergroup) & dirty(RadomChoose*GroupNum.U+RequestBuffergroup)
+            axivalid := valid(RequestBuffergroup*AssoNum.U+RadomChoose) & dirty(RequestBuffergroup*AssoNum.U+RadomChoose)
             //此时需要写回，向总线申请写
             when(axivalid){
                 io.Sram.Axi.aw.valid := true.B
@@ -353,8 +359,8 @@ class CpuCache extends Module with CacheParm{
                             }
                         }
                     }
-                    valid(RadomChoose*GroupNum.U+RequestBuffergroup):= true.B
-                    dirty(RadomChoose*GroupNum.U+RequestBuffergroup):= true.B
+                    valid(RequestBuffergroup*AssoNum.U+usechoose):= true.B
+                    dirty(RequestBuffergroup*AssoNum.U+usechoose):= true.B
                     io.Cache.Cache.dataok := true.B
                     MainState := idle
                 }
@@ -382,8 +388,8 @@ class CpuCache extends Module with CacheParm{
                 io.Sram.Axi.w.bits.last := RequestBufferblock === (BlockNum-parm.REGWIDTH/DataWidth).U
                 when(io.Sram.Axi.w.bits.last){
                     //写完成，向总线申请读//更新Dirty 和valid 返回Miss
-                    valid(RadomChoose*GroupNum.U+RequestBuffergroup):= true.B
-                    dirty(RadomChoose*GroupNum.U+RequestBuffergroup):= false.B
+                    valid(RequestBuffergroup*AssoNum.U+usechoose):= true.B
+                    dirty(RequestBuffergroup*AssoNum.U+usechoose):= false.B
                     useblock := RequestBufferblockraw
                     RequestBufferblock := RequestBufferblockraw
                     MainState := miss
@@ -434,8 +440,8 @@ class CpuCache extends Module with CacheParm{
                     //提前一周期发送读请求，进入Lookup是检验Hit
 
                     MainState := lookup
-                    valid(RadomChoose*GroupNum.U+RequestBuffergroup):= true.B
-                    dirty(RadomChoose*GroupNum.U+RequestBuffergroup):= false.B
+                    valid(RequestBuffergroup*AssoNum.U+usechoose):= true.B
+                    dirty(RequestBuffergroup*AssoNum.U+usechoose):= false.B
                     RequestBufferblock := RequestBufferblockraw
                 }.otherwise{
                     RequestBufferblock := RequestBufferblock+(parm.REGWIDTH/DataWidth).U
