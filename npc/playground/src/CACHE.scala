@@ -155,7 +155,7 @@ class CpuCache(Icache : Boolean = false) extends Module with CacheParm{
     usegroup := RequestBuffergroup
     //同样的tag 也不能一直读 // 用于取出当前组所有的行用于tag进行比较
     val rdTag = Wire(Vec(AssoNum,UInt(TagWidth.W)))
-    val rdTagRead = RegInit(Vec(AssoNum,0.U(TagWidth.W)))
+    val rdTagRead = RegInit(VecInit(Seq.fill(AssoNum)(0.U(TagWidth.W))))
     val temprdTag = dontTouch(Wire(UInt(TagWidth.W)))
     temprdTag := 0.U
     for (i <- 0 until AssoNum){
