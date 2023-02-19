@@ -293,6 +293,7 @@ class CpuCache(Icache : Boolean = false) extends Module with CacheParm{
                                     for (i <- 0 until BlockNum){
                                         when(BlockChoose(i)){
                                             when(linemask(i)){
+                                                printf(p"i=${i} write=${Hexadecimal((lineData>>(i*DataWidth))(DataWidth-1,0))} \n")
                                                 mem(k*BlockNum+i).write(j.U,(lineData>>(i*DataWidth))(DataWidth-1,0))
                                             }
                                         }
