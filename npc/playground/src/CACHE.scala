@@ -146,7 +146,7 @@ class CpuCache(Icache : Boolean = false) extends Module with CacheParm{
     //val mask   = Wire(Vec())
     //val datavalid = RegInit(0.U(1.W))
     val useblock = Wire(UInt(BlockWidth.W))
-    useblock := 0.U
+    useblock := RequestBufferblock
     val writeblock = Wire(UInt(BlockWidth.W))
     writeblock := RequestBufferblock
     val right =  Wire(UInt((BlockWidth+1).W))
@@ -303,8 +303,6 @@ class CpuCache(Icache : Boolean = false) extends Module with CacheParm{
                 //Radomchoose才切换过来，相当于进入miss，还要一个周期，才能得到想要的数据
                 //因此要搞一个usechoose，来使得和usegroup同步
                 //并且Miss态如果需要写回的话，需要blocknum ,即tag的数据，提前一周期发送请求出来
-                useblock := RequestBufferblock
-                usegroup := RequestBuffergroup
                 MainState := miss
 
                 usechoose := RadomLine
