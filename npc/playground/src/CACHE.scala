@@ -9,7 +9,7 @@ trait  CacheParm {
     val BlockWidth : Int =  3 // 数据区大小，2^BlockWidth B
     val BlockNum   = scala.math.pow(2,BlockWidth).toInt
     val SizeWidth  : Int =  8 // Cache 大小   2^sizewidth Bytes(data is 1 Bytes)
-    val AssoWidth  : Int =  2 // 组相连内部组数 2^cacheasso
+    val AssoWidth  : Int =  2 // 组相连内部组数 2^cacheasso assowitdth should > 0
     val AssoNum    = scala.math.pow(2,AssoWidth).toInt
     val GroupWidth = SizeWidth - AssoWidth - BlockWidth // 组数2^group
     val GroupNum   = scala.math.pow(2,GroupWidth).toInt
@@ -149,11 +149,14 @@ class CpuCache extends Module with CacheParm{
     right := writeblock+&(parm.REGWIDTH/DataWidth).U
     val usegroup = dontTouch(Wire(UInt(GroupWidth.W)))
     usegroup := RequestBuffergroup
+    //同样的tag 也不能一直读
+    val rdTag = Wire(Vec(AssoNum,UInt(TagWidth.W)))
     for (i <- 0 until AssoNum){
-        when(RequestBuffertag === tag(i).read(usegroup)&&valid((i*GroupNum).U+RequestBuffergroup)){
-            hit(i) := true.B
-            hitway := i.U
-        }
+        rdTag(i) := 0.U // 用于提前一周期取tag数据
+        //when(RequestBuffertag === tag(i).read(usegroup)&&valid((i*GroupNum).U+RequestBuffergroup)){
+          //  hit(i) := true.B
+          //  hitway := i.U
+        //}
     }
     val BlockChoose = dontTouch(Wire(Vec(BlockNum,Bool())))
     for (i <- 0 until BlockNum) {
@@ -163,9 +166,10 @@ class CpuCache extends Module with CacheParm{
     }
     //left most bits in vec is low order bits 
     val rdData  = Seq.fill(AssoNum)(Wire(Vec(BlockNum,UInt(DataWidth.W))))
+    //这里写读的话相当于每个周期都在读，这是不合理的，得放到状态及里面取
     for(i <- 0 until AssoNum){
         for(j <- 0 until BlockNum){
-            rdData(i)(j) := mem(i*AssoNum+j).read(usegroup)
+            rdData(i)(j) := 0.U//mem(i*AssoNum+j).read(usegroup)
         }
     }
     //以选中的起始地址开始的64位数据
@@ -177,15 +181,15 @@ class CpuCache extends Module with CacheParm{
         ChooseAsso(i) := usechoose === i.U
     }
     val blocknum = Wire(UInt((parm.REGWIDTH).W))
-    val readtag = dontTouch(Wire(UInt(TagWidth.W)))
-    readtag := 0.U
+    //val readtag = dontTouch(Wire(UInt(TagWidth.W)))
+    //readtag := 0.U
     blocknum := 0.U
-    for (i <- 0 until AssoNum){
-        when(ChooseAsso(i)){
-            readtag := tag(i).read(usegroup)
-            blocknum := get_blocknum_cache(readtag,RequestBuffergroup)
-        }   
-    }
+    //for (i <- 0 until AssoNum){
+        //when(ChooseAsso(i)){
+            //readtag := tag(i).read(usegroup)
+           // blocknum := get_blocknum_cache(readtag,RequestBuffergroup)
+       // }   
+   // }
     val cachehit = hit.asUInt.orR
 
     val axivalid = Wire(Bool())
@@ -218,11 +222,29 @@ class CpuCache extends Module with CacheParm{
                 useblock := Inblock//这个周期就发送读请求，下个周期能拿到mem中的数据
                 usegroup := Ingroup
                 MainState := lookup
+                //确认读操作，提前一周期发送读请求
+                when(!io.Cache.Cache.op){
+                    //取tag lookup 态用取出的数据现场判断cachehit
+                    for(i <- 0 until AssoNum){
+                        rdTag(i) := tag(i).read(usegroup)
+                    }
+                    for(i <- 0 until AssoNum){
+                        for(j <- 0 until BlockNum){
+                            rdData(i)(j) := mem(i*AssoNum+j).read(usegroup)
+                        }
+                    }
+                }
             }.otherwise{
                 MainState := idle
             }
         }
         is(lookup){
+            for (i <- 0 until AssoNum){
+                when(rdTag(i) == RequestBuffertag &&valid((i*GroupNum).U+RequestBuffergroup)){
+                    hit(i) := true.B
+                    hitway := i.U
+                }
+            }
             //lookup->idle
             when(cachehit){
                 when(!RequestBufferop){
@@ -234,6 +256,7 @@ class CpuCache extends Module with CacheParm{
                         }
                     }
                 }.otherwise{
+                    //这里不需要写如tag
                     //writeblock := RequestBufferblock
                     for (j <- 0 until AssoNum){
                         when(hit(j)) {
@@ -258,9 +281,16 @@ class CpuCache extends Module with CacheParm{
                 //注意readtag同时和choose以及usegroup有关系，因此在跳转到Miss的时候
                 //Radomchoose才切换过来，相当于进入miss，还要一个周期，才能得到想要的数据
                 //因此要搞一个usechoose，来使得和usegroup同步
+                //并且Miss态如果需要写回的话，需要blocknum ,即tag的数据，提前一周期发送请求出来
                 useblock := RequestBufferblock
                 usegroup := RequestBuffergroup
                 MainState := miss
+                for (i <- 0 until AssoNum){
+                    when(ChooseAsso(i)){
+                        rdTag(i) := tag(i).read(usegroup)
+                        blocknum := get_blocknum_cache(rdTag(i),RequestBuffergroup)
+                    }
+                }
                 usechoose := RadomLine
                 RadomChoose := RadomLine
             }
@@ -269,7 +299,7 @@ class CpuCache extends Module with CacheParm{
             //cache 缺失，有效且脏的情况下向AXI总线申请写入
             //此时的group是当前cache对应的group，不是读入的group
             //由此得到addr在主存中的块号
-
+            usechoose := RadomChoose
             axivalid := valid(RadomChoose*GroupNum.U+RequestBuffergroup) & dirty(RadomChoose*GroupNum.U+RequestBuffergroup)
             //此时需要写回，向总线申请写
             when(axivalid){
@@ -287,6 +317,12 @@ class CpuCache extends Module with CacheParm{
                     usegroup := RequestBuffergroup
                     //RequestBufferblock := RequestBufferblock&(~"x3".U(BlockWidth.W))
                     MainState := replace
+                    //提前一周期拿data数据
+                    for(i <- 0 until AssoNum){
+                        for(j <- 0 until BlockNum){
+                            rdData(i)(j) := mem(i*AssoNum+j).read(usegroup)
+                        }
+                    }
                 }
             }.otherwise{
                 //不需要写回
@@ -329,7 +365,11 @@ class CpuCache extends Module with CacheParm{
         is(replace){
             //向总线写回cacheline
             io.Sram.Axi.w.valid := true.B  
-
+            for(i <- 0 until AssoNum){
+                for(j <- 0 until BlockNum){
+                    rdData(i)(j) := mem(i*AssoNum+j).read(usegroup)
+                }
+            }
             when(io.Sram.Axi.w.fire){
                 //写数据的data位宽也要该，改称cache line 一行的datawidth (datawith*blocknum)
                 //一次写一个data 宽的
