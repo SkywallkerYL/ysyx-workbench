@@ -1,9 +1,9 @@
-package npc
+
 
 import chisel3._
 import chisel3.util._
 import chisel3.dontTouch
-trait  CacheParm {
+trait  CacheParmX {
     val AddrWidth = parm.REGWIDTH // Cache接受的地址数据位宽
     val DataWidth  : Int =  8 //1 Bytes
     val BlockWidth : Int =  3 // 数据区大小，2^BlockWidth B
@@ -53,9 +53,9 @@ trait  CacheParm {
     }
 
 }
-object CacheParm extends CacheParm{}
+object CacheParmX extends CacheParmX{}
 
-class CacheIO extends Bundle{
+class CacheIOX extends Bundle{
     val valid = Input(Bool()) // require is valid
     val op    = Input(Bool()) // 1:WRITE 0:READ
     val addr  = Input(UInt(parm.REGWIDTH.W))
@@ -67,7 +67,7 @@ class CacheIO extends Bundle{
     val rdata = Output(UInt(parm.REGWIDTH.W))
     
 }
-class myLFSR(increment : Bool = true.B) extends Module{
+class myLFSRX(increment : Bool = true.B) extends Module{
     val io = IO(new Bundle{
         val out = Output(UInt(16.W))
     })
@@ -78,18 +78,11 @@ class myLFSR(increment : Bool = true.B) extends Module{
     }
     io.out := lfsr
 }
-class CpuCache(Icache : Boolean = false) extends Module with CacheParm{
+class CpuCacheX(Icache : Boolean = false) extends Module with CacheParmX{
     val io = IO(new Bundle{
         val Cache = Flipped(new Cpu2Cache) 
         val Sram  = new Cache2Sram
     })
-    //Cache Initial
-    //容量大的采用mem实现
-    //mem 实例化Assonum*BlockNum块 深度为GroupNum 的宽度为datawidth的Ram
-    //SyncReadMem 是同步读写  会被综合成Mem，设置读地址的下一个周期才能拿到数据
-    //Mem 是同步写，异步读，会被综合成触发器，
-    //不同的block例化到同一个mem里是不合理的，因为会在一个周期内收集好几个Block的数据，这样的话，在同一个
-    //会导致在同一个周期内，对不同的地址进行读写，这样子就不符实际，因此代码也会出现难以理解的行为
     val mem = (Seq.fill(AssoNum*BlockNum)(SyncReadMem(GroupNum,UInt(DataWidth.W))))
     //tag 实例化Assonum块 深度为Groupnum 的宽度为
     val tag = Seq.fill(AssoNum)(SyncReadMem(GroupNum,UInt(TagWidth.W)))
@@ -98,14 +91,6 @@ class CpuCache(Icache : Boolean = false) extends Module with CacheParm{
     val valid = RegInit(VecInit(Seq.fill(AssoNum*GroupNum)((false.B))))
     val dirty = RegInit(VecInit(Seq.fill(AssoNum*GroupNum)((false.B))))
     //Look Up| Hit Write | Replace | Refill//对Cache的4种操作
-    //Request Buffer : 锁存 op addr wstrb wdata
-    //Tag Compare
-    //Data Select 
-    //Miss Buffer : 记录缺失cache行准备要替换的路信息，以及从总线返回的数据
-    //Lsfr :随即替换
-    //Write Buffer : 用于hit write 存写入的way 和block index等信息
-    //Main state machine
-    //default out
     io.Cache.Cache.addrok:=0.U
     io.Cache.Cache.dataok:=0.U
     io.Cache.Cache.rdata :=0.U
@@ -138,13 +123,8 @@ class CpuCache(Icache : Boolean = false) extends Module with CacheParm{
     val RequestBufferwstrb = RegInit(0.U(parm.BYTEWIDTH.W))
     val hit = Wire(Vec(AssoNum,Bool()))
     for (i <- 0 until AssoNum){hit(i):= 0.U}
-    //val LoadRes = Seq.fill(AssoNum)(Wire(Vec(parm.REGWIDTH/DataWidth,UInt(DataWidth.W))))
-    //for (j <- 0 until AssoNum)
-      //  for (i <- 0 until parm.REGWIDTH/DataWidth){LoadRes(j)(i) := 0.U}
     val hitway = Wire(UInt(AssoWidth.W))
     hitway := 0.U
-    //val mask   = Wire(Vec())
-    //val datavalid = RegInit(0.U(1.W))
     val useblock = Wire(UInt(BlockWidth.W))
     useblock := 0.U
     val writeblock = Wire(UInt(BlockWidth.W))
@@ -156,11 +136,7 @@ class CpuCache(Icache : Boolean = false) extends Module with CacheParm{
     //同样的tag 也不能一直读 // 用于取出当前组所有的行用于tag进行比较
     val rdTag = Wire(Vec(AssoNum,UInt(TagWidth.W)))
     for (i <- 0 until AssoNum){
-        rdTag(i) := 0.U // 用于提前一周期取tag数据
-        //when(RequestBuffertag === tag(i).read(usegroup)&&valid((i*GroupNum).U+RequestBuffergroup)){
-          //  hit(i) := true.B
-          //  hitway := i.U
-        //}
+        rdTag(i) := 0.U
     }
     for (i <- 0 until AssoNum){
         when(rdTag(i) === RequestBuffertag &&valid((RequestBuffergroup*AssoNum.U)+i.U)){
@@ -170,14 +146,9 @@ class CpuCache(Icache : Boolean = false) extends Module with CacheParm{
     }
     val BlockChoose = dontTouch(Wire(Vec(BlockNum,Bool())))
     for (i <- 0 until BlockNum) {
-        //这里的加法注意位宽，不会自动拓展，不修改位宽的话，8+8=16 超过了4位，归0，导致判断错误
-        //printf(p"i=${i} block=${writeblock} right=${right} choose=${BlockChoose(i)}\n ")
         BlockChoose(i) := (i.U>=writeblock) && (i.U<(right))
     }
-    //left most bits in vec is low order bits 
-    //用于取出当前组数的所有行的数据
     val rdData  = Seq.fill(AssoNum)(Wire(Vec(BlockNum,UInt(DataWidth.W))))
-    //这里写读的话相当于每个周期都在读，这是不合理的，得放到状态及里面取
     for(i <- 0 until AssoNum){
         for(j <- 0 until BlockNum){
             rdData(i)(j) := 0.U//mem(i*AssoNum+j).read(usegroup)
@@ -193,22 +164,14 @@ class CpuCache(Icache : Boolean = false) extends Module with CacheParm{
         ChooseAsso(i) := usechoose === i.U
     }
     val blocknum = Wire(UInt((parm.REGWIDTH).W))
-    //val readtag = dontTouch(Wire(UInt(TagWidth.W)))
-    //readtag := 0.U
     blocknum := 0.U
-    //for (i <- 0 until AssoNum){
-        //when(ChooseAsso(i)){
-            //readtag := tag(i).read(usegroup)
-           // blocknum := get_blocknum_cache(readtag,RequestBuffergroup)
-       // }   
-   // }
     val cachehit = hit.asUInt.orR
 
     val axivalid = Wire(Bool())
     axivalid := false.B
     val idle :: lookup :: miss :: replace :: refill :: Nil = Enum(5)
     val MainState = RegInit(idle)
-    val lfsr = Module(new myLFSR)
+    val lfsr = Module(new myLFSRX)
     val RadomLine = lfsr.io.out(AssoWidth-1,0) // 取模，Assonum正好2的幂次，保留低位 
     val ramrdata = Wire(UInt((BlockNum*DataWidth).W))
     ramrdata := io.Sram.Axi.r.bits.data << (writeblock*DataWidth.U)
@@ -286,10 +249,6 @@ class CpuCache(Icache : Boolean = false) extends Module with CacheParm{
                 //不能连续取，因为发送ok信号后，才会更新地址，因此直接条会lookup的话，拿到的还是旧地址
                 MainState := idle
             }.otherwise{
-                //注意readtag同时和choose以及usegroup有关系，因此在跳转到Miss的时候
-                //Radomchoose才切换过来，相当于进入miss，还要一个周期，才能得到想要的数据
-                //因此要搞一个usechoose，来使得和usegroup同步
-                //并且Miss态如果需要写回的话，需要blocknum ,即tag的数据，提前一周期发送请求出来
                 useblock := RequestBufferblock
                 usegroup := RequestBuffergroup
                 MainState := miss
@@ -424,22 +383,11 @@ class CpuCache(Icache : Boolean = false) extends Module with CacheParm{
                                 mem(j*AssoNum+i).write(RequestBuffergroup,(ramrdata >> (i*DataWidth))(DataWidth-1,0))
                             }
                         }
-                        //for(i <- 0 until parm.REGWIDTH/DataWidth){
-                            //val ramrdata = io.Sram.Axi.r.bits.data((parm.REGWIDTH/DataWidth-i)*DataWidth-1,(parm.REGWIDTH/DataWidth-1-i)*DataWidth)
-                            //这样子写verilator产生的C代码会触发 munmap_chunk(): invalid pointer
-                            //val ramrdata = io.Sram.Axi.r.bits.data((i+1)*DataWidth-1,(i)*DataWidth)
-                        //val memDataIn(RadomChoose) := ramrdata
-                            //printf(p"ramrdata=${Hexadecimal(ramrdata)} \n")
-                            //ramrdata := ramrdata >> DataWidth
-                            //mem(j+RequestBufferblock+i).write(RequestBuffergroup*BlockNum.U,ReadAxiData(i))
-                        //}      
                     }   
                 }        
                 when (io.Sram.Axi.r.bits.last){
                     useblock := RequestBufferblockraw
                     usegroup := RequestBuffergroup
-                    //提前一周期发送读请求，进入Lookup是检验Hit
-
                     MainState := lookup
                     valid(RequestBuffergroup*AssoNum.U+usechoose):= true.B
                     dirty(RequestBuffergroup*AssoNum.U+usechoose):= false.B
@@ -449,7 +397,6 @@ class CpuCache(Icache : Boolean = false) extends Module with CacheParm{
                     MainState := refill
                 }
             }.otherwise{
-
                 MainState:=refill
             }
         }
