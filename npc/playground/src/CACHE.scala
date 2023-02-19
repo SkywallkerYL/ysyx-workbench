@@ -90,9 +90,9 @@ class CpuCache(Icache : Boolean = false) extends Module with CacheParm{
     //Mem 是同步写，异步读，会被综合成触发器，
     //不同的block例化到同一个mem里是不合理的，因为会在一个周期内收集好几个Block的数据，这样的话，在同一个
     //会导致在同一个周期内，对不同的地址进行读写，这样子就不符实际，因此代码也会出现难以理解的行为
-    val mem = (Seq.fill(AssoNum*BlockNum)(SyncReadMem(GroupNum,UInt(DataWidth.W))))
+    val mem = (Seq.fill(GroupNum*BlockNum)(SyncReadMem(AssoNum,UInt(DataWidth.W))))
     //tag 实例化Assonum块 深度为Groupnum 的宽度为
-    val tag = Seq.fill(AssoNum)(SyncReadMem(GroupNum,UInt(TagWidth.W)))
+    val tag = Seq.fill(GroupNum)(SyncReadMem(AssoNum,UInt(TagWidth.W)))
     //容量小的用Reg实现//还是有点多，用Mem
     //val valid = Seq.fill(AssoNum)(SyncReadMem(GroupNum,Bool()))
     val valid = RegInit(VecInit(Seq.fill(AssoNum*GroupNum)((false.B))))
@@ -241,14 +241,23 @@ class CpuCache(Icache : Boolean = false) extends Module with CacheParm{
             }
         }
         is(lookup){
-            for(i <- 0 until AssoNum){
-                rdTag(i) := tag(i).read(usegroup)
+            for (j <- 0 until GroupNum){
+                when(j === usegroup){
+                    for(i <- 0 until AssoNum){
+                        rdTag(i) := tag(j).read(i)
+                    } 
+                }
             }
+            
             //确认读操作，提前一周期发送读数据请求
             when(!RequestBufferop){
-                for(i <- 0 until AssoNum){
-                    for(j <- 0 until BlockNum){
-                        rdData(i)(j) := mem(i*AssoNum+j).read(usegroup)
+                for (k <- 0 until GroupNum){
+                    when(k === usegroup){
+                        for(i <- 0 until AssoNum){
+                            for(j <- 0 until BlockNum){
+                                rdData(i)(j) := mem(k*BlockNum+j).read(i)
+                            }
+                        }
                     }
                 }
             }
@@ -268,10 +277,14 @@ class CpuCache(Icache : Boolean = false) extends Module with CacheParm{
                     //writeblock := RequestBufferblock
                     for (j <- 0 until AssoNum){
                         when(hit(j)) {
-                            for (i <- 0 until BlockNum){
-                                when(BlockChoose(i)){
-                                    when(linemask(i)){
-                                        mem(j*AssoNum+i).write(RequestBuffergroup,(lineData>>(i*DataWidth))(DataWidth-1,0))
+                            for (k <- 0 until GroupNum){
+                                when(k.U === RequestBuffergroup){
+                                    for (i <- 0 until BlockNum){
+                                        when(BlockChoose(i)){
+                                            when(linemask(i)){
+                                                mem(k*BlockNum+i).write(k,(lineData>>(i*DataWidth))(DataWidth-1,0))
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -311,7 +324,9 @@ class CpuCache(Icache : Boolean = false) extends Module with CacheParm{
                     for (i <- 0 until AssoNum){
                         when(ChooseAsso(i)){
                             //rdTag(i) := tag(i).read(usegroup)
-                            blocknum := get_blocknum_cache(tag(i).read(usegroup),RequestBuffergroup)
+                            for (j <- 0 until GroupNum)
+                            when(j.U === usegroup)
+                            blocknum := get_blocknum_cache(tag(j).read(i),RequestBuffergroup)
                         }
                     }
                     io.Sram.Axi.aw.bits.addr := (blocknum) 
@@ -350,11 +365,15 @@ class CpuCache(Icache : Boolean = false) extends Module with CacheParm{
                     for(j <- 0 until AssoNum){
                         //val writedata = RequestBufferwdata
                         when(ChooseAsso(j)){
-                            tag(j).write(RequestBuffergroup,RequestBuffertag)
-                            for (i <- 0 until BlockNum){
-                                when(BlockChoose(i)){
-                                    when(linemask(i)){
-                                        mem(j*AssoNum+i).write(RequestBuffergroup,(lineData>>(i*DataWidth))(DataWidth-1,0))    
+                            for (k <- 0 until GroupNum){
+                                when(k.U === RequestBuffergroup){
+                                    tag(k).write(j,RequestBuffertag)
+                                    for (i <- 0 until BlockNum){
+                                        when(BlockChoose(i)){
+                                            when(linemask(i)){
+                                                mem(k*BlockNum+i).write(j,(lineData>>(i*DataWidth))(DataWidth-1,0))    
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -370,9 +389,13 @@ class CpuCache(Icache : Boolean = false) extends Module with CacheParm{
         is(replace){
             //向总线写回cacheline
             io.Sram.Axi.w.valid := true.B  
-            for(i <- 0 until AssoNum){
-                for(j <- 0 until BlockNum){
-                    rdData(i)(j) := mem(i*AssoNum+j).read(usegroup)
+            for (k <- 0 until GroupNum){
+                when(k === usegroup){
+                    for(i <- 0 until AssoNum){
+                        for(j <- 0 until BlockNum){
+                            rdData(i)(j) := mem(k*BlockNum+j).read(i)
+                        }
+                    }
                 }
             }
             when(io.Sram.Axi.w.fire){
@@ -416,14 +439,20 @@ class CpuCache(Icache : Boolean = false) extends Module with CacheParm{
                     when(ChooseAsso(j)){
                         if(Icache)printf("/*******write********/\n")
                         if(Icache)printf(p"choose=${j} group=${RequestBuffergroup} tag=${Hexadecimal(RequestBuffertag)} ramrdata=${Hexadecimal(ramrdata)} \n")
-                        tag(j).write(RequestBuffergroup,RequestBuffertag)
-                        for (i <- 0 until BlockNum){
-                            when(BlockChoose(i)){
-                                val writedata = (ramrdata >> (i*DataWidth))(DataWidth-1,0)
-                                //printf(p"buffer=${RequestBufferblock} block= ${writeblock} ramrdata=${Hexadecimal(writedata)} \n")
-                                mem(j*AssoNum+i).write(RequestBuffergroup,(ramrdata >> (i*DataWidth))(DataWidth-1,0))
+                        for (k <- 0 until GroupNum){
+                            when(k.U === RequestBuffergroup){
+                                tag(k).write(j,RequestBuffertag)
+                                for (i <- 0 until BlockNum){
+                                    when(BlockChoose(i)){
+                                        val writedata = (ramrdata >> (i*DataWidth))(DataWidth-1,0)
+                                        //printf(p"buffer=${RequestBufferblock} block= ${writeblock} ramrdata=${Hexadecimal(writedata)} \n")
+                                        mem(k*BlockNum+i).write(j,(ramrdata >> (i*DataWidth))(DataWidth-1,0))
+                                    }
+                                }   
                             }
+                            
                         }
+                        
                         //for(i <- 0 until parm.REGWIDTH/DataWidth){
                             //val ramrdata = io.Sram.Axi.r.bits.data((parm.REGWIDTH/DataWidth-i)*DataWidth-1,(parm.REGWIDTH/DataWidth-1-i)*DataWidth)
                             //这样子写verilator产生的C代码会触发 munmap_chunk(): invalid pointer
