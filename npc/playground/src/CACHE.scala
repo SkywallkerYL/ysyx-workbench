@@ -80,6 +80,7 @@ class myLFSR(increment : Bool = true.B) extends Module{
 }
 class CpuCache(Icache : Boolean = false) extends Module with CacheParm{
     val io = IO(new Bundle{
+        val pc    = Input(UInt(64.W))
         val Cache = Flipped(new Cpu2Cache) 
         val Sram  = new Cache2Sram
     })
@@ -374,7 +375,7 @@ class CpuCache(Icache : Boolean = false) extends Module with CacheParm{
                         //val writedata = RequestBufferwdata
                         when(ChooseAsso(j)){
                             if(!Icache)printf("/*******miss write********/\n")
-                            if(!Icache)printf(p"choose=${j} group=${RequestBuffergroup} tag=${Hexadecimal(RequestBuffertag)} ramrdata=${Hexadecimal(lineData)} \n")
+                            if(!Icache)printf(p"pc=${Hexadecimal(io.pc)} choose=${j} group=${RequestBuffergroup} tag=${Hexadecimal(RequestBuffertag)} ramrdata=${Hexadecimal(lineData)} \n")
                             for (k <- 0 until GroupNum){
                                 when(k.U === RequestBuffergroup){
                                     tag(k).write(j.U,RequestBuffertag)
