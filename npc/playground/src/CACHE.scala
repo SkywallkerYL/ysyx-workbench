@@ -245,7 +245,17 @@ class CpuCache extends Module with CacheParm{
             }
         }
         is(lookup){
-
+            for(i <- 0 until AssoNum){
+                rdTag(i) := tag(i).read(usegroup)
+            }
+            //确认读操作，提前一周期发送读数据请求
+            when(!RequestBufferop){
+                for(i <- 0 until AssoNum){
+                    for(j <- 0 until BlockNum){
+                        rdData(i)(j) := mem(i*AssoNum+j).read(usegroup)
+                    }
+                }
+            }
             //lookup->idle
             when(cachehit){
                 when(!RequestBufferop){
