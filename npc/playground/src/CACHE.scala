@@ -355,7 +355,20 @@ class CpuCache(Icache : Boolean = false) extends Module with CacheParm{
                 }
             }.otherwise{
                 //不需要写回
-                //如果是读请求，则向总线申请fill 如果是写入，则直接写如
+                //无论读写，都要先向总线申请fill，读好理解，写的解释看replace的注释 
+                io.Sram.Axi.ar.valid := true.B
+                when(io.Sram.Axi.ar.fire){
+                    //group要移回去，并且屏蔽block位，这样子才能读入整行
+                    //printf(p"with:${GroupWidth} groupnum:${GroupNum} tag:${Hexadecimal(RequestBuffertag)} addr: ${Hexadecimal(io.Sram.Axi.ar.bits.addr)}\n")
+                    io.Sram.Axi.ar.bits.addr := ((RequestBuffertag<<((BlockWidth+GroupWidth).U)|(RequestBuffergroup<<(BlockWidth).U)))
+                    io.Sram.Axi.ar.bits.len  := (BlockNum/(AddrWidth/DataWidth)).U-1.U
+                    RequestBufferblock := 0.U
+                    io.Sram.Axi.ar.bits.size := "b11".U
+                    MainState := refill
+                }.otherwise{
+                    MainState := miss
+                }
+                /*
                 when(!RequestBufferop){
                     io.Sram.Axi.ar.valid := true.B
                     when(io.Sram.Axi.ar.fire){
@@ -395,6 +408,7 @@ class CpuCache(Icache : Boolean = false) extends Module with CacheParm{
                     io.Cache.Cache.dataok := true.B
                     MainState := idle
                 }
+                */
             }
         }
         is(replace){
@@ -410,6 +424,10 @@ class CpuCache(Icache : Boolean = false) extends Module with CacheParm{
                 }
             }
             when(io.Sram.Axi.w.fire){
+                //注意对cache line的写如可能只改变了其部分的值
+                //但是仍然把整行cacheline设置为脏的，这样的话写回内存的时候就会改变
+                //未写如部分的内存，导致错误
+                //因此对cacheline写入时，也要refill一次，
                 //写数据的data位宽也要该，改称cache line 一行的datawidth (datawith*blocknum)
                 //一次写一个data 宽的
                 for(i <- 0 until AssoNum ){
