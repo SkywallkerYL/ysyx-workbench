@@ -412,7 +412,7 @@ class CpuCache(Icache : Boolean = false) extends Module with CacheParm{
                 for(i <- 0 until AssoNum ){
                     when(ChooseAsso(i)){
                         if(!Icache)printf("/*******write back********/\n")
-                        if(!Icache)printf(p"choose=${i} group=${usegroup} writedata=${Hexadecimal(io.Sram.Axi.w.bits.data)} \n")
+                        if(!Icache)printf(p"choose=${i} group=${usegroup} tag=${rdTagRead(i)} writedata=${Hexadecimal(io.Sram.Axi.w.bits.data)} \n")
                         io.Sram.Axi.w.bits.data  := ((rdData(i).asUInt)>>(RequestBufferblock*DataWidth.U))(parm.REGWIDTH-1,0)//LoadRes(i).asUInt    //a cacheline data ***
                     }
                 }
