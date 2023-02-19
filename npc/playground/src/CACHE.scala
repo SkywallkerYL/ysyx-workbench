@@ -92,7 +92,7 @@ class CpuCache(Icache : Boolean = false) extends Module with CacheParm{
     //会导致在同一个周期内，对不同的地址进行读写，这样子就不符实际，因此代码也会出现难以理解的行为
     //mem采用ReadMem实现的话，数据读出会有问题，目前还不知道为啥，暂时用寄存器实现
     val mem = (Seq.fill(GroupNum*BlockNum)(SyncReadMem(AssoNum,UInt(DataWidth.W))))
-    val mem = RegInit(VecInit(Seq.fill(GroupNum*BlockNum)((false.B))))
+
     //tag 实例化Assonum块 深度为Groupnum 的宽度为
     val tag = Seq.fill(GroupNum)(SyncReadMem(AssoNum,UInt(TagWidth.W)))
     //容量小的用Reg实现//还是有点多，用Mem
