@@ -284,8 +284,8 @@ class CpuCache(Icache : Boolean = false) extends Module with CacheParm{
                     //writeblock := RequestBufferblock
                     for (j <- 0 until AssoNum){
                         when(hit(j)) {
-                            //if(!Icache) printf("/*******hit write*********/\n")
-                            //if(!Icache) printf(p"hitway=${j} group=${RequestBuffergroup} tag=${Hexadecimal(RequestBuffertag)} ramrdata=${Hexadecimal(lineData)} \n")
+                            if(!Icache) printf("/*******hit write*********/\n")
+                            if(!Icache) printf(p"hitway=${j} group=${RequestBuffergroup} tag=${Hexadecimal(RequestBuffertag)} ramrdata=${Hexadecimal(lineData)} \n")
                             for (k <- 0 until GroupNum){
                                 when(k.U === RequestBuffergroup){
                                     for (i <- 0 until BlockNum){
@@ -432,8 +432,8 @@ class CpuCache(Icache : Boolean = false) extends Module with CacheParm{
                 //一次写一个data 宽的
                 for(i <- 0 until AssoNum ){
                     when(ChooseAsso(i)){
-                        //if(!Icache)printf("/*******write back********/\n")
-                        //if(!Icache)printf(p"choose=${i} group=${usegroup} tag=${Hexadecimal (rdTagRead(i))} writedata=${Hexadecimal(io.Sram.Axi.w.bits.data)} \n")
+                        if(!Icache)printf("/*******write back********/\n")
+                        if(!Icache)printf(p"choose=${i} group=${usegroup} tag=${Hexadecimal (rdTagRead(i))} writedata=${Hexadecimal(io.Sram.Axi.w.bits.data)} \n")
                         io.Sram.Axi.w.bits.data  := ((rdData(i).asUInt)>>(RequestBufferblock*DataWidth.U))(parm.REGWIDTH-1,0)//LoadRes(i).asUInt    //a cacheline data ***
                     }
                 }
@@ -468,8 +468,8 @@ class CpuCache(Icache : Boolean = false) extends Module with CacheParm{
                    
                     //val ramrdata = io.Sram.Axi.r.bits.data
                     when(ChooseAsso(j)){
-                        //if(!Icache)printf("/*******refill write********/\n")
-                        //if(!Icache)printf(p"choose=${j} group=${RequestBuffergroup} tag=${Hexadecimal(RequestBuffertag)} ramrdata=${Hexadecimal(ramrdata)} \n")
+                        if(!Icache)printf("/*******refill write********/\n")
+                        if(!Icache)printf(p"choose=${j} group=${RequestBuffergroup} tag=${Hexadecimal(RequestBuffertag)} ramrdata=${Hexadecimal(ramrdata)} \n")
                         for (k <- 0 until GroupNum){
                             when(k.U === RequestBuffergroup){
                                 tag(k).write(j.U,RequestBuffertag)
