@@ -369,11 +369,13 @@ class CpuCache extends Module with CacheParm{
                    
                     //val ramrdata = io.Sram.Axi.r.bits.data
                     when(ChooseAsso(j)){
+                        printf("/*******write********/")
+                        printf(p"j=${j}  ramrdata=${Hexadecimal(ramrdata)} \n")
                         tag(j).write(RequestBuffergroup,RequestBuffertag)
                         for (i <- 0 until BlockNum){
                             when(BlockChoose(i)){
                                 val writedata = (ramrdata >> (i*DataWidth))(DataWidth-1,0)
-                                printf(p"buffer=${RequestBufferblock} block= ${writeblock} ramrdata=${Hexadecimal(writedata)} \n")
+                                //printf(p"buffer=${RequestBufferblock} block= ${writeblock} ramrdata=${Hexadecimal(writedata)} \n")
                                 mem(j*AssoNum+i).write(RequestBuffergroup,(ramrdata >> (i*DataWidth))(DataWidth-1,0))
                             }
                         }
