@@ -59,7 +59,7 @@ class  RiscvCpu extends Module{
     //val Ifu = Module(new IFU())
     PcReg.io.PcIf  <> Ifu.io.PcIf
     Ifu.io.Cache <> ICache.io.Cache
-    ICache.io.Cache.pc := Ifu.io.PcIf.pc
+    ICache.io.pc := Ifu.io.PcIf.pc
    // Ifu.io.IFRAM <> SramArb.io.ifu//SRAM.io.Sram
     //Ifu.io.pc_i := PcReg.io.pc_o
     //Ifu.io.instr_i := instr
