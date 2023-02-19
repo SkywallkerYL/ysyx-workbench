@@ -8,7 +8,7 @@ trait  CacheParm {
     val DataWidth  : Int =  8 //1 Bytes
     val BlockWidth : Int =  3 // 数据区大小，2^BlockWidth B
     val BlockNum   = scala.math.pow(2,BlockWidth).toInt
-    val SizeWidth  : Int =  8 // Cache 大小   2^sizewidth Bytes(data is 1 Bytes)
+    val SizeWidth  : Int =  6 // Cache 大小   2^sizewidth Bytes(data is 1 Bytes)
     //这里别把概念高混淆了 group是 组数，即划分成多少个组
     //asso 是一个组内有多少行，即2^s路组相连
     //hit 是根据是否属于当前的组，然后依次比较内部的行 
