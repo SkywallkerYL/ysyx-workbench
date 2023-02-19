@@ -242,9 +242,9 @@ class CpuCache(Icache : Boolean = false) extends Module with CacheParm{
         }
         is(lookup){
             for (j <- 0 until GroupNum){
-                when(j === usegroup){
+                when(j.U === usegroup){
                     for(i <- 0 until AssoNum){
-                        rdTag(i) := tag(j).read(i)
+                        rdTag(i) := tag(j).read(i.U)
                     } 
                 }
             }
@@ -252,10 +252,10 @@ class CpuCache(Icache : Boolean = false) extends Module with CacheParm{
             //确认读操作，提前一周期发送读数据请求
             when(!RequestBufferop){
                 for (k <- 0 until GroupNum){
-                    when(k === usegroup){
+                    when(k.U === usegroup){
                         for(i <- 0 until AssoNum){
                             for(j <- 0 until BlockNum){
-                                rdData(i)(j) := mem(k*BlockNum+j).read(i)
+                                rdData(i)(j) := mem(k*BlockNum+j).read(i.U)
                             }
                         }
                     }
@@ -282,7 +282,7 @@ class CpuCache(Icache : Boolean = false) extends Module with CacheParm{
                                     for (i <- 0 until BlockNum){
                                         when(BlockChoose(i)){
                                             when(linemask(i)){
-                                                mem(k*BlockNum+i).write(k,(lineData>>(i*DataWidth))(DataWidth-1,0))
+                                                mem(k*BlockNum+i).write(k.U,(lineData>>(i*DataWidth))(DataWidth-1,0))
                                             }
                                         }
                                     }
@@ -326,7 +326,7 @@ class CpuCache(Icache : Boolean = false) extends Module with CacheParm{
                             //rdTag(i) := tag(i).read(usegroup)
                             for (j <- 0 until GroupNum)
                             when(j.U === usegroup)
-                            blocknum := get_blocknum_cache(tag(j).read(i),RequestBuffergroup)
+                            blocknum := get_blocknum_cache(tag(j.U).read(i),RequestBuffergroup)
                         }
                     }
                     io.Sram.Axi.aw.bits.addr := (blocknum) 
@@ -367,11 +367,11 @@ class CpuCache(Icache : Boolean = false) extends Module with CacheParm{
                         when(ChooseAsso(j)){
                             for (k <- 0 until GroupNum){
                                 when(k.U === RequestBuffergroup){
-                                    tag(k).write(j,RequestBuffertag)
+                                    tag(k).write(j.U,RequestBuffertag)
                                     for (i <- 0 until BlockNum){
                                         when(BlockChoose(i)){
                                             when(linemask(i)){
-                                                mem(k*BlockNum+i).write(j,(lineData>>(i*DataWidth))(DataWidth-1,0))    
+                                                mem(k*BlockNum+i).write(j.U,(lineData>>(i*DataWidth))(DataWidth-1,0))    
                                             }
                                         }
                                     }
@@ -390,7 +390,7 @@ class CpuCache(Icache : Boolean = false) extends Module with CacheParm{
             //向总线写回cacheline
             io.Sram.Axi.w.valid := true.B  
             for (k <- 0 until GroupNum){
-                when(k === usegroup){
+                when(k.U === usegroup){
                     for(i <- 0 until AssoNum){
                         for(j <- 0 until BlockNum){
                             rdData(i)(j) := mem(k*BlockNum+j).read(i)
