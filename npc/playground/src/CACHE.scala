@@ -288,8 +288,8 @@ class CpuCache extends Module with CacheParm{
                 MainState := miss
                 for (i <- 0 until AssoNum){
                     when(ChooseAsso(i)){
-                        rdTag(i) := tag(i).read(usegroup)
-                        blocknum := get_blocknum_cache(rdTag(i),RequestBuffergroup)
+                        //rdTag(i) := tag(i).read(usegroup)
+                        blocknum := get_blocknum_cache(tag(i).read(usegroup),RequestBuffergroup)
                     }
                 }
                 usechoose := RadomLine
