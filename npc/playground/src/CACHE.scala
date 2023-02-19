@@ -155,6 +155,8 @@ class CpuCache(Icache : Boolean = false) extends Module with CacheParm{
     usegroup := RequestBuffergroup
     //同样的tag 也不能一直读 // 用于取出当前组所有的行用于tag进行比较
     val rdTag = Wire(Vec(AssoNum,UInt(TagWidth.W)))
+    val temprdTag = dontTouch(Wire(UInt(TagWidth.W)))
+    temprdTag := 0.U
     for (i <- 0 until AssoNum){
         rdTag(i) := 0.U // 用于提前一周期取tag数据
         //when(RequestBuffertag === tag(i).read(usegroup)&&valid((i*GroupNum).U+RequestBuffergroup)){
@@ -324,11 +326,10 @@ class CpuCache(Icache : Boolean = false) extends Module with CacheParm{
                             //rdTag(i) := tag(i).read(usegroup)
                             for (j <- 0 until GroupNum){
                                 when(j.U === usegroup){
+                                    temprdTag := tag(j).read(i.U)
                                     blocknum := get_blocknum_cache(tag(j).read(i.U),RequestBuffergroup)
                                 }
-                            
                             }
-                            
                         }
                     }
                     io.Sram.Axi.aw.bits.addr := (blocknum) 
