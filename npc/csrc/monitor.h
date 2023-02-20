@@ -131,7 +131,7 @@ void init_monitor(int argc, char *argv[])
   //printf("hhhh\n");
   /* Initialize the simple debugger. */
   //init_sdb();
-  init_disasm("riscv64-pc-linux-gnu");
+   init_disasm("riscv64-pc-linux-gnu");
   /* Display welcome message. */
 }
 

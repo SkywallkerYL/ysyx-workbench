@@ -11,8 +11,6 @@ class  RiscvCpu extends Module{
         val halt = Output(Bool())
         val abort = Output(Bool())
         val jalr = Output(Bool())
-        val instvalid = Output(Bool())
-        val pcvalid = Output(Bool())
 //if (parm.DIFFTEST){
         val SkipRef = Output(Bool())
 //}
@@ -22,10 +20,8 @@ class  RiscvCpu extends Module{
     val PcReg = Module(new PC_REG()) 
     val NpcMux = Module(new NPCMUX())
     val SRAM    = Module(new Axi4LiteSRAM)
-    val ICache   = Module(new CpuCache(true))
-    val DCache   = Module(new CpuCache)
-    val SRAMLSU = Module(new Axi4LiteSRAM)
-    //val SramArb = Module(new RamArbiter)
+    //val SRAMLSU = Module(new Axi4LiteSRAM)
+    val SramArb = Module(new RamArbiter)
     val Ifu = Module(new IFU())
     //val If_Id = Module(new IF_ID())
     val Regfile = Module(new RegFile)
@@ -38,9 +34,7 @@ class  RiscvCpu extends Module{
     //val Ls_Wb = Module(new LS_WB())
     val Wbu = Module(new WBU())
 // Ram
-    SRAM.io.Sram <> ICache.io.Sram.Axi
-    SRAMLSU.io.Sram <> DCache.io.Sram.Axi
-    //SRAM.io.Sram <> SramArb.io.sram.Axi
+    SRAM.io.Sram <> SramArb.io.sram.Axi
 //pc   
     val PcRegOut = Wire(UInt(parm.PCWIDTH.W))
     //val addr  = (PcRegOut-parm.INITIAL_PC.U)>>2
@@ -54,13 +48,11 @@ class  RiscvCpu extends Module{
     PcRegOut := PcReg.io.PcIf.pc
     PcReg.io.RegPc <> NpcMux.io.RegPc
     NpcMux.io.NPC  <> PcReg.io.NPC
-    //NpcMux.io.PcEnable := Ifu.io.instvalid & Lsu.io.Lsuvalid
+    NpcMux.io.IFNPC <> Ifu.io.IFNPC
 //ifu
     //val Ifu = Module(new IFU())
     PcReg.io.PcIf  <> Ifu.io.PcIf
-    Ifu.io.Cache <> ICache.io.Cache
-    ICache.io.pc := Ifu.io.PcIf.pc
-   // Ifu.io.IFRAM <> SramArb.io.ifu//SRAM.io.Sram
+    Ifu.io.IFRAM <> SramArb.io.ifu//SRAM.io.Sram
     //Ifu.io.pc_i := PcReg.io.pc_o
     //Ifu.io.instr_i := instr
     if(parm.MODE == "single"){
@@ -95,10 +87,7 @@ class  RiscvCpu extends Module{
 //EX_LS
     Lsu.io.EXLS <> Exu.io.EXLS
 // LSU
-    Lsu.io.Cache <> DCache.io.Cache
-    DCache.io.pc := Ifu.io.IFID.pc
-    Lsu.io.PC <> PcReg.io.LSU
-    //Lsu.io.LSRAM <> SramArb.io.lsu//SRAMLSU.io.Sram
+    Lsu.io.LSRAM <> SramArb.io.lsu//SRAMLSU.io.Sram
 // CLINT
     Clint.io.LsuIn <> Lsu.io.LSCLINT
 //LS_WB
@@ -121,14 +110,12 @@ class  RiscvCpu extends Module{
         srcdpi.io.imm := Idu.io.idex.imm
     }
     //when it is not need ,it can be removed
-    io.instvalid := Ifu.io.IFID.instvalid
-    io.pcvalid := PcReg.io.PcIf.pcvalid
     io.halt := Idu.io.ebreak&&(Regfile.io.a0data===0.U)
     io.abort := Idu.io.instrnoimpl
     io.jalr := Idu.io.IDNPC.jal === 2.U
     if (parm.DIFFTEST){
     io.SkipRef := Lsu.io.SkipRef
-    }  else io.SkipRef := false.B
+}   else io.SkipRef := false.B
     //io.res := Exu.io.expres
 
 }

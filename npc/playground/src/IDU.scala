@@ -43,7 +43,6 @@ class IDU extends Module{
     io.IDNPC.IdPc := io.IFID.pc
     io.IDNPC.imm := io.idex.imm
     io.IDNPC.rs1 := io.idex.rs1
-    io.IDNPC.instvalid := io.IFID.instvalid
     io.idex.NextPc := io.NPC.NextPc
     //io.ls.pc := 0.U
 

@@ -32,7 +32,6 @@ void step_and_dump_wave(){
 #ifdef WAVE
   if(!TRACE_CONDITION(wavecount,WAVE_BEGIN,WAVE_END)) {if(top->clock == 1)wavecount++;return;}
   if(top->clock == 1)wavecount++;
-  //printf("pc:%x wavecount:%d\n",Pc_Fetch(),wavecount);
   contextp->timeInc(1);
   tfp->dump(contextp->time());
 #endif
@@ -111,11 +110,11 @@ long load_prog(const char *bin){
 }
 
 long initial_default_img(){
-  instr_mem[0] = 0x00700093;//0b00000000011100000000000010010011;//0x00000297;
-  instr_mem[1] = 0x01300093;//0b00000001001100000000000010010011;
-  instr_mem[2] = 0x00100093;//0b00000000000100000000000010010011;
-  instr_mem[3] = 0x00300093;//0b00000000001100000000000010010011;
-  instr_mem[4] = 0x00700113;//0b00000000011100001000000100010011;
+  instr_mem[0] = 0b00000000011100000000000010010011;//0x00000297;
+  instr_mem[1] = 0b00000001001100000000000010010011;
+  instr_mem[2] = 0b00000000000100000000000010010011;
+  instr_mem[3] = 0b00000000001100000000000010010011;
+  instr_mem[4] = 0b00000000011100001000000100010011;
   //instr_mem[5] = 0x00113423;
   instr_mem[5] = instr_break;
   instr_mem[6] = 0b00000000111100001000000100010011;
@@ -160,7 +159,7 @@ CPU_state npc_r;
 void sim_once(uint64_t n){
   //clockntimes(1);
 #ifdef CONFIG_ITRACE
-  if(top->io_instvalid)instr_tracelog(n<=max_instr_printnum);
+  instr_tracelog(n<=max_instr_printnum);
   uint64_t dnpc = Dnpc_Fetch();
   bool jalrflag = top->io_jalr;
   int d = rd_Fetch();
@@ -169,11 +168,11 @@ void sim_once(uint64_t n){
   uint64_t imm = imm_Fetch();
   //if (cpu_gpr[32] == 0x80000014)printf("jalr:%d rd:%d rs1:%d imm:0x%016lx\n",jalrflag,d,rs1,imm);
   //if(jalrflag&(d==0)&(rs1==1)&(imm==0)) printf("pc:0x%016lx\n",cpu_gpr[32]);
-  if(top->io_instvalid)log_ftrace(dnpc,jalrflag,d,imm,rs1,src1);
+  log_ftrace(dnpc,jalrflag,d,imm,rs1,src1);
 #endif
   if(checkebreak()||top->io_abort){
-    npc_state.state = NPC_ABORT;
-    return;
+     npc_state.state = NPC_ABORT;
+     return;
   }
   clockntimes(1);
 #ifdef CONFIG_DIFFTEST
@@ -201,7 +200,7 @@ static void execute(uint64_t n) {
     }
   while (n--){
 
-      //这个n用来决定是否打印指令 而不是执行多少次
+      //这个n用来决定是否打印指令
       sim_once(n);
 
       //printf("hhhh\n");
@@ -228,12 +227,10 @@ static void execute(uint64_t n) {
       //printf("pc:0x%016lx \n",cpu_gpr[32]);
     }
     else {
-      if(top->io_pcvalid){
-        uint64_t localpc = Pc_Fetch();
-        uint64_t localnpc = Dnpc_Fetch();
-        //printf("localpc:0x%lx\n",localpc);
-        difftest_step(localpc,localnpc);
-      }
+      uint64_t localpc = Pc_Fetch();
+      uint64_t localnpc = Dnpc_Fetch();
+      //printf("hhhh\n");
+      difftest_step(localpc,localnpc);
     }
 #endif
 #ifdef VGA

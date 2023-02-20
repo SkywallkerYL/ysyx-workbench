@@ -47,8 +47,8 @@ INC_PATH?=
 
 #include ../../include
 
-#add ccache speed up
-VERILATOR = verilator 
+
+VERILATOR = verilator
 # Generate C++ in executable form
 #for nvboard
 VERILATOR_FLAGS += -MMD --build -cc
@@ -56,11 +56,10 @@ VERILATOR_FLAGS += -O3 --x-assign fast
 VERILATOR_FLAGS += --x-initial fast --noassert
 VERILATOR_FLAGS += -Wno-fatal
 #for testbench
-VERILATOR_CFLAGS += -cc --exe 
-#-Os -x-assign 0
+VERILATOR_CFLAGS += -cc --exe -Os -x-assign 0
 VERILATOR_CFLAGS +=	--x-assign fast --x-initial fast
 VERILATOR_CFLAGS += --trace --coverage --build
-VERILATOR_CFLAGS += -Wno-fatal -O3
+VERILATOR_CFLAGS += -Wno-fatal -O2
 
 VERILATOR_CFLAGS += --top-module $(TOPNAMETEST)
 #VERILATOR_CFLAGS += --x-initial fast --noassert
@@ -98,7 +97,7 @@ include $(NVBOARD_HOME)/scripts/nvboard.mk
 #rules for verilator
 INCFLAGS = $(addprefix -I, $(INC_PATH))
 CFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""
-CFLAGS += $(shell llvm-config --cxxflags) -fPIE 
+CFLAGS += $(shell llvm-config --cxxflags) -fPIE
 LDFLAGS += -lSDL2 -lSDL2_image 
 LDFLAGS += $(shell llvm-config --libs)
 LDFLAGS += -lreadline

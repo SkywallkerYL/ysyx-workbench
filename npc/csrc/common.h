@@ -15,12 +15,12 @@
 #define word_t uint64_t
 #define paddr_t uint64_t
 #define vaddr_t uint64_t
-#define CONFIG_DIFFTEST
+//#define CONFIG_DIFFTEST
 //Itrace
-#define CONFIG_ITRACE
+//#define CONFIG_ITRACE
 
-#define ITRACE_BEGIN 0
-#define ITRACE_END   1000
+#define ITRACE_BEGIN 506500
+#define ITRACE_END   507500
 //Ftrace 跟Itrace一个开关
 #define FTRACE_BEGIN 0
 #define FTRACE_END   1000
@@ -32,10 +32,10 @@
 
 #define VGA
 
-#define WAVE
+//#define WAVE
 
-#define WAVE_BEGIN 0
-#define WAVE_END   10000
+#define WAVE_BEGIN 506500
+#define WAVE_END   508000
 
 #define TRACE_CONDITION(a,begin,end)   ((a>=begin)&&(a<end))
 
@@ -51,7 +51,7 @@ enum { DIFFTEST_TO_DUT, DIFFTEST_TO_REF };
 #define RESET_VECTOR (PMEM_LEFT + CONFIG_PC_RESET_OFFSET)
 #define FMT_PADDR "0x%016lx"
 #define instr_break 0b00000000000100000000000001110011
-#define MSIZE 0x7ffffff  //this should be same with npc 
+#define MSIZE 655360000  //this should be same with npc 
 //this should be big enough,otherwise some program could not run
 //This is important or it may cause some behavior difficault to understand
 uint32_t instr_mem[10];
