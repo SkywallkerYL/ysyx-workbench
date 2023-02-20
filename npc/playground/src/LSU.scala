@@ -112,6 +112,7 @@ class LSU extends Module{
         io.LSRAM.Axi.r.ready := true.B
         when(io.LSRAM.Axi.r.fire){
           LsuDpidata := io.LSRAM.Axi.r.bits.data
+          printf(p"ReadAddr=${Hexadecimal(RdAddrReg)} ReadData=${Hexadecimal(LsuDpidata)}\n")
           ReadState := readWait
           LsuBusyReg :=0.U
         }
