@@ -156,7 +156,7 @@ class LSU extends Module{
         }
       }
       is(sResp){
-        io.LSRAM.Axi.b.valid := true.B
+        io.LSRAM.Axi.b.ready := false.B
         when(io.LSRAM.Axi.b.fire){
           WriteState := sWritewait
         }
