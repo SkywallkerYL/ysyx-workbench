@@ -92,6 +92,9 @@ void assert_fail_msg() {
   Log("Total Instr num:%ld",instnum );
   printiringbuf((iringbufind+iringbufsize-1)%iringbufsize);  
 #endif
+#ifdef WAVE
+  Log("Total Instr num:%ld",instnum );
+#endif
   isa_reg_display();
 }
 //uint32_t instr_mem[MSIZE/4-1];
