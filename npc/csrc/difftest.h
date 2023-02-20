@@ -159,7 +159,7 @@ void init_difftest(char *ref_so_file, long img_size, int port) {
   //&instr_mem
   //guest_to_host(RESET_VECTOR)
   ref_difftest_memcpy(RESET_VECTOR, (uint8_t *)&p_mem, img_size, DIFFTEST_TO_REF);
-  //Log("nemu memcpy init");
+  Log("nemu memcpy init");
   ref_difftest_regcpy(&refcpu, DIFFTEST_TO_REF);
 }
 void assert_fail_msg();

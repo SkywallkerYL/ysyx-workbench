@@ -5,6 +5,7 @@
 #include "timer.h"
 
 static void out_of_bound(paddr_t addr) {
+    
 #ifdef CONFIG_ITRACE
     instr_tracelog(1);
 #endif
@@ -35,16 +36,16 @@ extern "C" void pmem_read(long long raddr, long long *rdata){
     //}
     else if ((uint64_t)raddr>=(uint64_t)PMEM_LEFT&&(uint64_t)raddr<=PMEM_RIGHT){
         uint64_t init = (raddr-CONFIG_MBASE);
-
-        
         *rdata = *(uint64_t *)(&p_mem[init]);
+        //printf("0x%llx\n",*rdata);
 #ifdef CONFIG_MTRACE
         mtrace(0,raddr,8,*rdata);
 #endif
         //printf("addr:0x%016x \t rdata: 0x%016x\n",raddr,*rdata );
     }
     else {
-        //printf("pc 0x%08x r\n",cpu_gpr[32]);
+
+        printf("read out!!!\n");
         out_of_bound(raddr);
     }       
 }
