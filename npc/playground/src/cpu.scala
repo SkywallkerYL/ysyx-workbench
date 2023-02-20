@@ -44,8 +44,8 @@ class  RiscvCpu extends Module{
     //SRAM.io.Sram <> ICache.io.Sram.Axi
     //SRAMLSU.io.Sram <> DCache.io.Sram.Axi
     SRAM.io.Sram <> SramArb.io.sram.Axi
-    SramArb.io.ifu.Axi <> ICache.io.Cache.Cache.Axi
-    SramArb.io.lsu.Axi <> DCache.io.Cache.Cache.Axi
+    SramArb.io.ifu.Axi <> ICache.io.Sram.Axi
+    SramArb.io.lsu.Axi <> DCache.io.Sram.Axi
 //pc   
     val PcRegOut = Wire(UInt(parm.PCWIDTH.W))
     //val addr  = (PcRegOut-parm.INITIAL_PC.U)>>2
