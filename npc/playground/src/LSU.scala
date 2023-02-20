@@ -113,7 +113,7 @@ class LSU extends Module{
         io.LSRAM.Axi.r.ready := true.B
         when(io.LSRAM.Axi.r.fire){
           LsuDpidata := io.LSRAM.Axi.r.bits.data
-          printf(p"ReadAddr=${Hexadecimal(RdAddrReg)} ReadData=${Hexadecimal(LsuDpidata)}\n")
+          //printf(p"ReadAddr=${Hexadecimal(RdAddrReg)} ReadData=${Hexadecimal(LsuDpidata)}\n")
           ReadState := readWait
           LsuBusyReg :=0.U
         }
@@ -200,7 +200,7 @@ class LSU extends Module{
   readdata := Mux(CLINTREAD,io.LSCLINT.Clintls.rdata,LsuDpidata)
 
   //io.LSRAM.Axi.r.fire   io.LSRAM.Axi.ar.fire
-  val LocalMask = Mux(io.Cache.Cache.dataok,LsumaskReg,io.EXLS.lsumask)
+  val LocalMask = Mux(io.Cache.Cache.dataok|io.LSRAM.Axi.r.fire,LsumaskReg,io.EXLS.lsumask)
   val maskRes = MuxLookup(LocalMask, readdata,Seq(
     "b11111".U   -> readdata,
     "b10111".U   ->func.SignExt(func.Mask ((readdata),"x00000000ffffffff".U),32),
@@ -215,9 +215,9 @@ class LSU extends Module{
   //并且当前周期的使能要拉低即如果当前周期是发送读请求的那个周期
   //其实也不用拉低，因为最后会用regfile的数据，拉高回来，相当于·刷新了一下
   //
-  io.LSWB.choose := Mux(io.Cache.Cache.dataok,chooseReg,io.EXLS.choose)//* 读数据延后一个周期，需要的是那个周期的使能和选择信号
+  io.LSWB.choose := Mux(io.Cache.Cache.dataok|io.LSRAM.Axi.r.fire,chooseReg,io.EXLS.choose)//* 读数据延后一个周期，需要的是那个周期的使能和选择信号
   io.LSWB.CsrWb <> io.EXLS.CsrWb
-  when(io.Cache.Cache.dataok ){
+  when(io.Cache.Cache.dataok|io.LSRAM.Axi.r.fire ){
     io.LSWB.Regfile := IoRegfile
   }.elsewhen((io.EXLS.rflag|io.EXLS.wflag) & !CLINTREAD){
     io.LSWB.Regfile := 0.U.asTypeOf(new REGFILEIO) //读写内存的当前周期都要拉低
