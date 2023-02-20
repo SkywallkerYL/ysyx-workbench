@@ -25,7 +25,7 @@ class  RiscvCpu extends Module{
     
     val ICache   = Module(new CpuCache(true))
     val DCache   = Module(new CpuCache)
-    //val SRAMLSU = Module(new Axi4LiteSRAM)
+    val SRAMLSU = Module(new Axi4LiteSRAM)
     //模拟设备的
     val SRAMDEV = Module(new Axi4LiteSRAM)
     val SramArb = Module(new RamArbiter)
@@ -41,11 +41,11 @@ class  RiscvCpu extends Module{
     //val Ls_Wb = Module(new LS_WB())
     val Wbu = Module(new WBU())
 // Ram
-    //SRAM.io.Sram <> ICache.io.Sram.Axi
-    //SRAMLSU.io.Sram <> DCache.io.Sram.Axi
-    SRAM.io.Sram <> SramArb.io.sram.Axi
-    SramArb.io.ifu.Axi <> ICache.io.Sram.Axi
-    SramArb.io.lsu.Axi <> DCache.io.Sram.Axi
+    SRAM.io.Sram <> ICache.io.Sram.Axi
+    SRAMLSU.io.Sram <> DCache.io.Sram.Axi
+    //SRAM.io.Sram <> SramArb.io.sram.Axi
+    //SramArb.io.ifu.Axi <> ICache.io.Sram.Axi
+   // SramArb.io.lsu.Axi <> DCache.io.Sram.Axi
 //pc   
     val PcRegOut = Wire(UInt(parm.PCWIDTH.W))
     //val addr  = (PcRegOut-parm.INITIAL_PC.U)>>2

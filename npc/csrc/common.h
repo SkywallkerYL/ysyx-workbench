@@ -19,8 +19,8 @@
 //Itrace
 #define CONFIG_ITRACE
 
-#define ITRACE_BEGIN 0
-#define ITRACE_END   1000
+#define ITRACE_BEGIN 480000
+#define ITRACE_END   490000
 //Ftrace 跟Itrace一个开关
 #define FTRACE_BEGIN 0
 #define FTRACE_END   1000
@@ -32,10 +32,10 @@
 
 #define VGA
 
-//#define WAVE
+#define WAVE
 
-#define WAVE_BEGIN 0
-#define WAVE_END   10000
+#define WAVE_BEGIN 480000
+#define WAVE_END   490000
 
 #define TRACE_CONDITION(a,begin,end)   ((a>=begin)&&(a<end))
 
