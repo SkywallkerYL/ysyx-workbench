@@ -85,6 +85,10 @@ class LSU extends Module{
         when(io.LSRAM.Axi.ar.fire){
           io.LSRAM.Axi.ar.bits.addr := io.EXLS.readaddr
           RdAddrReg := io.EXLS.readaddr
+          LsumaskReg := io.EXLS.lsumask
+          chooseReg := io.EXLS.choose
+          IoRegfile := io.EXLS.RegFileIO
+          RdAddrReg := io.EXLS.readaddr
           //RegRaddr        := io.LSRAM.Axi.ar.bits.addr
           ReadState  := read
           LsuBusyReg :=1.U
