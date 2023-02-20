@@ -9,7 +9,7 @@ class LSU extends Module{
       val EXLS = Flipped(new Exu2Lsu)
       val LSWB = new Lsu2Wbu
       val Cache = new Cpu2Cache
-      //val LSRAM = new Lsu2Sram
+      val LSRAM = new Lsu2Sram
 //if(parm.DIFFTEST){
       val SkipRef = Output(Bool())
 //}
@@ -28,6 +28,9 @@ class LSU extends Module{
   val chooseReg  = RegInit(0.U(parm.RegFileChooseWidth.W))//*
   val IoRegfile = RegInit(0.U.asTypeOf(new REGFILEIO)) //*
   val RdAddrReg = RegInit(0.U(parm.REGWIDTH.W))
+  val RdAddrReg = RegInit(0.U(parm.REGWIDTH.W))
+  val WrDataReg = RegInit(0.U(parm.REGWIDTH.W))
+  val WrMaskReg = RegInit(0.U(parm.BYTEWIDTH.W))
   io.Cache.Cache.valid := false.B 
   io.Cache.Cache.op    := 0.U
   io.Cache.Cache.addr  := 0.U
@@ -53,33 +56,144 @@ class LSU extends Module{
     }
   }
   else{
-    io.Cache.Cache.valid := (io.EXLS.rflag|io.EXLS.wflag) & !CLINTREAD &!io.SkipRef
-    //不知道Op这样写有没有问题
-    io.Cache.Cache.op    := (io.EXLS.wflag) & (!io.EXLS.rflag)
-    when(io.EXLS.wflag& !CLINTREAD){
-      io.Cache.Cache.addr  := io.EXLS.writeaddr 
-      io.Cache.Cache.wdata := io.EXLS.writedata 
-      io.Cache.Cache.wstrb := io.EXLS.wmask 
-      LsuBusyReg := 1.U
-    }.elsewhen(io.EXLS.rflag& !CLINTREAD){
-      io.Cache.Cache.addr := io.EXLS.readaddr
-      LsuBusyReg := 1.U
-    }.otherwise{
-      io.Cache.Cache.addr := 0.U
+    //非读写内存的情况下 的读写状态机,用于与总线之间通信
+    val readWait ::readReady :: read :: Nil = Enum(3)
+    val ReadState = RegInit(readWait)
+    //Intial
+    io.LSRAM.Axi.ar.valid := false.B
+    io.LSRAM.Axi.ar.bits.addr := io.EXLS.readaddr
+    io.LSRAM.Axi.ar.bits.len  := 0.U
+    io.LSRAM.Axi.ar.bits.size := 3.U
+    io.LSRAM.Axi.ar.bits.burst := "b01".U 
+    io.LSRAM.Axi.r.ready := false.B
+    io.LSRAM.Axi.aw.valid := false.B
+    io.LSRAM.Axi.aw.bits.addr := 0.U
+    io.LSRAM.Axi.aw.bits.len := 0.U
+    io.LSRAM.Axi.aw.bits.size := 3.U
+    io.LSRAM.Axi.aw.bits.burst := "b01".U
+    io.LSRAM.Axi.w.valid := false.B
+    io.LSRAM.Axi.w.bits.data := 0.U
+    io.LSRAM.Axi.w.bits.strb := 0.U
+    io.LSRAM.Axi.w.bits.last := true.B
+    io.LSRAM.Axi.b.ready := false.B
+  //state transfer
+  //val RegRaddr = RegInit(0.U(AxiParm.AxiAddrWidth.W))
+    switch(ReadState){
+      is(readWait){
+        io.LSRAM.Axi.ar.valid := io.EXLS.rflag & io.SkipRef
+        io.LSRAM.Axi.r.ready  := false.B
+        //fire = ready & valid
+        when(io.LSRAM.Axi.ar.fire){
+          io.LSRAM.Axi.ar.bits.addr := io.EXLS.readaddr
+          //RegRaddr        := io.LSRAM.Axi.ar.bits.addr
+          ReadState  := read
+          LsuBusyReg :=1.U
+        }.elsewhen(io.LSRAM.Axi.ar.valid){
+          //这个周期拉高了，但是数据没有送出去，就要锁存数据了
+          ReadState := readReady
+          LsumaskReg := io.EXLS.lsumask
+          chooseReg := io.EXLS.choose
+          IoRegfile := io.EXLS.RegFileIO
+          RdAddrReg := io.EXLS.readaddr
+          LsuBusyReg :=1.U
+        }
+      }
+      is(readReady){
+        io.LSRAM.Axi.ar.valid := true.B
+        io.LSRAM.Axi.r.ready := false.B
+        when(io.LSRAM.Axi.ar.fire){
+          io.LSRAM.Axi.ar.bits.addr := RdAddrReg
+          //RegRaddr        := io.LSRAM.Axi.ar.bits.addr
+          ReadState  := read
+          LsuBusyReg :=1.U
+        }
+      }
+      is(read){
+        io.LSRAM.Axi.ar.valid := false.B
+        io.LSRAM.Axi.r.ready := true.B
+        when(io.LSRAM.Axi.r.fire){
+          LsuDpidata := io.LSRAM.Axi.r.bits.data
+          ReadState := readWait
+          LsuBusyReg :=0.U
+        }
+      }
     }
-    //确认是读操作，  
-    // 读写操作都所存一下，因为后面是根据dataok判断
-    //只识别读的话，如果是写操作的dataok，会导致用所存的reg，对通用寄存器发生错误的读写
-    when(io.Cache.Cache.valid){
-      LsumaskReg := io.EXLS.lsumask
-      chooseReg := io.EXLS.choose
-      IoRegfile := io.EXLS.RegFileIO
+    val sWritewait :: sWriteReady ::sWrite :: sResp :: Nil = Enum(4)
+    val WriteState = RegInit(sWritewait)
+    switch(WriteState){
+      is(sWritewait){
+        io.LSRAM.Axi.aw.valid := io.EXLS.wflag & io.SkipRef
+        io.LSRAM.Axi.w.valid := false.B
+        when(io.LSRAM.Axi.aw.fire){
+          io.LSRAM.Axi.aw.bits.addr := io.EXLS.writeaddr
+          WrDataReg :=  io.EXLS.writedata
+          WrMaskReg := io.EXLS.wmask
+          WriteState := sWrite
+          LsuBusyReg :=1.U
+        }.otherwise(io.LSRAM.Axi.aw.valid){
+          WrDataReg := io.EXLS.writedata
+          WrMaskReg := io.EXLS.wmask
+          RdAddrReg := io.EXLS.writeaddr
+          WriteState := sWriteReady
+          LsuBusyReg :=1.U
+        }
+      }
+      is(sWriteReady){
+        io.LSRAM.Axi.aw.valid := true.B
+        when(io.LSRAM.Axi.aw.fire){
+          io.LSRAM.Axi.aw.bits.addr := RdAddrReg
+          WriteState := sWrite
+          LsuBusyReg :=1.U
+        }
+      }
+      is(sWrite){
+        io.LSRAM.Axi.aw.valid := false.B
+        io.LSRAM.Axi.w.valid := true.B
+        when(io.LSRAM.Axi.w.fire){
+          io.LSRAM.Axi.aw.bits.data := WrDataReg
+          io.LSRAM.Axi.aw.bits.strb := WrMaskReg
+          state := sWritewait
+          LsuBusyReg :=0.U
+        }
+      }
+      is(sResp){
+        io.LSRAM.Axi.b.valid := true.B
+        when(io.LSRAM.Axi.b.fire){
+          state := sWritewait
+        }
+      }
     }
-    //读数据完成
-    when(io.Cache.Cache.dataok){
-      LsuDpidata := io.Cache.Cache.rdata
-      LsuBusyReg := 0.U
+    //地址非clint 非设备地址 转发给Cache
+    when(!io.SkipRef){
+      io.Cache.Cache.valid := (io.EXLS.rflag|io.EXLS.wflag) & !CLINTREAD &!io.SkipRef
+      //不知道Op这样写有没有问题
+      io.Cache.Cache.op    := (io.EXLS.wflag) & (!io.EXLS.rflag)
+      when(io.EXLS.wflag& !CLINTREAD){
+        io.Cache.Cache.addr  := io.EXLS.writeaddr 
+        io.Cache.Cache.wdata := io.EXLS.writedata 
+        io.Cache.Cache.wstrb := io.EXLS.wmask 
+        LsuBusyReg := 1.U
+      }.elsewhen(io.EXLS.rflag& !CLINTREAD){
+        io.Cache.Cache.addr := io.EXLS.readaddr
+        LsuBusyReg := 1.U
+      }.otherwise{
+        io.Cache.Cache.addr := 0.U
+      }
+      //确认是读操作，  
+      // 读写操作都所存一下，因为后面是根据dataok判断
+      //只识别读的话，如果是写操作的dataok，会导致用所存的reg，对通用寄存器发生错误的读写
+      when(io.Cache.Cache.valid){
+        LsumaskReg := io.EXLS.lsumask
+        chooseReg := io.EXLS.choose
+        IoRegfile := io.EXLS.RegFileIO
+      }
+      //读数据完成
+      when(io.Cache.Cache.dataok){
+        LsuDpidata := io.Cache.Cache.rdata
+        LsuBusyReg := 0.U
+      }
     }
+    
   }
 
   readdata := Mux(CLINTREAD,io.LSCLINT.Clintls.rdata,LsuDpidata)
@@ -104,6 +218,8 @@ class LSU extends Module{
   io.LSWB.CsrWb <> io.EXLS.CsrWb
   when(io.Cache.Cache.dataok ){
     io.LSWB.Regfile := IoRegfile
+  }.elsewhen((io.EXLS.rflag|io.EXLS.wflag) & !CLINTREAD){
+    io.LSWB.Regfile := 0.U.asTypeOf(new REGFILEIO) //读写内存的当前周期都要拉低
   }.otherwise{
     io.LSWB.Regfile := io.EXLS.RegFileIO
   }
@@ -116,5 +232,5 @@ class LSU extends Module{
   io.LSCLINT.Clintls.waddr  := io.EXLS.writeaddr
   io.LSCLINT.Clintls.wdata  := io.EXLS.writedata
 
-  io.PC.Lsuvalid := Mux(io.Cache.Cache.valid,0.U,!LsuBusyReg)
+  io.PC.Lsuvalid := Mux((io.EXLS.rflag|io.EXLS.wflag) & !CLINTREAD,0.U,!LsuBusyReg)
 }

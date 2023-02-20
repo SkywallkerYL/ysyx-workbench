@@ -22,9 +22,12 @@ class  RiscvCpu extends Module{
     val PcReg = Module(new PC_REG()) 
     val NpcMux = Module(new NPCMUX())
     val SRAM    = Module(new Axi4LiteSRAM)
+    
     val ICache   = Module(new CpuCache(true))
     val DCache   = Module(new CpuCache)
     val SRAMLSU = Module(new Axi4LiteSRAM)
+    //模拟设备的
+    val SRAMDEV = Module(new Axi4LiteSRAM)
     //val SramArb = Module(new RamArbiter)
     val Ifu = Module(new IFU())
     //val If_Id = Module(new IF_ID())
@@ -98,7 +101,7 @@ class  RiscvCpu extends Module{
     Lsu.io.Cache <> DCache.io.Cache
     DCache.io.pc := Ifu.io.IFID.pc
     Lsu.io.PC <> PcReg.io.LSU
-    //Lsu.io.LSRAM <> SramArb.io.lsu//SRAMLSU.io.Sram
+    Lsu.io.LSRAM <> SRAMDEV.io.Sram//SRAMLSU.io.Sram
 // CLINT
     Clint.io.LsuIn <> Lsu.io.LSCLINT
 //LS_WB
