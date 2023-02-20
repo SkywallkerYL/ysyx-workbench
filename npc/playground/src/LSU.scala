@@ -28,7 +28,6 @@ class LSU extends Module{
   val chooseReg  = RegInit(0.U(parm.RegFileChooseWidth.W))//*
   val IoRegfile = RegInit(0.U.asTypeOf(new REGFILEIO)) //*
   val RdAddrReg = RegInit(0.U(parm.REGWIDTH.W))
-  val RdAddrReg = RegInit(0.U(parm.REGWIDTH.W))
   val WrDataReg = RegInit(0.U(parm.REGWIDTH.W))
   val WrMaskReg = RegInit(0.U(parm.BYTEWIDTH.W))
   io.Cache.Cache.valid := false.B 
@@ -130,7 +129,7 @@ class LSU extends Module{
           WrMaskReg := io.EXLS.wmask
           WriteState := sWrite
           LsuBusyReg :=1.U
-        }.otherwise(io.LSRAM.Axi.aw.valid){
+        }.elsewhen(io.LSRAM.Axi.aw.valid){
           WrDataReg := io.EXLS.writedata
           WrMaskReg := io.EXLS.wmask
           RdAddrReg := io.EXLS.writeaddr
@@ -150,22 +149,22 @@ class LSU extends Module{
         io.LSRAM.Axi.aw.valid := false.B
         io.LSRAM.Axi.w.valid := true.B
         when(io.LSRAM.Axi.w.fire){
-          io.LSRAM.Axi.aw.bits.data := WrDataReg
-          io.LSRAM.Axi.aw.bits.strb := WrMaskReg
-          state := sWritewait
+          io.LSRAM.Axi.w.bits.data := WrDataReg
+          io.LSRAM.Axi.w.bits.strb := WrMaskReg
+          WriteState := sWritewait
           LsuBusyReg :=0.U
         }
       }
       is(sResp){
         io.LSRAM.Axi.b.valid := true.B
         when(io.LSRAM.Axi.b.fire){
-          state := sWritewait
+          WriteState := sWritewait
         }
       }
     }
     //地址非clint 非设备地址 转发给Cache
     when(!io.SkipRef){
-      io.Cache.Cache.valid := (io.EXLS.rflag|io.EXLS.wflag) & !CLINTREAD &!io.SkipRef
+      io.Cache.Cache.valid := (io.EXLS.rflag|io.EXLS.wflag) & (!CLINTREAD) & (!io.SkipRef)
       //不知道Op这样写有没有问题
       io.Cache.Cache.op    := (io.EXLS.wflag) & (!io.EXLS.rflag)
       when(io.EXLS.wflag& !CLINTREAD){
