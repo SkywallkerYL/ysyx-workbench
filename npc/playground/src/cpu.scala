@@ -101,7 +101,7 @@ class  RiscvCpu extends Module{
     Lsu.io.Cache <> DCache.io.Cache
     DCache.io.pc := Ifu.io.IFID.pc
     Lsu.io.PC <> PcReg.io.LSU
-    Lsu.io.LSRAM <> SRAMDEV.io.Sram//SRAMLSU.io.Sram
+    Lsu.io.LSRAM.Axi <> SRAMDEV.io.Sram//SRAMLSU.io.Sram
 // CLINT
     Clint.io.LsuIn <> Lsu.io.LSCLINT
 //LS_WB
