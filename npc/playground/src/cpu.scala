@@ -28,7 +28,7 @@ class  RiscvCpu extends Module{
     val SRAMLSU = Module(new Axi4LiteSRAM)
     //模拟设备的
     val SRAMDEV = Module(new Axi4LiteSRAM)
-    val SramArb = Module(new RamArbiter)
+    //val SramArb = Module(new RamArbiter)
     val Ifu = Module(new IFU())
     //val If_Id = Module(new IF_ID())
     val Regfile = Module(new RegFile)
