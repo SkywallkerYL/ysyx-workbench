@@ -84,6 +84,7 @@ class LSU extends Module{
         //fire = ready & valid
         when(io.LSRAM.Axi.ar.fire){
           io.LSRAM.Axi.ar.bits.addr := io.EXLS.readaddr
+          RdAddrReg := io.EXLS.readaddr
           //RegRaddr        := io.LSRAM.Axi.ar.bits.addr
           ReadState  := read
           LsuBusyReg :=1.U
