@@ -43,7 +43,7 @@ class  RiscvCpu extends Module{
 // Ram
     SRAM.io.Sram <> ICache.io.Sram.Axi
     //SRAMLSU.io.Sram <> DCache.io.Sram.Axi
-    //SRAM.io.Sram <> SramArb.io.sram.Axi
+    SRAM.io.Sram <> SramArb.io.sram.Axi
     SramArb.io.ifu.Axi <> ICache.io.Sram.Axi
     SramArb.io.lsu.Axi <> DCache.io.Sram.Axi
 //pc   
