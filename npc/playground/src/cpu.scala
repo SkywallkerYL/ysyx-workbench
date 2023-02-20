@@ -22,13 +22,10 @@ class  RiscvCpu extends Module{
     val PcReg = Module(new PC_REG()) 
     val NpcMux = Module(new NPCMUX())
     val SRAM    = Module(new Axi4LiteSRAM)
-    
     val ICache   = Module(new CpuCache(true))
     val DCache   = Module(new CpuCache)
-    //val SRAMLSU = Module(new Axi4LiteSRAM)
-    //模拟设备的
-    val SRAMDEV = Module(new Axi4LiteSRAM)
-    val SramArb = Module(new RamArbiter)
+    val SRAMLSU = Module(new Axi4LiteSRAM)
+    //val SramArb = Module(new RamArbiter)
     val Ifu = Module(new IFU())
     //val If_Id = Module(new IF_ID())
     val Regfile = Module(new RegFile)
@@ -42,10 +39,8 @@ class  RiscvCpu extends Module{
     val Wbu = Module(new WBU())
 // Ram
     SRAM.io.Sram <> ICache.io.Sram.Axi
-    //SRAMLSU.io.Sram <> DCache.io.Sram.Axi
-    SRAM.io.Sram <> SramArb.io.sram.Axi
-    SramArb.io.ifu.Axi <> ICache.io.Sram.Axi
-    SramArb.io.lsu.Axi <> DCache.io.Sram.Axi
+    SRAMLSU.io.Sram <> DCache.io.Sram.Axi
+    //SRAM.io.Sram <> SramArb.io.sram.Axi
 //pc   
     val PcRegOut = Wire(UInt(parm.PCWIDTH.W))
     //val addr  = (PcRegOut-parm.INITIAL_PC.U)>>2
@@ -64,7 +59,6 @@ class  RiscvCpu extends Module{
     //val Ifu = Module(new IFU())
     PcReg.io.PcIf  <> Ifu.io.PcIf
     Ifu.io.Cache <> ICache.io.Cache
-    
     ICache.io.pc := Ifu.io.PcIf.pc
    // Ifu.io.IFRAM <> SramArb.io.ifu//SRAM.io.Sram
     //Ifu.io.pc_i := PcReg.io.pc_o
@@ -104,7 +98,7 @@ class  RiscvCpu extends Module{
     Lsu.io.Cache <> DCache.io.Cache
     DCache.io.pc := Ifu.io.IFID.pc
     Lsu.io.PC <> PcReg.io.LSU
-    Lsu.io.LSRAM.Axi <> SRAMDEV.io.Sram//SRAMLSU.io.Sram
+    //Lsu.io.LSRAM <> SramArb.io.lsu//SRAMLSU.io.Sram
 // CLINT
     Clint.io.LsuIn <> Lsu.io.LSCLINT
 //LS_WB
