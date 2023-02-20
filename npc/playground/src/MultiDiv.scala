@@ -23,3 +23,16 @@ class MultiIO extends Bundle with MulDivParm{
     val ResultH         = Output(UInt(xlen.W)) // 高 64位结果
     val ResultL         = Output(UInt(xlen.W)) // 低 64位结果
 }
+class Mul2Exu extends Bundle{
+    val Exu = new MultiIO
+}
+
+class Multi(HighPerform : Boolean = false) extends Module with MulDivParm{
+    val io = IO(new Bundle{
+        val Exu = new MultiIO
+    })
+    //非高性能
+    if(!HighPerform){
+
+    }
+}
