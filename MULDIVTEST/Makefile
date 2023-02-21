@@ -39,8 +39,8 @@ doit:
 #Makefile for Verilator
 
 
-TOPNAME?=RiscvCpu
-TOPNAMETEST?=RiscvCpu
+TOPNAME?=Multi
+TOPNAMETEST?=Multi
 #FSM_m #keyboard_top #top
 NXDC_FILES=constr/top.nxdc
 INC_PATH?=

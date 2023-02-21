@@ -66,7 +66,7 @@ class Multi(HighPerform : Boolean = false) extends Module with MulDivParm{
                     MulRes := 0.U
                     MainState := sIdle
                 }
-                when(multicount!=0.U){
+                when(multicount=/=0.U){
                     multicount := multicount - 1.U
                     multican := multican << 1.U
                     multicancomp := multicancomp << 1.U
