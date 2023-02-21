@@ -351,6 +351,8 @@ object InstrTable{
 object func{
     def SignExt(imm : UInt , bit : Int)  = Cat(Fill(parm.REGWIDTH-bit,imm(bit-1)),imm(bit-1,0))
     def UsignExt(imm : UInt , bit : Int) = Cat(Fill(parm.REGWIDTH-bit,"b0".U),imm(bit-1,0))
+    def SignExtWidth(width : UInt,imm : UInt , bit : Int)  = Cat(Fill(width-bit,imm(bit-1)),imm(bit-1,0))
+    def UsignExtWidth(width : UInt,imm : UInt , bit : Int) = Cat(Fill(width-bit,"b0".U),imm(bit-1,0))
     def Mask (imm: UInt, mask : UInt) = imm & mask
     def EcallMstatus (localmstatus : UInt) : UInt ={
         val mstatus = localmstatus
