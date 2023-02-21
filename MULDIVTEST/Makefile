@@ -100,8 +100,8 @@ INCFLAGS = $(addprefix -I, $(INC_PATH))
 CFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""
 CFLAGS += $(shell llvm-config --cxxflags) -fPIE 
 LDFLAGS += -lSDL2 -lSDL2_image 
-LDFLAGS += $(shell llvm-config --libs)
-LDFLAGS += -lreadline
+#LDFLAGS += $(shell llvm-config --libs)
+#LDFLAGS += -lreadline
 
 IMG?=
 
@@ -120,10 +120,6 @@ runnvboard: $(BIN)
 	#for nvboard
 	@$^
 
-NPCMODE=-d
-BATCHMODE ?= 
-DIFFTESTNEMUFILE=/home/yangli/ysyx-workbench/nemu/build/riscv64-nemu-interpreter-so
-NPCMODE+=$(DIFFTESTNEMUFILE)
 run: 
 	#for testbench        
 	@echo "---------------VERILATE------------------"
@@ -136,9 +132,7 @@ run:
 # $(MAKE) -j -C obj_dir -f ../Makefile_obj
 
 	@echo "-------------------RUN-------------------"
-	@echo $(IMG)
-	@echo $(NPCMODE)
-	./obj_dir/V$(TOPNAMETEST) $(BATCHMODE) $(NPCMODE) $(IMG)
+	./obj_dir/V$(TOPNAMETEST) 
 
 #gtkwave wave.vcd
 wave:
