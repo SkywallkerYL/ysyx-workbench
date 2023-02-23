@@ -107,6 +107,9 @@ class Exu2Lsu extends Bundle{
     val pc          = Output(UInt(parm.PCWIDTH.W))
     val NextPc      = Output(UInt(parm.PCWIDTH.W))
 }
+class Exu2pc extends Bundle{
+    val Exuvalid = Output(Bool())
+}
 //LS --- WB
 class Lsu2Wbu extends Bundle{
     val choose  = Output(UInt(parm.RegFileChooseWidth.W))
