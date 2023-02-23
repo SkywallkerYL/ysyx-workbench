@@ -114,7 +114,7 @@ class  RiscvCpu extends Module{
         RegExls.RegFileIO.wdata := Exu.io.EXLS.alures
     }
     //valid 信号拉高的时候，下一个周期写入流水线，正好此时busy拉低了。。
-    Lsu.io.EXLS <> Mux(Exu.io.AluBusy,0.U,RegExls)//Exu.io.EXLS
+    Lsu.io.EXLS <> Mux(Exu.io.AluBusy,0.U.asTypeOf(new Exu2Lsu),RegExls)//Exu.io.EXLS
 // LSU
     Lsu.io.Cache <> DCache.io.Cache
     DCache.io.pc := Ifu.io.IFID.pc
