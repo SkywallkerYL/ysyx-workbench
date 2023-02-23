@@ -153,12 +153,14 @@ class EXU extends Module{
       when(io.MulU.OutValid){
         io.AluValid := true.B
         MulDivRes := io.MulU.ResultL
+        DoingState := sWait
       }
       when(io.DivU.OutValid){
         io.AluValid := true.B
         MulDivRes := io.DivU.Quotient
+        DoingState := sWait
       }
-      DoingState := sWait
+
     }
   }
   val AluRes = MuxLookup(useop, src1+src2,Seq(
