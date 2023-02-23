@@ -105,7 +105,7 @@ class  RiscvCpu extends Module{
     //然后是LSU 接受，如果发现流水线来的信号busy拉高了，那么LSU的其他信号都要拉低
     //并且当valid到来时，流水线继续，然后并且流水级的计算结果等信号更新成乘除法的计算结果。。
     val ExlsEnable = (!Exu.io.AluBusy)//exu不忙的情况下，流水线才更新
-    RegExls = RegEnable(Exu.io.EXLS,ExlsEnable)
+    val RegExls = RegEnable(Exu.io.EXLS,ExlsEnable)
     //valid信号到来的时候，流水线的值要更新成其计算结果
     //alures 更新 然后是寄存器的写如更新。。。。
     //严格来说额,这两是一个东西，但是写的时候每分开。
