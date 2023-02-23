@@ -6,6 +6,7 @@ import chisel3.util._
 class NPCMUX extends Module{
     val io = IO(new Bundle {
       val IDNPC = Flipped((new Idu2Npc))
+      val LSNPC = Flipped((new Lsu2Npc))
       //val IFNPC = Flipped((new Ifu2Npc))
       //val PcEnable = Input(Bool())
       //val NPC = Output(UInt(parm.PCWIDTH.W))
@@ -33,7 +34,7 @@ class NPCMUX extends Module{
   //io.NPC := Mux(io.NOP,jumppc,pc_4)
   //io.NPC.npc := Mux(io.PcEnable,Mux(io.NOP,jumppc,pc_4),io.RegPc.RegPc)
   io.NPC.npc := Mux(io.NOP,jumppc,pc_4)
-  io.NPC.pcvalid := io.IDNPC.instvalid
+  io.NPC.pcvalid :=  Mux(io.NOP,io.IDNPC.instvalid,io.LSNPC.instvalid)
   io.NPCId.NextPc := io.NPC.npc
 
   //io.NPC := Mux(io.resetflag,0.U,)
