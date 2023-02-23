@@ -150,11 +150,11 @@ class EXU extends Module{
     is(sDoing){
       useop := opReg
       usealumask := alumaskReg
-      when(io.MulU.MulValid){
+      when(io.MulU.OutValid){
         io.AluValid := true.B
         MulDivRes := io.MulU.ResultL
       }
-      when(io.DivU.DivValid){
+      when(io.DivU.OutValid){
         io.AluValid := true.B
         MulDivRes := io.DivU.Quotient
       }
