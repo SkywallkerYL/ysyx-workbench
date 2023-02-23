@@ -111,7 +111,7 @@ class EXU extends Module{
   ))
   io.DivU.Divdend      := usesrc1
   io.DivU.Divisor      := usesrc2
-  val sWait :: sWaitReady ::sDoing :: Nil = Enum(2)
+  val sWait :: sWaitReady ::sDoing :: Nil = Enum(3)
   val DoingState = RegInit(sWait)
   val MulDivRes = Wire(UInt(parm.REGWIDTH.W))
   MulDivRes := 0.U
