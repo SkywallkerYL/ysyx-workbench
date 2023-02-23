@@ -99,7 +99,22 @@ class  RiscvCpu extends Module{
 //EXU
     //val Exu = Module(new EXU())
 //EX_LS
-    Lsu.io.EXLS <> Exu.io.EXLS
+    //Lsu部分接入流水线
+    //两层逻辑一个是LSU接受的逻辑，另一个是EXU发送
+    //首先EXU接收到乘除法指令时，发送忙信号流水线寄存当前所有的所有的值 并且整个流水线要暂停
+    //然后是LSU 接受，如果发现流水线来的信号busy拉高了，那么LSU的其他信号都要拉低
+    //并且当valid到来时，流水线继续，然后并且流水级的计算结果等信号更新成乘除法的计算结果。。
+    val ExlsEnable = (!Exu.io.AluBusy)//exu不忙的情况下，流水线才更新
+    RegExls = RegEnable(Exu.io.EXLS,ExlsEnable)
+    //valid信号到来的时候，流水线的值要更新成其计算结果
+    //alures 更新 然后是寄存器的写如更新。。。。
+    //严格来说额,这两是一个东西，但是写的时候每分开。
+    when(Exu.io.AluValid){
+        RegExls.alures := Exu.io.EXLS.alures
+        RegExls.RegFileIO.wdata := Exu.io.EXLS.alures
+    }
+    //valid 信号拉高的时候，下一个周期写入流水线，正好此时busy拉低了。。
+    Lsu.io.EXLS <> Mux(Exu.io.AluBusy,0.U,RegExls)//Exu.io.EXLS
 // LSU
     Lsu.io.Cache <> DCache.io.Cache
     DCache.io.pc := Ifu.io.IFID.pc

@@ -98,8 +98,8 @@ class Exu2Lsu extends Bundle{
     val RegFileIO   = new REGFILEIO
     val wflag       = Output(Bool())
     val rflag       = Output(Bool())
-    val readaddr    = Output(UInt(parm.REGWIDTH.W))
-    val writeaddr   = Output(UInt(parm.REGWIDTH.W))
+    //val readaddr    = Output(UInt(parm.REGWIDTH.W))
+    //val writeaddr   = Output(UInt(parm.REGWIDTH.W))
     val writedata   = Output(UInt(parm.REGWIDTH.W))
     val wmask       = Output(UInt(parm.BYTEWIDTH.W))
     val choose      = Output(UInt(parm.RegFileChooseWidth.W))
