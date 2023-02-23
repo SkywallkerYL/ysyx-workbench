@@ -116,6 +116,7 @@ class EXU extends Module{
   val MulDivRes = Wire(UInt(parm.REGWIDTH.W))
   MulDivRes := 0.U
   io.AluBusy := (DoingState=/=sWait)//|| io.MulU.MulValid || io.DivU.DivValid 
+  io.AluValid := false.B
   switch(DoingState){
     is(sWait){
       when(io.MulU.MulValid || io.DivU.DivValid){
@@ -149,9 +150,11 @@ class EXU extends Module{
       useop := opReg
       usealumask := alumaskReg
       when(io.MulU.MulValid){
+        io.AluValid := true.B
         MulDivRes := io.MulU.ResultL
       }
       when(io.DivU.DivValid){
+        io.AluValid := true.B
         MulDivRes := io.DivU.Quotient
       }
     }
