@@ -8,7 +8,6 @@ class PC_REG extends Module{
     
     val NPC = Flipped(((new Npc2Pcreg)))//Decoupled
     val LSU = Flipped(new Lsu2pc)
-    val EXU = Flipped(new Exu2pc)
     val RegPc = (new Pcreg2Npc)
     val PcIf  = (new Pc2Ifu)
   })
@@ -18,20 +17,20 @@ class PC_REG extends Module{
   io.PcIf.pc := reg
   //pcvalid 要等到ifu取道指令   lsu空闲才能拉高
   io.PcIf.pcvalid := false.B
-  val swait :: waitU :: valid ::Nil = Enum(3)
+  val swait :: waitlsu :: valid ::Nil = Enum(3)
   val state = RegInit(valid)
   switch(state){
     is(swait){
       when(io.NPC.pcvalid){
-        when(io.LSU.Lsuvalid&io.EXU.Exuvalid){
+        when(io.LSU.Lsuvalid){
           state := valid
         }.otherwise{
-          state := waitU
+          state := waitlsu
         }
       }
     }
-    is(waitU){
-      when(io.LSU.Lsuvalid&io.EXU.Exuvalid){
+    is(waitlsu){
+      when(io.LSU.Lsuvalid){
         state := valid
       }
     }

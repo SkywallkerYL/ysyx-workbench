@@ -3,7 +3,6 @@ package npc
 import chisel3._
 import chisel3.util._
 import chisel3.util.HasBlackBoxInline
-import scala.annotation.meta.param
 /*
 class  ALU (val width : Int = 64) extends Module{
     val io = IO(new Bundle{
@@ -46,11 +45,7 @@ class EXU extends Module{
     val io = IO(new Bundle {
     val id = Flipped(new Idu2Exu)
     val EXLS = new Exu2Lsu
-    val MulU = Flipped(new MultiIO)
-    val DivU = Flipped(new DivIO)
-    val AluBusy = Output(Bool())
-    val AluValid = Output(Bool())
-    val PC = new Exu2pc
+
   })
   io.EXLS.pc := io.id.pc
   io.EXLS.NextPc := io.id.NextPc
@@ -62,7 +57,7 @@ class EXU extends Module{
   //alu.io.func3 := io.func3_i 
   io.EXLS.alures := 0.U
 
-  io.EXLS.instvalid := io.id.instvalid
+
   io.EXLS.wflag := io.id.wflag
   io.EXLS.rflag := io.id.rflag
   io.EXLS.writedata := io.id.rs2
@@ -76,100 +71,14 @@ class EXU extends Module{
   val src2 = io.id.AluOp.rd2
 
   val op = io.id.AluOp.op
-  val opReg = RegInit(0.U((OpType.OPNUMWIDTH.W)))
-  val useop = Wire(UInt(OpType.OPNUMWIDTH.W))
-  useop := op
-  val alumaskReg = RegInit(0.U(parm.MaskWidth.W))
-  val usealumask =Wire(UInt(parm.MaskWidth.W))
-  usealumask := io.id.alumask
-  val flushReg = RegInit(0.U((1.W)))
-  val useflush = Wire(UInt(1.W))
-  useflush := false.B
-  val WReg = RegInit(0.U((1.W)))
-  val usew = Wire(UInt(1.W))
-  usew := false.B
-  val src1Reg = RegInit(0.U(parm.REGWIDTH.W))
-  val src2Reg = RegInit(0.U(parm.REGWIDTH.W))
-  val usesrc1 = Wire(UInt(parm.REGWIDTH.W))
-  val usesrc2 = Wire(UInt(parm.REGWIDTH.W))
-  usesrc1 := src1 
-  usesrc2 := src2
   //val shamt = src2(4,0)
-  //加入了乘除法单元
-  io.MulU.MulValid     := useop === OpType.MUL
-  io.MulU.Flush        := useflush
-  io.MulU.Mulw         := usew
-  io.MulU.MulSigned    := "b00".U
-  io.MulU.Multiplicand := usesrc1
-  io.MulU.Multiplier   := usesrc2
-
-  io.DivU.DivValid     := useop === OpType.DIVS || useop === OpType.DIV
-  io.DivU.Flush        := useflush
-  io.DivU.Divw         := usew
-  io.DivU.DivSigned    := MuxLookup(useop,"b00".U,Seq(
-    OpType.DIVS -> "b11".U,
-    OpType.DIV  -> "b00".U
-  ))
-  io.DivU.Divdend      := usesrc1
-  io.DivU.Divisor      := usesrc2
-  val sWait :: sWaitReady ::sDoing :: Nil = Enum(3)
-  val DoingState = RegInit(sWait)
-  val MulDivRes = Wire(UInt(parm.REGWIDTH.W))
-  MulDivRes := 0.U
-  io.AluBusy := (DoingState=/=sWait)//|| io.MulU.MulValid || io.DivU.DivValid 
-  io.AluValid := false.B
-  switch(DoingState){
-    is(sWait){
-      when(io.MulU.MulValid || io.DivU.DivValid){
-        when((io.MulU.MulValid && io.MulU.MulReady)||(io.DivU.DivValid && io.DivU.DivReady)){
-          DoingState := sDoing
-        }.otherwise{
-          //乘除法模块没有准备好，所存当前需要计算的数据
-          DoingState := sWaitReady
-        }
-        src1Reg := src1
-        src2Reg := src2
-        flushReg := useflush
-        WReg := usew
-        opReg := op
-        alumaskReg := io.id.alumask
-      }
-      
-    }
-    is(sWaitReady){
-      useop := opReg
-      usealumask := alumaskReg
-      useflush := flushReg
-      usew := WReg
-      usesrc1 := src1Reg
-      usesrc2 := src2Reg
-      when((io.MulU.MulValid && io.MulU.MulReady)||(io.DivU.DivValid && io.DivU.DivReady)){
-        DoingState := sDoing
-      }
-    }
-    is(sDoing){
-      useop := opReg
-      usealumask := alumaskReg
-      when(io.MulU.OutValid){
-        io.AluValid := true.B
-        MulDivRes := io.MulU.ResultL
-        DoingState := sWait
-      }
-      when(io.DivU.OutValid){
-        io.AluValid := true.B
-        MulDivRes := io.DivU.Quotient
-        DoingState := sWait
-      }
-
-    }
-  }
-  val AluRes = MuxLookup(useop, src1+src2,Seq(
+  val AluRes = MuxLookup(op, src1+src2,Seq(
     OpType.ADD  -> (src1+src2),
     //OpType.ADDW -> func.SignExt(func.Mask((src1+src2),"x0000ffff".U),32),
     OpType.SUB  -> (src1-src2),
-    OpType.MUL  -> MulDivRes,//(src1*src2),
-    OpType.DIVS -> MulDivRes,//(src1.asSInt/src2.asSInt).asUInt,
-    OpType.DIV  -> MulDivRes,//(src1.asUInt/src2.asUInt).asUInt,
+    OpType.MUL  -> (src1*src2),
+    OpType.DIVS -> (src1.asSInt/src2.asSInt).asUInt,
+    OpType.DIV  -> (src1.asUInt/src2.asUInt).asUInt,
     OpType.REMS -> (src1.asSInt%src2.asSInt).asUInt,
     OpType.REM  -> (src1.asUInt%src2.asUInt).asUInt,
     OpType.SLTU -> (src1.asUInt < src2.asUInt),
@@ -181,7 +90,7 @@ class EXU extends Module{
     OpType.OR   -> (src1 | src2),
     OpType.XOR  -> (src1 ^ src2)
   ))
-  val maskRes = MuxLookup(usealumask, AluRes,Seq(
+  val maskRes = MuxLookup(io.id.alumask, AluRes,Seq(
     "b11111".U   -> AluRes,
     "b10111".U   ->func.SignExt(func.Mask((AluRes),"x00000000ffffffff".U),32),
     "b10011".U   ->func.SignExt(func.Mask((AluRes),"x000000000000ffff".U),16),
@@ -194,12 +103,11 @@ class EXU extends Module{
   //printf(p"AluRes=0x${Hexadecimal(AluRes)} wflag:  ${io.id.wflag}\n")
   //io.EXLS.rddata:= maskRes
   io.EXLS.alures := maskRes
-  //io.EXLS.writeaddr :=  maskRes
-  //io.EXLS.readaddr := maskRes
+  io.EXLS.writeaddr :=  maskRes
+  io.EXLS.readaddr := maskRes
   io.EXLS.pc := io.id.pc
   io.EXLS.NextPc := io.id.NextPc
   io.EXLS.RegFileIO.wdata := maskRes
-  io.PC.Exuvalid := !(io.AluBusy) & !(io.MulU.MulValid || io.DivU.DivValid)
   //io.EXLS.CsrWb.CSR.mepc := Mux(io.id.CsrExuChoose(0),maskRes,io.id.CsrWb.CSR.mepc)
   //io.EXLS.CsrWb.CSR.mcause := Mux(io.id.CsrExuChoose(1),maskRes,io.id.CsrWb.CSR.mcause)
   //io.EXLS.CsrWb.CSR.mtvec := Mux(io.id.CsrExuChoose(2),maskRes,io.id.CsrWb.CSR.mtvec)

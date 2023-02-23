@@ -15,14 +15,10 @@ class LSU extends Module{
 //}
       val LSCLINT = new Lsu2Clint
       val PC = new Lsu2pc
-      val NPC = new Lsu2Npc
       //val Lsuvalid = Output(Bool())
   })
-  io.NPC.instvalid := io.EXLS.instvalid
-  val EXLSreadaddr = io.EXLS.alures
-  val EXLSwriteaddr = io.EXLS.alures
-  val CLINTREAD  = (EXLSreadaddr< parm.CLINTEND.U) && (EXLSreadaddr>=parm.CLINTBASE.U)
-  val CLINTWRITE = (EXLSwriteaddr< parm.CLINTEND.U) && (EXLSwriteaddr>=parm.CLINTBASE.U)
+  val CLINTREAD  = (io.EXLS.readaddr< parm.CLINTEND.U) && (io.EXLS.readaddr>=parm.CLINTBASE.U)
+  val CLINTWRITE = (io.EXLS.writeaddr< parm.CLINTEND.U) && (io.EXLS.writeaddr>=parm.CLINTBASE.U)
   val readdata = Wire(UInt(parm.REGWIDTH.W))
   val LsuDpidata = Wire(UInt(parm.REGWIDTH.W))
   LsuDpidata := 0.U
@@ -41,8 +37,8 @@ class LSU extends Module{
   io.Cache.Cache.wstrb := 0.U
   io.SkipRef := false.B
   if(parm.DIFFTEST){
-      val readskip = (EXLSreadaddr< parm.PMEM_RIGHT.U) && (EXLSreadaddr>=parm.PMEM_LEFT.U)
-      val writeskip= (EXLSwriteaddr< parm.PMEM_RIGHT.U) && (EXLSwriteaddr>=parm.PMEM_LEFT.U)
+      val readskip = (io.EXLS.readaddr< parm.PMEM_RIGHT.U) && (io.EXLS.readaddr>=parm.PMEM_LEFT.U)
+      val writeskip= (io.EXLS.writeaddr< parm.PMEM_RIGHT.U) && (io.EXLS.writeaddr>=parm.PMEM_LEFT.U)
       io.SkipRef := (!readskip& io.EXLS.rflag)| (!writeskip&io.EXLS.wflag)
   }
   if(parm.MODE == "single"){
@@ -50,8 +46,8 @@ class LSU extends Module{
       val LsuDPI = Module(new LSUDPI) 
       LsuDPI.io.wflag := io.EXLS.wflag & !CLINTWRITE
       LsuDPI.io.rflag := io.EXLS.rflag & !CLINTREAD
-      LsuDPI.io.raddr := EXLSreadaddr  
-      LsuDPI.io.waddr := EXLSwriteaddr 
+      LsuDPI.io.raddr := io.EXLS.readaddr  
+      LsuDPI.io.waddr := io.EXLS.writeaddr 
       LsuDPI.io.wdata := io.EXLS.writedata 
       LsuDPI.io.wmask := io.EXLS.wmask 
       LsuDpidata := LsuDPI.io.rdata
@@ -64,7 +60,7 @@ class LSU extends Module{
     val ReadState = RegInit(readWait)
     //Intial
     io.LSRAM.Axi.ar.valid := false.B
-    io.LSRAM.Axi.ar.bits.addr := EXLSreadaddr
+    io.LSRAM.Axi.ar.bits.addr := io.EXLS.readaddr
     io.LSRAM.Axi.ar.bits.len  := 0.U
     io.LSRAM.Axi.ar.bits.size := 3.U
     io.LSRAM.Axi.ar.bits.burst := "b01".U 
@@ -87,12 +83,12 @@ class LSU extends Module{
         io.LSRAM.Axi.r.ready  := false.B
         //fire = ready & valid
         when(io.LSRAM.Axi.ar.fire){
-          io.LSRAM.Axi.ar.bits.addr := EXLSreadaddr
-          RdAddrReg := EXLSreadaddr
+          io.LSRAM.Axi.ar.bits.addr := io.EXLS.readaddr
+          RdAddrReg := io.EXLS.readaddr
           LsumaskReg := io.EXLS.lsumask
           chooseReg := io.EXLS.choose
           IoRegfile := io.EXLS.RegFileIO
-          RdAddrReg := EXLSreadaddr
+          RdAddrReg := io.EXLS.readaddr
           //RegRaddr        := io.LSRAM.Axi.ar.bits.addr
           ReadState  := read
           LsuBusyReg :=1.U
@@ -102,7 +98,7 @@ class LSU extends Module{
           LsumaskReg := io.EXLS.lsumask
           chooseReg := io.EXLS.choose
           IoRegfile := io.EXLS.RegFileIO
-          RdAddrReg := EXLSreadaddr
+          RdAddrReg := io.EXLS.readaddr
           LsuBusyReg :=1.U
         }
       }
@@ -134,7 +130,7 @@ class LSU extends Module{
         io.LSRAM.Axi.aw.valid := io.EXLS.wflag & io.SkipRef
         io.LSRAM.Axi.w.valid := false.B
         when(io.LSRAM.Axi.aw.fire){
-          io.LSRAM.Axi.aw.bits.addr := EXLSwriteaddr
+          io.LSRAM.Axi.aw.bits.addr := io.EXLS.writeaddr
           WrDataReg :=  io.EXLS.writedata
           WrMaskReg := io.EXLS.wmask
           WriteState := sWrite
@@ -142,7 +138,7 @@ class LSU extends Module{
         }.elsewhen(io.LSRAM.Axi.aw.valid){
           WrDataReg := io.EXLS.writedata
           WrMaskReg := io.EXLS.wmask
-          RdAddrReg := EXLSwriteaddr
+          RdAddrReg := io.EXLS.writeaddr
           WriteState := sWriteReady
           LsuBusyReg :=1.U
         }
@@ -178,12 +174,12 @@ class LSU extends Module{
       //不知道Op这样写有没有问题
       io.Cache.Cache.op    := (io.EXLS.wflag) & (!io.EXLS.rflag)
       when(io.EXLS.wflag& !CLINTREAD){
-        io.Cache.Cache.addr  := EXLSwriteaddr 
+        io.Cache.Cache.addr  := io.EXLS.writeaddr 
         io.Cache.Cache.wdata := io.EXLS.writedata 
         io.Cache.Cache.wstrb := io.EXLS.wmask 
         LsuBusyReg := 1.U
       }.elsewhen(io.EXLS.rflag& !CLINTREAD){
-        io.Cache.Cache.addr := EXLSreadaddr
+        io.Cache.Cache.addr := io.EXLS.readaddr
         LsuBusyReg := 1.U
       }.otherwise{
         io.Cache.Cache.addr := 0.U
@@ -237,8 +233,8 @@ class LSU extends Module{
   io.LSWB.NextPc := io.EXLS.NextPc
   io.LSCLINT.Clintls.wen    := io.EXLS.wflag
   io.LSCLINT.Clintls.ren    := io.EXLS.rflag 
-  io.LSCLINT.Clintls.raddr  := EXLSreadaddr 
-  io.LSCLINT.Clintls.waddr  := EXLSwriteaddr
+  io.LSCLINT.Clintls.raddr  := io.EXLS.readaddr 
+  io.LSCLINT.Clintls.waddr  := io.EXLS.writeaddr
   io.LSCLINT.Clintls.wdata  := io.EXLS.writedata
 
   io.PC.Lsuvalid := Mux((io.EXLS.rflag|io.EXLS.wflag) & !CLINTREAD,0.U,!LsuBusyReg)
