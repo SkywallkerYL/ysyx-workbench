@@ -95,8 +95,14 @@ class  RiscvCpu extends Module{
 //ID_EX
     //val Id_Ex = Module(new ID_EX())
     //Idu.io.
+
+    
     Exu.io.id <> Idu.io.idex  // RegEnable
 //EXU
+    val DivU = Module(new Divder)
+    val MulU = Module(new Multi)
+    Exu.io.DivU <> DivU.io.Exu
+    Exu.io.MulU <> MulU.io.Exu
     //val Exu = Module(new EXU())
 //EX_LS
     //Lsu部分接入流水线
