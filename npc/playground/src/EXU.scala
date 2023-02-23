@@ -62,7 +62,7 @@ class EXU extends Module{
   //alu.io.func3 := io.func3_i 
   io.EXLS.alures := 0.U
 
-
+  io.EXLS.instvalid := io.id.instvalid
   io.EXLS.wflag := io.id.wflag
   io.EXLS.rflag := io.id.rflag
   io.EXLS.writedata := io.id.rs2

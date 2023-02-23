@@ -15,8 +15,10 @@ class LSU extends Module{
 //}
       val LSCLINT = new Lsu2Clint
       val PC = new Lsu2pc
+      val NPC = new Lsu2Npc
       //val Lsuvalid = Output(Bool())
   })
+  io.NPC.instvalid := io.EXLS.instvalid
   val EXLSreadaddr = io.EXLS.alures
   val EXLSwriteaddr = io.EXLS.alures
   val CLINTREAD  = (EXLSreadaddr< parm.CLINTEND.U) && (EXLSreadaddr>=parm.CLINTBASE.U)

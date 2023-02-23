@@ -53,7 +53,7 @@ class  RiscvCpu extends Module{
     //printf(p"addr=${addr} instr=0x${Hexadecimal(M(addr))} \n")
     //printf(p"pc=0x${Hexadecimal(PcRegOut)} instr=0x${Hexadecimal(instr)}\n")
     NpcMux.io.IDNPC <> Idu.io.IDNPC
-
+    NpcMux.io.LSNPC <> Lsu.io.NPC
     //val resetflag = PcReg.io.pc_o === 0.U
     //PcReg.io.pc_i := NpcMux.io.NPC
     PcRegOut := PcReg.io.PcIf.pc
@@ -126,6 +126,7 @@ class  RiscvCpu extends Module{
     Lsu.io.Cache <> DCache.io.Cache
     DCache.io.pc := Ifu.io.IFID.pc
     Lsu.io.PC <> PcReg.io.LSU
+    
     Lsu.io.LSRAM.Axi <> SRAMDEV.io.Sram//SRAMLSU.io.Sram
 // CLINT
     Clint.io.LsuIn <> Lsu.io.LSCLINT

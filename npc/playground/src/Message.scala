@@ -89,6 +89,7 @@ class Idu2Exu extends Bundle{
     val src2mask    = Output(UInt(parm.MaskWidth.W))
     val CsrWb       = new CSRWB
     val NextPc      = Output(UInt(parm.PCWIDTH.W))
+    val instvalid   = Output(Bool())
 }
 //EX --- LS
 class Exu2Lsu extends Bundle{
@@ -98,6 +99,7 @@ class Exu2Lsu extends Bundle{
     val RegFileIO   = new REGFILEIO
     val wflag       = Output(Bool())
     val rflag       = Output(Bool())
+    val instvalid   = Output(Bool())
     //val readaddr    = Output(UInt(parm.REGWIDTH.W))
     //val writeaddr   = Output(UInt(parm.REGWIDTH.W))
     val writedata   = Output(UInt(parm.REGWIDTH.W))
@@ -119,6 +121,9 @@ class Lsu2Wbu extends Bundle{
     val CsrWb   = new CSRWB
     val pc      = Output(UInt(parm.PCWIDTH.W))
     val NextPc  = Output(UInt(parm.PCWIDTH.W))
+}
+class Lsu2Npc extends Bundle{
+    val instvalid = Output(Bool())
 }
 //LS --- SRAM
 class Lsu2Sram extends Bundle{
