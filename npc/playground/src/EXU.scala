@@ -46,8 +46,8 @@ class EXU extends Module{
     val io = IO(new Bundle {
     val id = Flipped(new Idu2Exu)
     val EXLS = new Exu2Lsu
-    val MulU = new MultiIO
-    val DivU = new DivIO
+    val MulU = Flipped(new MultiIO)
+    val DivU = Flipped(new DivIO)
     val AluBusy = Output(Bool())
     val AluValid = Output(Bool())
   })
