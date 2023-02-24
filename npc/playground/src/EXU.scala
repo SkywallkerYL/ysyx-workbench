@@ -56,6 +56,8 @@ class EXU extends Module{
     val ReadyLS =  Flipped(new Lsu2Exu)
   })
   io.EXLS.pc := io.id.pc
+  io.EXLS.inst := io.id.inst
+  io.EXLS.valid := io.id.valid
   io.EXLS.NextPc := io.id.NextPc
   //io.instr_o := io.instr_i
   io.EXLS.rs2 := io.id.rs2

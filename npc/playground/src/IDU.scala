@@ -31,6 +31,8 @@ class IDU extends Module{
     io.IDRegFile.raddr2 := io.IFID.inst(24,20)
     val shamt = io.IFID.inst(25,20)
     io.idex.pc := io.IFID.pc
+    io.idex.inst := io.IFID.inst
+    io.idex.valid := io.IFID.instvalid
     io.idex.rdaddr := io.IFID.inst(11,7)
     io.idex.rs1 := io.RegFileID.rdata1
     io.idex.rs2 := io.RegFileID.rdata2
