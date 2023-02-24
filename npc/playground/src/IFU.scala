@@ -19,7 +19,8 @@ class IFU extends Module{
     //val IFRAM = new Ifu2Sram  //Flipped((new Axi4LiteRAMIO))
 
   })
-  io.ReadyPC.ready := io.ReadyID.ready
+  //dataok 来的时候表面ifu以及可以取下一个周期了的了，可以通知pc_reg更新pc了
+  io.ReadyPC.ready := io.Cache.Cache.dataok
   //io.IFID.inst := io.instr_i
   io.IFID.pc   := io.PcIf.pc
   //READ
@@ -70,7 +71,7 @@ class IFU extends Module{
     //io.instvalid := io.Cache.Cache.dataok
   }
 
-  io.Cache.Cache.valid := io.PcIf.pcvalid
+  io.Cache.Cache.valid := io.ReadyID.ready
   io.Cache.Cache.op    := false.B
   io.Cache.Cache.addr  := io.PcIf.pc
   io.Cache.Cache.wdata := 0.U

@@ -32,7 +32,7 @@
 
 #define VGA
 
-//#define WAVE
+#define WAVE
 
 #define WAVE_BEGIN 0
 #define WAVE_END   10000
