@@ -203,7 +203,7 @@ class EXU extends Module{
   io.EXLS.NextPc := io.id.NextPc
   io.EXLS.RegFileIO.wdata := maskRes
   io.PC.Exuvalid := !(io.AluBusy) & !(io.MulU.MulValid || io.DivU.DivValid)
-  io.ReadyID := io.ReadyLS & !(io.AluBusy) & !(io.MulU.MulValid || io.DivU.DivValid)
+  io.ReadyID := io.ReadyLS && (!(io.AluBusy)) && (!(io.MulU.MulValid || io.DivU.DivValid))
   //io.EXLS.CsrWb.CSR.mepc := Mux(io.id.CsrExuChoose(0),maskRes,io.id.CsrWb.CSR.mepc)
   //io.EXLS.CsrWb.CSR.mcause := Mux(io.id.CsrExuChoose(1),maskRes,io.id.CsrWb.CSR.mcause)
   //io.EXLS.CsrWb.CSR.mtvec := Mux(io.id.CsrExuChoose(2),maskRes,io.id.CsrWb.CSR.mtvec)

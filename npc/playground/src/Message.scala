@@ -121,7 +121,7 @@ class Exu2Lsu extends Bundle{
     val wmask       = Output(UInt(parm.BYTEWIDTH.W))
     val choose      = Output(UInt(parm.RegFileChooseWidth.W))
     val lsumask     = Output(UInt(parm.MaskWidth.W))
-    val pc          = Output(UInt(parm.PCWIDTH.W))
+    //val pc          = Output(UInt(parm.PCWIDTH.W))
     val NextPc      = Output(UInt(parm.PCWIDTH.W))
 }
 class Lsu2Exu extends  Bundle{
