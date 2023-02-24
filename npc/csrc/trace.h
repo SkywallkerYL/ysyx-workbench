@@ -163,6 +163,7 @@ void instr_tracelog(bool flag){
     Decode s;
     //printf("No file!!!!\n");
     s.pc = Pc_Fetch();
+    printf("pc: %lx\n",s.pc);
     s.dnpc = Dnpc_Fetch();
     //printf("No file!!!!\n");
     FILE *file;

@@ -86,7 +86,7 @@ class  RiscvCpu extends Module{
     Ifu.io.ReadyID <> Idu.io.ReadyIF
 //pipline  流水化
     val IfidEnable = true.B
-    val IfidReg = RegEnable(Ifu.io.IFID,true.B)
+    val IfidReg = RegEnable(Ifu.io.IFID,IfidEnable)
     Idu.io.IFID := Mux(Idu.io.ReadyIF.ready,IfidReg,0.U.asTypeOf(new Ifu2Idu))
     //If_Id.io.nop := NpcMux.io.NOP
 // regfile

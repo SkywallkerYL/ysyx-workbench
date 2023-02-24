@@ -13,10 +13,11 @@ class PC_REG extends Module{
     val PcIf  = (new Pc2Ifu)
     val ReadyIF = Flipped(new Ifu2PcReg)
   })
+  //检测到Jal 指令的时候，npc要进行跳转，同时把jal的pc写进reg里面
   val reg = RegInit(parm.INITIAL_PC.U(parm.PCWIDTH.W))
-  reg := Mux(io.ReadyIF.ready,io.NPC.npc,reg)
+  reg := Mux(io.ReadyIF.ready || io.NPC.pcjal,io.NPC.npc,reg)
   io.RegPc.RegPc := reg
-  io.PcIf.pc := reg
+  io.PcIf.pc := Mux(io.NPC.pcjal,io.NPC.npc,reg)
   //ifu 取完一条指令后，通知pc_reg 更新pc，即dataok的时候，此时，正好下一个周期新的Pc进来
   /*
   //pcvalid 要等到ifu取道指令   lsu空闲才能拉高

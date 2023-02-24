@@ -62,7 +62,7 @@ class EXU extends Module{
   //io.instr_o := io.instr_i
   io.EXLS.rs2 := io.id.rs2
   io.EXLS.RegFileIO.waddr := io.id.rdaddr
-  io.EXLS.RegFileIO.wen   := io.id.rden
+  io.EXLS.RegFileIO.wen   := io.id.rden // 这里命名的时候歧义了，其实是wen的信号
   //val alu = Module (new ALU(parm.REGWIDTH))
   //alu.io.func3 := io.func3_i 
   io.EXLS.alures := 0.U

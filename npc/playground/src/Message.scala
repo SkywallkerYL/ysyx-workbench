@@ -55,6 +55,7 @@ class Npc2Idu extends Bundle{
 //NPCMUX --- PCREG
 class Npc2Pcreg extends Bundle{
     val npc     = Output(UInt(parm.PCWIDTH.W))
+    val pcjal   = Output(Bool())
     val pcvalid = Output(Bool())
 }
 class Pcreg2Npc extends Bundle{
