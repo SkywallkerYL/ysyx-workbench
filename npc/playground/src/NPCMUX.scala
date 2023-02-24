@@ -34,7 +34,6 @@ class NPCMUX extends Module{
   //io.NPC := Mux(io.NOP,jumppc,pc_4)
   //io.NPC.npc := Mux(io.PcEnable,Mux(io.NOP,jumppc,pc_4),io.RegPc.RegPc)
   io.NPC.npc := Mux(io.NOP,jumppc,pc_4)
-  io.NPC.pcjal := io.IDNPC.jal=/=0.U
   io.NPC.pcvalid :=  Mux(io.NOP,io.IDNPC.instvalid,io.LSNPC.instvalid)
   io.NPCId.NextPc := io.NPC.npc
 

@@ -16,13 +16,8 @@ class LSU extends Module{
       val LSCLINT = new Lsu2Clint
       val PC = new Lsu2pc
       val NPC = new Lsu2Npc
-
-      val ReadyEX = new Lsu2Exu
-      val ReadyWB = Flipped(new Wbu2Lsu)
       //val Lsuvalid = Output(Bool())
   })
-  io.LSWB.inst := io.EXLS.inst
-  io.LSWB.valid := io.EXLS.valid
   io.NPC.instvalid := io.EXLS.instvalid
   val EXLSreadaddr = io.EXLS.alures
   val EXLSwriteaddr = io.EXLS.alures
@@ -247,5 +242,4 @@ class LSU extends Module{
   io.LSCLINT.Clintls.wdata  := io.EXLS.writedata
 
   io.PC.Lsuvalid := Mux((io.EXLS.rflag|io.EXLS.wflag) & !CLINTREAD,0.U,!LsuBusyReg)
-  io.ReadyEX.ready := !((io.EXLS.rflag|io.EXLS.wflag) & !CLINTREAD) & !LsuBusyReg & io.ReadyWB.ready
 }

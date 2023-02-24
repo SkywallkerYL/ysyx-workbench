@@ -2,14 +2,14 @@ package npc
 
 import chisel3._
 import chisel3.util._
-// pc and inst 一直传递，方便debug
+
 //These signals will be used in Decoupled
 //so it can only be one direction
 //This file define the Message between each module
 //PCReg ---- IF
 class Pc2Ifu extends Bundle{
   val pc        = Output(UInt(parm.PCWIDTH.W))
-  //val pcvalid   = Output(Bool())
+  val pcvalid   = Output(Bool())
 }
 //IF --- SRAM
 class Ifu2Sram extends Bundle{
@@ -25,17 +25,11 @@ class Cache2Sram extends Bundle{
 class Ifu2Npc extends Bundle{
     val instvalid = Output(Bool())
 }
-class Ifu2PcReg extends Bundle{
-    val ready = Output(Bool())
-}
 //IF --- ID
 class Ifu2Idu extends Bundle{
   val inst = Output(UInt(parm.INSTWIDTH.W))
   val pc   = Output(UInt(parm.PCWIDTH.W))
   val instvalid = Output(Bool())
-}
-class Idu2Ifu extends Bundle{
-    val ready = Output(Bool())
 }
 //ID --- NPCMUX
 class Idu2Npc extends Bundle{
@@ -55,7 +49,6 @@ class Npc2Idu extends Bundle{
 //NPCMUX --- PCREG
 class Npc2Pcreg extends Bundle{
     val npc     = Output(UInt(parm.PCWIDTH.W))
-    val pcjal   = Output(Bool())
     val pcvalid = Output(Bool())
 }
 class Pcreg2Npc extends Bundle{
@@ -80,9 +73,6 @@ class Regfile2Idu extends Bundle{
 //ID --- EX
 class Idu2Exu extends Bundle{
     val pc          = Output(UInt(parm.PCWIDTH.W))
-    val inst        = Output(UInt(parm.INSTWIDTH.W))
-    val valid       = Output(Bool())
-
     val rs1         = Output(UInt(parm.REGWIDTH.W))
     val rs2         = Output(UInt(parm.REGWIDTH.W))
     val imm         = Output(UInt(parm.REGWIDTH.W))
@@ -101,14 +91,8 @@ class Idu2Exu extends Bundle{
     val NextPc      = Output(UInt(parm.PCWIDTH.W))
     val instvalid   = Output(Bool())
 }
-class Exu2Idu extends Bundle{
-    val ready = Output(Bool())
-}
 //EX --- LS
 class Exu2Lsu extends Bundle{
-    val pc          = Output(UInt(parm.REGWIDTH.W))
-    val inst        = Output(UInt(parm.INSTWIDTH.W))
-    val valid       = Output(Bool())
     val rs2         = Output(UInt(parm.REGWIDTH.W))
     val alures      = Output(UInt(parm.REGWIDTH.W))
     val CsrWb       = new CSRWB
@@ -122,11 +106,8 @@ class Exu2Lsu extends Bundle{
     val wmask       = Output(UInt(parm.BYTEWIDTH.W))
     val choose      = Output(UInt(parm.RegFileChooseWidth.W))
     val lsumask     = Output(UInt(parm.MaskWidth.W))
-    //val pc          = Output(UInt(parm.PCWIDTH.W))
+    val pc          = Output(UInt(parm.PCWIDTH.W))
     val NextPc      = Output(UInt(parm.PCWIDTH.W))
-}
-class Lsu2Exu extends  Bundle{
-    val ready = Output(Bool())
 }
 class Exu2pc extends Bundle{
     val Exuvalid = Output(Bool())
@@ -139,12 +120,7 @@ class Lsu2Wbu extends Bundle{
     val AluRes  = Output(UInt(parm.REGWIDTH.W))
     val CsrWb   = new CSRWB
     val pc      = Output(UInt(parm.PCWIDTH.W))
-    val inst    = Output(UInt(parm.INSTWIDTH.W))
-    val valid   = Output(Bool())
     val NextPc  = Output(UInt(parm.PCWIDTH.W))
-}
-class Wbu2Lsu extends Bundle{
-    val ready = Output(Bool())
 }
 class Lsu2Npc extends Bundle{
     val instvalid = Output(Bool())

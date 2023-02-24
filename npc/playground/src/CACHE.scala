@@ -91,7 +91,7 @@ class CpuCache(Icache : Boolean = false,Debug : Boolean =false) extends Module w
     //Mem 是同步写，异步读，会被综合成触发器，
     //不同的block例化到同一个mem里是不合理的，因为会在一个周期内收集好几个Block的数据，这样的话，在同一个
     //会导致在同一个周期内，对不同的地址进行读写，这样子就不符实际，因此代码也会出现难以理解的行为
-    //mem采用ReadMem实现的话，数据读出会有问题，目前还不知道为啥，暂时用mem实现
+    //mem采用ReadMem实现的话，数据读出会有问题，目前还不知道为啥，暂时用寄存器实现
     val mem = (Seq.fill(GroupNum*BlockNum)(Mem(AssoNum,UInt(DataWidth.W))))
 
     //tag 实例化Assonum块 深度为Groupnum 的宽度为

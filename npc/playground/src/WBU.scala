@@ -15,10 +15,7 @@ class WBU extends Module{
 
       //CLINT
       val CLINTWB = Flipped((new Clint2Wbu))
-
-      val ReadyLS = new Wbu2Lsu
   })
-    io.ReadyLS.ready := true.B
     val CSR = MuxLookup(io.LSWB.CsrWb.CsrAddr, 0.U(parm.REGWIDTH.W),Seq(    
       "b00000001".U    ->io.REGWB.CSRs.mepc,
       "b00000010".U    ->io.REGWB.CSRs.mcause,

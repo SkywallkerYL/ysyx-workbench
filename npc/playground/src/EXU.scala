@@ -51,18 +51,13 @@ class EXU extends Module{
     val AluBusy = Output(Bool())
     val AluValid = Output(Bool())
     val PC = new Exu2pc
-
-    val ReadyID = new Exu2Idu
-    val ReadyLS =  Flipped(new Lsu2Exu)
   })
   io.EXLS.pc := io.id.pc
-  io.EXLS.inst := io.id.inst
-  io.EXLS.valid := io.id.valid
   io.EXLS.NextPc := io.id.NextPc
   //io.instr_o := io.instr_i
   io.EXLS.rs2 := io.id.rs2
   io.EXLS.RegFileIO.waddr := io.id.rdaddr
-  io.EXLS.RegFileIO.wen   := io.id.rden // 这里命名的时候歧义了，其实是wen的信号
+  io.EXLS.RegFileIO.wen   := io.id.rden
   //val alu = Module (new ALU(parm.REGWIDTH))
   //alu.io.func3 := io.func3_i 
   io.EXLS.alures := 0.U
@@ -205,7 +200,6 @@ class EXU extends Module{
   io.EXLS.NextPc := io.id.NextPc
   io.EXLS.RegFileIO.wdata := maskRes
   io.PC.Exuvalid := !(io.AluBusy) & !(io.MulU.MulValid || io.DivU.DivValid)
-  io.ReadyID.ready := io.ReadyLS.ready && (!(io.AluBusy)) && (!(io.MulU.MulValid || io.DivU.DivValid))
   //io.EXLS.CsrWb.CSR.mepc := Mux(io.id.CsrExuChoose(0),maskRes,io.id.CsrWb.CSR.mepc)
   //io.EXLS.CsrWb.CSR.mcause := Mux(io.id.CsrExuChoose(1),maskRes,io.id.CsrWb.CSR.mcause)
   //io.EXLS.CsrWb.CSR.mtvec := Mux(io.id.CsrExuChoose(2),maskRes,io.id.CsrWb.CSR.mtvec)
