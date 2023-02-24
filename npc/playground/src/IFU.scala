@@ -8,13 +8,19 @@ import chisel3.util._
 class IFU extends Module{
     val io = IO(new Bundle {
     val PcIf  = Flipped((new Pc2Ifu))
+    val ReadyID = Flipped(new Idu2Ifu)
+    val ReadyPC = new Ifu2PcReg
     val instr_i = Input(UInt(parm.INSTWIDTH.W))
     val IFID  = new Ifu2Idu
     //val IFNPC = new Ifu2Npc
     val Cache = new Cpu2Cache 
+
+
     //val IFRAM = new Ifu2Sram  //Flipped((new Axi4LiteRAMIO))
 
   })
+  //dataok 来的时候表面ifu以及可以取下一个周期了的了，可以通知pc_reg更新pc了
+  io.ReadyPC.ready := io.Cache.Cache.dataok
   //io.IFID.inst := io.instr_i
   io.IFID.pc   := io.PcIf.pc
   //READ
@@ -65,7 +71,7 @@ class IFU extends Module{
     //io.instvalid := io.Cache.Cache.dataok
   }
 
-  io.Cache.Cache.valid := io.PcIf.pcvalid
+  io.Cache.Cache.valid := io.ReadyID.ready
   io.Cache.Cache.op    := false.B
   io.Cache.Cache.addr  := io.PcIf.pc
   io.Cache.Cache.wdata := 0.U
