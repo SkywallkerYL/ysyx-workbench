@@ -112,6 +112,7 @@ class  RiscvCpu extends Module{
     Exu.io.DivU <> DivU.io.Exu
     Exu.io.MulU <> MulU.io.Exu
     Exu.io.PC <> PcReg.io.EXU
+    Exu.io.ReadyLS <> Lsu.io.ReadyEX
     //val Exu = Module(new EXU())
 //EX_LS
     //Lsu部分接入流水线
