@@ -8,13 +8,18 @@ import chisel3.util._
 class IFU extends Module{
     val io = IO(new Bundle {
     val PcIf  = Flipped((new Pc2Ifu))
+    val ReadyID = Flipped(new Idu2Ifu)
+    val ReadyPC = new Ifu2PcReg
     val instr_i = Input(UInt(parm.INSTWIDTH.W))
     val IFID  = new Ifu2Idu
     //val IFNPC = new Ifu2Npc
     val Cache = new Cpu2Cache 
+
+
     //val IFRAM = new Ifu2Sram  //Flipped((new Axi4LiteRAMIO))
 
   })
+  io.ReadyPC.ready := io.ReadyID.ready
   //io.IFID.inst := io.instr_i
   io.IFID.pc   := io.PcIf.pc
   //READ

@@ -59,9 +59,11 @@ class  RiscvCpu extends Module{
     PcRegOut := PcReg.io.PcIf.pc
     PcReg.io.RegPc <> NpcMux.io.RegPc
     NpcMux.io.NPC  <> PcReg.io.NPC
+    PcReg.io.ReadyIF <> Ifu.io.ReadyPC
     //NpcMux.io.PcEnable := Ifu.io.instvalid & Lsu.io.Lsuvalid
 //ifu
     //val Ifu = Module(new IFU())
+    
     PcReg.io.PcIf  <> Ifu.io.PcIf
     Ifu.io.Cache <> ICache.io.Cache
     
@@ -81,7 +83,11 @@ class  RiscvCpu extends Module{
         //Ifu.io.IFRAM <> SRAM.io.Sram
     }
 //if_id
-    Idu.io.IFID  <> Ifu.io.IFID 
+    Ifu.io.ReadyID <> Idu.io.ReadyIF
+//pipline  流水化
+    val IfidEnable = true.B
+    val IfidReg = RegEnable(Ifu.io.IFID,true.B)
+    Idu.io.IFID := Mux(Idu.io.ReadyIF.ready,IfidReg,0.U.asTypeOf(new Ifu2Idu))
     //If_Id.io.nop := NpcMux.io.NOP
 // regfile
     Regfile.io.IDRegFile <> Idu.io.IDRegFile
@@ -95,9 +101,11 @@ class  RiscvCpu extends Module{
 //ID_EX
     //val Id_Ex = Module(new ID_EX())
     //Idu.io.
-
+    Idu.io.ReadyEX := Exu.io.ReadyID
+    val IdexEnable = true.B
+    val IdexReg = RegEnable(Idu.io.idex,IdexEnable)
     
-    Exu.io.id <> Idu.io.idex  // RegEnable
+    Exu.io.id := Mux(Exu.io.ReadyID.ready,IdexReg,0.U.asTypeOf(new Exu2Idu))  // RegEnable
 //EXU
     val DivU = Module(new Divder)
     val MulU = Module(new Multi)
@@ -131,7 +139,12 @@ class  RiscvCpu extends Module{
 // CLINT
     Clint.io.LsuIn <> Lsu.io.LSCLINT
 //LS_WB
-    Wbu.io.LSWB <> Lsu.io.LSWB
+    Lsu.io.ReadyWB <> Wbu.io.ReadyLS
+    //流水线
+    // 
+    val LswbEnable = true.B
+    val LswbReg = RegEnable(Lsu.io.LSWB,LswbEnable)
+    Wbu.io.LSWB := Mux(Wbu.io.ReadyLS.ready,LswbReg,0.U.asTypeOf(new Lsu2Wbu))
 //WB
     Wbu.io.REGWB <>  Regfile.io.REGWB 
     Wbu.io.CLINTWB  := Clint.io.CLINTWB

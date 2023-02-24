@@ -11,6 +11,7 @@ class PC_REG extends Module{
     val EXU = Flipped(new Exu2pc)
     val RegPc = (new Pcreg2Npc)
     val PcIf  = (new Pc2Ifu)
+    val ReadyIF = Flipped(new Ifu2PcReg)
   })
   val reg = RegInit(parm.INITIAL_PC.U(parm.PCWIDTH.W))
   reg := Mux(io.NPC.pcvalid,io.NPC.npc,reg)
@@ -23,7 +24,9 @@ class PC_REG extends Module{
   switch(state){
     is(swait){
       when(io.NPC.pcvalid){
-        when(io.LSU.Lsuvalid&io.EXU.Exuvalid){
+        //io.LSU.Lsuvalid&io.EXU.Exuvalid
+        //io.ReadyIF.ready
+        when(io.ReadyIF.ready){
           state := valid
         }.otherwise{
           state := waitU
@@ -31,7 +34,9 @@ class PC_REG extends Module{
       }
     }
     is(waitU){
-      when(io.LSU.Lsuvalid&io.EXU.Exuvalid){
+      //io.LSU.Lsuvalid&io.EXU.Exuvalid
+      //io.ReadyIF.ready
+      when(io.ReadyIF.ready){
         state := valid
       }
     }

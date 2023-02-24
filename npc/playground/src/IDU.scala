@@ -18,7 +18,11 @@ class IDU extends Module{
     val IDNPC = new Idu2Npc
     val ebreak = Output(Bool())
     val instrnoimpl = Output(Bool())
+
+    val ReadyIF = new Idu2Ifu
+    val ReadyEX = Flipped(new Exu2Idu)
   })
+    io.ReadyIF.ready := io.ReadyEX.ready
     io.instrnoimpl := false.B;
     io.instr_o := io.IFID.inst
     io.pc_o := io.IFID.pc
