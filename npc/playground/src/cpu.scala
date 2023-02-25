@@ -96,6 +96,9 @@ class  RiscvCpu extends Module{
     还有就是寄存器什么时候写入上有模块的值，个人理解是下游的ready拉高的时候，表示下游模块这个周期可以处理完数据
     //并且下个周期能够接受新的数据，即可以写入上有模块的数据
 */
+    //ifu这里enable应该是取决于Ifu是否取到了有效的指令，
+    //因为这一条质量一定是可以数送给IDU的，因为其是在IDU ready的情况下发出的，表面idu以及处理完了读到的指令。
+    //个人认为ready信号的含义应该是告诉前一个模块，这个周期取到消息已经处理完成，可以发送下一个消息
     val IfidEnable = Idu.io.ReadyIF.ready
     val IfidReg = RegEnable(Ifu.io.IFID,IfidEnable)
     Idu.io.IFID := Mux(IfidReg.instvalid,IfidReg,0.U.asTypeOf(new Ifu2Idu))
