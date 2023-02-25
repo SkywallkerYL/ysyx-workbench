@@ -213,8 +213,8 @@ class  RiscvCpu extends Module{
     io.abort := Idu.io.instrnoimpl
     io.jalr := Idu.io.IDNPC.jal === 2.U
     if (parm.DIFFTEST){
-    io.SkipRef := Mux(difftest,false.B,true.B)//Wbu.io.debug.SkipRef//Lsu.io.SkipRef
-    }  else io.SkipRef := true.B
+    io.SkipRef := skipref//Mux(difftest,false.B,true.B)//Wbu.io.debug.SkipRef//Lsu.io.SkipRef
+    }  else io.SkipRef := false.B
     //io.res := Exu.io.expres
 
 }

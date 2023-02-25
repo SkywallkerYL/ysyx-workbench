@@ -233,9 +233,9 @@ static void execute(uint64_t n) {
     }
     else {
       if(top->io_difftestvalid){
-        uint64_t localpc = Pc_Fetch();
+        uint64_t localpc  = Pc_Fetch();
         uint64_t localnpc = Dnpc_Fetch();
-        //printf("localpc:0x%lx\n",localpc);
+        printf("localpc:0x%lx\n",localpc);
         difftest_step(localpc,localnpc);
       }
     }
