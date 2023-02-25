@@ -12,7 +12,7 @@ class  RiscvCpu extends Module{
         val abort = Output(Bool())
         val jalr = Output(Bool())
         val instvalid = Output(Bool())
-        val pcvalid = Output(Bool())
+        val difftestvalid = Output(Bool())
 //if (parm.DIFFTEST){
         val SkipRef = Output(Bool())
 //}
@@ -99,6 +99,7 @@ class  RiscvCpu extends Module{
     //ifu这里enable应该是取决于Ifu是否取到了有效的指令，
     //因为这一条质量一定是可以数送给IDU的，因为其是在IDU ready的情况下发出的，表面idu以及处理完了读到的指令。
     //个人认为ready信号的含义应该是告诉前一个模块，这个周期取到消息已经处理完成，可以发送下一个消息
+    //但是考虑到阻塞的情况，此时流水线应该是不能写入的，因此写使能还是以ready信号为准
     val IfidEnable = Idu.io.ReadyIF.ready
     val IfidReg = RegEnable(Ifu.io.IFID,IfidEnable)
     Idu.io.IFID := Mux(IfidReg.instvalid,IfidReg,0.U.asTypeOf(new Ifu2Idu))
@@ -194,14 +195,23 @@ class  RiscvCpu extends Module{
         srcdpi.io.imm := Wbu.io.debug.imm//Idu.io.idex.imm
     }
     //when it is not need ,it can be removed
+    //关于difftest   
+    /*
+    instvalid的周期表示指令已经到了WBU级，下一个周期完成对寄存器的写回
+    //而对于nemu，指令执行写回都是一个周期，即到了下一个周期寄存器的状态才能和nemu同步
+    //因此difftest的比较应该比instvalid延后一个周期，这样子
+    skipref也默认true 当instvalid的下一个周期时，才赋予skipref  
+    */
     io.instvalid := Wbu.io.debug.valid//Ifu.io.IFID.instvalid
-    io.pcvalid := false.B//PcReg.io.PcIf.pcvalid
+    val difftest = RegNext(Wbu.io.debug.valid,true.B)
+    val skipref  = RegNext(Wbu.io.debug.SkipRef,true.B)
+    io.difftestvalid := difftest//PcReg.io.PcIf.pcvalid
     io.halt := Wbu.io.debug.ebreak && (Regfile.io.a0data===0.U)//Idu.io.ebreak&&(Regfile.io.a0data===0.U)
     io.abort := Idu.io.instrnoimpl
     io.jalr := Idu.io.IDNPC.jal === 2.U
     if (parm.DIFFTEST){
-    io.SkipRef := Wbu.io.debug.SkipRef//Lsu.io.SkipRef
-    }  else io.SkipRef := false.B
+    io.SkipRef := Mux(difftest,skipref,true.B)//Wbu.io.debug.SkipRef//Lsu.io.SkipRef
+    }  else io.SkipRef := true.B
     //io.res := Exu.io.expres
 
 }
