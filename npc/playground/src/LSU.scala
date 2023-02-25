@@ -21,8 +21,12 @@ class LSU extends Module{
       val ReadyWB = Flipped(new Wbu2Lsu)
       //val Lsuvalid = Output(Bool())
   })
+  io.LSWB.SkipRef := io.SkipRef
   io.LSWB.inst := io.EXLS.inst
   io.LSWB.valid := io.EXLS.valid
+  io.LSWB.rs1 := io.EXLS.rs1
+  io.LSWB.imm := io.EXLS.imm
+  io.LSWB.rdaddr := io.EXLS.rdaddr
   io.NPC.instvalid := io.EXLS.instvalid
   val EXLSreadaddr = io.EXLS.alures
   val EXLSwriteaddr = io.EXLS.alures

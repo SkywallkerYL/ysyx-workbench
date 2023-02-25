@@ -172,27 +172,32 @@ class  RiscvCpu extends Module{
     Wbu.io.CLINTWB  := Clint.io.CLINTWB
     Wbu.io.Score <> ScoreB.io.WBU
 //out
+//  debug 个人认为这里额
+/*
+    以前单周期的时候，从哪个模块把信号拉出来都可以
+    现在是流水线了，应该以一条指令执行完成的那个模块为准，即WBU模块，从wbu这里把信号拉出去
+*/
     if(parm.DPI){
         val ebrdpi = Module(new ebreakDPI)
         ebrdpi.io.a := Idu.io.ebreak 
         val pcdpi = Module(new pcDPI)
-        pcdpi.io.pc := Idu.io.pc_o
-        pcdpi.io.dnpc := NpcMux.io.NPC.npc
+        pcdpi.io.pc := Wbu.io.debug.pc//Idu.io.pc_o
+        pcdpi.io.dnpc := Wbu.io.debug.NextPc//NpcMux.io.NPC.npc
         val instrdpi = Module(new InstrFetchDPI)
-        instrdpi.io.a := Idu.io.instr_o
+        instrdpi.io.a := Wbu.io.debug.inst//Idu.io.instr_o
         val srcdpi = Module(new SrcFetchDPI)
-        srcdpi.io.rs1 := Idu.io.IDRegFile.raddr1
-        srcdpi.io.rd := Idu.io.idex.rdaddr
-        srcdpi.io.imm := Idu.io.idex.imm
+        srcdpi.io.rs1 := Wbu.io.debug.rs1//Idu.io.IDRegFile.raddr1
+        srcdpi.io.rd := Wbu.io.debug.rdaddr//Idu.io.idex.rdaddr
+        srcdpi.io.imm := Wbu.io.debug.imm//Idu.io.idex.imm
     }
     //when it is not need ,it can be removed
-    io.instvalid := Ifu.io.IFID.instvalid
+    io.instvalid := Wbu.io.debug.valid//Ifu.io.IFID.instvalid
     io.pcvalid := false.B//PcReg.io.PcIf.pcvalid
-    io.halt := Idu.io.ebreak&&(Regfile.io.a0data===0.U)
+    io.halt := Wbu.io.debug.ebreak && (Regfile.io.a0data===0.U)//Idu.io.ebreak&&(Regfile.io.a0data===0.U)
     io.abort := Idu.io.instrnoimpl
     io.jalr := Idu.io.IDNPC.jal === 2.U
     if (parm.DIFFTEST){
-    io.SkipRef := Lsu.io.SkipRef
+    io.SkipRef := Wbu.io.debug.SkipRef//Lsu.io.SkipRef
     }  else io.SkipRef := false.B
     //io.res := Exu.io.expres
 

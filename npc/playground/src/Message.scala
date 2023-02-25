@@ -86,6 +86,7 @@ class Idu2Exu extends Bundle{
     val pc          = Output(UInt(parm.PCWIDTH.W))
     val inst        = Output(UInt(parm.INSTWIDTH.W))
     val valid       = Output(Bool())
+    val rs1addr     = Output(UInt(parm.REGADDRWIDTH.W))
 
     val rs1         = Output(UInt(parm.REGWIDTH.W))
     val rs2         = Output(UInt(parm.REGWIDTH.W))
@@ -110,9 +111,14 @@ class Exu2Idu extends Bundle{
 }
 //EX --- LS
 class Exu2Lsu extends Bundle{
+    //这写是为了后续debug方便添加的
     val pc          = Output(UInt(parm.REGWIDTH.W))
     val inst        = Output(UInt(parm.INSTWIDTH.W))
     val valid       = Output(Bool())
+    val rs1         = Output(UInt(parm.REGWIDTH.W))
+    val imm         = Output(UInt(parm.REGWIDTH.W))
+    val rdaddr      = Output(UInt(parm.REGADDRWIDTH.W))
+    
     val rs2         = Output(UInt(parm.REGWIDTH.W))
     val alures      = Output(UInt(parm.REGWIDTH.W))
     val CsrWb       = new CSRWB
@@ -144,6 +150,11 @@ class Lsu2Wbu extends Bundle{
     val CsrWb   = new CSRWB
     val pc      = Output(UInt(parm.PCWIDTH.W))
     val inst    = Output(UInt(parm.INSTWIDTH.W))
+    val SkipRef = Output(Bool())
+    val rs1         = Output(UInt(parm.REGWIDTH.W))
+    val imm         = Output(UInt(parm.REGWIDTH.W))
+    val rdaddr      = Output(UInt(parm.REGADDRWIDTH.W))
+    
     val valid   = Output(Bool())
     val NextPc  = Output(UInt(parm.PCWIDTH.W))
 }

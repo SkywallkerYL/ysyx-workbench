@@ -43,6 +43,7 @@ class IDU extends Module{
     io.idex.rdaddr := io.IFID.inst(11,7)
     io.idex.rs1 := io.RegFileID.rdata1
     io.idex.rs2 := io.RegFileID.rdata2
+    io.idex.rs1addr := io.IDRegFile.raddr1
     io.idex.rflag := 0.U
     io.idex.wflag := 0.U
     io.idex.wmask := 0.U(parm.BYTEWIDTH.W)

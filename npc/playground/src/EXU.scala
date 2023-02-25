@@ -61,6 +61,9 @@ class EXU extends Module{
   //拉低的操作在状态机内部处理
   io.EXLS.valid := io.id.valid 
   io.EXLS.NextPc := io.id.NextPc
+  io.EXLS.rs1 := io.id.rs1addr
+  io.EXLS.imm := io.id.imm
+  io.EXLS.rdaddr := io.id.rdaddr
   //io.instr_o := io.instr_i
   io.EXLS.rs2 := io.id.rs2
   io.EXLS.RegFileIO.waddr := io.id.rdaddr

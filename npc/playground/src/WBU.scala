@@ -3,7 +3,17 @@ import chisel3._
 import chisel3.util._
 import chisel3.util.HasBlackBoxInline
 
-
+class Debug extends Bundle{
+  val valid = Output(Bool())
+  val pc = Output(UInt(parm.REGWIDTH.W))
+  val NextPc  = Output(UInt(parm.PCWIDTH.W))
+  val inst = Output(UInt(parm.INSTWIDTH.W))
+  val SkipRef = Output(Bool())
+  val rs1         = Output(UInt(parm.REGWIDTH.W))
+  val imm         = Output(UInt(parm.REGWIDTH.W))
+  val rdaddr      = Output(UInt(parm.REGADDRWIDTH.W))
+  val ebreak  = Output(Bool())  
+}
 
 
 class WBU extends Module{
@@ -19,7 +29,18 @@ class WBU extends Module{
       val ReadyLS = new Wbu2Lsu
 
       val Score = new Wbu2Score
+      val debug = new Debug
+      
   })
+    io.debug.pc := io.LSWB.pc
+    io.debug.inst := io.LSWB.inst
+    io.debug.NextPc := io.LSWB.NextPc
+    io.debug.SkipRef := io.LSWB.SkipRef
+    io.debug.valid := io.LSWB.valid
+    io.debug.rs1 := io.LSWB.rs1
+    io.debug.imm := io.LSWB.imm
+    io.debug.rdaddr := io.LSWB.rdaddr
+    io.debug.ebreak := io.debug.inst === "x00100073".U
     io.ReadyLS.ready := true.B
     val CSR = MuxLookup(io.LSWB.CsrWb.CsrAddr, 0.U(parm.REGWIDTH.W),Seq(    
       "b00000001".U    ->io.REGWB.CSRs.mepc,
