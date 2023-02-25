@@ -181,7 +181,7 @@ class ScoreBoard extends Module{
     val IDU = Flipped(new Idu2Score)
     val WBU = Flipped(new Wbu2Score)
   })
-  val Busy = RegInit(0.U(parm.RegNumber.W))
+  val Busy =RegInit(VecInit(Seq.fill(parm.RegNumber)(false.B)))//RegInit(0.U(parm.RegNumber.W))
   when(io.IDU.WScore.wen){
     Busy(io.IDU.WScore.waddr) := 1.U
   }
