@@ -188,6 +188,8 @@ class ScoreBoard extends Module{
   when(io.WBU.WScore.wen){
     Busy(io.WBU.WScore.waddr) := 0.U
   }
+  io.IDU.RScore.busy1 := false.B
+  io.IDU.RScore.busy2 := false.B
   //这里有一个等待的问题
   //当前周期接收到了信号。。。那busy信号要一直拉高直到Busy寄存器拉低。
   //可以译码阶段valid一直拉高，然后阻塞EXU的寄存器。。即后面的流水继续流动。
