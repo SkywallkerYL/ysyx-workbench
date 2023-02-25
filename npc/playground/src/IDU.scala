@@ -35,7 +35,8 @@ class IDU extends Module{
     io.Score.RScore.rdaddr1 := io.IDRegFile.raddr1
     io.Score.RScore.rdaddr2 := io.IDRegFile.raddr2
     io.Score.RScore.valid := io.IFID.instvalid
-    io.Score.WScore.wen   := io.idex.rden
+    //读出或者写入相同的话，则不发送忙的信号
+    io.Score.WScore.wen   := io.idex.rden && (io.IDRegFile.raddr1=/=io.idex.rdaddr) &&((io.IDRegFile.raddr2=/=io.idex.rdaddr))
     io.Score.WScore.waddr := io.idex.rdaddr
     val shamt = io.IFID.inst(25,20)
     io.idex.pc := io.IFID.pc
@@ -105,6 +106,7 @@ class IDU extends Module{
     switch(InstType){
         is(InstrType.I){
             //printf(p"TYPE=${(InstType)} \n")
+            io.IDRegFile.raddr2 := 0.U
             io.idex.imm := I_imm//.asSInt
             rd1 := io.RegFileID.rdata1
             rd2 := I_imm.asUInt
@@ -227,6 +229,7 @@ class IDU extends Module{
             }
         }
         is(InstrType.U){
+            io.IDRegFile.raddr2 := 0.U
             io.idex.imm := U_imm//.asSInt
             rd1 := U_imm.asUInt
             val Uty = DecodeRes(InstrTable.InstrN)
@@ -235,6 +238,7 @@ class IDU extends Module{
             //io.idex.AluOp.op := OpType.ADD
         }
         is(InstrType.J){
+            io.IDRegFile.raddr2 := 0.U
             io.idex.imm := J_imm//.asSInt
             rd1 := io.IFID.pc
             rd2 := 4.U
