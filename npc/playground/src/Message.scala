@@ -52,6 +52,10 @@ class Idu2Npc extends Bundle{
 class Npc2Idu extends Bundle{
     val NextPc  = Output(UInt(parm.PCWIDTH.W))
 }
+class Idu2Score extends Bundle{
+    val WScore = new WScoreBoardIO
+    val RScore = new RScoreBoardIO
+}
 //NPCMUX --- PCREG
 class Npc2Pcreg extends Bundle{
     val npc     = Output(UInt(parm.PCWIDTH.W))
@@ -161,6 +165,9 @@ class Arb2Sram extends Bundle{
     val Axi = Flipped(new Axi4LiteRAMIO)
 }
 //WB --- RegFile
+class Wbu2Score extends Bundle{
+    val WScore = new WScoreBoardIO
+}
 class Wbu2Regfile extends Bundle{
     //val Reg17       = Input(UInt(parm.REGWIDTH.W))
 

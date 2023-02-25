@@ -17,6 +17,8 @@ class WBU extends Module{
       val CLINTWB = Flipped((new Clint2Wbu))
 
       val ReadyLS = new Wbu2Lsu
+
+      val Score = new Wbu2Score
   })
     io.ReadyLS.ready := true.B
     val CSR = MuxLookup(io.LSWB.CsrWb.CsrAddr, 0.U(parm.REGWIDTH.W),Seq(    
@@ -29,6 +31,9 @@ class WBU extends Module{
     ))
     io.WBREG.Regfile.wen :=  io.LSWB.Regfile.wen
     io.WBREG.Regfile.waddr :=  io.LSWB.Regfile.waddr
+    io.Score.WScore.wen :=  io.LSWB.Regfile.wen
+    io.Score.WScore.waddr := io.LSWB.Regfile.waddr
+
     val WbuRes  = MuxLookup(io.LSWB.choose,0.U,Seq(
       "b0000".U -> io.LSWB.AluRes,
       "b0001".U -> io.LSWB.LsuRes,

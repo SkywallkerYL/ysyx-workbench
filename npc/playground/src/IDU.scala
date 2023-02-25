@@ -21,14 +21,21 @@ class IDU extends Module{
 
     val ReadyIF = new Idu2Ifu
     val ReadyEX = Flipped(new Exu2Idu)
+    val Score = new Idu2Score
   })
-    io.ReadyIF.ready := io.ReadyEX.ready
+  //检测到RAW冲突的时候阻塞流水线
+    io.ReadyIF.ready := io.ReadyEX.ready & (!io.Score.RScore.busy1!) &(!io.Score.RScore.busy2)
     io.instrnoimpl := false.B;
     io.instr_o := io.IFID.inst
     io.pc_o := io.IFID.pc
     io.IDNPC.jal := 0.U
     io.IDRegFile.raddr1 := io.IFID.inst(19,15)
     io.IDRegFile.raddr2 := io.IFID.inst(24,20)
+    io.Score.RScore.rdaddr1 := io.IDRegFile.raddr1
+    io.Score.RScore.rdaddr2 := io.IDRegFile.raddr2
+    io.Score.RScore.valid := io.IFID.instvalid
+    io.Score.WScore.wen   := io.idex.rden
+    io.Score.WScore.waddr := io.idex.rdaddr
     val shamt = io.IFID.inst(25,20)
     io.idex.pc := io.IFID.pc
     io.idex.inst := io.IFID.inst
@@ -50,7 +57,7 @@ class IDU extends Module{
     io.IDNPC.imm := io.idex.imm
     io.IDNPC.rs1 := io.idex.rs1
     io.IDNPC.instvalid := io.IFID.instvalid
-    io.idex.instvalid := io.IFID.instvalid & (io.IDNPC.jal === 0.U)
+    io.idex.instvalid := io.IFID.instvalid //& (io.IDNPC.jal === 0.U)
     io.idex.NextPc := io.NPC.NextPc
     //io.ls.pc := 0.U
 
@@ -58,7 +65,6 @@ class IDU extends Module{
     //io.func3 := io.IFID.inst(14,12)
     //io.opcode := io.IFID.inst(6,0)
     io.idex.rden := 1.U
-
     io.idex.CsrWb.CsrAddr := "b00000000".U
     io.idex.CsrWb.ecall := 0.U
     io.idex.CsrWb.mret  := 0.U

@@ -227,6 +227,7 @@ class LSU extends Module{
   io.LSWB.AluRes := io.EXLS.alures
   //并且当前周期的使能要拉低即如果当前周期是发送读请求的那个周期
   //其实也不用拉低，因为最后会用regfile的数据，拉高回来，相当于·刷新了一下
+  //厄，其实还是要拉低的，因为维护了scoreboard
   //
   io.LSWB.choose := Mux(io.Cache.Cache.dataok|io.LSRAM.Axi.r.fire,chooseReg,io.EXLS.choose)//* 读数据延后一个周期，需要的是那个周期的使能和选择信号
   io.LSWB.CsrWb <> io.EXLS.CsrWb

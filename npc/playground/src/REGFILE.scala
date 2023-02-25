@@ -156,3 +156,47 @@ class RegFile extends Module{
   //REG 17 STORE THE no FOR csrs
   io.REGWB.Reg17 := reg(17)
 }
+//计分板机制 用来处理RAW冒险
+/*
+ID阶段  指令需要写入R(x)，那么busy(x)置一
+WB阶段  指令阶段 指令需要写入R(x) 则busy置0
+ID阶段  如果指令需要读出R(x) 并且Busy位为1,那么发生了raw冒险，
+//目前没有考虑转发 直接阻塞流水线，将idu的ready拉低。
+
+*/
+class WScoreBoardIO extends Bundle{
+  val wen = Output(Bool())
+  val waddr = Output(UInt(parm.REGADDRWIDTH.W))
+}
+class RScoreBoardIO extends Bundle{
+  val valid   = Output(Bool())
+  val rdaddr1 = Output(UInt(parm.REGADDRWIDTH.W))
+  val rdaddr2 = Output(UInt(parm.REGADDRWIDTH.W))
+  val busy1 = Input(Bool())
+  val busy2 = Input(Bool())
+}
+//哦哦哦，这里LSU空写的问题还没解决，要回去该一下
+class ScoreBoard extends Module{
+  val io = IO(new Bundle{
+    val IDU = Flipped(new Idu2Score)
+    val WBU = Flipped(new Wbu2Score)
+  })
+  val Busy = RegInit(0.U(parm.RegNumber.W))
+  when(io.IDU.WScore.wen){
+    Busy(io.IDU.WScore.waddr) := 1.U
+  }
+  when(io.WBU.WScore.wen){
+    Busy(io.WBU.WScore.waddr) := 0.U
+  }
+  //这里有一个等待的问题
+  //当前周期接收到了信号。。。那busy信号要一直拉高直到Busy寄存器拉低。
+  //可以译码阶段valid一直拉高，然后阻塞EXU的寄存器。。即后面的流水继续流动。
+  when(io.IDU.RScore.valid){
+    when(Busy(io.IDU.RScore.rdaddr1)===1.U){
+      io.IDU.RScore.busy1 := true.B
+    }
+    when(Busy(io.IDU.RScore.rdaddr2)===1.U){
+      io.IDU.RScore.busy2 := true.B
+    }
+  }
+}
