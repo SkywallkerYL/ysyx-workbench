@@ -24,7 +24,8 @@ class IDU extends Module{
     val Score = new Idu2Score
   })
   //检测到RAW冲突的时候阻塞流水线
-    io.ReadyIF.ready := io.ReadyEX.ready & (!io.Score.RScore.busy1) &(!io.Score.RScore.busy2)
+  //读到ebreak直接阻塞取指级
+    io.ReadyIF.ready := io.ReadyEX.ready & (!io.Score.RScore.busy1) &(!io.Score.RScore.busy2) &(!io.ebreak)
     io.instrnoimpl := false.B;
     io.instr_o := io.IFID.inst
     io.pc_o := io.IFID.pc
