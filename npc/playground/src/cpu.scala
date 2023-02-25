@@ -179,7 +179,7 @@ class  RiscvCpu extends Module{
 */
     if(parm.DPI){
         val ebrdpi = Module(new ebreakDPI)
-        ebrdpi.io.a := Idu.io.ebreak 
+        ebrdpi.io.a := Wbu.io.debug.ebreak//Idu.io.ebreak 
         val pcdpi = Module(new pcDPI)
         pcdpi.io.pc := Wbu.io.debug.pc//Idu.io.pc_o
         pcdpi.io.dnpc := Wbu.io.debug.NextPc//NpcMux.io.NPC.npc
