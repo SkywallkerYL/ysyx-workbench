@@ -57,7 +57,9 @@ class EXU extends Module{
   })
   io.EXLS.pc := io.id.pc
   io.EXLS.inst := io.id.inst
-  io.EXLS.valid := io.id.valid
+  //乘除法信号来的时候valid拉低，这样子下游模块才不会读入，相当于执行级暂停了
+  //拉低的操作在状态机内部处理
+  io.EXLS.valid := io.id.valid 
   io.EXLS.NextPc := io.id.NextPc
   //io.instr_o := io.instr_i
   io.EXLS.rs2 := io.id.rs2
@@ -81,20 +83,21 @@ class EXU extends Module{
   val src2 = io.id.AluOp.rd2
 
   val op = io.id.AluOp.op
-  val opReg = RegInit(0.U((OpType.OPNUMWIDTH.W)))
+  //引入了流水线  锁存信号相关的可以删掉了
+  //val opReg = RegInit(0.U((OpType.OPNUMWIDTH.W)))
   val useop = Wire(UInt(OpType.OPNUMWIDTH.W))
   useop := op
-  val alumaskReg = RegInit(0.U(parm.MaskWidth.W))
+  //val alumaskReg = RegInit(0.U(parm.MaskWidth.W))
   val usealumask =Wire(UInt(parm.MaskWidth.W))
   usealumask := io.id.alumask
-  val flushReg = RegInit(0.U((1.W)))
+  //val flushReg = RegInit(0.U((1.W)))
   val useflush = Wire(UInt(1.W))
   useflush := false.B
-  val WReg = RegInit(0.U((1.W)))
+  //val WReg = RegInit(0.U((1.W)))
   val usew = Wire(UInt(1.W))
   usew := false.B
-  val src1Reg = RegInit(0.U(parm.REGWIDTH.W))
-  val src2Reg = RegInit(0.U(parm.REGWIDTH.W))
+  //val src1Reg = RegInit(0.U(parm.REGWIDTH.W))
+  //val src2Reg = RegInit(0.U(parm.REGWIDTH.W))
   val usesrc1 = Wire(UInt(parm.REGWIDTH.W))
   val usesrc2 = Wire(UInt(parm.REGWIDTH.W))
   usesrc1 := src1 
@@ -126,41 +129,45 @@ class EXU extends Module{
   switch(DoingState){
     is(sWait){
       when(io.MulU.MulValid || io.DivU.DivValid){
+        io.EXLS.valid := false.B
         when((io.MulU.MulValid && io.MulU.MulReady)||(io.DivU.DivValid && io.DivU.DivReady)){
           DoingState := sDoing
         }.otherwise{
-          //乘除法模块没有准备好，所存当前需要计算的数据
+          //乘除法模块没有准备好，Exu也跳转，用来区分Exu是否ready
           DoingState := sWaitReady
         }
-        src1Reg := src1
-        src2Reg := src2
-        flushReg := useflush
-        WReg := usew
-        opReg := op
-        alumaskReg := io.id.alumask
+        //src1Reg := src1
+        //src2Reg := src2
+        //flushReg := useflush
+        //WReg := usew
+        //opReg := op
+        //alumaskReg := io.id.alumask
       }
       
     }
     is(sWaitReady){
-      useop := opReg
-      usealumask := alumaskReg
-      useflush := flushReg
-      usew := WReg
-      usesrc1 := src1Reg
-      usesrc2 := src2Reg
+      //useop := opReg
+      //usealumask := alumaskReg
+      //useflush := flushReg
+      //usew := WReg
+      //usesrc1 := src1Reg
+      //usesrc2 := src2Reg
+      io.EXLS.valid := false.B
       when((io.MulU.MulValid && io.MulU.MulReady)||(io.DivU.DivValid && io.DivU.DivReady)){
         DoingState := sDoing
       }
     }
     is(sDoing){
-      useop := opReg
-      usealumask := alumaskReg
+      //useop := opReg
+      //usealumask := alumaskReg
       when(io.MulU.OutValid){
+        io.EXLS.valid := true.B
         io.AluValid := true.B
         MulDivRes := io.MulU.ResultL
         DoingState := sWait
       }
       when(io.DivU.OutValid){
+        io.EXLS.valid := true.B
         io.AluValid := true.B
         MulDivRes := io.DivU.Quotient
         DoingState := sWait
@@ -205,7 +212,9 @@ class EXU extends Module{
   io.EXLS.NextPc := io.id.NextPc
   io.EXLS.RegFileIO.wdata := maskRes
   io.PC.Exuvalid := !(io.AluBusy) & !(io.MulU.MulValid || io.DivU.DivValid)
-  io.ReadyID.ready := io.ReadyLS.ready && (!(io.AluBusy)) && (!(io.MulU.MulValid || io.DivU.DivValid))
+  //当前周期就要拉低，防止上一级寄存器更新新的数据，保证当前还为处理完的数据还在寄存器中。
+  //乘除法完成的哪一个周期,ready就可以拉高了，下一个周期前一级寄存器就把IDU中阻塞的数据取出来了。
+  io.ReadyID.ready := io.ReadyLS.ready && (!(io.AluBusy)||(io.AluBusy && io.AluValid)) && (!(io.MulU.MulValid || io.DivU.DivValid))
   //io.EXLS.CsrWb.CSR.mepc := Mux(io.id.CsrExuChoose(0),maskRes,io.id.CsrWb.CSR.mepc)
   //io.EXLS.CsrWb.CSR.mcause := Mux(io.id.CsrExuChoose(1),maskRes,io.id.CsrWb.CSR.mcause)
   //io.EXLS.CsrWb.CSR.mtvec := Mux(io.id.CsrExuChoose(2),maskRes,io.id.CsrWb.CSR.mtvec)
