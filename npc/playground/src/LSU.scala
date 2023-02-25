@@ -274,5 +274,7 @@ class LSU extends Module{
   io.PC.Lsuvalid := Mux((io.EXLS.rflag|io.EXLS.wflag) & !CLINTREAD,0.U,!LsuBusyReg)
   //类似EXU模块 ready信号在dataok那个周期也要拉高，这样子下一个周期流水线正好继续
   val dataok = io.Cache.Cache.dataok || io.LSRAM.Axi.w.fire || io.LSRAM.Axi.r.fire
-  io.ReadyEX.ready := !((io.EXLS.rflag|io.EXLS.wflag) & !CLINTREAD) & (!LsuBusyReg|(LsuBusyReg&dataok)) & io.ReadyWB.ready
+  //这里注意data ok的那个周期 rflag wflag这个信号仍然是高的
+  //因此或上dataok
+  io.ReadyEX.ready := (dataok) | (!((io.EXLS.rflag|io.EXLS.wflag) & !CLINTREAD) & (!LsuBusyReg) & io.ReadyWB.ready)
 }

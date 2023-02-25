@@ -218,7 +218,8 @@ class EXU extends Module{
   //当前周期就要拉低，防止上一级寄存器更新新的数据，保证当前还为处理完的数据还在寄存器中。
   //乘除法完成的哪一个周期,ready就可以拉高了，下一个周期前一级寄存器就把IDU中阻塞的数据取出来了。
   //即处于busy并且数据valid的那个周期也可以拉高
-  io.ReadyID.ready := io.ReadyLS.ready && (!(io.AluBusy)||(io.AluBusy && io.AluValid)) && (!(io.MulU.MulValid || io.DivU.DivValid))
+  //exu 也是 aluvalid的那个周期，mulvalid等也是拉高的，要或上取。
+  io.ReadyID.ready := io.AluValid||(io.ReadyLS.ready && (!(io.AluBusy)) && (!(io.MulU.MulValid || io.DivU.DivValid)))
   //io.EXLS.CsrWb.CSR.mepc := Mux(io.id.CsrExuChoose(0),maskRes,io.id.CsrWb.CSR.mepc)
   //io.EXLS.CsrWb.CSR.mcause := Mux(io.id.CsrExuChoose(1),maskRes,io.id.CsrWb.CSR.mcause)
   //io.EXLS.CsrWb.CSR.mtvec := Mux(io.id.CsrExuChoose(2),maskRes,io.id.CsrWb.CSR.mtvec)
