@@ -166,7 +166,7 @@ class LSU extends Module{
         io.LSWB.valid:=false.B
         io.LSRAM.Axi.aw.valid := true.B
         when(io.LSRAM.Axi.aw.fire){
-          io.LSRAM.Axi.aw.bits.addr := RdAddrReg
+          io.LSRAM.Axi.aw.bits.addr := EXLSwriteaddr
           WriteState := sWrite
           LsuBusyReg :=1.U
         }
