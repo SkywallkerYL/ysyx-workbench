@@ -55,7 +55,7 @@ class Idu2Npc extends Bundle{
     val rs1     = Output(UInt(parm.REGWIDTH.W))
     val ecallpc = Output(UInt(parm.PCWIDTH.W))
     val mretpc  = Output(UInt(parm.PCWIDTH.W))
-    val instvalid = Output(Bool())
+    val valid = Output(Bool())
 }
 class Npc2Idu extends Bundle{
     val NextPc  = Output(UInt(parm.PCWIDTH.W))
@@ -68,7 +68,7 @@ class Idu2Score extends Bundle{
 class Npc2Pcreg extends Bundle{
     val npc     = Output(UInt(parm.PCWIDTH.W))
     val pcjal   = Output(Bool())
-    val pcvalid = Output(Bool())
+    //val pcvalid = Output(Bool())
 }
 class Pcreg2Npc extends Bundle{
     val RegPc   = Output(UInt(parm.PCWIDTH.W))
