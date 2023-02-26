@@ -42,8 +42,9 @@ class IDU extends Module{
         只不过是保证下游模块ready了再发送,即当前需要写的指令没有阻塞，能够发往下一个模块的时候，再把en发过去
         如果不是ready的话，下游模块即使是valid信号，当前的也传递不了，这样就会导致传给score的busy提前拉高
         导致ready这边就一直拉高了
+        //并且当前的IDU不能阻塞，这样子信号才能往下发，要带上一个valid信号
     */
-    io.Score.WScore.wen   := io.idex.rden && io.ReadyEX.ready //&& (io.IDRegFile.raddr1=/=io.idex.rdaddr) &&((io.IDRegFile.raddr2=/=io.idex.rdaddr))
+    io.Score.WScore.wen   := io.idex.rden && io.ReadyEX.ready && io.idex.valid  //&& (io.IDRegFile.raddr1=/=io.idex.rdaddr) &&((io.IDRegFile.raddr2=/=io.idex.rdaddr))
     io.Score.WScore.waddr := io.idex.rdaddr
     val shamt = io.IFID.inst(25,20)
     io.idex.pc := io.IFID.pc
