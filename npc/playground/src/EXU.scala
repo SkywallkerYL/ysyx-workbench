@@ -162,6 +162,7 @@ class EXU extends Module{
     }
     is(sDoing){
       //useop := opReg
+      io.EXLS.valid := false.B
       //usealumask := alumaskReg
       when(io.MulU.OutValid){
         io.EXLS.valid := true.B
