@@ -162,7 +162,7 @@ ID阶段  指令需要写入R(x)，那么busy(x)置一
 WB阶段  指令阶段 指令需要写入R(x) 则busy置0
 ID阶段  如果指令需要读出R(x) 并且Busy位为1,那么发生了raw冒险，
 //目前没有考虑转发 直接阻塞流水线，将idu的ready拉低。
-//并且注意如果IDU 取到的指令 读出的和写入的寄存器相同的话，则不发送拉高信号
+//
 
 */
 class WScoreBoardIO extends Bundle{
@@ -184,7 +184,9 @@ class ScoreBoard extends Module{
   })
   val Busy =RegInit(VecInit(Seq.fill(parm.RegNumber)(false.B)))//RegInit(0.U(parm.RegNumber.W))
   when(io.IDU.WScore.wen){
-    Busy(io.IDU.WScore.waddr) := 1.U
+    when(io.IDU.WScore.waddr=/=0.U){
+      Busy(io.IDU.WScore.waddr) := 1.U
+    }
   }
   when(io.WBU.WScore.wen){
     Busy(io.WBU.WScore.waddr) := 0.U
