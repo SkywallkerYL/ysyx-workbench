@@ -161,6 +161,8 @@ long initial_default_img(){
 #ifdef CONFIG_DIFFTEST
 CPU_state npc_r;
 #endif
+uint64_t localpc  ;
+uint64_t localnpc ;
 void sim_once(uint64_t n){
   //clockntimes(1);
 #ifdef CONFIG_ITRACE
@@ -234,8 +236,8 @@ static void execute(uint64_t n) {
       }
       else {
         //if(top->io_difftestvalid){
-          uint64_t localpc  = Pc_Fetch();
-          uint64_t localnpc = Dnpc_Fetch();
+          //uint64_t localpc  = Pc_Fetch();
+          //uint64_t localnpc = Dnpc_Fetch();
           printf("localpc:0x%lx\n",localpc);
           difftest_step(localpc,localnpc);
         //}
