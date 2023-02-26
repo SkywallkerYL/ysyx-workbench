@@ -9,7 +9,9 @@ class Debug extends Bundle{
   val NextPc  = Output(UInt(parm.PCWIDTH.W))
   val inst = Output(UInt(parm.INSTWIDTH.W))
   val SkipRef = Output(Bool())
-  val rs1         = Output(UInt(parm.REGWIDTH.W))
+  val abort = Output(Bool())
+  val jalr  = Output(Bool())
+  val rs1         = Output(UInt(parm.REGADDRWIDTH.W))
   val imm         = Output(UInt(parm.REGWIDTH.W))
   val rdaddr      = Output(UInt(parm.REGADDRWIDTH.W))
   val ebreak  = Output(Bool())  
@@ -37,7 +39,9 @@ class WBU extends Module{
     io.debug.NextPc := io.LSWB.NextPc
     io.debug.SkipRef := io.LSWB.SkipRef
     io.debug.valid := io.LSWB.valid
+    io.debug.abort := io.LSWB.abort
     io.debug.rs1 := io.LSWB.rs1
+    io.debug.jalr := io.LSWB.jalr
     io.debug.imm := io.LSWB.imm
     io.debug.rdaddr := io.LSWB.rdaddr
     io.debug.ebreak := io.debug.inst === "x00100073".U

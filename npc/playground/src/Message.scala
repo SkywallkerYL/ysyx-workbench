@@ -95,7 +95,8 @@ class Idu2Exu extends Bundle{
     val inst        = Output(UInt(parm.INSTWIDTH.W))
     val valid       = Output(Bool())
     val rs1addr     = Output(UInt(parm.REGADDRWIDTH.W))
-
+    val abort       = Output(Bool())
+    val jalr        = Output(Bool())
     val rs1         = Output(UInt(parm.REGWIDTH.W))
     val rs2         = Output(UInt(parm.REGWIDTH.W))
     val imm         = Output(UInt(parm.REGWIDTH.W))
@@ -123,10 +124,12 @@ class Exu2Lsu extends Bundle{
     val pc          = Output(UInt(parm.REGWIDTH.W))
     val inst        = Output(UInt(parm.INSTWIDTH.W))
     val valid       = Output(Bool())
-    val rs1         = Output(UInt(parm.REGWIDTH.W))
+    val rs1         = Output(UInt(parm.REGADDRWIDTH.W))
     val imm         = Output(UInt(parm.REGWIDTH.W))
     val rdaddr      = Output(UInt(parm.REGADDRWIDTH.W))
-    
+    val abort       = Output(Bool())
+    val jalr  = Output(Bool())
+
     val rs2         = Output(UInt(parm.REGWIDTH.W))
     val alures      = Output(UInt(parm.REGWIDTH.W))
     val CsrWb       = new CSRWB
@@ -159,7 +162,9 @@ class Lsu2Wbu extends Bundle{
     val pc      = Output(UInt(parm.PCWIDTH.W))
     val inst    = Output(UInt(parm.INSTWIDTH.W))
     val SkipRef = Output(Bool())
-    val rs1         = Output(UInt(parm.REGWIDTH.W))
+    val abort       = Output(Bool())
+    val jalr  = Output(Bool())
+    val rs1         = Output(UInt(parm.REGADDRWIDTH.W))
     val imm         = Output(UInt(parm.REGWIDTH.W))
     val rdaddr      = Output(UInt(parm.REGADDRWIDTH.W))
     

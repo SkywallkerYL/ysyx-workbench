@@ -24,6 +24,8 @@ class LSU extends Module{
   io.LSWB.SkipRef := io.SkipRef
   io.LSWB.inst := io.EXLS.inst
   io.LSWB.valid := io.EXLS.valid
+  io.LSWB.abort := io.EXLS.abort
+  io.LSWB.jalr := io.LSWB.jalr
   io.LSWB.rs1 := io.EXLS.rs1
   io.LSWB.imm := io.EXLS.imm
   io.LSWB.rdaddr := io.EXLS.rdaddr

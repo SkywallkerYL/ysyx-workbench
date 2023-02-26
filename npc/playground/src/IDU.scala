@@ -43,6 +43,7 @@ class IDU extends Module{
     io.idex.pc := io.IFID.pc
     io.idex.inst := io.IFID.inst
     io.idex.valid := io.IFID.instvalid & (!io.Score.RScore.busy1) &(!io.Score.RScore.busy2)
+    io.idex.abort := io.instrnoimpl
     io.idex.rdaddr := io.IFID.inst(11,7)
     io.idex.rs1 := io.RegFileID.rdata1
     io.idex.rs2 := io.RegFileID.rdata2
@@ -326,6 +327,7 @@ class IDU extends Module{
         io.idex.CsrWb.CsrExuChoose :="b00000000".U 
         io.IDNPC.ecallpc := io.RegFileID.CSRs.mtvec
     }
+    io.idex.jalr := io.IDNPC.jal ===2.U
     io.ebreak := Mux(io.IFID.inst === "x00100073".U,1.B,0.B)
 
 }

@@ -213,8 +213,8 @@ class  RiscvCpu extends Module{
     val skipref  = RegNext(Wbu.io.debug.SkipRef,true.B)
     io.difftestvalid := difftest//PcReg.io.PcIf.pcvalid
     io.halt := Wbu.io.debug.ebreak && (Regfile.io.a0data===0.U)//Idu.io.ebreak&&(Regfile.io.a0data===0.U)
-    io.abort := Idu.io.instrnoimpl
-    io.jalr := Idu.io.IDNPC.jal === 2.U
+    io.abort := Wbu.io.debug.abort//Idu.io.instrnoimpl
+    io.jalr := Wbu.io.debug.jalr//Idu.io.IDNPC.jal === 2.U
     if (parm.DIFFTEST){
     io.SkipRef := skipref//Mux(difftest,false.B,true.B)//Wbu.io.debug.SkipRef//Lsu.io.SkipRef
     }  else io.SkipRef := false.B

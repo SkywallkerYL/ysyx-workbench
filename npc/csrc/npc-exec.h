@@ -177,6 +177,14 @@ void sim_once(uint64_t n){
   //if(jalrflag&(d==0)&(rs1==1)&(imm==0)) printf("pc:0x%016lx\n",cpu_gpr[32]);
   if(top->io_instvalid)log_ftrace(dnpc,jalrflag,d,imm,rs1,src1);
 #endif
+
+#ifdef CONFIG_DIFFTEST
+  //instvalid的那个周期把pc 拿出来
+  if(top->io_instvalid){
+    localpc  = Pc_Fetch();
+    localnpc = Dnpc_Fetch();
+  }
+#endif
   if(checkebreak()||top->io_abort){
     npc_state.state = NPC_ABORT;
     return;
@@ -260,10 +268,12 @@ static void execute(uint64_t n) {
         else printf(ANSI_FMT("HIT BAD TRAP at pc:0x%016lx\n", ANSI_FG_RED),Pc_Fetch());
         break;
       }
+      //abort那个周期正好是有效的
       else if (top->io_abort == 1) {
         int ilen = 4;
         char inst_buf[128];
         char *p = inst_buf; 
+        //这里也是一样 ,valid 的那个周期把这些取出来
         uint64_t pc = Pc_Fetch();
         uint32_t instr = Instr_Fetch();
         //uint32_t intsr1 = p_mem[pc-CONFIG_MBASE];
