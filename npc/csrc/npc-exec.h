@@ -221,22 +221,24 @@ static void execute(uint64_t n) {
         break;
       }
 #ifdef CONFIG_DIFFTEST
-    if (is_skip_ref) {
-        //printf("hhhh\n");
-      ref_difftest_regcpy(&npc_r, DIFFTEST_TO_REF);
-      is_skip_ref = false;
-       if (!top->io_SkipRef ) continue;
-    }
-    if (top->io_SkipRef ) {
-      difftest_skip_ref();
-      //printf("pc:0x%016lx \n",cpu_gpr[32]);
-    }
-    else {
-      if(top->io_difftestvalid){
-        uint64_t localpc  = Pc_Fetch();
-        uint64_t localnpc = Dnpc_Fetch();
-        printf("localpc:0x%lx\n",localpc);
-        difftest_step(localpc,localnpc);
+    if(top->io_difftestvalid){
+      if (is_skip_ref) {
+          //printf("hhhh\n");
+        ref_difftest_regcpy(&npc_r, DIFFTEST_TO_REF);
+        is_skip_ref = false;
+        if (!top->io_SkipRef ) continue;
+      }
+      if (top->io_SkipRef ) {
+        difftest_skip_ref();
+        //printf("pc:0x%016lx \n",cpu_gpr[32]);
+      }
+      else {
+        //if(top->io_difftestvalid){
+          uint64_t localpc  = Pc_Fetch();
+          uint64_t localnpc = Dnpc_Fetch();
+          printf("localpc:0x%lx\n",localpc);
+          difftest_step(localpc,localnpc);
+        //}
       }
     }
 #endif
