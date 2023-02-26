@@ -20,9 +20,7 @@ class IFU extends Module{
 
   })
   //dataok 来的时候表面ifu以及可以取下一个周期了的了，可以通知pc_reg更新pc了
-  //dataok来了，指示表明这个数据Valid了，不一定代表Idu能够受到，
-  //流水线可能被阻塞了，不能写入新的值，因此要ID的ready的时候，才能表面可以更新pcReadyID
-  io.ReadyPC.ready := io.Cache.Cache.dataok && io.ReadyID.ready
+  io.ReadyPC.ready := io.Cache.Cache.dataok
   //io.IFID.inst := io.instr_i
   io.IFID.pc   := io.PcIf.pc
   //READ

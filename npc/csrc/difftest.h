@@ -223,7 +223,7 @@ void difftest_step(vaddr_t pc, vaddr_t npc) {
   //Log("ref_pc: 0x%016lx npc_pc:0x%016lx ",ref_r->pc,pc);
   //printf("hhhhhh\n");
   //uint64_t pcnow = Pc_Fetch();
-  ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
+  //ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
   //printf("before exe ref_r_pc:%08lx \n",ref_r.pc);
   //printf("npc_pc:%08lx \n",pcnow);
    //Log("ref_pc: 0x%016lx npc_pc:0x%016lx ",ref_r.pc,pc);
@@ -233,11 +233,7 @@ void difftest_step(vaddr_t pc, vaddr_t npc) {
   //printf("ref_r_pc:%08lx \n",ref_r.pc);
   //Log("ref_pc: 0x%016lx npc_pc:0x%016lx ",ref_r.pc,pcnow);
   //printf("ref_r_pc:%08lx \n",ref_r.pc);
-  //这里要换成Npc 
-  //因为nemu那边执行完了 进下一个周期 相当于pc自动加了。。。即这个pc不是当前指令的pc了
-  //npc这边比较的时候以WBU为准，wbu进下一个周期，寄存器写入了，，但是由于IFU取指和中间阻塞等原因，pc是不会加的。就默认
-  //其可以跳转到Npc,这样子就用npc了。。
-  checkregs(&ref_r, npc);
+  checkregs(&ref_r, pc);
 }
 #else
 void init_difftest(char *ref_so_file, long img_size, int port) { }

@@ -30,13 +30,12 @@ class NPCMUX extends Module{
     4.U -> io.IDNPC.ecallpc,
     5.U -> io.IDNPC.mretpc
   ))
-  //要给一个valid信号，表明当前idu处理的结果是有效的
-  io.NOP := io.IDNPC.valid && io.IDNPC.jal=/=0.U
+  io.NOP := io.IDNPC.jal=/=0.U
   //io.NPC := Mux(io.NOP,jumppc,pc_4)
   //io.NPC.npc := Mux(io.PcEnable,Mux(io.NOP,jumppc,pc_4),io.RegPc.RegPc)
   io.NPC.npc := Mux(io.NOP,jumppc,pc_4)
-  io.NPC.pcjal := io.NOP
-  //io.NPC.pcvalid :=  Mux(io.NOP,io.IDNPC.instvalid,io.LSNPC.instvalid)
+  io.NPC.pcjal := io.IDNPC.jal=/=0.U
+  io.NPC.pcvalid :=  Mux(io.NOP,io.IDNPC.instvalid,io.LSNPC.instvalid)
   io.NPCId.NextPc := io.NPC.npc
 
   //io.NPC := Mux(io.resetflag,0.U,)

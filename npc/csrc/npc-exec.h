@@ -161,8 +161,6 @@ long initial_default_img(){
 #ifdef CONFIG_DIFFTEST
 CPU_state npc_r;
 #endif
-uint64_t localpc  ;
-uint64_t localnpc ;
 void sim_once(uint64_t n){
   //clockntimes(1);
 #ifdef CONFIG_ITRACE
@@ -177,39 +175,21 @@ void sim_once(uint64_t n){
   //if(jalrflag&(d==0)&(rs1==1)&(imm==0)) printf("pc:0x%016lx\n",cpu_gpr[32]);
   if(top->io_instvalid)log_ftrace(dnpc,jalrflag,d,imm,rs1,src1);
 #endif
-
-#ifdef CONFIG_DIFFTEST
-  //instvalid的那个周期把pc 拿出来
-  if(top->io_instvalid){
-    localpc  = Pc_Fetch();
-    localnpc = Dnpc_Fetch();
-  }
-#endif
   if(checkebreak()||top->io_abort){
     npc_state.state = NPC_ABORT;
     return;
   }
   clockntimes(1);
 #ifdef CONFIG_DIFFTEST
-  if(top->io_difftestvalid){
-    //printf("copy\n");
-    for (size_t i = 0; i < 32; i++)
-    {
-      npc_r.gpr[i]= cpu_gpr[i];
-    }
-    //这里是用来difftest的，skip的，skip时
-    //把npc一条指令执行完的状态拷贝给nemu，即WBU valid拉高的后一个周期
-    //因此这里的pc相当于next pc，即，要拷贝localnpc，
-    //其他的都是寄存器，可以直接拷贝
-    //硬件上difftestvalid是在instvalid后一个周期拉高，此时正好保存该指令执行完的npc，拷贝给nemu
-    //如果要跳过该条指令的话，nemu中的pc正好是该指令执行完成的npc
-    npc_r.pc = localnpc;
-    //printf("valid pc:0x%lx\n",npc_r.pc);
-    npc_r.mepc = cpu_gpr[33];
-    npc_r.mcause = cpu_gpr[34];
-    npc_r.mtvec = cpu_gpr[35];
-    npc_r.mstatus = cpu_gpr[36];
+  for (size_t i = 0; i < 32; i++)
+  {
+    npc_r.gpr[i]= cpu_gpr[i];
   }
+  npc_r.pc = cpu_gpr[32];
+  npc_r.mepc = cpu_gpr[33];
+  npc_r.mcause = cpu_gpr[34];
+  npc_r.mtvec = cpu_gpr[35];
+  npc_r.mstatus = cpu_gpr[36];
 #endif
 }
 
@@ -241,36 +221,22 @@ static void execute(uint64_t n) {
         break;
       }
 #ifdef CONFIG_DIFFTEST
-
-    if(top->io_difftestvalid){
-      /*
-      if (is_skip_ref) {
-          //printf("hhhh\n");
-        printf("localpc:0x%lx\n",localpc);
-        ref_difftest_regcpy(&npc_r, DIFFTEST_TO_REF);
-        is_skip_ref = false;
-        if (!top->io_SkipRef ) continue;
-      }
-      */
-      if (top->io_SkipRef ) {
+    if (is_skip_ref) {
+        //printf("hhhh\n");
+      ref_difftest_regcpy(&npc_r, DIFFTEST_TO_REF);
+      is_skip_ref = false;
+       if (!top->io_SkipRef ) continue;
+    }
+    if (top->io_SkipRef ) {
+      difftest_skip_ref();
+      //printf("pc:0x%016lx \n",cpu_gpr[32]);
+    }
+    else {
+      if(top->io_pcvalid){
+        uint64_t localpc = Pc_Fetch();
+        uint64_t localnpc = Dnpc_Fetch();
         //printf("localpc:0x%lx\n",localpc);
-        difftest_skip_ref();
-        if (is_skip_ref) {
-          //printf("Skip Ref\n");
-          //printf("pc:0x%lx\n",npc_r.pc);
-          ref_difftest_regcpy(&npc_r, DIFFTEST_TO_REF);
-          is_skip_ref = false;
-          //if (!top->io_SkipRef ) continue;
-        }
-        //printf("pc:0x%016lx \n",cpu_gpr[32]);
-      }
-      else {
-        //if(top->io_difftestvalid){
-          //uint64_t localpc  = Pc_Fetch();
-          //uint64_t localnpc = Dnpc_Fetch();
-          //printf("localpc:0x%lx\n",localpc);
-          difftest_step(localpc,localnpc);
-        //}
+        difftest_step(localpc,localnpc);
       }
     }
 #endif
@@ -290,12 +256,10 @@ static void execute(uint64_t n) {
         else printf(ANSI_FMT("HIT BAD TRAP at pc:0x%016lx\n", ANSI_FG_RED),Pc_Fetch());
         break;
       }
-      //abort那个周期正好是有效的
       else if (top->io_abort == 1) {
         int ilen = 4;
         char inst_buf[128];
         char *p = inst_buf; 
-        //这里也是一样 ,valid 的那个周期把这些取出来
         uint64_t pc = Pc_Fetch();
         uint32_t instr = Instr_Fetch();
         //uint32_t intsr1 = p_mem[pc-CONFIG_MBASE];

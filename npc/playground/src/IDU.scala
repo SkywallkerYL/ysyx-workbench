@@ -21,40 +21,21 @@ class IDU extends Module{
 
     val ReadyIF = new Idu2Ifu
     val ReadyEX = Flipped(new Exu2Idu)
-    val Score = new Idu2Score
-    val RegPc = Flipped(new Pc2Idu)
   })
-  //检测到RAW冲突的时候阻塞流水线
-  //读到ebreak直接阻塞取指级
-    io.ReadyIF.ready := io.ReadyEX.ready & (!io.Score.RScore.busy1) &(!io.Score.RScore.busy2) &(!io.ebreak)
+    io.ReadyIF.ready := io.ReadyEX.ready
     io.instrnoimpl := false.B;
     io.instr_o := io.IFID.inst
     io.pc_o := io.IFID.pc
     io.IDNPC.jal := 0.U
     io.IDRegFile.raddr1 := io.IFID.inst(19,15)
     io.IDRegFile.raddr2 := io.IFID.inst(24,20)
-    io.Score.RScore.rdaddr1 := io.IDRegFile.raddr1
-    io.Score.RScore.rdaddr2 := io.IDRegFile.raddr2
-    io.Score.RScore.valid := io.IFID.instvalid
-    //读出或者写入相同的话，则不发送忙的信号
-    /*
-        这里应该还是要发送忙信号的
-        只不过是保证下游模块ready了再发送,即当前需要写的指令没有阻塞，能够发往下一个模块的时候，再把en发过去
-        如果不是ready的话，下游模块即使是valid信号，当前的也传递不了，这样就会导致传给score的busy提前拉高
-        导致ready这边就一直拉高了
-        //并且当前的IDU不能阻塞，这样子信号才能往下发，要带上一个valid信号
-    */
-    io.Score.WScore.wen   := io.idex.rden && io.ReadyEX.ready && io.idex.valid  //&& (io.IDRegFile.raddr1=/=io.idex.rdaddr) &&((io.IDRegFile.raddr2=/=io.idex.rdaddr))
-    io.Score.WScore.waddr := io.idex.rdaddr
     val shamt = io.IFID.inst(25,20)
     io.idex.pc := io.IFID.pc
     io.idex.inst := io.IFID.inst
-    io.idex.valid := io.IFID.instvalid & (!io.Score.RScore.busy1) &(!io.Score.RScore.busy2)
-    io.idex.abort := io.instrnoimpl
+    io.idex.valid := io.IFID.instvalid
     io.idex.rdaddr := io.IFID.inst(11,7)
     io.idex.rs1 := io.RegFileID.rdata1
     io.idex.rs2 := io.RegFileID.rdata2
-    io.idex.rs1addr := io.IDRegFile.raddr1
     io.idex.rflag := 0.U
     io.idex.wflag := 0.U
     io.idex.wmask := 0.U(parm.BYTEWIDTH.W)
@@ -68,15 +49,16 @@ class IDU extends Module{
     io.IDNPC.IdPc := io.IFID.pc
     io.IDNPC.imm := io.idex.imm
     io.IDNPC.rs1 := io.idex.rs1
-    io.IDNPC.valid := io.idex.valid
-    io.idex.instvalid := io.IFID.instvalid //& (io.IDNPC.jal === 0.U)
-    io.idex.NextPc := io.RegPc.nextpc//io.NPC.NextPc
+    io.IDNPC.instvalid := io.IFID.instvalid
+    io.idex.instvalid := io.IFID.instvalid & (io.IDNPC.jal === 0.U)
+    io.idex.NextPc := io.NPC.NextPc
     //io.ls.pc := 0.U
 
     //io.func7 := io.IFID.inst(31,25)
     //io.func3 := io.IFID.inst(14,12)
     //io.opcode := io.IFID.inst(6,0)
     io.idex.rden := 1.U
+
     io.idex.CsrWb.CsrAddr := "b00000000".U
     io.idex.CsrWb.ecall := 0.U
     io.idex.CsrWb.mret  := 0.U
@@ -115,7 +97,6 @@ class IDU extends Module{
     switch(InstType){
         is(InstrType.I){
             //printf(p"TYPE=${(InstType)} \n")
-            io.IDRegFile.raddr2 := 0.U
             io.idex.imm := I_imm//.asSInt
             rd1 := io.RegFileID.rdata1
             rd2 := I_imm.asUInt
@@ -155,7 +136,6 @@ class IDU extends Module{
                 OpIType.CSRR     ->true.B,
                 OpIType.CSRRW   ->true.B
             ))
-
             val csraddr = MuxLookup(CSRTYPE, "b00000000".U(parm.CSRNUMBER.W),Seq(
                                     
                 parm.MEPC.U     ->"b00000001".U(parm.CSRNUMBER.W),
@@ -176,10 +156,7 @@ class IDU extends Module{
             ))
             */
             //io.idex.CsrWb.CSRs := CSRs
-            //这个
-            io.idex.CsrWb.csrflag := csrflag && stype===OpIType.CSRRW  //要csrrw的情况下才进行写入
-            //rr的情况下不要拉高不然会改变mcause的状态
-            //这个bug不知道为啥是加了流水线才发现。。。按理说应该造就发现了。。
+            io.idex.CsrWb.csrflag := csrflag
             io.idex.CsrWb.CsrAddr := csraddr & Fill(parm.CSRNUMBER,csrflag) //Mux(csrflag,csraddr,"b0000".U)
             io.idex.CsrWb.CsrExuChoose := csraddr //正好要写入的Csr时，就使用EXU的计算结果，因此直接接过来
             when(DecodeRes(InstrTable.InstrN) === OpIType.JALR)
@@ -242,7 +219,6 @@ class IDU extends Module{
             }
         }
         is(InstrType.U){
-            io.IDRegFile.raddr2 := 0.U
             io.idex.imm := U_imm//.asSInt
             rd1 := U_imm.asUInt
             val Uty = DecodeRes(InstrTable.InstrN)
@@ -251,7 +227,6 @@ class IDU extends Module{
             //io.idex.AluOp.op := OpType.ADD
         }
         is(InstrType.J){
-            io.IDRegFile.raddr2 := 0.U
             io.idex.imm := J_imm//.asSInt
             rd1 := io.IFID.pc
             rd2 := 4.U
@@ -338,7 +313,6 @@ class IDU extends Module{
         io.idex.CsrWb.CsrExuChoose :="b00000000".U 
         io.IDNPC.ecallpc := io.RegFileID.CSRs.mtvec
     }
-    io.idex.jalr := io.IDNPC.jal ===2.U
     io.ebreak := Mux(io.IFID.inst === "x00100073".U,1.B,0.B)
 
 }
