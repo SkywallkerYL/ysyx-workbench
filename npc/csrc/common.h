@@ -15,12 +15,12 @@
 #define word_t uint64_t
 #define paddr_t uint64_t
 #define vaddr_t uint64_t
-//#define CONFIG_DIFFTEST
+#define CONFIG_DIFFTEST
 //Itrace
 #define CONFIG_ITRACE
 
-#define ITRACE_BEGIN 0
-#define ITRACE_END   10000
+#define ITRACE_BEGIN 486000
+#define ITRACE_END   487000
 //Ftrace 跟Itrace一个开关
 #define FTRACE_BEGIN 0
 #define FTRACE_END   1000
@@ -34,8 +34,8 @@
 
 #define WAVE
 
-#define WAVE_BEGIN 0
-#define WAVE_END   10000
+#define WAVE_BEGIN 1105000
+#define WAVE_END   1106000
 
 #define TRACE_CONDITION(a,begin,end)   ((a>=begin)&&(a<end))
 

@@ -11,6 +11,14 @@ class Pc2Ifu extends Bundle{
   val pc        = Output(UInt(parm.PCWIDTH.W))
   //val pcvalid   = Output(Bool())
 }
+//PCReg ---- ID
+//流水线情况 通过Pcreg 直接把Ifu下一条取的指令的pc发送给IDU
+//因为流水线，id pc 延后了所以
+//而NPC的nextpc是根据 pc_reg中的值+4计算的，
+//而pc_reg中的本来就是下个周期的
+class Pc2Idu extends Bundle{
+    val nextpc = Output(UInt(parm.PCWIDTH.W))
+}
 //IF --- SRAM
 class Ifu2Sram extends Bundle{
     val Axi = Flipped(new Axi4LiteRAMIO)
@@ -47,16 +55,20 @@ class Idu2Npc extends Bundle{
     val rs1     = Output(UInt(parm.REGWIDTH.W))
     val ecallpc = Output(UInt(parm.PCWIDTH.W))
     val mretpc  = Output(UInt(parm.PCWIDTH.W))
-    val instvalid = Output(Bool())
+    val valid = Output(Bool())
 }
 class Npc2Idu extends Bundle{
     val NextPc  = Output(UInt(parm.PCWIDTH.W))
+}
+class Idu2Score extends Bundle{
+    val WScore = new WScoreBoardIO
+    val RScore = new RScoreBoardIO
 }
 //NPCMUX --- PCREG
 class Npc2Pcreg extends Bundle{
     val npc     = Output(UInt(parm.PCWIDTH.W))
     val pcjal   = Output(Bool())
-    val pcvalid = Output(Bool())
+    //val pcvalid = Output(Bool())
 }
 class Pcreg2Npc extends Bundle{
     val RegPc   = Output(UInt(parm.PCWIDTH.W))
@@ -82,7 +94,9 @@ class Idu2Exu extends Bundle{
     val pc          = Output(UInt(parm.PCWIDTH.W))
     val inst        = Output(UInt(parm.INSTWIDTH.W))
     val valid       = Output(Bool())
-
+    val rs1addr     = Output(UInt(parm.REGADDRWIDTH.W))
+    val abort       = Output(Bool())
+    val jalr        = Output(Bool())
     val rs1         = Output(UInt(parm.REGWIDTH.W))
     val rs2         = Output(UInt(parm.REGWIDTH.W))
     val imm         = Output(UInt(parm.REGWIDTH.W))
@@ -106,9 +120,16 @@ class Exu2Idu extends Bundle{
 }
 //EX --- LS
 class Exu2Lsu extends Bundle{
+    //这写是为了后续debug方便添加的
     val pc          = Output(UInt(parm.REGWIDTH.W))
     val inst        = Output(UInt(parm.INSTWIDTH.W))
     val valid       = Output(Bool())
+    val rs1         = Output(UInt(parm.REGADDRWIDTH.W))
+    val imm         = Output(UInt(parm.REGWIDTH.W))
+    val rdaddr      = Output(UInt(parm.REGADDRWIDTH.W))
+    val abort       = Output(Bool())
+    val jalr  = Output(Bool())
+
     val rs2         = Output(UInt(parm.REGWIDTH.W))
     val alures      = Output(UInt(parm.REGWIDTH.W))
     val CsrWb       = new CSRWB
@@ -140,6 +161,13 @@ class Lsu2Wbu extends Bundle{
     val CsrWb   = new CSRWB
     val pc      = Output(UInt(parm.PCWIDTH.W))
     val inst    = Output(UInt(parm.INSTWIDTH.W))
+    val SkipRef = Output(Bool())
+    val abort       = Output(Bool())
+    val jalr  = Output(Bool())
+    val rs1         = Output(UInt(parm.REGADDRWIDTH.W))
+    val imm         = Output(UInt(parm.REGWIDTH.W))
+    val rdaddr      = Output(UInt(parm.REGADDRWIDTH.W))
+    
     val valid   = Output(Bool())
     val NextPc  = Output(UInt(parm.PCWIDTH.W))
 }
@@ -161,6 +189,9 @@ class Arb2Sram extends Bundle{
     val Axi = Flipped(new Axi4LiteRAMIO)
 }
 //WB --- RegFile
+class Wbu2Score extends Bundle{
+    val WScore = new WScoreBoardIO
+}
 class Wbu2Regfile extends Bundle{
     //val Reg17       = Input(UInt(parm.REGWIDTH.W))
 
