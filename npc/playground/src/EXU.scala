@@ -212,7 +212,7 @@ class EXU extends Module{
   //io.EXLS.writeaddr :=  maskRes
   //io.EXLS.readaddr := maskRes
   io.EXLS.pc := io.id.pc
-  io.EXLS.jalr := io.EXLS.jalr
+  io.EXLS.jalr := io.id.jalr
   io.EXLS.abort := io.id.abort
   io.EXLS.NextPc := io.id.NextPc
   io.EXLS.RegFileIO.wdata := maskRes
