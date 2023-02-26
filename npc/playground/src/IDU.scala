@@ -155,6 +155,7 @@ class IDU extends Module{
                 OpIType.CSRR     ->true.B,
                 OpIType.CSRRW   ->true.B
             ))
+
             val csraddr = MuxLookup(CSRTYPE, "b00000000".U(parm.CSRNUMBER.W),Seq(
                                     
                 parm.MEPC.U     ->"b00000001".U(parm.CSRNUMBER.W),
@@ -175,7 +176,10 @@ class IDU extends Module{
             ))
             */
             //io.idex.CsrWb.CSRs := CSRs
-            io.idex.CsrWb.csrflag := csrflag
+            //这个
+            io.idex.CsrWb.csrflag := csrflag && stype===OpIType.CSRRW  //要csrrw的情况下才进行写入
+            //rr的情况下不要拉高不然会改变mcause的状态
+            //这个bug不知道为啥是加了流水线才发现。。。按理说应该造就发现了。。
             io.idex.CsrWb.CsrAddr := csraddr & Fill(parm.CSRNUMBER,csrflag) //Mux(csrflag,csraddr,"b0000".U)
             io.idex.CsrWb.CsrExuChoose := csraddr //正好要写入的Csr时，就使用EXU的计算结果，因此直接接过来
             when(DecodeRes(InstrTable.InstrN) === OpIType.JALR)

@@ -223,7 +223,7 @@ void difftest_step(vaddr_t pc, vaddr_t npc) {
   //Log("ref_pc: 0x%016lx npc_pc:0x%016lx ",ref_r->pc,pc);
   //printf("hhhhhh\n");
   //uint64_t pcnow = Pc_Fetch();
-  //ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
+  ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
   //printf("before exe ref_r_pc:%08lx \n",ref_r.pc);
   //printf("npc_pc:%08lx \n",pcnow);
    //Log("ref_pc: 0x%016lx npc_pc:0x%016lx ",ref_r.pc,pc);
