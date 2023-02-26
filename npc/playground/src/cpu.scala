@@ -188,6 +188,8 @@ class  RiscvCpu extends Module{
         val ebrdpi = Module(new ebreakDPI)
         ebrdpi.io.a := Wbu.io.debug.ebreak//Idu.io.ebreak 
         val pcdpi = Module(new pcDPI)
+        //这两个Pc很多地方都直接再用
+        //注意使用的时候在指令有效的那个周期取出来用，或者先取出来，后边再用
         pcdpi.io.pc := Wbu.io.debug.pc//Idu.io.pc_o
         pcdpi.io.dnpc := Wbu.io.debug.NextPc//NpcMux.io.NPC.npc
         val instrdpi = Module(new InstrFetchDPI)

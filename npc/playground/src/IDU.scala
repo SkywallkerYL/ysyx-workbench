@@ -22,6 +22,7 @@ class IDU extends Module{
     val ReadyIF = new Idu2Ifu
     val ReadyEX = Flipped(new Exu2Idu)
     val Score = new Idu2Score
+    val RegPc = Flipped(new Pc2Idu)
   })
   //检测到RAW冲突的时候阻塞流水线
   //读到ebreak直接阻塞取指级
@@ -61,7 +62,7 @@ class IDU extends Module{
     io.IDNPC.rs1 := io.idex.rs1
     io.IDNPC.instvalid := io.IFID.instvalid
     io.idex.instvalid := io.IFID.instvalid //& (io.IDNPC.jal === 0.U)
-    io.idex.NextPc := io.NPC.NextPc
+    io.idex.NextPc := io.RegPc.nextpc//io.NPC.NextPc
     //io.ls.pc := 0.U
 
     //io.func7 := io.IFID.inst(31,25)

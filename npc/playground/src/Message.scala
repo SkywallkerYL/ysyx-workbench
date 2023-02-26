@@ -11,6 +11,14 @@ class Pc2Ifu extends Bundle{
   val pc        = Output(UInt(parm.PCWIDTH.W))
   //val pcvalid   = Output(Bool())
 }
+//PCReg ---- ID
+//流水线情况 通过Pcreg 直接把Ifu下一条取的指令的pc发送给IDU
+//因为流水线，id pc 延后了所以
+//而NPC的nextpc是根据 pc_reg中的值+4计算的，
+//而pc_reg中的本来就是下个周期的
+class Pc2Idu extends Bundle{
+    val nextpc = Output(UInt(parm.PCWIDTH.W))
+}
 //IF --- SRAM
 class Ifu2Sram extends Bundle{
     val Axi = Flipped(new Axi4LiteRAMIO)
