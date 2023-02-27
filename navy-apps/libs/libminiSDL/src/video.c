@@ -16,8 +16,8 @@
 // SDL_BlitSurface(s, NULL, screen, &dstrect);
 void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_Rect *dstrect)
 {
-  assert(dst && src);
-  //assert(dst->format->BitsPerPixel == src->format->BitsPerPixel);
+  assert(dst!=NULL);
+  assert(src!=NULL);
 
   // printf("x:%d y:%d\n",dstrect->x,dstrect->y);
 
@@ -57,10 +57,8 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
   // printf("src_w:%d src_h:%d\n",src->w,src->h);
   int minsrc_w = src_w + src_x < src->w ? src_w : (src->w - src_x);
   int minsrc_h = src_h + src_y < src->h ? src_h : (src->h - src_y);
-  int w_ = minsrc_w <= dst->w - dst_x ? minsrc_w : (dst_x + dst_w) < dst->w ? dst_w
-                                                                            : dst->w - dst_x;
-  int h_ = minsrc_h <= dst->h - dst_y ? minsrc_h : (dst_y + dst_h) < dst->h ? dst_h
-                                                                            : dst->h - dst_y;
+  int w_ = minsrc_w <= dst->w - dst_x ? minsrc_w : (dst_x + dst_w) < dst->w ? dst_w : dst->w - dst_x;
+  int h_ = minsrc_h <= dst->h - dst_y ? minsrc_h : (dst_y + dst_h) < dst->h ? dst_h : dst->h - dst_y;
   // printf("w:%d h:%d\n",w_,h_);
   if (dst->format->palette == NULL)
   {
@@ -68,7 +66,7 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
     uint32_t *dst_pixels = (uint32_t *)dst->pixels;
     for (size_t i = 0; i < h_; i++)
     {
-      // memcpy(dst_pixels+init_offset+i*dst->w,src_pixels+i*src->w,w_);
+ 
       for (size_t j = 0; j < w_; j++)
       {
         // dst_pixels[init_offset+i*dst->w+j] = src_pixels[i*src->w+j];
@@ -80,12 +78,7 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
   else
   {
     assert(src->format->palette != NULL);
-    /*
-    for (size_t i = 0; i < h_; i++)
-    {
-      memcpy(dst->pixels+(init_offset+i*dst->w),src->pixels+(src_offset+i*src->w),w_);
-    }
-    */
+
     /**/
     uint8_t *src_pixels = (uint8_t *)src->pixels;
     uint8_t *dst_pixels = (uint8_t *)dst->pixels;
