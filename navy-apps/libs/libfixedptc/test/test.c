@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <math.h>
 
-void fixedptc0() {
+void DUT() {
     fixedpt a = fixedpt_rconst(1.2);
     fixedpt b = fixedpt_fromint(10);
     int c = 0;
@@ -22,7 +22,7 @@ void fixedptc0() {
     printf("floor: -1.5:%f 1.5:%f\n",(float)fixedpt_floor(fixedpt_rconst(-1.5))/(1<<8),(float)fixedpt_floor(fixedpt_rconst(1.5))/(1<<8));
 }
 
-void refine() {
+void REF() {
     float a = 1.2;
     float b = 10;
     int c = 0;
@@ -36,7 +36,7 @@ void refine() {
 
 int main() {
     printf("-------- DUT --------\n");
-    fixedptc0();
+    DUT();
     printf("---------REF ---------\n");
-    refine();
+    REF();
 }

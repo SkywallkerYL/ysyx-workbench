@@ -255,7 +255,7 @@ size_t fs_lseek(int fd, size_t offset, int whence)
     setoffset = offset + fdsize;
     break;
   default:
-    Log("Unknown whence");
+    Log("Unknown whence type");
     return -1;
     break;
   }
