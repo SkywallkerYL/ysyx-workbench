@@ -9,6 +9,7 @@
 !scripts/*.mk
 build/
 !repo/
+!libs/
 !libs/libc/
 !fsimg/
 !/fsimg/share/files/num
