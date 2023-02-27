@@ -69,7 +69,7 @@ void init_mem() {
 #ifdef CONFIG_MTRACE
 int mtracenum= 0;
 int maxmtrace = 10000;
-char mtracefilepath[] = "./mtrace-log.txt";
+char mtracefilepath[] = "./build/mtrace-log.txt";
 void init_mtrace()
 {
   FILE *file;
@@ -93,7 +93,7 @@ void mtrace(bool wrrd,paddr_t addr, int len,word_t data)
   char wrflag;
   //1是写 0是读
   wrflag = wrrd?'w':'r';
-  if (file == NULL) {printf("No file!!!!\n");}
+  if (file == NULL) {printf("No mtrace file!!!!\n");}
   fprintf(file,"pc:%lx: Addr:%x len:%x %c value:%lx\n",cpu.pc,addr,len,wrflag,data);
   //printf("pc:%lx Addr:%x len:%x %c value:%lx\n",cpu.pc,addr,len,wrflag,data);
   fclose(file); 
@@ -102,7 +102,7 @@ void mtrace(bool wrrd,paddr_t addr, int len,word_t data)
 static int symblenumber ;//记录符号的表的符号个数
 //static int maxsymbolnumber = 4096;
 static Elf64_Sym allsymble[4096];//最多4096个
-char elf_logfile[] = "./ftrace-log.txt";
+char elf_logfile[] = "./build/ftrace-log.txt";
 char* strtab;//存储所有变量名
 int strstart;//记录strtab的起始地址
 
@@ -353,6 +353,7 @@ int maxftrace = 10000;
 int callcount = 0;
 void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1,word_t src1)
 {
+  if(ftracenum>maxftrace) return;
   FILE *file;
   file = fopen(elf_logfile,"a");
   if(ftracenum>maxftrace) return;
@@ -522,7 +523,7 @@ void paddr_write(paddr_t addr, int len, word_t data) {
 #ifdef CONFIG_ETRACE
 int etracenum = 0;
 int maxetrace = 10000;
-char Etracefilepath[] = "./Etrace-log.txt";
+char Etracefilepath[] = "./build/Etrace-log.txt";
 void init_Etrace()
 {
   FILE *file;
@@ -532,7 +533,7 @@ void init_Etrace()
   {
     printf("Fail to creat Etracefile!\n");
   }
-  
+  fclose(file);
   //fwrite(str,sizeof(str),1,file);
   //assert(file!=NULL);
   return;
@@ -543,11 +544,19 @@ void Etrace(word_t mstatus, word_t mcause ,word_t mepc, word_t mtvec,bool ecall)
   if(etracenum>maxetrace) return;
   FILE *file;
   file = fopen(Etracefilepath,"a");
-  if (file == NULL) {printf("No file!!!!\n");}
+  //etrace 会导致: Too many open files 
+  //其实也不是etrace导致的，是ftrace导致的。。。前面没关
+  //perror打印信息。。
+  //
+  if (file == NULL) {perror("etrace file open fail\n");return;}
+  //else printf("etrace file open\n");
   if (ecall)
-  fprintf(file,"mepc:%lx:  ecall mastatus:0x%lx mcause:0x%lx mtvec:%lx\n",mepc,mstatus,mcause,mtvec);
-  else 
-  fprintf(file,"cpupc:%lx: mret  mastatus:0x%lx mcause:0x%lx mtvec:%lx\n",mepc,mstatus,mcause,mtvec);
+  {
+    fprintf(file,"mepc:%lx:  ecall mastatus:0x%lx mcause:0x%lx mtvec:%lx\n",mepc,mstatus,mcause,mtvec);
+  }else 
+  {
+    fprintf(file,"cpupc:%lx: mret  mastatus:0x%lx mcause:0x%lx mtvec:%lx\n",mepc,mstatus,mcause,mtvec);
+  }
   //printf("pc:%lx Addr:%x len:%x %c value:%lx\n",cpu.pc,addr,len,wrflag,data);
   fclose(file); 
 }

@@ -56,7 +56,7 @@ void init_map() {
 word_t last_pc = 0;
 int64_t dtracecount = 0;
 int64_t maxdtrace = 10000;
-char dtracefile[] = "./dtrace-log.txt";
+char dtracefile[] = "./build/dtrace-log.txt";
 void init_dtrace()
 {
   FILE *file;
