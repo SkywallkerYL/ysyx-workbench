@@ -94,7 +94,7 @@ CSRC += $(SRC_AUTO_BIND)
 #VSRC += $(shell find $(abspath ../templete/bcd7seg) -name "*.v")
 
 #rules for nvboard
-include $(NVBOARD_HOME)/scripts/nvboard.mk
+#include $(NVBOARD_HOME)/scripts/nvboard.mk
 #rules for verilator
 INCFLAGS = $(addprefix -I, $(INC_PATH))
 CFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""
