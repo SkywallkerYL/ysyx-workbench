@@ -29,12 +29,12 @@ config ISA64
 menu "MTRACE AND FTRACE"
   config  MTRACE
     bool "Enable mtrace and ftrace"
-    default y
+    default n
 endmenu
 menu "DTRACE"
   config  DTRACE
     bool "Enable DTRACE"
-    default y
+    default n
 endmenu
 
 
@@ -47,7 +47,7 @@ endmenu
 menu "Etrace"
   config  ETRACE
     bool "etrace for nemu"
-    default y 
+    default n 
 endmenu
 
 menu "CACHE"
