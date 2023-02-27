@@ -54,27 +54,35 @@ void init_map() {
 #ifdef CONFIG_DTRACE
 /*dtrace*/
 word_t last_pc = 0;
-char dtracefile [] = "/home/yangli/ysyx-workbench/nemu/build/dtrace-log.txt";
+int64_t dtracecount = 0;
+int64_t maxdtrace = 10000;
+char dtracefile[] = "./dtrace-log.txt";
 void init_dtrace()
 {
   FILE *file;
-  file = fopen(dtracefile,"w");
+  file = fopen(dtracefile,"w+");
+  if(file==NULL){
+    printf("Fail to create dtracefile!\n");
+  }
   fclose(file);
   return;
 }
 void log_dtrace(paddr_t addr,int len, bool writeflag ,const char* name)
 {
+  if(dtracecount>maxdtrace)return;
   FILE *file;
-  file = fopen(dtracefile,"a");
-  if (file == NULL) {printf("No file!\n");}
+  file = fopen(dtracefile,"a+");
+  if (file == NULL) {return;printf("No dtrace file:%s !\n",dtracefile);}
   last_pc = cpu.pc;
   if (writeflag)
   {
+    dtracecount++;
     //printf("pc:%lx: w addr:%x len:%d map_name:%s\n",cpu.pc,addr,len,name);
     fprintf(file,"pc:%lx: w addr:%x len:%d map_name:%s\n",last_pc,addr,len,name);
   }
   else 
   {
+    dtracecount++;
     //printf("pc:%lx: r addr:%x len:%d map_name:%s\n",cpu.pc,addr,len,name);
     fprintf(file,"pc:%lx: r addr:%x len:%d map_name:%s\n",last_pc,addr,len,name);
   }

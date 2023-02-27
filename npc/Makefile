@@ -122,7 +122,8 @@ runnvboard: $(BIN)
 
 NPCMODE=-d
 BATCHMODE ?= 
-DIFFTESTNEMUFILE=/home/yangli/ysyx-workbench/nemu/build/riscv64-nemu-interpreter-so
+#DIFFTESTNEMUFILE=/home/yangli/ysyx-workbench/nemu/build/riscv64-nemu-interpreter-so
+DIFFTESTNEMUFILE=$(NEMU_HOME)/build/riscv64-nemu-interpreter-so
 NPCMODE+=$(DIFFTESTNEMUFILE)
 run: 
 	#for testbench        

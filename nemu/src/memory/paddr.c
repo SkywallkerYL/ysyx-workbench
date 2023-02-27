@@ -69,7 +69,7 @@ void init_mem() {
 #ifdef CONFIG_MTRACE
 int mtracenum= 0;
 int maxmtrace = 10000;
-char mtracefilepath[] = "/home/yangli/ysyx-workbench/nemu/build/mtrace-log.txt";
+char mtracefilepath[] = "./mtrace-log.txt";
 void init_mtrace()
 {
   FILE *file;
@@ -102,7 +102,7 @@ void mtrace(bool wrrd,paddr_t addr, int len,word_t data)
 static int symblenumber ;//记录符号的表的符号个数
 //static int maxsymbolnumber = 4096;
 static Elf64_Sym allsymble[4096];//最多4096个
-char elf_logfile[] = "/home/yangli/ysyx-workbench/nemu/build/ftrace-log.txt";
+char elf_logfile[] = "./ftrace-log.txt";
 char* strtab;//存储所有变量名
 int strstart;//记录strtab的起始地址
 
@@ -355,7 +355,8 @@ void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1,word_t s
 {
   FILE *file;
   file = fopen(elf_logfile,"a");
-  if (file == NULL) {printf("No file!!!!\n");}
+  if(ftracenum>maxftrace) return;
+  if (file == NULL) {printf("fracenum:%d No file %s!!!!\n",ftracenum,elf_logfile);}
   //这一部分读取与init_trace内部一样
   //下面通过strtab表的地址与name来
   bool retflag = jarlflag&(rd==0)&(rs1==1)&(imm==0);
@@ -521,7 +522,7 @@ void paddr_write(paddr_t addr, int len, word_t data) {
 #ifdef CONFIG_ETRACE
 int etracenum = 0;
 int maxetrace = 10000;
-char Etracefilepath[] = "/home/yangli/ysyx-workbench/nemu/build/Etrace-log.txt";
+char Etracefilepath[] = "./Etrace-log.txt";
 void init_Etrace()
 {
   FILE *file;

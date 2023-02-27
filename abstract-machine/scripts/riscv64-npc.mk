@@ -17,7 +17,8 @@ NEMUFLAGS = -l
 NEMUFLAGS += $(shell dirname $(IMAGE).elf)/npclog.txt
 
 
-DIFFTESTNEMUFILE=/home/yangli/ysyx-workbench/nemu/build/riscv64-nemu-interpreter-so
+#DIFFTESTNEMUFILE=/home/yangli/ysyx-workbench/nemu/build/riscv64-nemu-interpreter-so
+DIFFTESTNEMUFILE=$(NEMU_HOME)/build/riscv64-nemu-interpreter-so
 NPCMODE+=$(DIFFTESTNEMUFILE)
 ELFFILE = $(IMAGE).elf
 ELFLOGFILE = $(shell dirname $(IMAGE).elf)/npcftrace.txt
