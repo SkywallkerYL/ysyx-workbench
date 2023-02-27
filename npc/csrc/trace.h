@@ -36,7 +36,7 @@ int iringbufind = 0;
 void printiringbuf(int finalinst);
 
 
-char default_log[100] = "/home/yangli/ysyx-workbench/npc/build/npc-flog.txt" ;
+char default_log[100] = "./build/npc-flog.txt" ;
 #endif
 
 //ftrace 
@@ -435,6 +435,7 @@ void init_ftrace(char* elf_file)
 int64_t ftracecount = 0;
 void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1,word_t src1)
 {
+  if (!TRACE_CONDITION(ftracecount,FTRACE_BEGIN,FTRACE_END)) {return;}
   FILE *file;
   file = fopen(elf_logfile,"a");
   if (file == NULL) {
@@ -558,7 +559,7 @@ void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1,word_t s
 
 #endif
 #ifdef CONFIG_MTRACE
-char mtracefilepath[] = "/home/yangli/ysyx-workbench/npc/build/mtrace-log.txt";
+char mtracefilepath[] = "./build/mtrace-log.txt";
 char mtracelog[128];
 void init_mtrace()
 {
@@ -595,6 +596,7 @@ int64_t mtracecount = 0;
 //int maxmtrace = 10000;
 void mtrace(bool wrrd,paddr_t addr, int len,word_t data)
 {
+  if (!TRACE_CONDITION(mtracecount,MTRACE_BEGIN,MTRACE_END)){return;}
   FILE *file;
   if (elf_file == NULL) file = fopen(mtracefilepath,"a");
   else file = fopen(mtracelog,"a");

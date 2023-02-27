@@ -15,7 +15,8 @@ static char *elf_file = NULL;
 static char *diff_so_file = NULL;
 static char *elf_logfile = NULL ;
 static int difftest_port = 1234;
-static char defaultelf_logfile[128] = "/home/yangli/ysyx-workbench/npc/build/ftrace-log.txt";
+//static char defaultelf_logfile[128] = "/home/yangli/ysyx-workbench/npc/build/ftrace-log.txt";
+static char defaultelf_logfile[128] = "./build/ftrace-log.txt";
 FILE *log_fp = NULL;
 
 long load_prog(const char *bin);

@@ -19,13 +19,13 @@
 //Itrace
 #define CONFIG_ITRACE
 
-#define ITRACE_BEGIN 486000
-#define ITRACE_END   487000
+#define ITRACE_BEGIN 0
+#define ITRACE_END   10000
 //Ftrace 跟Itrace一个开关
 #define FTRACE_BEGIN 0
 #define FTRACE_END   1000
 
-//#define CONFIG_MTRACE
+#define CONFIG_MTRACE
 
 #define MTRACE_BEGIN 0
 #define MTRACE_END   10000
@@ -34,8 +34,8 @@
 
 #define WAVE
 
-#define WAVE_BEGIN 1105000
-#define WAVE_END   1106000
+#define WAVE_BEGIN 0
+#define WAVE_END   10000
 
 #define TRACE_CONDITION(a,begin,end)   ((a>=begin)&&(a<end))
 

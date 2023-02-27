@@ -147,6 +147,6 @@ wave:
 show-config:
 	$(VERILATOR) -V
 clean:
-	-rm -rf obj_dir logs *.log *.dmp *.vpd *.vcd $(BUILD_DIR) vsrc .bloop/ project/.bloop/npc-build/ target/bg-jobs/ target/task-temp-directory/
+	-rm -rf obj_dir logs *.log *.dmp *.vpd *.vcd $(BUILD_DIR) vsrc 
 #git clean -fd
 .PHONY: default all clean run
