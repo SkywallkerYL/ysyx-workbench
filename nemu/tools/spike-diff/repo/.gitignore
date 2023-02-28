@@ -6,3 +6,5 @@ build/
 *.d
 !.gdb_history
 .vscode/
+!*.in
+!*.ac
