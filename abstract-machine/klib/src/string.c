@@ -176,7 +176,7 @@ void *memset(void *s, int c, size_t n) {
     return NULL;
   }
   char *point = (char *)s;
-  for (size_t i = 0; i < n; i++)
+  for (int i = 0; i < n; i++)
   {
     *(point+i) = c;
   }

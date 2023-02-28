@@ -44,7 +44,7 @@ bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc);
 bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
   if (ref_r->pc!=pc) {Log("%s ref_pc: 0x%016lx npc_pc:0x%016lx ",ANSI_FMT("PC DIIF", ANSI_FG_RED) ,ref_r->pc,pc);return false;}
   bool regflag = true;
-  for (size_t i = 0; i < 32; i++)
+  for (int i = 0; i < 32; i++)
   {
     if (ref_r->gpr[i]!=cpu_gpr[i])
     {
@@ -115,7 +115,7 @@ void init_difftest(char *ref_so_file, long img_size, int port) {
 
 
   CPU_state refcpu;
-  for (size_t i = 0; i < 32; i++)
+  for (int i = 0; i < 32; i++)
   {
     refcpu.gpr[i] = cpu_gpr[i];
   }

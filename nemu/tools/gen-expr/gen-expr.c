@@ -77,7 +77,7 @@ static void gen_num(){
   case 1:   snprintf(s,sizeof(s),"%x",num);  break;
   default:   snprintf(s,sizeof(s),"%d",num);  break;
   }
-  for (size_t i = 0; s[i]!='\0'; i++)
+  for (int i = 0; s[i]!='\0'; i++)
   {
     gen(s[i]);
   }

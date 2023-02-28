@@ -86,7 +86,7 @@ static int cmd_info(char *args){
   {
     isa_reg_display();
     /*
-    for (size_t i = 0; i < 32; i++)
+    for (int i = 0; i < 32; i++)
     {
       printf ("pc: %lx \t regi: %ld \t  info: %lx \n",cpu.pc,i,cpu.gpr[i]); 
     }
@@ -114,7 +114,7 @@ static int cmd_x(char *args){
   paddr_t addexpr;
   sscanf(EXPR,"%x",&addexpr);
   //printf ("%x\t",addexpr);
-  for (size_t i = 0; i < addrn; i++)
+  for (int i = 0; i < addrn; i++)
   {
     printf("0x%08x\t 0x%08lx\n",addexpr,paddr_read(addexpr,4));
     addexpr+=4;
@@ -183,7 +183,7 @@ static int cmd_pt(char* args){
     
     i++;  
   }
-  for (size_t j = 0; j < len&&j<i-1; j++)
+  for (int j = 0; j < len&&j<i-1; j++)
   {
     int strl = strlen(str[j]);
     if (strl<=256)
@@ -194,7 +194,7 @@ static int cmd_pt(char* args){
       cal_result = expr(str[j],&success);
       if (success)
       {
-        printf("index: %ld realresult = %d, result = %d\n",j,a[j],cal_result);
+        printf("index: %d realresult = %d, result = %d\n",j,a[j],cal_result);
       }
       else
       {

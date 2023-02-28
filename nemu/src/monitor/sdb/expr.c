@@ -293,7 +293,7 @@ word_t expr(char *e, bool *success)
   /* TODO: Insert codes to evaluate the expression. */
   // printf("nr_token: %d\n", nr_token);
 
-  for (size_t i = 0; i < nr_token; i++)
+  for (int i = 0; i < nr_token; i++)
   {
     // 判断负号
     if (tokens[i].type == '-')
@@ -471,7 +471,7 @@ int dominant_operator(int p, int q)
 {
   int dompos = p, pair = 0;
   int pr = -2;
-  for (size_t i = p; i <= q; i++)
+  for (int i = p; i <= q; i++)
   {
     // 确定符号在括号之外
     if (tokens[i].type == '(')

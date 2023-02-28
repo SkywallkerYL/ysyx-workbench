@@ -129,7 +129,7 @@ void __am_input_keybrd(AM_INPUT_KEYBRD_T *kbd) {
       len++;
     }
     keybuf=keybuf-len;
-    for (size_t i = 0; i < sizeof(keyname)/(sizeof(keyname[0])); i++)
+    for (int i = 0; i < sizeof(keyname)/(sizeof(keyname[0])); i++)
     {
 
       //printf("%s %s\n",keybuf,keyname[i]);
@@ -188,7 +188,7 @@ void __am_gpu_fbdraw(AM_GPU_FBDRAW_T *ctl) {
   */
    int fd = open("/dev/fb",0,0);
   uint32_t * pixels = (uint32_t *) ctl->pixels;
-  for (size_t i = 0; i < h &&(y+i) < H; i++)
+  for (int i = 0; i < h &&(y+i) < H; i++)
   {
     uint64_t offset = (y+0+i)*W+(x+0);
 

@@ -111,7 +111,7 @@ word_t pc_ftrace[256];
 char  funcname_ftrace[256][32];
 void init_ftrace(char* elf_file)
 {
-  for (size_t i = 0; i < 256; i++)
+  for (int i = 0; i < 256; i++)
   {
     pc_ftrace[i] = 0;
     //funcname_ftrace[i] = {'\0'};
@@ -331,7 +331,7 @@ void init_ftrace(char* elf_file)
       p++;
     }
     /*
-    for (size_t j = 0; j < symblenumber; j++)
+    for (int j = 0; j < symblenumber; j++)
     {
       //if (allsymble[j].st_value!=addr) continue;
       uint8_t *p = sign_data;
@@ -370,7 +370,7 @@ void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1,word_t s
     vaddr_t realpc = src1-0x4;
     //读pc处的指令
     int tableind = 0;
-    for (size_t i = 0; i < 256; i++)
+    for (int i = 0; i < 256; i++)
     {
       if (realpc == pc_ftrace[i])
       {
@@ -399,7 +399,7 @@ void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1,word_t s
   }
   else
   {
-    for (size_t j = 0; j < symblenumber; j++)
+    for (int j = 0; j < symblenumber; j++)
     {
       if (allsymble[j].st_value!=addr) continue;
       //uint8_t *p = sign_data;
@@ -427,13 +427,13 @@ void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1,word_t s
         funcname[len] = '\0';
         bool pccallflag = 0;
         word_t localpc = cpu.pc;
-        for (size_t i = 0; i < 256; i++)
+        for (int i = 0; i < 256; i++)
         {
           //说明该函数已经调用过了
           if (pc_ftrace[i]==localpc) pccallflag=1;
         }
         int addind = 0;
-        for (size_t i = 0; i < 256; i++)
+        for (int i = 0; i < 256; i++)
         {
           if (pc_ftrace[i]==0) 
           {
@@ -717,7 +717,7 @@ word_t cache_read(uintptr_t addr,int len) {
   //printf("no hit cacheline:%d\n",group_base+line);
   read_cache(cache_p,addr);
   /*
-  for (size_t i = 0; i < BLOCK_SIZE; i++)
+  for (int i = 0; i < BLOCK_SIZE; i++)
   {
     assert(cache_p->data[i] == cache[group_base+line].data[i]);
   }
@@ -789,11 +789,11 @@ void init_cache(int total_size_width, int associativity_width) {
   cache = (struct CACHE *)malloc(sizeof(struct CACHE)*exp2(total_size_width - BLOCK_WIDTH));
   //printf("aaaaa\n");
   assert(cache);
-  for (size_t i = 0; i < exp2(total_size_width - BLOCK_WIDTH); i++)
+  for (int i = 0; i < exp2(total_size_width - BLOCK_WIDTH); i++)
   {
     cache[i].valid = 0;
     cache[i].dirty = 0;
-    for (size_t j = 0; j < BLOCK_SIZE; j++)
+    for (int j = 0; j < BLOCK_SIZE; j++)
     {
       cache[i].data[j] = 0x00;
     }

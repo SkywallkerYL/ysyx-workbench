@@ -32,7 +32,7 @@ int SDL_PollEvent(SDL_Event *ev) {
       len++;
     }
     keybuf=keybuf-len;
-    for (size_t i = 0; i < sizeof(keyname)/(sizeof(keyname[0])); i++)
+    for (int i = 0; i < sizeof(keyname)/(sizeof(keyname[0])); i++)
     {
 
       //printf("%s %s\n",keybuf,keyname[i]);
@@ -76,7 +76,7 @@ int SDL_WaitEvent(SDL_Event *event) {
       len++;
     }
     keybuf=keybuf-len;
-    for (size_t i = 0; i < sizeof(keyname)/sizeof(keyname[0]); i++)
+    for (int i = 0; i < sizeof(keyname)/sizeof(keyname[0]); i++)
     {
       //printf("%s %s\n",keybuf,keyname[i]);
       //printf("%s\n",keyname[i]);

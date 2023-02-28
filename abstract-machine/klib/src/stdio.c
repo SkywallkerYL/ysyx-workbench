@@ -13,7 +13,7 @@ void myputch(char p)
 unsigned long mpown(unsigned long m , unsigned long n)
 {
   unsigned long res = 1;
-  for (size_t i = 0; i < n; i++)
+  for (int i = 0; i < n; i++)
   {
     res = res * m;
   }

@@ -34,7 +34,7 @@ char iringbuf[iringbufsize][128];
 int iringbufind = 0;
 void printiringbuf(int finalinst)
 {
-  for (size_t i = 0; i < iringbufsize; i++)
+  for (int i = 0; i < iringbufsize; i++)
   {
     if (i == finalinst) printf("-->");
     printf("%s\n",iringbuf[i]);

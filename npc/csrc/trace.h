@@ -147,7 +147,7 @@ uint32_t Instr_Fetch ()
 #define iringbufsize 16
 void printiringbuf(int finalinst)
 {
-  for (size_t i = 0; i < iringbufsize; i++)
+  for (int i = 0; i < iringbufsize; i++)
   {
     if (i == finalinst) printf("-->");
     printf("%s\n",iringbuf[i]);
@@ -215,7 +215,7 @@ void instr_tracelog(bool flag){
 
 void init_ftrace(char* elf_file)
 {
-  for (size_t i = 0; i < 256; i++)
+  for (int i = 0; i < 256; i++)
   {
     pc_ftrace[i] = 0;
     //funcname_ftrace[i] = {'\0'};
@@ -453,7 +453,7 @@ void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1,word_t s
     vaddr_t realpc = src1-0x4;
     //读pc处的指令
     int tableind = 0;
-    for (size_t i = 0; i < 256; i++)
+    for (int i = 0; i < 256; i++)
     {
       if (realpc == pc_ftrace[i])
       {
@@ -485,7 +485,7 @@ void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1,word_t s
   }
   else
   {
-    for (size_t j = 0; j < symblenumber; j++)
+    for (int j = 0; j < symblenumber; j++)
     {
       if (allsymble[j].st_value!=addr) continue;
       //uint8_t *p = sign_data;
@@ -512,13 +512,13 @@ void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1,word_t s
         funcname[len] = '\0';
         bool pccallflag = 0;
         word_t localpc = Pc_Fetch();
-        for (size_t i = 0; i < 256; i++)
+        for (int i = 0; i < 256; i++)
         {
           //说明该函数已经调用过了
           if (pc_ftrace[i]==localpc) pccallflag=1;
         }
         int addind = 0;
-        for (size_t i = 0; i < 256; i++)
+        for (int i = 0; i < 256; i++)
         {
           if (pc_ftrace[i]==0) 
           {

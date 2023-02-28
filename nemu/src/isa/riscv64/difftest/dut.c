@@ -28,7 +28,7 @@ const char *regs0[] = {
 bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
   if (ref_r->pc!=cpu.pc) {printf("refpc:%08lx nemupc:%08lx lastpc:%08lx\n",ref_r->pc,cpu.pc,pc);return false;}
   bool regflag = true;
-  for (size_t i = 0; i < 32; i++)
+  for (int i = 0; i < 32; i++)
   {
     //printf("jjjjj\n");
     if (ref_r->gpr[i]!=cpu.gpr[i])

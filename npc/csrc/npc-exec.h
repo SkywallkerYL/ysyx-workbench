@@ -129,7 +129,7 @@ long initial_default_img(){
   //RiscvCpu__DOT__M_ext__DOT__Memory[0]
   //自己写失败了，之间memcpy
   //memcpy(&p_mem[0],(uint8_t*)&instr_mem,MSIZE);
-  for (size_t i = 0; i < 10; i++)
+  for (int i = 0; i < 10; i++)
   {
     memcpy(&p_mem[4*i],(uint8_t*)&instr_mem[i],4);
   }
@@ -193,7 +193,7 @@ void sim_once(uint64_t n){
 #ifdef CONFIG_DIFFTEST
   if(top->io_difftestvalid){
     //printf("copy\n");
-    for (size_t i = 0; i < 32; i++)
+    for (int i = 0; i < 32; i++)
     {
       npc_r.gpr[i]= cpu_gpr[i];
     }

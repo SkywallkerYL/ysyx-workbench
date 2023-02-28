@@ -103,12 +103,12 @@ static int cmd_x(char *args){
   uint32_t init = (addexpr-0x80000000);
  // printf ("init %d\n",init);
   uint32_t* p = (uint32_t *)(&p_mem);//&top->rootp->RiscvCpu__DOT__M[init];
-  for (size_t i = 0; i < init/4; i++)
+  for (int i = 0; i < init/4; i++)
   {
     p++;
   }
   
-  for (size_t i = 0; i < addrn; i++)
+  for (int i = 0; i < addrn; i++)
   {
     printf("0x%08lx\t 0x%08x\n",addexpr,*p);
     addexpr+=4;
@@ -125,7 +125,7 @@ const char *regs[] = {
   "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6"
 };
 void isa_reg_display(){
-  for (size_t i = 0; i < 32; i++)
+  for (int i = 0; i < 32; i++)
   {
     printf("%s \t 0x%08lx\n",regs[i],cpu_gpr[i]);
   }
@@ -167,7 +167,7 @@ static int cmd_imgprint(char *args){
   //printf("pc:0x%lx \n",maxpc );
   //exit(0);
   //int min = maxpc < MSIZE ? maxpc : MSIZE;
-  for (size_t i = 0; i < num; i++)
+  for (int i = 0; i < num; i++)
   {
     int index = pc-BASEpc + i*4;
     uint64_t localpc = pc+i*4;

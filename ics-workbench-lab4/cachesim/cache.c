@@ -117,7 +117,7 @@ uint32_t cache_read(uintptr_t addr) {
   //printf("no hit cacheline:%d\n",group_base+line);
   read_cache(cache_p,addr);
   /*
-  for (size_t i = 0; i < BLOCK_SIZE; i++)
+  for (int i = 0; i < BLOCK_SIZE; i++)
   {
     assert(cache_p->data[i] == cache[group_base+line].data[i]);
   }
@@ -189,11 +189,11 @@ void init_cache(int total_size_width, int associativity_width) {
   cache = (struct CACHE *)malloc(sizeof(struct CACHE)*exp2(total_size_width - BLOCK_WIDTH));
   //printf("aaaaa\n");
   assert(cache);
-  for (size_t i = 0; i < exp2(total_size_width - BLOCK_WIDTH); i++)
+  for (int i = 0; i < exp2(total_size_width - BLOCK_WIDTH); i++)
   {
     cache[i].valid = 0;
     cache[i].dirty = 0;
-    for (size_t j = 0; j < BLOCK_SIZE; j++)
+    for (int j = 0; j < BLOCK_SIZE; j++)
     {
       cache[i].data[j] = 0x00;
     }
