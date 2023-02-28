@@ -77,9 +77,11 @@ void NDL_DrawRect(uint32_t *pixels, int x, int y, int w, int h) {
   //AM_GPU_CONFIG_T ev = io_read(AM_GPU_CONFIG);
   ///uint32_t height = ev.height;
   //uint32_t width = ev.width;
+  int initoff = (y+Canvas_y)*screen_w+(x+Canvas_x);
   for (int i = 0; i < h &&(y+i) < Canvas_h; i++)
   {
     uint64_t offset = (y+Canvas_y+i)*screen_w+(x+Canvas_x);
+    assert(offset>=initoff);
     //printf("offset %d screen_w %d\n",offset,screen_w);
     //printf("offset:%d x:%d y:%d\n",offset,offset%screen_w,offset/screen_w);
     //x+w不能超过画布

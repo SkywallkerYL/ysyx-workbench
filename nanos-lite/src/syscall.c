@@ -90,7 +90,7 @@ void do_syscall(Context *c) {
     case SYS_write :
       ret = fs_write((int)c->GPR2, (void *)c->GPR3, (size_t)c->GPR4);
 #ifdef STRACE
-      Log("fs_write(%s,%p,%d) return %d",get_file_name(c->GPR2),(void *)c->GPR3,(size_t)c->GPR4,ret);
+      Log("SYS_write(%s,%p,%d) return %d",get_file_name(c->GPR2),(void *)c->GPR3,(size_t)c->GPR4,ret);
 #endif
       break;
     case SYS_brk :
@@ -102,38 +102,38 @@ void do_syscall(Context *c) {
       case SYS_open :
       ret = fs_open((const char *)c->GPR2, (int)c->GPR3, (int)c->GPR4);
 #ifdef STRACE
-      Log("fs_open(%s,%d,%d) return %d",(const char *)c->GPR2,(int)c->GPR3,(int)c->GPR4,ret);
+      Log("SYS_open(%s,%d,%d) return %d",(const char *)c->GPR2,(int)c->GPR3,(int)c->GPR4,ret);
 #endif
       break;
       case SYS_read :
       ret = fs_read((int)c->GPR2, (void *)c->GPR3, (size_t)c->GPR4);
 #ifdef STRACE
-      Log("fs_read(%s,%p,%d) return %d",get_file_name((int)c->GPR2),(void *)c->GPR3,(size_t)c->GPR4,ret);
+      Log("SYS_read(%s,%p,%d) return %d",get_file_name((int)c->GPR2),(void *)c->GPR3,(size_t)c->GPR4,ret);
 #endif
       break;
       case SYS_lseek :
       ret = fs_lseek((int)c->GPR2, (size_t)c->GPR3, (int)c->GPR4);
 #ifdef STRACE
-      Log("fs_lseek(%s,%x,%d) return %d",get_file_name((int)c->GPR2),(size_t)c->GPR3,(int)c->GPR4,ret);
+      Log("SYS_lseek(%s,%x,%d) return %d",get_file_name((int)c->GPR2),(size_t)c->GPR3,(int)c->GPR4,ret);
 #endif
       break;
       case SYS_close :
       ret = fs_close((int)c->GPR2);
 #ifdef STRACE
-      Log("fs_close(%s) return %d",get_file_name((int)c->GPR2),ret);
+      Log("SYS_close(%s) return %d",get_file_name((int)c->GPR2),ret);
 #endif
       break;
       case SYS_gettimeofday:
       ret = sys_gettimeofday((struct timeval *)c->GPR2,(struct timezone *)c->GPR3);
 #ifdef STRACE
-      Log("sys_gettimeofday(%p, %p, %d) = %d", c->GPR2, c->GPR3, c->GPR4, ret);
+      Log("SYS_gettimeofday(%p, %p, %d) = %d", c->GPR2, c->GPR3, c->GPR4, ret);
 #endif
       break;
       case SYS_execve:
 #ifdef STRACE
-      Log("sys_execve(%s, %d, %d) ", c->GPR2, 0, 0);
+      Log("SYS_execve(%s, %d, %d) ", c->GPR2, 0, 0);
 #endif
-      //Log("sys_execve(%s, %d, %d) ", c->GPR2, 0, 0);
+      //Log("SYS_execve(%s, %d, %d) ", c->GPR2, 0, 0);
       ret = sys_execve((const char *)c->GPR2,(char * const *)c->GPR3,(char * const *)c->GPR4);
       
       break;
