@@ -93,14 +93,15 @@ void csrrw_inst(word_t csr, word_t src1,Decode *s,bool z_imm,bool read) {
 void Etrace(word_t mstatus, word_t mcause ,word_t mepc,word_t mtvec, bool ecall);
 #endif
 word_t mret_inst(){
+  //这里就是触发异常的时候反过来 MPIE复制到MIE，来恢复使能
   if(cpu.mstatus&(MPIE)) cpu.mstatus = cpu.mstatus|(MIE);
   else cpu.mstatus = cpu.mstatus&(~(MIE));
   cpu.mstatus = cpu.mstatus|((MPIE));
-#ifndef CONFIG_TARGET_SHARE
+  //同样的，没有实现其他模式，mpp就不管了
   //printf("mstatus: 0x%016lx\n",cpu.mstatus);
-  cpu.mstatus = cpu.mstatus&0xFFFFFFFFFFFFE7FF;
+  //cpu.mstatus = cpu.mstatus&0xFFFFFFFFFFFFE7FF;
   //printf("mstatus: 0x%016lx\n",cpu.mstatus);
-#endif
+
 #ifdef CONFIG_ETRACE
   Log("cpupc:%lx: mret  mastatus:0x%lx mcause:0x%lx mtvec:%lx",cpu.mepc,cpu.mstatus,cpu.mcause,cpu.mtvec);
   Etrace(cpu.mstatus, cpu.mcause ,cpu.pc,cpu.mtvec,0);

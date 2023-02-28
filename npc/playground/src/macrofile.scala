@@ -368,7 +368,7 @@ object func{
         //printf(p"mstatus=0x${Hexadecimal(chosemstatus)} \n")
         val finalmstatus = chosemstatus & (~ parm.MIE.U(parm.REGWIDTH.W))
         //printf(p"mstatus=0x${Hexadecimal(finalmstatus)} \n")
-        val realfinal = finalmstatus //| "x1800".U // 这一部也是nemu自己运行时需要的
+        val realfinal = finalmstatus // 没实现其他模式mpp位先不管
         //printf(p"mstatus=0x${Hexadecimal(realfinal)} \n")
         //mstatus := mstatus & (~ parm.MIE.U)
         //mstatus := mstatus | "x1800".U
@@ -388,11 +388,10 @@ object func{
         //printf(p"mstatus=0x${Hexadecimal(chosemstatus)} \n")
         val finalmstatus = chosemstatus | ( parm.MPIE.U(parm.REGWIDTH.W))
         //printf(p"mstatus=0x${Hexadecimal(finalmstatus)} \n")
-        val realfinal = finalmstatus //& "xFFFFFFFFFFFFE7FF".U   // 这里的实现与nemu不一样，去掉这一个可以通过diff
-        //而nemu自己运行时，需要进行该操作
+        val realfinal = finalmstatus //同样的Mpp没实现，也不管 
         //printf(p"mstatus=0x${Hexadecimal(realfinal)} \n")
-        //mstatus := mstatus & (~ parm.MIE.U)
-        //mstatus := mstatus | "x1800".U
+        //)
+        //
         return realfinal
     } 
     def Mcause (Mcauseflag : UInt, localmcause : UInt): UInt ={
