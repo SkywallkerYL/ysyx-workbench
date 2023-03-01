@@ -94,7 +94,7 @@ int fs_open(const char *pathname, int flags, int mode)
       //if (i == FD_STDIN || i == FD_STDOUT || i == FD_STDERR)
       if (i < FB_DEV)
       {
-        if (i == FD_STDIN || i == FD_STDOUT || i == FD_STDERR)Log("File open ignore %s", pathname);
+        
         return i;
       }
       //OpenFileTable[OpenNum].fd = i;
@@ -121,11 +121,7 @@ size_t fs_read(int fd, void *buf, size_t len)
   }
   
   /*
-  if (fd == FD_STDIN || fd == FD_STDOUT || fd == FD_STDERR)
-  {
-    Log("File read ignore %s", file_table[fd].name);
-    return 0;
-  }
+
   */
   /*
   int openind = GetOpenInd(fd);
@@ -140,7 +136,8 @@ size_t fs_read(int fd, void *buf, size_t len)
   if (openoff > file_table[fd].size)
     return 0;
   readlen = (openoff + len) > file_table[fd].size ? (file_table[fd].size - openoff) : len;
-  ramdisk_read(buf, file_table[fd].disk_offset + openoff, readlen);
+  assert(ramdisk_read(buf, file_table[fd].disk_offset + openoff, readlen) == readlen);
+  //if(ramdisk_read(buf, file_table[fd].disk_offset + openoff, readlen)!=readlen) return -1;
   //OpenFileTable[openind].open_offset += readlen;
   file_table[fd].open_offset  += readlen;
   return readlen;
@@ -193,7 +190,7 @@ size_t fs_write(int fd, const void *buf, size_t len)
   */
   size_t writelen = len;
   size_t openoff = file_table[fd].open_offset;//OpenFileTable[openind].open_offset;
-  if (openoff > file_table[fd].size) return 0;
+  if (openoff > file_table[fd].size) return -1;
   writelen = (openoff + len) > file_table[fd].size ? (file_table[fd].size - openoff) : len;
 
   if(write!=NULL) {
@@ -204,7 +201,7 @@ size_t fs_write(int fd, const void *buf, size_t len)
     }
   }
   
-  ramdisk_write(buf, file_table[fd].disk_offset + openoff, writelen);
+  assert(ramdisk_write(buf, file_table[fd].disk_offset + openoff, writelen)==writelen);
   //OpenFileTable[openind].open_offset += writelen;
   file_table[fd].open_offset = writelen;
   return writelen;
@@ -229,7 +226,7 @@ size_t fs_lseek(int fd, size_t offset, int whence)
   //if (fd == FD_STDIN || fd == FD_STDOUT || fd == FD_STDERR)
   if (fd < FB_DEV)
   {
-    if (fd == FD_STDIN || fd == FD_STDOUT || fd == FD_STDERR) Log("File lseek ignore %s", file_table[fd].name);
+    //ignore
     return 0;
   }
   /*
@@ -269,7 +266,7 @@ int fs_close(int fd)
   //if (fd == FD_STDIN || fd == FD_STDOUT || fd == FD_STDERR)
   if (fd < FB_DEV)
   {
-    if (fd == FD_STDIN || fd == FD_STDOUT || fd == FD_STDERR) Log("File close ignore %s", file_table[fd].name);
+    //ignore
     return 0;
   }
   /*
