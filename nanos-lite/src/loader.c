@@ -28,6 +28,14 @@ int fs_close(int fd);
 //extern Finfo file_table[] ;
 
 #define MagicNumber  0x7f454c46020101000000000000000000
+
+/*
+nano slite这里是通过编译把程序的ramdisk包含进来，即resources.S
+然后通过uload 跳转到程序的入口
+*/
+
+
+
 static uintptr_t loader(PCB *pcb, const char *filename) {
   //TODO();
   // 多个文件要根据文件名字确定read的起始地址

@@ -3,6 +3,7 @@
 #include "proc.h"
 void naive_uload(PCB *pcb, const char *filename);
 //sys相关函数在这里实现，syscall.h是从navyapps链接来的，因此不要修改
+
 //不然会触发一些难以理解的行为 
 int sys_yield() {
     yield();
@@ -43,7 +44,14 @@ struct timezone {
     int tz_minuteswest;     /* minutes west of Greenwich */
     int tz_dsttime;         /* type of DST correction */
 };
-
+/*
+时钟不看成文件，
+用户程序要时钟的时候 
+触发一次系统调用，在这里io_read
+nano-slite也是一个运行在am之上的程序，调用am的接口
+调那边的am_upertime函数 
+在nemu来说，就是访问时钟的地址
+*/
 int sys_gettimeofday(struct timeval *tv, struct timezone *tz){
    uint64_t us = io_read(AM_TIMER_UPTIME).us; // 
    tv->tv_sec = us/1000000;//io_read(AM_TIMER_UPTIME).us;
@@ -65,7 +73,27 @@ int sys_execve(const char *filename,char * const argv[], char *const envp[]){
       return -1;
 }
 
+/*
+记录一下自己的理解
+程序触发一次系统调用 即由navyapps提供的库来支撑在 syscall里面
+通过ecall 让nanoslite跳转到handle 然后发现是系统调用
+进入do_syscall
 
+
+以一个字符输出为例子来看
+用户程序需要输出时 最后会调用到write
+
+然后向nano slite触发syscall，调用 sys_write
+
+而对于nemu来说，跟am类似，受到了putch之后，就outb 
+serial handl-> serial_putc -> putc
+
+有了简易文件系统之后，就把这些都看成文件了，输入输出也勘测文件
+通过fs_write来   如果是输出，fs_write再跳到串口的write 上，即serial_write
+里面就是Putch
+
+如果用户程序打开文件 fopen   最后调用到_open，向操作系统触发syscall再在这边
+*/
 
 void do_syscall(Context *c) {
   uintptr_t a[4];

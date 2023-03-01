@@ -29,7 +29,7 @@ Context* __am_irq_handle(Context *c) {
         ev.event = EVENT_IRQ_TIMER; break;
       default: ev.event = EVENT_ERROR; break;
     }
-
+    //跳转到user_handler 交给软件来处理
     c = user_handler(ev, c);
     assert(c != NULL);
     //printf("%s\n",);
@@ -43,7 +43,19 @@ extern void __am_asm_trap(void);//trap.S
 // add an inst addi t2,t2,4 before csrw mepc, t2
 // it means that pc+4 to get out of the trap pc
 //
+/*
+在这里记录一下对一场处理的理解
+nanoslite那边  调用了cte init 
+将异常入口社会设置为 mtvec
+触发一次异常  ecall指令跳转到 asm_trap
+其首先会保存上下文，即让栈置镇减去contextsize，依次存放上下文
+然后进入事件分发函数irq_handle  在里面决定event 
+然后交给操作系统的handle来处理处理完后
+返回到trap.S恢复上下文
+注意一下mepc的加
+恢复完后，mret
 
+*/
 bool cte_init(Context*(*handler)(Event, Context*)) {
   // initialize exception entry
   asm volatile("csrw mtvec, %0" : : "r"(__am_asm_trap));

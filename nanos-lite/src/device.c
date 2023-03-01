@@ -24,7 +24,7 @@ size_t serial_write(const void *buf, size_t offset, size_t len) {
   //return 0;
 }
 //参考 /home/yangli/ysyx-workbench/am-kernels/tests/am-tests/src/tests/keyboard.c
-
+//键盘的读
 size_t events_read(void *buf, size_t offset, size_t len) {
   AM_INPUT_KEYBRD_T ev = io_read(AM_INPUT_KEYBRD);
   if (ev.keycode == AM_KEY_NONE) return 0;

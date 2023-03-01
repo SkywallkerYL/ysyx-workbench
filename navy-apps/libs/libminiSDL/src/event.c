@@ -108,19 +108,5 @@ int SDL_PeepEvents(SDL_Event *ev, int numevents, int action, uint32_t mask) {
 //https://wiki.libsdl.org/SDL2/SDL_GetKeyboardState
 //Returns a pointer to an array of key states.
 uint8_t* SDL_GetKeyState(int *numkeys) {
-  /*
-  SDL_Event event ;
-
-  if (SDL_PollEvent(&event)&&(event.key.type == SDL_KEYDOWN))
-  {
-    printf("%d %s\n",event.key.keysym.sym,keyname[event.key.keysym.sym]);
-    //if (event.key.type == SDL_KEYDOWN)
-    //{
-      keystates[event.key.keysym.sym] = 1;
-    //}
-  }
-  else memset(keystates,0,sizeof(keystates));
-  
-  */
   return keystates;
 }

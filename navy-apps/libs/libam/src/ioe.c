@@ -1,5 +1,16 @@
 #include <am.h>
+/*
+这里就是用navy的运行环境实现am的api
+比如一个getupertime 用navy提供的gettime实现
+虽然最后还是会调到am自己的getuptime
 
+vga 也是 用fb的写最后也会调到am自己的fbdraw
+
+键盘则通过read调回去
+
+这样子在am上运行的程序可以直接拿过来，通过相同的接口，在Navy上饶益圈回去
+
+*/
 void __am_timer_init();
 void __am_gpu_init();
 //void __am_audio_init();
@@ -186,7 +197,7 @@ void __am_gpu_fbdraw(AM_GPU_FBDRAW_T *ctl) {
   SDL_BlitSurface(s, NULL, surface, &rect);
   SDL_FreeSurface(s);
   */
-   int fd = open("/dev/fb",0,0);
+  int fd = open("/dev/fb",0,0);
   uint32_t * pixels = (uint32_t *) ctl->pixels;
   for (int i = 0; i < h &&(y+i) < H; i++)
   {
@@ -199,6 +210,6 @@ void __am_gpu_fbdraw(AM_GPU_FBDRAW_T *ctl) {
   
   //uint64_t offset = y*screen_w+x;
   //write((void *)pixels,offset,len);
-  close(fd);
+  //close(fd);
 }
 

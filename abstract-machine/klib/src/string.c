@@ -4,26 +4,29 @@
 
 #if !defined(__ISA_NATIVE__) || defined(__NATIVE_USE_KLIB__)
 
-size_t strlen(const char *s) {
-  //panic("Not implemented");
-  //int point = 0;
-  if(s==NULL) return 0;
+size_t strlen(const char *s)
+{
+  // panic("Not implemented");
+  // int point = 0;
+  if (s == NULL)
+    return 0;
   const char *pt = s;
-  //int maxsize = sizeof(s)/sizeof(char);
-  while (*pt++!='\0')
+  // int maxsize = sizeof(s)/sizeof(char);
+  while (*pt++ != '\0')
   {
-    //point++;
+    // point++;
   }
-  return pt-s-1;
+  return pt - s - 1;
 }
 
-char *strcpy(char *dst, const char *src) {
-  //panic("Not implemented");
-  //int size = sizeof(dst)/(sizeof(char));
-  //memset(dst,'\0',size);
+char *strcpy(char *dst, const char *src)
+{
+  // panic("Not implemented");
+  // int size = sizeof(dst)/(sizeof(char));
+  // memset(dst,'\0',size);
   const char *srcpoint = src;
-  char* dstpoint = dst ;
-  while (*(srcpoint)!='\0'/*&&dstpoint<size*/)
+  char *dstpoint = dst;
+  while (*(srcpoint) != '\0' /*&&dstpoint<size*/)
   {
     *dstpoint = *(srcpoint);
     dstpoint++;
@@ -39,13 +42,14 @@ char *strcpy(char *dst, const char *src) {
   return dst;
 }
 
-char *strncpy(char *dst, const char *src, size_t n) {
-  //panic("Not implemented");
-  //int size = sizeof(dst)/(sizeof(char));
-  //memset(dst,'\0',size);
+char *strncpy(char *dst, const char *src, size_t n)
+{
+  // panic("Not implemented");
+  // int size = sizeof(dst)/(sizeof(char));
+  // memset(dst,'\0',size);
   const char *srcpoint = src;
-  char* dstpoint = dst ;
-  while (*(srcpoint)!='\0'&&n--/*&&dstpoint<size*/)
+  char *dstpoint = dst;
+  while (*(srcpoint) != '\0' && n-- /*&&dstpoint<size*/)
   {
     *dstpoint = *(srcpoint);
     dstpoint++;
@@ -61,13 +65,14 @@ char *strncpy(char *dst, const char *src, size_t n) {
   return dst;
 }
 
-char *strcat(char *dst, const char *src) {
-  //panic("Not implemented");
-  //int size = sizeof(dst)/(sizeof(char));
+char *strcat(char *dst, const char *src)
+{
+  // panic("Not implemented");
+  // int size = sizeof(dst)/(sizeof(char));
   int dstlen = strlen(dst);
   const char *srcpoint = src;
-  char* dstpoint = dst + dstlen ;
-  while (*(srcpoint)!='\0')
+  char *dstpoint = dst + dstlen;
+  while (*(srcpoint) != '\0')
   {
     *(dstpoint) = *(srcpoint);
     dstpoint++;
@@ -81,24 +86,24 @@ char *strcat(char *dst, const char *src) {
   else dst[size-1] = '\0';
   */
   return dst;
-
 }
 
-int strcmp(const char *s1, const char *s2) {
+int strcmp(const char *s1, const char *s2)
+{
   /*
   s1 < s2 returnvalue <0 ;
   s1 = s2 returnvalue =0 ;
   s1 > s2 returnvalue >0 ;
   */
-  //panic("Not implemented");
-  //也可以用strlen，但是就不能应对没有'\0'的情况了
-  int sizes1 = strlen(s1);//sizeof (s1)/sizeof(char);
-  int sizes2 = strlen(s2);//sizeof (s2)/sizeof(char);
+  // panic("Not implemented");
+  // 也可以用strlen，但是就不能应对没有'\0'的情况了
+  int sizes1 = strlen(s1); // sizeof (s1)/sizeof(char);
+  int sizes2 = strlen(s2); // sizeof (s2)/sizeof(char);
   int point = 0;
-  //两个都非空时
-  while (point < sizes1 && point < sizes2 )
+  // 两个都非空时
+  while (point < sizes1 && point < sizes2)
   {
-    if (s1[point] < s2 [point])
+    if (s1[point] < s2[point])
     {
       return -1;
     }
@@ -108,10 +113,10 @@ int strcmp(const char *s1, const char *s2) {
     }
     else if (s1[point] == s2[point])
     {
-      point ++;
+      point++;
     }
   }
-  if (point == (sizes1) && point == (sizes2) )
+  if (point == (sizes1) && point == (sizes2))
   {
     return 0;
   }
@@ -126,15 +131,16 @@ int strcmp(const char *s1, const char *s2) {
   return 0;
 }
 
-int strncmp(const char *s1, const char *s2, size_t n) {
-  //panic("Not implemented");
-  int sizes1 = strlen(s1);//sizeof (s1)/sizeof(char);
-  int sizes2 = strlen(s2);//sizeof (s2)/sizeof(char);
+int strncmp(const char *s1, const char *s2, size_t n)
+{
+  // panic("Not implemented");
+  int sizes1 = strlen(s1); // sizeof (s1)/sizeof(char);
+  int sizes2 = strlen(s2); // sizeof (s2)/sizeof(char);
   int point = 0;
-  //两个都非空时
-  while (point < sizes1 && point < sizes2 && point < n )
+  // 两个都非空时
+  while (point < sizes1 && point < sizes2 && point < n)
   {
-    if (s1[point] < s2 [point])
+    if (s1[point] < s2[point])
     {
       return -1;
     }
@@ -144,16 +150,16 @@ int strncmp(const char *s1, const char *s2, size_t n) {
     }
     else if (s1[point] == s2[point])
     {
-      point ++;
+      point++;
     }
   }
   if (point == n)
   {
     return 0;
   }
-  else 
+  else
   {
-    if (point == (sizes1) && point == (sizes2) )
+    if (point == (sizes1) && point == (sizes2))
     {
       return 0;
     }
@@ -169,26 +175,28 @@ int strncmp(const char *s1, const char *s2, size_t n) {
   return 0;
 }
 
-void *memset(void *s, int c, size_t n) {
-  //panic("Not implemented");
-  if (s == NULL || n <0)
+void *memset(void *s, int c, size_t n)
+{
+  // panic("Not implemented");
+  if (s == NULL || n < 0)
   {
     return NULL;
   }
   char *point = (char *)s;
   for (int i = 0; i < n; i++)
   {
-    *(point+i) = c;
+    *(point + i) = c;
   }
   return s;
 }
 
-void *memmove(void *dst, const void *src, size_t n) {
-  //panic("Not implemented");
-  //要考虑内存重叠的情况
+void *memmove(void *dst, const void *src, size_t n)
+{
+  // panic("Not implemented");
+  // 要考虑内存重叠的情况
   assert(NULL != src && NULL != dst);
-  char * pdst = (char*) dst;
-  char * psrc = (char*) src;
+  char *pdst = (char *)dst;
+  char *psrc = (char *)src;
   if (pdst <= psrc || pdst >= psrc + n)
   {
     while (n--)
@@ -200,58 +208,59 @@ void *memmove(void *dst, const void *src, size_t n) {
   }
   else
   {
-    pdst = pdst+n-1;
-    psrc = psrc+n-1;
+    pdst = pdst + n - 1;
+    psrc = psrc + n - 1;
     while (n--)
     {
-      *pdst = *psrc; 
+      *pdst = *psrc;
     }
     pdst--;
     psrc--;
   }
   return dst;
 }
-
-void *memcpy(void *out, const void *in, size_t n) {
-  //panic("Not implemented");
+// 内存重叠行为位定义
+void *memcpy(void *out, const void *in, size_t n)
+{
+  // panic("Not implemented");
   assert(NULL != out && NULL != in);
-  char * pdst = (char*) out;
-  char * psrc = (char*) in;
+  char *pdst = (char *)out;
+  char *psrc = (char *)in;
   while (n--)
   {
-    *pdst++=*psrc++;
+    *pdst++ = *psrc++;
   }
 
   return out;
 }
 
-int memcmp(const void *s1, const void *s2, size_t n) {
-  //panic("Not implemented");
+int memcmp(const void *s1, const void *s2, size_t n)
+{
+  // panic("Not implemented");
   assert(NULL != s1 && NULL != s2);
-  char * pdst = (char*) s1;
-  char * psrc = (char*) s2;
+  char *pdst = (char *)s1;
+  char *psrc = (char *)s2;
   while (n--)
   {
-    if (*(pdst)<*(psrc))
+    if (*(pdst) < *(psrc))
     {
-      //printf("%c<%c",*(pdst),*(psrc));
+      // printf("%c<%c",*(pdst),*(psrc));
       return -1;
     }
-    else if (*(pdst)>*(psrc))
+    else if (*(pdst) > *(psrc))
     {
-      //printf("%c>%c",*(pdst),*(psrc));
+      // printf("%c>%c",*(pdst),*(psrc));
       return 1;
     }
-    else if (*(pdst)==*(psrc))
+    else if (*(pdst) == *(psrc))
     {
       (pdst)++;
       psrc++;
-      //printf("%c=%c",*(pdst),*(psrc));
+      // printf("%c=%c",*(pdst),*(psrc));
       continue;
     }
   }
   return 0;
-  
 }
 
 #endif

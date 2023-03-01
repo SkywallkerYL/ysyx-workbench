@@ -48,6 +48,7 @@ int main(){
         __uint32_t gap_ms = now_ms-old_ms;
         if (gap_ms>500*multy)
         {
+            printf("%ld %ld\n",old_ms,now_ms);
             old_ms = now_ms;
             printf("time:%d %d*0.5s passed\n",time,multy);
             time++;

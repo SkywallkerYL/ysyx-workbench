@@ -5,9 +5,10 @@
 
 void __am_gpu_init() {
   int i;
+  //这里其实应该直接读的，但是不知道为啥读不到
   int w = 400;//*(volatile uint32_t *)(VGACTL_ADDR + 4);
   int h = 300;//*(volatile uint32_t *)(VGACTL_ADDR + 0);
-  printf("%d %d\n",w,h);
+  //printf("%d %d\n",w,h);
   uint32_t *fb = (uint32_t *)(uintptr_t) FB_ADDR;
   for ( i = 0; i < w*h; i++)
   {
@@ -18,6 +19,7 @@ void __am_gpu_init() {
 }
 
 void __am_gpu_config(AM_GPU_CONFIG_T *cfg) {
+  //这样子也不行
   uint16_t w = 400;//(*(volatile uint32_t *)(VGACTL_ADDR)&0xff00)>>16;
   uint16_t h = 300;//(*(volatile uint32_t *)(VGACTL_ADDR)&0x00ff);
   *cfg = (AM_GPU_CONFIG_T) {
@@ -36,10 +38,11 @@ void __am_gpu_fbdraw(AM_GPU_FBDRAW_T *ctl) {
   //在x y处绘制w*h的图像，行优先存储在pixels中
   uint32_t *fb=(uint32_t *)(uintptr_t)FB_ADDR;
   uint32_t * base = (uint32_t *)ctl->pixels;
-  int cp_bytes = sizeof(uint32_t)* ((w<W-x)?w:W-x);
-  for (int j = 0; j<h&&y+j<H; j++)
+  int line = sizeof(uint32_t)* (((w+x)<W)?w:W-x);
+  //把像素写到fb里面，注意不要超过屏幕边界
+  for (int j = 0; j<h&&(y+j<H); j++)
   {
-    memcpy(&fb[(y+j)*W+x],base,cp_bytes);
+    memcpy(&fb[(y+j)*W+x],base,line);
     //base跳到下一行，因此总是+w
     base+=w;
   }

@@ -41,7 +41,11 @@
 #else
 #error _syscall_ is not implemented
 #endif
+/*
+这里是给程序提供接口进行系统调用
 
+
+*/
 intptr_t _syscall_(intptr_t type, intptr_t a0, intptr_t a1, intptr_t a2) {
   register intptr_t _gpr1 asm (GPR1) = type;
   //printf("a7 %d\n",type);
@@ -73,6 +77,7 @@ int _write(int fd, void *buf, size_t count) {
 extern intptr_t _end;
 intptr_t ProgramBreak = (intptr_t)(&_end);
 //man 2 sbrk 看手册
+//用户程序调用这个来进行对堆取申请更改
 void *_sbrk(intptr_t increment) {
   intptr_t oldProBre = ProgramBreak;
   //通过SYS_brk系统调用来让操作系统设置新program break

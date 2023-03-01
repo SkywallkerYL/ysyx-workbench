@@ -29,7 +29,8 @@ word_t isa_raise_intr(word_t NO, vaddr_t epc)
   // cpu.mtvec = NO;
   // cpu.mtvec = epc;
   //根据异常来源设置mcause
-  if (  NO == -1|| (NO<=19))
+  //-1  fffffff....
+  if (  NO == -1|| (NO<=16))
   {
     cpu.mcause = 11;
   }

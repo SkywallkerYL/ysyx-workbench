@@ -35,6 +35,7 @@ static void *vmem = NULL;
 static uint32_t *vgactl_port_base = NULL;
 
 #ifdef CONFIG_VGA_SHOW_SCREEN
+//这个比如说要在nemu上运行nemu ，那么就不能自己用设备了，只能调am的io_read啥的
 #ifndef CONFIG_TARGET_AM
 #include <SDL2/SDL.h>
 
@@ -71,23 +72,13 @@ static inline void update_screen() {
 #endif
 
 void vga_update_screen() {
-#ifndef CONFIG_TARGET_AM
+  //硬件这边也要实现一下   同步的时候和就更新屏幕
+  //am 那边sycaddr 是 ctladdr + 4
   if (vgactl_port_base[1])
   {
     update_screen();
     vgactl_port_base[1] = 0;
   }
-  
-#elif
-  if (io_read(AM_GPU_STATUS).ready)
-  {
-    update_screen();
-    vgactl_port_base[1] = 0;
-  }
-#endif
-  //bool sync = MUXDEF(AM_GPU_FBDRAW, io_read(AM_GPU_FBDRAW).sync,  MUXDEF(CONFIG_HAS_VGA,CONFIG_HAS_VGA,0));
-  //if (sync) update_screen();
-  //else printf("%d\n",sync);
   // TODO: call `update_screen()` when the sync register is non-zero,
   // then zero out the sync register
 }

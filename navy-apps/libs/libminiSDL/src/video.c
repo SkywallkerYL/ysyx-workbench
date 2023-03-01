@@ -5,6 +5,13 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdio.h>
+/*
+在这里记录一下对sdl这个库的理解
+就相当于让一些gui程序可以在navy提供的环境上运行，即运行在nano上
+sdl 的底层实现还是由NDL支撑
+
+
+*/
 // 现在像素阵列中直接存放32位的颜色信息
 // uint32_t color_xy = pixels[x][y];
 
@@ -191,12 +198,15 @@ void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color)
 // extern int screen_w , screen_h ;
 void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h)
 {
+  //printf("aaaaa\n");
   bool flag = w == 0 && h == 0;
   int w_ = flag ? s->w : w;
   int h_ = flag ? s->h : h;
+  //printf("w_:%d h_:%d\n",w_,h_);
   if (s->format->palette == NULL)
   {
     NDL_DrawRect((uint32_t *)(s->pixels), x, y, w_, h_);
+    //printf("w_:%d h_:%d\n",w_,h_);
   }
 
   else
@@ -227,7 +237,7 @@ void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h)
     NDL_DrawRect((uint32_t *)(pixels), x, y, w_, h_);
     free(pixels);
   }
-
+  return;
   // io_write(AM_GPU_FBDRAW, x, y, (void *)s->pixels, w, h, true);
 }
 
