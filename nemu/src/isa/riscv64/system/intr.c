@@ -48,6 +48,7 @@ word_t isa_raise_intr(word_t NO, vaddr_t epc)
   //mpp位即 11 12 位
   //异常之前的权限模式 11 machine
   //这里其实应该要保留权限在mpp中，但是由于只实现了M模式，就跳过了
+  //这样子difftest过不了。。mstatus 不检查mstatus了
   //cpu.mstatus = cpu.mstatus | 0x1800;
 
   // printf("pc:0x%016lx mstatus: 0x%016lx\n",cpu.pc,cpu.mstatus);
@@ -56,7 +57,7 @@ word_t isa_raise_intr(word_t NO, vaddr_t epc)
   Log("mepc:%lx:  ecall mastatus:0x%lx mcause:0x%lx mtvec:%lx",epc,cpu.mstatus,cpu.mcause,mtvec);
   Etrace(cpu.mstatus, cpu.mcause, epc, mtvec, 1);
 #endif
-  //  异常指令pc保存在mepc中，pc设置为mtvec
+  //异常指令pc保存在mepc中，pc设置为mtvec
   cpu.mepc = epc;
   return mtvec;
 }

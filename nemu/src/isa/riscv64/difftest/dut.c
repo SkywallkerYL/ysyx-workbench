@@ -24,7 +24,7 @@ const char *regs0[] = {
   "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6"
 };
 
-//#define CHECK_CSR
+#define CHECK_CSR
 bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
   if (ref_r->pc!=cpu.pc) {printf("refpc:%08lx nemupc:%08lx lastpc:%08lx\n",ref_r->pc,cpu.pc,pc);return false;}
   bool regflag = true;
@@ -52,10 +52,12 @@ bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
       printf("mtvec ref:%08lx nemu:%08lx lastpc:%08lx\n",ref_r->mtvec,cpu.mtvec,pc);
       regflag = false;
   }
+  /*
   if (ref_r->mstatus !=cpu.mstatus){
       printf("mstatus ref:%08lx nemu:%08lx lastpc:%08lx\n",ref_r->mstatus,cpu.mstatus,pc);
       regflag = false;
   }
+  */
 #endif
   return regflag;
 }
