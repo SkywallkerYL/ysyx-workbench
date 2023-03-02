@@ -99,7 +99,7 @@ word_t mret_inst(){
   cpu.mstatus = cpu.mstatus|((MPIE));
   //同样的，没有实现其他模式，mpp就不管了
   //printf("mstatus: 0x%016lx\n",cpu.mstatus);
-  //cpu.mstatus = cpu.mstatus&0xFFFFFFFFFFFFE7FF;
+
   //printf("mstatus: 0x%016lx\n",cpu.mstatus);
 
 #ifdef CONFIG_ETRACE
