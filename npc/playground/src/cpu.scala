@@ -42,7 +42,7 @@ class  RiscvCpu extends Module{
     //val Ls_Wb = Module(new LS_WB())
     val Wbu = Module(new WBU())
 // Ram
-    SRAM.io.Sram <> ICache.io.Sram.Axi
+    //SRAM.io.Sram <> ICache.io.Sram.Axi
     //SRAMLSU.io.Sram <> DCache.io.Sram.Axi
     SRAM.io.Sram <> SramArb.io.sram.Axi
     SramArb.io.ifu.Axi <> ICache.io.Sram.Axi
