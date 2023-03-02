@@ -123,15 +123,17 @@ class EXU extends Module{
   ))
   io.DivU.Divdend      := usesrc1
   io.DivU.Divisor      := usesrc2
-  val sWait :: sWaitReady ::sDoing :: Nil = Enum(3)
+  val sWait :: sWaitReady ::sDoing :: sWaitLsu :: Nil = Enum(4)
   val DoingState = RegInit(sWait)
   val MulDivRes = Wire(UInt(parm.REGWIDTH.W))
-  MulDivRes := 0.U
-  io.AluBusy := (DoingState=/=sWait)//|| io.MulU.MulValid || io.DivU.DivValid 
+  val RegMulDiv = RegInit(0.U(parm.REGWIDTH.W))
+  MulDivRes := RegMulDiv
+  io.AluBusy := false.B//(DoingState=/=sWait)//|| io.MulU.MulValid || io.DivU.DivValid 
   io.AluValid := false.B
   switch(DoingState){
     is(sWait){
       when(io.MulU.MulValid || io.DivU.DivValid){
+        io.AluBusy := true.B
         io.EXLS.valid := false.B
         when((io.MulU.MulValid && io.MulU.MulReady)||(io.DivU.DivValid && io.DivU.DivReady)){
           DoingState := sDoing
@@ -155,6 +157,7 @@ class EXU extends Module{
       //usew := WReg
       //usesrc1 := src1Reg
       //usesrc2 := src2Reg
+      io.AluBusy := true.B
       io.EXLS.valid := false.B
       when((io.MulU.MulValid && io.MulU.MulReady)||(io.DivU.DivValid && io.DivU.DivReady)){
         DoingState := sDoing
@@ -163,20 +166,46 @@ class EXU extends Module{
     is(sDoing){
       //useop := opReg
       io.EXLS.valid := false.B
+      io.AluBusy := true.B
       //usealumask := alumaskReg
       when(io.MulU.OutValid){
+        io.AluBusy := false.B
         io.EXLS.valid := true.B
         io.AluValid := true.B
+        RegMulDiv := io.MulU.ResultL
         MulDivRes := io.MulU.ResultL
-        DoingState := sWait
+        when(io.ReadyLS.ready ){
+          DoingState := sWait
+        }.otherwise{
+          DoingState := sWaitLsu
+        }
       }
       when(io.DivU.OutValid){
+        io.AluBusy := false.B
         io.EXLS.valid := true.B
         io.AluValid := true.B
+        RegMulDiv := io.DivU.Quotient
         MulDivRes := io.DivU.Quotient
-        DoingState := sWait
+        when(io.ReadyLS.ready ){
+          DoingState := sWait
+        }.otherwise{
+          DoingState := sWaitLsu
+        }
+          
       }
 
+    }
+    //还要加一个状态
+    /*
+      可能乘除法做好了，下游模块还没发出去，这个时候就不能跳回wait，因为上游也阻塞的,寄存器中还是原来的值，
+      这个时候就会又向乘除法器发送请求 waitlsu valid还是一直拉高把
+    */
+    is(sWaitLsu){
+      io.EXLS.valid := true.B
+      io.AluBusy := false.B
+      when(io.ReadyLS.ready ){
+        DoingState := sWait
+      }
     }
   }
   val AluRes = MuxLookup(useop, src1+src2,Seq(
@@ -222,7 +251,15 @@ class EXU extends Module{
   //乘除法完成的哪一个周期,ready就可以拉高了，下一个周期前一级寄存器就把IDU中阻塞的数据取出来了。
   //即处于busy并且数据valid的那个周期也可以拉高
   //exu 也是 aluvalid的那个周期，mulvalid等也是拉高的，要或上取。
-  io.ReadyID.ready := io.AluValid||(io.ReadyLS.ready && (!(io.AluBusy)) && (!(io.MulU.MulValid || io.DivU.DivValid)))
+  //这里有问题 不能valid或上去 
+  /*
+    起初没发现问题是因为乘除法指令执行时间太常了了，仿真环境下一般不会出现乘除法做好了下游模块还在阻塞的情况
+    如果乘除法做好了，下游模块还在阻塞，那么就要所存一下了
+    此时Muldivres用的是默认的寄存器中的值 除了做好的valid周期那个时候，用读出的值
+
+    ready ： 下游阻塞的时候拉低  接收到乘除法模块的当前周期拉低  
+  */
+  io.ReadyID.ready := (io.ReadyLS.ready && (!(io.AluBusy)))
   //io.EXLS.CsrWb.CSR.mepc := Mux(io.id.CsrExuChoose(0),maskRes,io.id.CsrWb.CSR.mepc)
   //io.EXLS.CsrWb.CSR.mcause := Mux(io.id.CsrExuChoose(1),maskRes,io.id.CsrWb.CSR.mcause)
   //io.EXLS.CsrWb.CSR.mtvec := Mux(io.id.CsrExuChoose(2),maskRes,io.id.CsrWb.CSR.mtvec)
