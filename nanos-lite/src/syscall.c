@@ -116,9 +116,12 @@ void do_syscall(Context *c) {
 #endif
       ret = sys_yield();break;
     case SYS_write :
+#ifdef STRACE
+      Log("SYS_write(%s,%p,%d)",get_file_name(c->GPR2),(void *)c->GPR3);
+#endif
       ret = fs_write((int)c->GPR2, (void *)c->GPR3, (size_t)c->GPR4);
 #ifdef STRACE
-      Log("SYS_write(%s,%p,%d) return %d",get_file_name(c->GPR2),(void *)c->GPR3,(size_t)c->GPR4,ret);
+      Log("return %d",ret);
 #endif
       break;
     case SYS_brk :
@@ -128,21 +131,28 @@ void do_syscall(Context *c) {
 #endif
       break;
       case SYS_open :
+
       ret = fs_open((const char *)c->GPR2, (int)c->GPR3, (int)c->GPR4);
 #ifdef STRACE
       Log("SYS_open(%s,%d,%d) return %d",(const char *)c->GPR2,(int)c->GPR3,(int)c->GPR4,ret);
 #endif
       break;
       case SYS_read :
+#ifdef STRACE
+      Log("SYS_read(%s,%p,%d)",get_file_name((int)c->GPR2),(void *)c->GPR3,(size_t)c->GPR4);
+#endif
       ret = fs_read((int)c->GPR2, (void *)c->GPR3, (size_t)c->GPR4);
 #ifdef STRACE
-      Log("SYS_read(%s,%p,%d) return %d",get_file_name((int)c->GPR2),(void *)c->GPR3,(size_t)c->GPR4,ret);
+      Log("return %d",ret);
 #endif
       break;
       case SYS_lseek :
+#ifdef STRACE
+      Log("SYS_lseek(%s,%x,%d) ",get_file_name((int)c->GPR2),(size_t)c->GPR3,(int)c->GPR4);
+#endif
       ret = fs_lseek((int)c->GPR2, (size_t)c->GPR3, (int)c->GPR4);
 #ifdef STRACE
-      Log("SYS_lseek(%s,%x,%d) return %d",get_file_name((int)c->GPR2),(size_t)c->GPR3,(int)c->GPR4,ret);
+      Log("return %d",ret);
 #endif
       break;
       case SYS_close :
