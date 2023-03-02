@@ -4,13 +4,14 @@
 #include <am.h>
 #include <stdio.h>
 #include "npc.h"
+
 #define SYNC_ADDR (VGACTL_ADDR + 4)
 
 void __am_gpu_init() {
   int i;
   int w = 400;//*(volatile uint32_t *)(VGACTL_ADDR + 4); // +2 ???
   int h = 300;//*(volatile uint32_t *)(VGACTL_ADDR + 0);
-  printf("nano gpu init:%d %d\n",w,h);
+  printf("AM gpu init:%d %d\n",w,h);
   uint32_t *fb = (uint32_t *)(uintptr_t) FB_ADDR;
   for ( i = 0; i < w*h; i++)
   {

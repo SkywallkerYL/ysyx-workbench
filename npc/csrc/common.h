@@ -30,7 +30,7 @@
 #define MTRACE_BEGIN 0
 #define MTRACE_END   10000
 
-//#define VGA
+#define VGA
 
 #define WAVE
 
