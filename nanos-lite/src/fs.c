@@ -149,7 +149,8 @@ size_t fs_write(int fd, const void *buf, size_t len)
   //添加了vfs抽象，直接调串口的写入，即文件列表里初始化的写函数
   WriteFn write = file_table[fd].write;
   if(write != NULL && fd < FB_DEV){
-    return write(buf,0,len);//忽略offset
+    assert(write(buf,0,len) == len);
+    return len;//忽略offset
   }
   /*
   if (fd == FD_STDIN)

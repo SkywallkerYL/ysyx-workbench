@@ -15,12 +15,14 @@ static const char *keyname[256] __attribute__((used)) = {
 };
 
 size_t serial_write(const void *buf, size_t offset, size_t len) {
+  size_t reallen = 0;
   for (int i = 0; i < len; i++)
   {
+    reallen++;
     //putch(*((char *)buf[i]));
     putch(*((char *)buf + i));
   }
-  return len;
+  return reallen;
   //return 0;
 }
 //参考 /home/yangli/ysyx-workbench/am-kernels/tests/am-tests/src/tests/keyboard.c
