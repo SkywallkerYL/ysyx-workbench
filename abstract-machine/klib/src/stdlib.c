@@ -48,6 +48,9 @@ void *malloc(size_t size) {
     *p = 0;
   }
   return old;
+#else
+  hbrk = NULL;
+  return NULL;
 #endif
   return NULL;
 }
