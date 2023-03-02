@@ -39,6 +39,8 @@ class LSU extends Module{
   LsuDpidata := 0.U
   //asTypeOf MaskWidth
   val LsuBusyReg = RegInit(0.U(1.W))//指示Lsu模块是否繁忙，即是否处于读写内存的状态  默认0表示不忙
+  val LsuBusy = Wire(Bool())
+  LsuBusy := false.B
   //数据在级间流水段锁存了，因此内部不需要所存了，这些都删掉。。
   //val LsumaskReg = RegInit(0.U(parm.MaskWidth.W))//*
   //val chooseReg  = RegInit(0.U(parm.RegFileChooseWidth.W))//*
@@ -100,6 +102,7 @@ class LSU extends Module{
         io.LSRAM.Axi.r.ready  := false.B
         //fire = ready & valid
         when(io.LSRAM.Axi.ar.fire){
+          LsuBusy:= true.B
           io.LSWB.valid := false.B
           io.LSRAM.Axi.ar.bits.addr := EXLSreadaddr
           //RdAddrReg := EXLSreadaddr
@@ -111,6 +114,7 @@ class LSU extends Module{
           ReadState  := read
           LsuBusyReg :=1.U
         }.elsewhen(io.LSRAM.Axi.ar.valid){
+          LsuBusy:= true.B
           io.LSWB.valid:=false.B
           //这个周期拉高了，但是数据没有送出去，就要锁存数据了//现在不锁存了
           //状态还是跳转一下，方便区分lsu是否繁忙
@@ -123,6 +127,7 @@ class LSU extends Module{
         }
       }
       is(readReady){
+        LsuBusy:= true.B
         io.LSWB.valid:=false.B
         io.LSRAM.Axi.ar.valid := true.B
         io.LSRAM.Axi.r.ready := false.B
@@ -134,10 +139,12 @@ class LSU extends Module{
         }
       }
       is(read){
+        LsuBusy:= true.B
         io.LSWB.valid:=false.B
         io.LSRAM.Axi.ar.valid := false.B
         io.LSRAM.Axi.r.ready := true.B
         when(io.LSRAM.Axi.r.fire){
+          LsuBusy:= false.B
           io.LSWB.valid:=true.B
           LsuDpidata := io.LSRAM.Axi.r.bits.data
           //printf(p"ReadAddr=${Hexadecimal(RdAddrReg)} ReadData=${Hexadecimal(LsuDpidata)}\n")
@@ -153,6 +160,7 @@ class LSU extends Module{
         io.LSRAM.Axi.aw.valid := io.EXLS.wflag & io.SkipRef
         io.LSRAM.Axi.w.valid := false.B
         when(io.LSRAM.Axi.aw.fire){
+          LsuBusy:= true.B
           io.LSWB.valid:=false.B
           io.LSRAM.Axi.aw.bits.addr := EXLSwriteaddr
           //WrDataReg :=  io.EXLS.writedata
@@ -160,6 +168,7 @@ class LSU extends Module{
           WriteState := sWrite
           LsuBusyReg :=1.U
         }.elsewhen(io.LSRAM.Axi.aw.valid){
+          LsuBusy:= true.B
           io.LSWB.valid:=false.B
           //WrDataReg := io.EXLS.writedata
           //WrMaskReg := io.EXLS.wmask
@@ -169,19 +178,23 @@ class LSU extends Module{
         }
       }
       is(sWriteReady){
+        LsuBusy:= true.B
         io.LSWB.valid:=false.B
         io.LSRAM.Axi.aw.valid := true.B
         when(io.LSRAM.Axi.aw.fire){
+          
           io.LSRAM.Axi.aw.bits.addr := EXLSwriteaddr
           WriteState := sWrite
           LsuBusyReg :=1.U
         }
       }
       is(sWrite){
+        LsuBusy:= true.B
         io.LSWB.valid:=false.B
         io.LSRAM.Axi.aw.valid := false.B
         io.LSRAM.Axi.w.valid := true.B
         when(io.LSRAM.Axi.w.fire){
+          LsuBusy:= false.B
           io.LSWB.valid:=true.B
           io.LSRAM.Axi.w.bits.data := io.EXLS.writedata
           io.LSRAM.Axi.w.bits.strb := io.EXLS.wmask
@@ -190,6 +203,7 @@ class LSU extends Module{
         }
       }
       is(sResp){
+        LsuBusy:= true.B
         io.LSRAM.Axi.b.ready := false.B
         when(io.LSRAM.Axi.b.fire){
           WriteState := sWritewait
@@ -207,7 +221,9 @@ class LSU extends Module{
         io.Cache.Cache.wdata := io.EXLS.writedata 
         io.Cache.Cache.wstrb := io.EXLS.wmask 
         LsuBusyReg := 1.U
+        LsuBusy:= true.B
       }.elsewhen(io.EXLS.rflag& !CLINTREAD){
+        LsuBusy:= true.B
         io.LSWB.valid:=false.B
         io.Cache.Cache.addr := EXLSreadaddr
         LsuBusyReg := 1.U
@@ -225,6 +241,7 @@ class LSU extends Module{
       //}
       //读数据完成
       when(io.Cache.Cache.dataok){
+        LsuBusy:= false.B
         io.LSWB.valid:=true.B
         LsuDpidata := io.Cache.Cache.rdata
         LsuBusyReg := 0.U
@@ -275,8 +292,10 @@ class LSU extends Module{
 
   io.PC.Lsuvalid := Mux((io.EXLS.rflag|io.EXLS.wflag) & !CLINTREAD,0.U,!LsuBusyReg)
   //类似EXU模块 ready信号在dataok那个周期也要拉高，这样子下一个周期流水线正好继续
+  //考虑到wbu 不会阻塞，所以这里一般没啥问题
   val dataok = io.Cache.Cache.dataok || io.LSRAM.Axi.w.fire || io.LSRAM.Axi.r.fire
   //这里注意data ok的那个周期 rflag wflag这个信号仍然是高的
   //因此或上dataok
-  io.ReadyEX.ready := (dataok) | (!((io.EXLS.rflag|io.EXLS.wflag) & !CLINTREAD) & (!LsuBusyReg) & io.ReadyWB.ready)
+  io.ReadyEX.ready := !LsuBusy && io.ReadyWB.ready
+    //(dataok) | (!((io.EXLS.rflag|io.EXLS.wflag) & !CLINTREAD) & (!LsuBusyReg) & io.ReadyWB.ready)
 }
