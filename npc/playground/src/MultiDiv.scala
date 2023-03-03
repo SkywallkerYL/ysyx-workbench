@@ -27,8 +27,46 @@ class MultiIO extends Bundle with MulDivParm{
 class Mul2Exu extends Bundle{
     val Exu = new MultiIO
 }
+//Booth部分积选择
+// Radix 4
+class PartChooseIO extends Bundle with MulDivParm{
+    val BAdd       = Input(UInt(1.W))
+    val B          = Input(UInt(1.W))
+    val BSub       = Input(UInt(1.W))
+    val HighUsign  = Input(Bool())
+    val PartProdIn = Input(UInt((2*(xlen+2)).W))
+    val S          = Input(UInt((2*(xlen+2)).W))
+    val PartProdOut = Output(UInt((2*(xlen+2)).W))
+}
+class PartProductChoose extends Module with MulDivParm {
+    val io = IO(new Bundle{
+        val Choose = new PartChooseIO
+    })
+    val chooseSignal = Cat(io.Choose.BAdd,io.Choose.B,io.Choose.BSub)
+    //这个表是针对有符号的情况的Booth乘法的
+    //看booth的推导
+    /*
+        无符号情况的应对，个人理解阿
+        最高位的- 改为+  增加一个最高位信号 最高位进来的时候
+        用另外一张表
+    */
+    val add  = MuxLookup(chooseSignal,0.U,Seq(
+        "b000".U -> 0.U ,
+        "b001".U -> io.Choose.S   ,
+        "b010".U -> io.Choose.S   ,
+        "b011".U -> (io.Choose.S <<1.U),
+        "b100".U -> Mux(io.Choose.HighUsign,(io.Choose.S <<1.U),((~io.Choose.S+1.U)<<1.U)),
+        "b101".U -> Mux(io.Choose.HighUsign,(io.Choose.S <<1.U)+io.Choose.S,(~io.Choose.S+1.U)),
+        "b110".U -> Mux(io.Choose.HighUsign,(io.Choose.S <<1.U)+io.Choose.S,(~io.Choose.S+1.U)),
+        "b111".U -> Mux(io.Choose.HighUsign,(io.Choose.S <<2.U),0.U)
+    ))
+    io.Choose.PartProdOut := (io.Choose.PartProdIn + add)>>2.U
+}
 
-class Multi(HighPerform : Boolean = false) extends Module with MulDivParm{
+
+
+//Mode = 0 移位乘法器   Mode = 1 基4 Booth乘法器
+class Multi(Mode : Int = 0) extends Module with MulDivParm{
     val io = IO(new Bundle{
         val Exu = new MultiIO
     })
@@ -37,8 +75,8 @@ class Multi(HighPerform : Boolean = false) extends Module with MulDivParm{
     io.Exu.ResultH := 0.U
     io.Exu.ResultL := 0.U
     //非高性能  //移位乘法器
-    
-    if(!HighPerform){
+    //
+    if(Mode == 0 ){
         val multican = RegInit(0.U((2*xlen).W)) // 被乘数
         val multicancomp = RegInit(0.U((2*xlen).W))
         val multier  = RegInit(0.U((xlen).W)) //乘数
@@ -102,6 +140,67 @@ class Multi(HighPerform : Boolean = false) extends Module with MulDivParm{
                 io.Exu.OutValid := true.B
                 io.Exu.ResultL := MulRes(63,0)
                 io.Exu.ResultH := MulRes(127,64)
+            }
+        }
+    }
+    //Radix 4 Booth
+    else if (Mode == 1){
+        //两个寄存器 维护部分积和加数S
+        val Prod = RegInit(0.U((2*(xlen+2)).W))
+        val Sum  = RegInit(0.U((2*(xlen+2)).W))
+        val multier = RegInit(0.U(xlen.W))
+        val ind  = RegInit(0.U(8.W))//索引
+        val MaxInd = RegInit(0.U(6.W)) // ind 最大值
+        val RegUnsign = RegInit(0.U(2.W))
+        val choose = Module(new PartProductChoose)
+        choose.io.Choose.PartProdIn := Prod
+        choose.io.Choose.S          := Sum
+        choose.io.Choose.BAdd       := 0.U
+        choose.io.Choose.B          := 0.U
+        choose.io.Choose.BSub       := 0.U
+        choose.io.Choose.HighUsign  := false.B
+        val sIdle :: sBusy :: sValid :: Nil = Enum(3)
+        val MainState = RegInit(sIdle)
+        switch(MainState){
+            is(sIdle){
+                io.Exu.MulReady := true.B
+                when(io.Exu.MulValid){
+                    MainState   := sBusy
+                    Prod        := 0.U
+                    Sum         := Mux(io.Exu.Mulw===1.U,io.Exu.Multiplicand << 32.U,io.Exu.Multiplicand << 64.U)
+                    multier     := io.Exu.Multiplier
+                    ind         := 0.U
+                    MaxInd      := Mux(io.Exu.Mulw===1.U,30.U,62.U)
+                    RegUnsign   := io.Exu.MulSigned
+                }
+            }
+            is(sBusy){
+                //
+                when(io.Exu.Flush){
+                    Prod := 0.U
+                    MainState := sIdle
+                }
+                choose.io.Choose.BSub := Mux(ind===0.U,0.U,multier(ind-1.U))
+                choose.io.Choose.B    := multier(ind)
+                choose.io.Choose.BAdd := multier(ind+1.U)
+                //P(i+2) = 2^-2(P(i)+(b(i-1)+b(i)-2b(i+1)S))
+                when(ind=/=MaxInd){
+                    Prod := choose.io.Choose.PartProdOut
+                    ind := ind + 2.U
+                }.otherwise{
+                    //计算p i+2的  
+                    choose.io.Choose.HighUsign := Mux(RegUnsign===0.U,true.B,false.B)
+                    Prod := choose.io.Choose.PartProdOut
+                    MainState := sValid
+                }
+                
+            }
+            is(sValid){
+                MainState := sIdle
+                Prod := 0.U
+                io.Exu.OutValid := true.B
+                io.Exu.ResultL := Prod(63,0)
+                io.Exu.ResultH := Prod(127,64)
             }
         }
     }
