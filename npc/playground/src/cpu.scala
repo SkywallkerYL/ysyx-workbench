@@ -128,7 +128,7 @@ class  RiscvCpu extends Module{
     Exu.io.id := Mux(IdexReg.valid,IdexReg,0.U.asTypeOf(new Idu2Exu))  // RegEnable
 //EXU
     val DivU = Module(new Divder)
-    val MulU = Module(new Multi)
+    val MulU = Module(new Multi(1))
     Exu.io.DivU <> DivU.io.Exu
     Exu.io.MulU <> MulU.io.Exu
     Exu.io.PC <> PcReg.io.EXU

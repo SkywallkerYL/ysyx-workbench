@@ -9,6 +9,8 @@ void mtimecmpadd(){
   uint64_t old  =  * (volatile uint64_t *)MTIMECMPADDR;
   *(volatile uint64_t *) MTIMECMPADDR =  (uint64_t) (old+10000);
 }
+//#define NATIVE
+#ifndef NATIVE
 void MTIP_reset(){
   uintptr_t mstatus,mie;
   asm volatile("csrr %0,mstatus" : "=r"(mstatus));
@@ -17,7 +19,7 @@ void MTIP_reset(){
   asm volatile("csrw mstatus, %0" : : "r"(mstatus|(1<<3)));
   asm volatile("csrw mie, %0" : : "r"(mie|(1<<7)));
 }
-
+#endif
 Context *simple_trap(Event ev, Context *ctx) {
   //printf("event:%d\n",ev.event);
   switch(ev.event) {
