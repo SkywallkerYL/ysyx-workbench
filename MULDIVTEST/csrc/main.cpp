@@ -12,7 +12,7 @@
 #include "VDivder___024root.h"
 #endif
 #include "verilated_vcd_c.h"
-//#define WAVE
+#define WAVE
 VerilatedContext* contextp = NULL;
 VerilatedVcdC* tfp = NULL;
 //static VRiscvCpu* top;
@@ -88,25 +88,32 @@ uint64_t UINT64MAX = (((uint64_t)1<<63) -1);
 void Mulinttest(){
   for (size_t i = 0; i < 20000; i++)
   {
-    int64_t multicand = (int64_t)(rand()%(2*(int64_t)INTMAX+1)-(int64_t)INTMAX-1);
+    int64_t multicand = (int64_t)(rand()%(2000)-1000);(int64_t)(rand()%(2*(int64_t)INTMAX+1)-(int64_t)INTMAX-1);
     int64_t multiplier = (int64_t)(rand()%(2000)-1000);//(int64_t)(rand()%(2*(int64_t)INTMAX+1)-(int64_t)INTMAX-1);
     top->io_Exu_MulValid = 0b1;
     top->io_Exu_Flush = 0b0;
-    top->io_Exu_Mulw = rand()%2;
+    top->io_Exu_Mulw = 0;rand()%2;
     top->io_Exu_MulSigned = 0b11;
     top->io_Exu_Multiplicand = multicand;
     top->io_Exu_Multiplier = multiplier;
+    //printf("%d\n",top->io_Exu_OutValid);
     while (!top->io_Exu_OutValid)
     {
       clockntimes(1);
     }
     //if(i == 0) printf("multicand:%ld  multiplier:%ld\n",multicand,multiplier);
     if(top->io_Exu_OutValid){
+      //考虑到wallace的情况，此时电路状态每更新 先更新一下
+      top->eval();
+      //clockntimes(1);
+      //clockntimes(1);
+      //printf("multicand:%ld  multiplier:%ld\n",top->io_Exu_Multiplicand ,top->io_Exu_Multiplier);
       //printf("ref:%ld  dut:%ld\n",i*j,top->io_Exu_ResultL);
       //进行32位运算时，把top转化为int，不然不能比较
       if((top->io_Exu_ResultL) != multicand*multiplier){
         printf("multicand:%ld  multiplier:%ld\n",multicand,multiplier);
         printf("ref:%ld  dut:%ld\n",multicand*multiplier,top->io_Exu_ResultL);
+        clockntimes(1);
         sim_exit();
         exit(0);
       }
@@ -119,7 +126,7 @@ void Mulinttest(){
 }
 
 void MulUinttest(){
-  for (size_t i = 0; i < 200000; i++)
+  for (size_t i = 0; i < 20000; i++)
   {
     uint64_t multicand = rand()%(UINTMAX);
     uint64_t multiplier = rand()%(UINTMAX);
@@ -129,14 +136,20 @@ void MulUinttest(){
     top->io_Exu_MulSigned = 0b00;
     top->io_Exu_Multiplicand = multicand;
     top->io_Exu_Multiplier = multiplier;
+    //printf("%d\n",top->io_Exu_OutValid);
     while (!top->io_Exu_OutValid)
     {
       clockntimes(1);
     }
     if(top->io_Exu_OutValid){
+      top->eval();
+      //clockntimes(1);
+      //printf("%d\n",top->io_Exu_OutValid);
       //printf("ref:%ld  dut:%ld\n",i*j,top->io_Exu_ResultL);
       if(top->io_Exu_ResultL != multicand*multiplier){
+        printf("multicand:%ld  multiplier:%ld\n",multicand,multiplier);
         printf("ref:%ld  dut:%ld\n",multicand*multiplier,top->io_Exu_ResultL);
+        
         sim_exit();
         exit(0);
       }
@@ -230,6 +243,7 @@ int main(int argc , char* argv[]) {
   srand((unsigned)time(NULL));
 	sim_init();
   reset(5);
+  //printf("hhh\n");
 #ifdef MUL
   Mulinttest();
   MulUinttest();

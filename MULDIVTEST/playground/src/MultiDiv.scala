@@ -74,7 +74,7 @@ class CsaIO (width : Int = 1) extends Bundle with MulDivParm{
 }
 class Csa (width : Int = 1 ) extends Module with MulDivParm{
     val io = IO(new Bundle{
-        val Csa = new CsaIO
+        val Csa = new CsaIO(width)
     })
     io.Csa.sum := io.Csa.a^io.Csa.b^io.Csa.cin
     io.Csa.cout := ((io.Csa.a&io.Csa.b)|(io.Csa.a&io.Csa.cin)|(io.Csa.b&io.Csa.cin)) << 1.U
@@ -90,9 +90,9 @@ class FAIO (width : Int = 1) extends Bundle with MulDivParm{
 }
 class FA (width : Int = 1 ) extends Module with MulDivParm{
     val io = IO(new Bundle{
-        val Fa = new FAIO
+        val Fa = new FAIO(width)
     })
-    io.Fa.sum := io.Fa.a^io.Fa.b^io.Fa.cin
+    io.Fa.sum := io.Fa.a+io.Fa.b+io.Fa.cin
     io.Fa.cout := ((io.Fa.a&io.Fa.b)|(io.Fa.a&io.Fa.cin)|(io.Fa.b&io.Fa.cin))
 }
 class PartGenIO extends Bundle with MulDivParm{
@@ -101,7 +101,7 @@ class PartGenIO extends Bundle with MulDivParm{
     val BSub       = Input(UInt(1.W))
     val HighUsign  = Input(Bool())
     val S          = Input(UInt(((xlen)).W))
-    val PartProdOut = Output(UInt(((xlen+2)).W))
+    val PartProdOut = Output(UInt(((xlen)).W))
 }
 //该模块类似上面的，只不过是只获取生成的部分积
 class GenPro extends Module with MulDivParm {
@@ -132,17 +132,25 @@ class Wallace extends Module with MulDivParm{
     val io = IO(new Bundle{
         val Exu = new MultiIO
     })
+    val multicand = MuxLookup(io.Exu.MulSigned,io.Exu.Multiplicand,Seq(
+        "b11".U -> Mux(io.Exu.Mulw===1.U,func.SignExtWidth(xlen,io.Exu.Multiplicand,xlen/2),io.Exu.Multiplicand) 
+    ))
+    val multiplier = MuxLookup(io.Exu.MulSigned,io.Exu.Multiplier,Seq(
+        "b11".U -> Mux(io.Exu.Mulw===1.U,func.SignExtWidth(xlen,io.Exu.Multiplier,xlen/2),io.Exu.Multiplier) 
+    ))
+        //Mux(io.Exu.Mulw===1.U,io.Exu.Multiplicand)
     //64位   0 2 4 ... 62    需要32个booth生成器  
     val BoothGen = VecInit(Seq.fill(32)(Module(new GenPro).io))
-    for (i <- 0 until 32){
-        BoothGen(i).Choose.S := io.Exu.Multiplicand
-        BoothGen(i).Choose.BAdd := io.Exu.Multiplier(i.U<<1.U+1.U)
-        BoothGen(i).Choose.B    := io.Exu.Multiplier(i.U<<1.U)
-        when(i.U === 0.U) {
-            BoothGen(i).Choose.BSub := 0.U
-        }.otherwise{
-            BoothGen(i).Choose.BSub := io.Exu.Multiplier(i.U<<1.U-1.U)
-        }
+    BoothGen(0).Choose.S := multicand
+    BoothGen(0).Choose.BAdd := multiplier(1)
+    BoothGen(0).Choose.B    := multiplier(0)
+    BoothGen(0).Choose.BSub := 0.U
+    BoothGen(0).Choose.HighUsign := false.B
+    for (i <- 1 until 32){
+        BoothGen(i).Choose.S := multicand
+        BoothGen(i).Choose.BAdd := multiplier((i*2+1))
+        BoothGen(i).Choose.B    := multiplier((i*2))
+        BoothGen(i).Choose.BSub := multiplier((i*2-1))
         when(i.U === 31.U){
             BoothGen(i).Choose.HighUsign := Mux(io.Exu.MulSigned===0.U,true.B,false.B)
         }.otherwise{
@@ -154,23 +162,130 @@ class Wallace extends Module with MulDivParm{
     //layer1    32/3 = 10  + 2
     //10个 128位的CSA
     val CSA1 = VecInit(Seq.fill(10)(Module(new Csa(128)).io.Csa))
-    
+    //这样连线貌似会有问题 只能一个一个连线了
+    for(i <- 0 until 10){
+      //  //for(j <- 0 until 3){
+      CSA1(i).a   := BoothGen(i*3+0).Choose.PartProdOut << ((i*3+0)*2).U
+      CSA1(i).b   := BoothGen(i*3+1).Choose.PartProdOut << ((i*3+1)*2).U
+      CSA1(i).cin := BoothGen(i*3+2).Choose.PartProdOut << ((i*3+2)*2).U
+        //}
+    }
+    /*
+    CSA1(0).a   := BoothGen(0).Choose.PartProdOut  << 0.U
+    CSA1(0).b   := BoothGen(1).Choose.PartProdOut  << 2.U
+    CSA1(0).cin := BoothGen(2).Choose.PartProdOut  << 4.U
+    CSA1(1).a   := BoothGen(3).Choose.PartProdOut  << 6.U
+    CSA1(1).b   := BoothGen(4).Choose.PartProdOut  << 8.U
+    CSA1(1).cin := BoothGen(5).Choose.PartProdOut  << 10.U
+    CSA1(2).a   := BoothGen(6).Choose.PartProdOut  << 12.U
+    CSA1(2).b   := BoothGen(7).Choose.PartProdOut  << 14.U
+    CSA1(2).cin := BoothGen(8).Choose.PartProdOut  << 16.U
+    CSA1(3).a   := BoothGen(9).Choose.PartProdOut  << 18.U
+    CSA1(3).b   := BoothGen(10).Choose.PartProdOut << 20.U
+    CSA1(3).cin := BoothGen(11).Choose.PartProdOut << 22.U
+    CSA1(4).a   := BoothGen(12).Choose.PartProdOut << 24.U
+    CSA1(4).b   := BoothGen(13).Choose.PartProdOut << 26.U
+    CSA1(4).cin := BoothGen(14).Choose.PartProdOut << 28.U
+    CSA1(5).a   := BoothGen(15).Choose.PartProdOut << 30.U
+    CSA1(5).b   := BoothGen(16).Choose.PartProdOut << 32.U
+    CSA1(5).cin := BoothGen(17).Choose.PartProdOut << 34.U
+    CSA1(6).a   := BoothGen(18).Choose.PartProdOut << 36.U
+    CSA1(6).b   := BoothGen(19).Choose.PartProdOut << 38.U
+    CSA1(6).cin := BoothGen(20).Choose.PartProdOut << 40.U
+    CSA1(7).a   := BoothGen(21).Choose.PartProdOut << 42.U
+    CSA1(7).b   := BoothGen(22).Choose.PartProdOut << 44.U
+    CSA1(7).cin := BoothGen(23).Choose.PartProdOut << 46.U
+    CSA1(8).a   := BoothGen(24).Choose.PartProdOut << 48.U
+    CSA1(8).b   := BoothGen(25).Choose.PartProdOut << 50.U
+    CSA1(8).cin := BoothGen(26).Choose.PartProdOut << 52.U
+    CSA1(9).a   := BoothGen(27).Choose.PartProdOut << 54.U
+    CSA1(9).b   := BoothGen(28).Choose.PartProdOut << 56.U
+    CSA1(9).cin := BoothGen(29).Choose.PartProdOut << 58.U
+    */
     //layer2    20+2 = 22 22/3 = 7 + 1
-
-
+    val CSA2 = VecInit(Seq.fill(7)(Module(new Csa(128)).io.Csa))
+    CSA2(0).a   := CSA1(0).sum 
+    CSA2(0).b   := CSA1(0).cout 
+    CSA2(0).cin := CSA1(1).sum
+    CSA2(1).a   := CSA1(1).cout 
+    CSA2(1).b   := CSA1(2).sum 
+    CSA2(1).cin := CSA1(2).cout
+    CSA2(2).a   := CSA1(3).sum 
+    CSA2(2).b   := CSA1(3).cout 
+    CSA2(2).cin := CSA1(4).sum 
+    CSA2(3).a   := CSA1(4).cout 
+    CSA2(3).b   := CSA1(5).sum  
+    CSA2(3).cin := CSA1(5).cout
+    CSA2(4).a   := CSA1(6).sum 
+    CSA2(4).b   := CSA1(6).cout 
+    CSA2(4).cin := CSA1(7).sum 
+    CSA2(5).a   := CSA1(7).cout
+    CSA2(5).b   := CSA1(8).sum  
+    CSA2(5).cin := CSA1(8).cout
+    CSA2(6).a   := CSA1(9).sum 
+    CSA2(6).b   := CSA1(9).cout 
+    CSA2(6).cin := BoothGen(30).Choose.PartProdOut << 60.U
     //layer3    14+1 = 15 15/3 = 5
+    val CSA3 = VecInit(Seq.fill(5)(Module(new Csa(128)).io.Csa))
+    CSA3(0).a   := CSA2(0).sum 
+    CSA3(0).b   := CSA2(0).cout 
+    CSA3(0).cin := CSA2(1).sum 
+    CSA3(1).a   := CSA2(1).cout
+    CSA3(1).b   := CSA2(2).sum  
+    CSA3(1).cin := CSA2(2).cout
+    CSA3(2).a   := CSA2(3).sum 
+    CSA3(2).b   := CSA2(3).cout 
+    CSA3(2).cin := CSA2(4).sum 
+    CSA3(3).a   := CSA2(4).cout
+    CSA3(3).b   := CSA2(5).sum  
+    CSA3(3).cin := CSA2(5).cout
+    CSA3(4).a   := CSA2(6).sum 
+    CSA3(4).b   := CSA2(6).cout 
+    CSA3(4).cin := BoothGen(31).Choose.PartProdOut << 62.U
 
     //layer4    10  10/3 = 3  + 1
-
-
+    val CSA4 = VecInit(Seq.fill(3)(Module(new Csa(128)).io.Csa))
+    CSA4(0).a   := CSA3(0).sum 
+    CSA4(0).b   := CSA3(0).cout 
+    CSA4(0).cin := CSA3(1).sum 
+    CSA4(1).a   := CSA3(1).cout 
+    CSA4(1).b   := CSA3(2).sum  
+    CSA4(1).cin := CSA3(2).cout
+    CSA4(2).a   := CSA3(3).sum 
+    CSA4(2).b   := CSA3(3).cout 
+    CSA4(2).cin := CSA3(4).sum
     //layer5    6+1 = 7    7/3 = 2 + 1
-
-
-    //layer6    4+1  = 5     5/3 = 1 + 1
-
-    //layer7    2+1  = 3   3/3 = 1
-
+    val CSA5 = VecInit(Seq.fill(2)(Module(new Csa(128)).io.Csa))
+    CSA5(0).a   := CSA4(0).sum 
+    CSA5(0).b   := CSA4(0).cout 
+    CSA5(0).cin := CSA4(1).sum 
+    CSA5(1).a   := CSA4(1).cout
+    CSA5(1).b   := CSA4(2).sum  
+    CSA5(1).cin := CSA4(2).cout
+    //layer6    4+1  = 5     5/3 = 1 + 2
+    val CSA6 = VecInit(Seq.fill(1)(Module(new Csa(128)).io.Csa))
+    CSA6(0).a   := CSA5(0).sum 
+    CSA6(0).b   := CSA5(0).cout 
+    CSA6(0).cin := CSA5(1).sum
+    //layer7    2+2  = 4   4/3 = 1 + 1
+    val CSA7 = VecInit(Seq.fill(1)(Module(new Csa(128)).io.Csa))
+    CSA7(0).a   := CSA6(0).sum 
+    CSA7(0).b   := CSA6(0).cout 
+    CSA7(0).cin := CSA3(4).cout
+    //layer8    2+1 = 3
+    val CSA8 = VecInit(Seq.fill(1)(Module(new Csa(128)).io.Csa))
+    CSA8(0).a   := CSA7(0).sum 
+    CSA8(0).b   := CSA7(0).cout 
+    CSA8(0).cin := CSA5(1).cout
     //layer8    2 HA
+    //val HA = Module(new FA(128)).io.Fa
+    //HA.a := CSA8(0).sum
+    //HA.b := CSA8(0).cout
+    //HA.cin := 0.U
+    io.Exu.MulReady := true.B
+    io.Exu.OutValid := true.B
+    io.Exu.ResultL := CSA8(0).sum+CSA8(0).cout
+    io.Exu.ResultH := 0.U
 }
 
 
@@ -314,7 +429,8 @@ class Multi(Mode : Int = 0) extends Module with MulDivParm{
         }
     }else if(Mode == 2){
         //Wallace Tree
-
+        val wallace = Module(new Wallace)
+        wallace.io.Exu <> io.Exu
     }
 }
 //Div
