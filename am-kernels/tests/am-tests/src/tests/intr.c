@@ -9,7 +9,7 @@ void mtimecmpadd(){
   uint64_t old  =  * (volatile uint64_t *)MTIMECMPADDR;
   *(volatile uint64_t *) MTIMECMPADDR =  (uint64_t) (old+10000);
 }
-//#define NATIVE
+#define NATIVE
 #ifndef NATIVE
 void MTIP_reset(){
   uintptr_t mstatus,mie;
