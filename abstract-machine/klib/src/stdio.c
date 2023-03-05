@@ -272,13 +272,13 @@ int sprintf(char *out, const char *fmt, ...) {
       case 'd':
         system_ = 10;
         intval = va_arg(ap,int);
-        //if (intval < 0)
-        //{
-          //intval = -intval;
-         // *out = '-';
-         /// out++;
-         // resnum++;
-        //}
+        if (intval < 0)
+        {
+          intval = -intval;
+          *out = '-';
+          out++;
+          resnum++;
+        }
         tempval = intval;
         //因为得按顺序打印，因此要先计算长度
         if (intval)
