@@ -33,6 +33,7 @@ class  RiscvCpu extends Module{
     //val If_Id = Module(new IF_ID())
     val Regfile = Module(new RegFile)
     val ScoreB = Module(new ScoreBoard)
+    val ByPass = Module(new Bypass)
     val Idu = Module(new IDU())
     //val Id_Ex = Module(new ID_EX())
     val Exu = Module(new EXU())
@@ -118,6 +119,7 @@ class  RiscvCpu extends Module{
     //Idu.io.pc_i := If_Id.io.idpc
     Idu.io.RegFileID <> Regfile.io.RegFileID
     Idu.io.Score <> ScoreB.io.IDU
+    Idu.io.Pass <> ByPass.io.IDU
 //ID_EX
     //val Id_Ex = Module(new ID_EX())
     //Idu.io.
@@ -179,6 +181,7 @@ class  RiscvCpu extends Module{
     Wbu.io.REGWB <>  Regfile.io.REGWB 
     Wbu.io.CLINTWB  := Clint.io.CLINTWB
     Wbu.io.Score <> ScoreB.io.WBU
+    Wbu.io.Pass <> ByPass.io.WBU
 //out
 //  debug 个人认为这里额
 /*

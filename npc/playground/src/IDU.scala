@@ -22,11 +22,20 @@ class IDU extends Module{
     val ReadyIF = new Idu2Ifu
     val ReadyEX = Flipped(new Exu2Idu)
     val Score = new Idu2Score
+    val Pass  = Flipped(new Rforward)
     val RegPc = Flipped(new Pc2Idu)
   })
   //检测到RAW冲突的时候阻塞流水线
   //读到ebreak直接阻塞取指级
-    io.ReadyIF.ready := io.ReadyEX.ready & (!io.Score.RScore.busy1) &(!io.Score.RScore.busy2) &(!io.ebreak)
+  /*
+    增加了旁路转发了现在 
+    对于Busy的判断要多加一条
+
+  */
+    val realbusy1 = (io.Score.RScore.busy1) & (!io.Pass.pass1)
+    val realbusy2 = (io.Score.RScore.busy2) & (!io.Pass.pass2)
+    //io.ReadyIF.ready := io.ReadyEX.ready & (!io.Score.RScore.busy1) &(!io.Score.RScore.busy2) &(!io.ebreak)
+    io.ReadyIF.ready := io.ReadyEX.ready & (!realbusy1) &(!realbusy2) &(!io.ebreak)
     io.instrnoimpl := false.B;
     io.instr_o := io.IFID.inst
     io.pc_o := io.IFID.pc
@@ -36,6 +45,13 @@ class IDU extends Module{
     io.Score.RScore.rdaddr1 := io.IDRegFile.raddr1
     io.Score.RScore.rdaddr2 := io.IDRegFile.raddr2
     io.Score.RScore.valid := io.IFID.instvalid
+    io.Pass.rs1 := io.IDRegFile.raddr1
+    io.Pass.rs2 := io.IDRegFile.raddr2
+    io.Pass.valid := io.IFID.instvalid
+    //转发来的时候用转发的信号
+    //额，这个信号连来连
+    val rsData1 = Mux(io.Pass.pass1,io.Pass.rdata,io.RegFileID.rdata1)
+    val rsData2 = Mux(io.Pass.pass2,io.Pass.rdata,io.RegFileID.rdata2)
     //读出或者写入相同的话，则不发送忙的信号
     /*
         这里应该还是要发送忙信号的
@@ -49,11 +65,12 @@ class IDU extends Module{
     val shamt = io.IFID.inst(25,20)
     io.idex.pc := io.IFID.pc
     io.idex.inst := io.IFID.inst
-    io.idex.valid := io.IFID.instvalid & (!io.Score.RScore.busy1) &(!io.Score.RScore.busy2)
+    //io.idex.valid := io.IFID.instvalid & (!io.Score.RScore.busy1) &(!io.Score.RScore.busy2)
+    io.idex.valid := io.IFID.instvalid & (!realbusy1) &(!realbusy2)
     io.idex.abort := io.instrnoimpl
     io.idex.rdaddr := io.IFID.inst(11,7)
-    io.idex.rs1 := io.RegFileID.rdata1
-    io.idex.rs2 := io.RegFileID.rdata2
+    io.idex.rs1 := rsData1//io.RegFileID.rdata1
+    io.idex.rs2 := rsData2//io.RegFileID.rdata2
     io.idex.rs1addr := io.IDRegFile.raddr1
     io.idex.rflag := 0.U
     io.idex.wflag := 0.U
@@ -67,7 +84,7 @@ class IDU extends Module{
     io.IDNPC.ecallpc := 0.U
     io.IDNPC.IdPc := io.IFID.pc
     io.IDNPC.imm := io.idex.imm
-    io.IDNPC.rs1 := io.idex.rs1
+    io.IDNPC.rs1 := rsData1//io.idex.rs1
     io.IDNPC.valid := io.idex.valid
     io.idex.instvalid := io.IFID.instvalid //& (io.IDNPC.jal === 0.U)
     io.idex.NextPc := io.RegPc.nextpc//io.NPC.NextPc
@@ -117,7 +134,7 @@ class IDU extends Module{
             //printf(p"TYPE=${(InstType)} \n")
             io.IDRegFile.raddr2 := 0.U
             io.idex.imm := I_imm//.asSInt
-            rd1 := io.RegFileID.rdata1
+            rd1 := rsData1//io.RegFileID.rdata1
             rd2 := I_imm.asUInt
             val stype = DecodeRes(InstrTable.InstrN)
             val lsuflag = MuxLookup(stype, "b11111_11111_11111_11111_0000_1_0_0_0000_0000".U(35.W),Seq(
@@ -205,8 +222,8 @@ class IDU extends Module{
         }
         is(InstrType.R){
             //io.idex.imm := R_imm
-            rd1 := io.RegFileID.rdata1
-            rd2 := io.RegFileID.rdata2
+            rd1 := rsData1//io.RegFileID.rdata1
+            rd2 := rsData2//io.RegFileID.rdata2
             val rtype = DecodeRes(InstrTable.InstrN)
             val lsuflag = MuxLookup(rtype, "b11111_11111_11111_11111_0000_1_0_0_0000_0000".U(35.W),Seq(
                                     //src1mask_src2mask__alumask_lsumask_choose_rden_wflag_rflag_wmask
@@ -264,10 +281,16 @@ class IDU extends Module{
             //io.idex.AluOp.rd1 := io.IFID.pc
             //io.idex.AluOp.rd2 := B_imm.asUInt
             val byte = DecodeRes(InstrTable.InstrN)
+            /*
             val less = Mux(byte(0),io.RegFileID.rdata1.asUInt < io.RegFileID.rdata2.asUInt, io.RegFileID.rdata1.asSInt < io.RegFileID.rdata2.asSInt)
             val bigger = Mux(byte(0),io.RegFileID.rdata1.asUInt > io.RegFileID.rdata2.asUInt, io.RegFileID.rdata1.asSInt > io.RegFileID.rdata2.asSInt)
             val eq = io.RegFileID.rdata1 === io.RegFileID.rdata2
             val ueq = io.RegFileID.rdata1 =/= io.RegFileID.rdata2
+            */
+            val less = Mux(byte(0),rsData1.asUInt < rsData2.asUInt,rsData1.asSInt < rsData2.asSInt)
+            val bigger = Mux(byte(0),rsData1.asUInt > rsData2.asUInt, rsData1.asSInt > rsData2.asSInt)
+            val eq = rsData1 === rsData2
+            val ueq = rsData1 =/= rsData2
             io.idex.rden := 0.U
             val jump = (less&byte(1)) | (bigger&(byte(2))) | (eq & byte(3)) | (ueq & byte(4))
             //io.idex.AluOp.op  := OpType.ADD
@@ -275,7 +298,7 @@ class IDU extends Module{
         }
         is (InstrType.S){
             io.idex.imm := S_imm//.asSInt
-            rd1 := io.RegFileID.rdata1
+            rd1 := rsData1//io.RegFileID.rdata1
             rd2 := S_imm.asUInt
             //io.idex.AluOp.op  := OpType.ADD
             val stype = DecodeRes(InstrTable.InstrN)

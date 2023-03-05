@@ -183,12 +183,21 @@ class ScoreBoard extends Module{
     val WBU = Flipped(new Wbu2Score)
   })
   val Busy =RegInit(VecInit(Seq.fill(parm.RegNumber)(false.B)))//RegInit(0.U(parm.RegNumber.W))
+  //增加了旁路转发之后有一个优先级的问题 应该以IDU优先级更高
+  /*
+  即某一个周期，通过旁路转发把寄存器的值发给IDU了，下一个周期WBU写回，然后busy该拉低了
+  但是这个周期由于数据转发过去了， IDU如果又要写同一个寄存器，由于拿到了寄存器的数据
+  IDU那边的valid会拉高，这样子就导致WBU和IDU同时对计分板申请，应该以IDU为准
+
+  */
   when(io.IDU.WScore.wen){
     when(io.IDU.WScore.waddr=/=0.U){
       Busy(io.IDU.WScore.waddr) := 1.U
     }
   }
-  when(io.WBU.WScore.wen){
+  //
+  val WBUwrite = io.WBU.WScore.wen &((!io.IDU.WScore.wen)|(io.IDU.WScore.wen&(io.WBU.WScore.waddr=/=io.IDU.WScore.waddr)))
+  when(WBUwrite){
     Busy(io.WBU.WScore.waddr) := 0.U
   }
   io.IDU.RScore.busy1 := false.B
@@ -202,6 +211,50 @@ class ScoreBoard extends Module{
     }
     when(Busy(io.IDU.RScore.rdaddr2)===1.U){
       io.IDU.RScore.busy2 := true.B
+    }
+  }
+}
+//bypass forward 旁路转发
+/*
+根据WB级需要写入的寄存器的号码 判断其与ID-EX级需要读出的是否一致，
+一致的话，把寄存器的值给转发给IDU，并且把发给IDU对应的busy拉低
+相当于提前一个周期让IDU读到想要的寄存器的值
+//接受WBU来的信号
+//发送给IDU转发信号
+*/
+class Wforward extends Bundle{
+  //此时里面的wen 信号充当valid
+  val valid = Output(Bool())
+  val waddr = Output(UInt(parm.REGADDRWIDTH.W))
+  val wdata = Output(UInt(parm.REGWIDTH.W))
+  //val Regfile = new REGFILEIO
+}
+class Rforward extends Bundle{
+  //val raddr = Output(UInt(parm.REGADDRWIDTH.W))
+  val rdata = Output(UInt(parm.REGWIDTH.W))
+  val pass1 = Output(Bool())
+  val pass2 = Output(Bool())
+  
+  val rs1   = Input(UInt(parm.REGADDRWIDTH.W))
+  val rs2   = Input(UInt(parm.REGADDRWIDTH.W))
+  val valid = Input(Bool())
+}
+
+class Bypass extends Module {
+  val io = IO(new Bundle{
+    val WBU = Flipped(new Wforward)
+    val IDU = new Rforward
+  })
+  io.IDU.rdata := io.WBU.wdata
+  io.IDU.pass1 := false.B
+  io.IDU.pass2 := false.B
+  //检测转发信号 和当前IDU的需要读的信号是否一致
+  when(io.IDU.valid && io.WBU.valid) {
+    when(io.IDU.rs1 === io.WBU.waddr){
+      io.IDU.pass1 := true.B
+    }
+    when(io.IDU.rs2 === io.WBU.waddr){
+      io.IDU.pass2 := true.B
     }
   }
 }

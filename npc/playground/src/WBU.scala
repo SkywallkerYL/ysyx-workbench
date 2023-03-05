@@ -31,6 +31,7 @@ class WBU extends Module{
       val ReadyLS = new Wbu2Lsu
 
       val Score = new Wbu2Score
+      val Pass = new Wforward
       val debug = new Debug
       
   })
@@ -58,12 +59,15 @@ class WBU extends Module{
     io.WBREG.Regfile.waddr :=  io.LSWB.Regfile.waddr
     io.Score.WScore.wen :=  io.LSWB.Regfile.wen
     io.Score.WScore.waddr := io.LSWB.Regfile.waddr
+    io.Pass.waddr := io.LSWB.Regfile.waddr
+    io.Pass.valid := io.LSWB.Regfile.wen
 
     val WbuRes  = MuxLookup(io.LSWB.choose,0.U,Seq(
       "b0000".U -> io.LSWB.AluRes,
       "b0001".U -> io.LSWB.LsuRes,
       "b0010".U -> CSR
     ))
+    io.Pass.wdata := WbuRes
     io.WBREG.Regfile.wdata := WbuRes
     //IRU模块也在这里实现   来处理异常，来自CLINT的信号不经过流水线，直接输入给这里的IRU部分
     //Mtip部分要打开了TIP才有效，不然会csrwen也拉高之后
