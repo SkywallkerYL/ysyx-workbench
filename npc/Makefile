@@ -144,6 +144,8 @@ run:
 #gtkwave wave.vcd
 wave:
 	gtkwave wave.vcd
+catVerilog:
+	cat $(VSRC) > ~/ysyx-workbench/ysyxSoC/ysyx/soc/ysyx_22050550.v
 show-config:
 	$(VERILATOR) -V
 clean:

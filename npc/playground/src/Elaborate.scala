@@ -1,10 +1,15 @@
 package  npc
 import circt.stage._
+import npc._
 
 object Elaborate extends App {
   def top = new RiscvCpu()
   val useMFC = false // use MLIR-based firrtl compiler
-  val generator = Seq(chisel3.stage.ChiselGeneratorAnnotation(() => top))
+  val generator = Seq(
+    chisel3.stage.ChiselGeneratorAnnotation(() => top),
+    firrtl.stage.RunFirrtlTransformAnnotation(new AddModulePrefix()),
+    ModulePrefixAnnotation("ysyx_22050550_")
+  )
   if (useMFC) {
     (new ChiselStage).execute(args, generator :+ CIRCTTargetAnnotation(CIRCTTarget.Verilog))
   } else {
