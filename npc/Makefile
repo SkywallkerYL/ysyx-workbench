@@ -60,7 +60,7 @@ VERILATOR_CFLAGS += -cc --exe
 #-Os -x-assign 0
 VERILATOR_CFLAGS +=	--x-assign fast --x-initial fast
 VERILATOR_CFLAGS += --trace --coverage --build
-VERILATOR_CFLAGS += -Wno-fatal -O3
+VERILATOR_CFLAGS += -Wno-fatal -O3 
 
 VERILATOR_CFLAGS += --top-module $(TOPNAMETEST)
 #VERILATOR_CFLAGS += --x-initial fast --noassert
@@ -98,7 +98,7 @@ CSRC += $(SRC_AUTO_BIND)
 #rules for verilator
 INCFLAGS = $(addprefix -I, $(INC_PATH))
 CFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""
-CFLAGS += $(shell llvm-config --cxxflags) -fPIE 
+CFLAGS += $(shell llvm-config --cxxflags) -fPIE -g
 LDFLAGS += -lSDL2 -lSDL2_image 
 LDFLAGS += $(shell llvm-config --libs)
 LDFLAGS += -lreadline
@@ -146,9 +146,17 @@ wave:
 	gtkwave wave.vcd
 catVerilog:
 	cat $(VSRC) > ~/ysyx-workbench/ysyxSoC/ysyx/soc/ysyx_22050550.v
+perfrun:
+	perf record -e cpu-clock -g ./obj_dir/V$(TOPNAMETEST) $(BATCHMODE) $(NPCMODE) $(IMG)
+perfreport:
+	perf report -n 
+perfflame:
+	perf script -i perf.data &> perf.unfold
+	sudo ~/FlameGraph/stackcollapse-perf.pl perf.unfold &> perf.folded
+	sudo ~/FlameGraph/flamegraph.pl perf.folded > perf.svg
 show-config:
 	$(VERILATOR) -V
 clean:
-	-rm -rf obj_dir logs *.log *.dmp *.vpd *.vcd $(BUILD_DIR) vsrc 
+	-rm -rf obj_dir logs *.log *.dmp *.vpd *.vcd $(BUILD_DIR) vsrc perf.data perf.data.old
 #git clean -fd
 .PHONY: default all clean run
