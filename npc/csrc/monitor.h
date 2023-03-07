@@ -18,7 +18,7 @@ static int difftest_port = 1234;
 //static char defaultelf_logfile[128] = "/home/yangli/ysyx-workbench/npc/build/ftrace-log.txt";
 static char defaultelf_logfile[128] = "./build/ftrace-log.txt";
 FILE *log_fp = NULL;
-
+void gpr_top_init();
 long load_prog(const char *bin);
 long initial_default_img();
 extern "C" void init_disasm(const char *triple);
@@ -98,6 +98,7 @@ void init_monitor(int argc, char *argv[])
   /* Parse arguments. */
   parse_args(argc, argv);
   //printf("hhhh\n");
+  //gpr_top_init();
   /* Open the log file. */
   init_log(log_file);
 #ifdef CONFIG_ITRACE

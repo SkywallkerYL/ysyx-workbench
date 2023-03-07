@@ -38,6 +38,11 @@ class CSRWB extends Bundle{
     val csrflag = Output(Bool())
     //val rdata = Output(UInt(parm.REGWIDTH.W))
 }
+class RegToTop extends Bundle{
+  val Reg = Output(Vec(parm.RegNumber+7,UInt(parm.REGWIDTH.W)))
+}
+
+
 
 class RegFile extends Module{
     val io = IO(new Bundle {
@@ -47,12 +52,18 @@ class RegFile extends Module{
     val pc = Input(UInt(parm.PCWIDTH.W))
     val RegFileID = ((new Regfile2Idu))
     val a0data = Output(UInt(parm.REGWIDTH.W))
+    //val TOP = new RegToTop
   })
   val reg = RegInit(VecInit(Seq.fill(parm.RegNumber)(0.U(parm.REGWIDTH.W))))
   val mepc    = RegInit(0.U(parm.REGWIDTH.W))
   val mstatus = RegInit(parm.INITIAL_MSTATUS.U(parm.REGWIDTH.W))
   val mtvec   = RegInit(0.U(parm.REGWIDTH.W))
   val mcause  = RegInit(0.U(parm.REGWIDTH.W))
+  /*
+  reg dpi 貌似会占用大量的仿真时间
+  在这里考虑拉到顶层
+  */
+  
   if(parm.DPI){
     val regdpi = Module(new regDPI)
     for(i <- 1 until 32){
@@ -62,15 +73,23 @@ class RegFile extends Module{
     regdpi.io.mepc      := io.RegFileID.CSRs.mepc    
     regdpi.io.mcause    := io.RegFileID.CSRs.mcause  
     regdpi.io.mtvec     := io.RegFileID.CSRs.mtvec   
-    regdpi.io.mstatus  := io.RegFileID.CSRs.mstatus
-    regdpi.io.mie      := io.RegFileID.CSRs.mie
-    regdpi.io.mip      := io.RegFileID.CSRs.mip
+    regdpi.io.mstatus   := io.RegFileID.CSRs.mstatus
+    regdpi.io.mie       := io.RegFileID.CSRs.mie
+    regdpi.io.mip       := io.RegFileID.CSRs.mip
   }
+  
+
   when (io.WBREG.Regfile.wen){
     when (io.WBREG.Regfile.waddr =/= 0.U) {reg(io.WBREG.Regfile.waddr) := io.WBREG.Regfile.wdata}
   }
+  //when (io.IDRegFile.raddr1 === io.waddr ){
+      io.RegFileID.rdata1 := reg(io.IDRegFile.raddr1)
+  //}
+  //when(io.IDRegFile.raddr2 === io.waddr ){
+      io.RegFileID.rdata2 := reg(io.IDRegFile.raddr2)
+  //}
   //生成出来的verilog文件似乎不会解决冲突的问题
-
+  /*
   if(io.IDRegFile.raddr1 == 0.U){
       io.RegFileID.rdata1 := 0.U(parm.REGWIDTH.W)
   }else if (io.IDRegFile.raddr1 == io.WBREG.Regfile.waddr ){
@@ -82,6 +101,7 @@ class RegFile extends Module{
   }else if (io.IDRegFile.raddr2 == io.WBREG.Regfile.waddr ){
       io.RegFileID.rdata2 := io.WBREG.Regfile.wdata
   }else io.RegFileID.rdata2 := reg(io.IDRegFile.raddr2)
+  */
   //这样写会有combinational loop
   /*
   when(io.IDRegFile.raddr1 === 0.U){

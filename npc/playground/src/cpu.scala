@@ -15,6 +15,7 @@ class  RiscvCpu extends Module{
         val difftestvalid = Output(Bool())
 //if (parm.DIFFTEST){
         val SkipRef = Output(Bool())
+        //val Reg = new RegToTop
 //}
     })
     //val M = Mem(parm.MSIZE/4,UInt(parm.INSTWIDTH.W))
@@ -110,6 +111,7 @@ class  RiscvCpu extends Module{
     Idu.io.IFID := Mux(IfidReg.instvalid,IfidReg,0.U.asTypeOf(new Ifu2Idu))
     //If_Id.io.nop := NpcMux.io.NOP
 // regfile
+    
     Regfile.io.IDRegFile <> Idu.io.IDRegFile
     Regfile.io.WBREG <> Wbu.io.WBREG 
     Regfile.io.pc := Ifu.io.IFID.pc//
@@ -130,7 +132,7 @@ class  RiscvCpu extends Module{
     Exu.io.id := Mux(IdexReg.valid,IdexReg,0.U.asTypeOf(new Idu2Exu))  // RegEnable
 //EXU
     val DivU = Module(new Divder)
-    val MulU = Module(new Multi())
+    val MulU = Module(new Multi(1))
     Exu.io.DivU <> DivU.io.Exu
     Exu.io.MulU <> MulU.io.Exu
     Exu.io.PC <> PcReg.io.EXU
@@ -222,7 +224,7 @@ class  RiscvCpu extends Module{
     io.SkipRef := skipref//Mux(difftest,false.B,true.B)//Wbu.io.debug.SkipRef//Lsu.io.SkipRef
     }  else io.SkipRef := false.B
     //io.res := Exu.io.expres
-
+    //io.Reg <> Regfile.io.TOP 
 }
 //for AXI-LITE signals , use these function
 object DecoupledConnect{

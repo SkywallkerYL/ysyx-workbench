@@ -52,7 +52,7 @@ VERILATOR = verilator
 # Generate C++ in executable form
 #for nvboard
 VERILATOR_FLAGS += -MMD --build -cc
-VERILATOR_FLAGS += -O3 --x-assign fast
+VERILATOR_FLAGS += -Os --x-assign fast
 VERILATOR_FLAGS += --x-initial fast --noassert
 VERILATOR_FLAGS += -Wno-fatal
 #for testbench
@@ -60,7 +60,8 @@ VERILATOR_CFLAGS += -cc --exe
 #-Os -x-assign 0
 VERILATOR_CFLAGS +=	--x-assign fast --x-initial fast
 VERILATOR_CFLAGS += --trace --coverage --build
-VERILATOR_CFLAGS += -Wno-fatal -O3
+VERILATOR_CFLAGS += -Wno-fatal -Os 
+
 
 VERILATOR_CFLAGS += --top-module $(TOPNAMETEST)
 #VERILATOR_CFLAGS += --x-initial fast --noassert
@@ -94,12 +95,16 @@ CSRC += $(SRC_AUTO_BIND)
 #VSRC += $(shell find $(abspath ../templete/bcd7seg) -name "*.v")
 
 #rules for nvboard
-include $(NVBOARD_HOME)/scripts/nvboard.mk
+#include $(NVBOARD_HOME)/scripts/nvboard.mk
 #rules for verilator
 INCFLAGS = $(addprefix -I, $(INC_PATH))
 CFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""
-CFLAGS += $(shell llvm-config --cxxflags) -fPIE 
-LDFLAGS += -lSDL2 -lSDL2_image 
+#CFLAGS += -I/usr/lib/llvm-14/include -std=c++14   
+#CFLAGS += -fno-exceptions -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS 
+#CFLAGS += -D__STDC_LIMIT_MACROS
+#CFLAGS += -fPIE -g
+#CFLAGS += $(shell llvm-config --cxxflags) -fPIE -g
+#LDFLAGS += -lSDL2 -lSDL2_image 
 #LDFLAGS += $(shell llvm-config --libs)
 #LDFLAGS += -lreadline
 
@@ -108,7 +113,7 @@ IMG?=
 	
 $(BIN) : $(VSRC) $(CSRCT) 
 	@rm -rf $(OBJ_DIR)
-	$(VERILATOR) $(VERILATOR_FLAGS) \
+	$(VERILATOR) $(VERILATOR_CFLAGS) \
 		--top-module $(TOPNAME) $^ \
 		$(addprefix -CFLAGS , $(CFLAGS)) $(addprefix -LDFLAGS , $(LDFLAGS))\
 		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))
@@ -116,10 +121,16 @@ $(BIN) : $(VSRC) $(CSRCT)
 all: default
 
 
+
+
+NPCMODE=-d
+BATCHMODE ?= 
+#DIFFTESTNEMUFILE=/home/yangli/ysyx-workbench/nemu/build/riscv64-nemu-interpreter-so
+DIFFTESTNEMUFILE=$(NEMU_HOME)/build/riscv64-nemu-interpreter-so
+NPCMODE+=$(DIFFTESTNEMUFILE)
 runnvboard: $(BIN)
 	#for nvboard
-	@$^
-
+	@$^ $(BATCHMODE) $(NPCMODE) $(IMG)
 run: 
 	#for testbench        
 	@echo "---------------VERILATE------------------"
@@ -128,18 +139,35 @@ run:
 
 	@echo "-----------------BUILD-------------------"
 
-	$(MAKE) -j -C obj_dir -f V$(TOPNAMETEST).mk V$(TOPNAMETEST) 
+	$(MAKE) -j -C obj_dir OPT_FAST="-Os -march=native" -f V$(TOPNAMETEST).mk V$(TOPNAMETEST) 
 # $(MAKE) -j -C obj_dir -f ../Makefile_obj
 
 	@echo "-------------------RUN-------------------"
-	./obj_dir/V$(TOPNAMETEST) 
+	@echo $(IMG)
+	@echo $(NPCMODE)
+	./obj_dir/V$(TOPNAMETEST) $(BATCHMODE) $(NPCMODE) $(IMG)
 
 #gtkwave wave.vcd
 wave:
 	gtkwave wave.vcd
+catVerilog:
+	cat $(VSRC) > ~/ysyx-workbench/ysyxSoC/ysyx/soc/ysyx_22050550.v
+perfrun:
+	perf record -e cpu-clock -g ./obj_dir/V$(TOPNAMETEST) $(BATCHMODE) $(NPCMODE) $(IMG)
+report:
+	perf report -n 
+perfflame:
+	perf script | ~/FlameGraph/stackcollapse-perf.pl | ~/FlameGraph/flamegraph.pl > perf.svg
+	firefox perf.svg
+perfdiff:
+	perf diff perf.data perf.data.old
+#perf script -i perf.data &> perf.unfold
+#sudo ~/FlameGraph/stackcollapse-perf.pl perf.unfold &> perf.folded
+#sudo ~/FlameGraph/flamegraph.pl perf.folded > perf.svg
+#
 show-config:
 	$(VERILATOR) -V
 clean:
-	-rm -rf obj_dir logs *.log *.dmp *.vpd *.vcd $(BUILD_DIR) vsrc .bloop/ project/.bloop/npc-build/ target/bg-jobs/ target/task-temp-directory/
+	-rm -rf obj_dir logs *.log *.dmp *.vpd *.vcd $(BUILD_DIR) vsrc perf.data perf.data.old perf.unfold perf.folded perf.svg
 #git clean -fd
 .PHONY: default all clean run

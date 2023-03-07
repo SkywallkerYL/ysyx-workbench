@@ -83,14 +83,20 @@ class WBU extends Module{
     
     //Mcauseflag := 0.U;
     val NO = io.REGWB.Reg17
-    val Mcauseflag0 = ((NO === "xffffffffffffffff".U)||NO<=16.U) & (io.LSWB.CsrWb.ecall)
-    val Mcauseflag1 = MtipValid
-    val Mcauseflag = Mcauseflag1 ## Mcauseflag0
+    //val Mcauseflag0 = ((NO === "xffffffffffffffff".U)||NO<=16.U) & (io.LSWB.CsrWb.ecall)
+    //val Mcauseflag1 = MtipValid
+    //val Mcauseflag = Mcauseflag1 ## Mcauseflag0
     val mstatus = Wire(UInt(parm.REGWIDTH.W))
     val mcause = Wire(UInt(parm.REGWIDTH.W))
     val mepc = Wire(UInt(parm.REGWIDTH.W))
     mstatus := 0.U
-    mcause  := func.Mcause(Mcauseflag,io.REGWB.CSRs.mcause)
+    mcause := 0.U
+    //mcause  := func.Mcause(Mcauseflag,io.REGWB.CSRs.mcause)
+    when(io.LSWB.CsrWb.ecall){
+      mcause := parm.EcallFromM.U
+    }.elsewhen(MtipValid){
+      mcause := parm.CountInter.U
+    }
     mepc    := 0.U
     when(io.LSWB.CsrWb.ecall || MtipValid){
       //io.CsrRegfile.
@@ -116,14 +122,15 @@ class WBU extends Module{
 
     io.WBREG.CsrRegfile.mie := Mux(io.LSWB.CsrWb.CsrExuChoose(4),io.LSWB.AluRes,io.REGWB.CSRs.mie)
 
-    val MieFlag  = (io.REGWB.CSRs.mstatus &parm.MIE.U(parm.REGWIDTH.W)) =/= 0.U
-    val MtieFlag = (io.REGWB.CSRs.mie & parm.MTIE.U(parm.REGWIDTH.W)) =/= 0.U 
+    val MieFlag  = (io.REGWB.CSRs.mstatus(3) )//&parm.MIE.U(parm.REGWIDTH.W)) =/= 0.U
+    val MtieFlag = (io.REGWB.CSRs.mie(7))//& parm.MTIE.U(parm.REGWIDTH.W)) =/= 0.U 
     val MtipFlag = MieFlag & MtieFlag & io.CLINTWB.Mtip
     val MtipHigh = io.REGWB.CSRs.mip | parm.MTIP.U(parm.REGWIDTH.W)
     //val MtipLow = io.REGWB.CSRs.mip & (~parm.MTIP.U(parm.REGWIDTH.W))
     //如果有写入的话，优先写入  否则根据MTIPflag对mip寄存器写入 当然也有可能还有其他信号，后面再加
     when(MtipFlag){
-      io.WBREG.CsrAddr := Mux(csrwen,io.LSWB.CsrWb.CsrAddr(7,6),"b00".U) ##"b1".U##Mux(csrwen,io.LSWB.CsrWb.CsrAddr(4,0),"b0000".U)
+      //io.WBREG.CsrAddr := Mux(csrwen,io.LSWB.CsrWb.CsrAddr(7,6),"b00".U) ##"b1".U##Mux(csrwen,io.LSWB.CsrWb.CsrAddr(4,0),"b0000".U)
+      io.WBREG.CsrAddr := io.LSWB.CsrWb.CsrAddr | "b0010000".U
     }
     //io.CsrAddr(5) := Mux(io.LSWB.CsrWb.CsrAddr(6),io.LSWB.CsrWb.CsrAddr(6),MtipFlag)
     io.WBREG.CsrRegfile.mip :=  Mux(io.LSWB.CsrWb.CsrExuChoose(5),io.LSWB.AluRes,Mux(MtipFlag,MtipHigh,io.REGWB.CSRs.mip))

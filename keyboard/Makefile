@@ -57,7 +57,10 @@ include $(NVBOARD_HOME)/scripts/nvboard.mk
 INCFLAGS = $(addprefix -I, $(INC_PATH))
 CFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""
 LDFLAGS += -lSDL2 -lSDL2_image
-
+#CFLAGS += $(shell llvm-config --cxxflags) -fPIE -g
+#LDFLAGS += -lSDL2 -lSDL2_image 
+#LDFLAGS += $(shell llvm-config --libs)
+#LDFLAGS += -lreadline
 	
 $(BIN) : $(VSRC) $(CSRC) $(NVBOARD_ARCHIVE)
 	@rm -rf $(OBJ_DIR)

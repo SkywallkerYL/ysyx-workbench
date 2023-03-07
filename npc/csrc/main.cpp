@@ -17,11 +17,14 @@
 
 
 //寄存器堆的值
+
+
 extern "C" void set_gpr_ptr(const svOpenArrayHandle r){
   //printf("hhhh\n");
   //printf("reg_addr: %d\n",r);
   cpu_gpr = ((uint64_t *)(((VerilatedDpiOpenVar*)r)->datap()));  
 }
+
 extern "C" void pmem_read(long long raddr, long long *rdata);
 
 //extern "C" void pmem_write(long long waddr, long long *wdata,char wmask);

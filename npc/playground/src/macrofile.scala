@@ -43,6 +43,7 @@ object  parm{
     val CSRMIP      : String = "x344"
     // MCAUSE 
     val EcallFromM  : Int = 11 // M-mode Environment Calls
+    //时钟中断属于中断 最高位还要置1 这里暂时没实现，先不管了
     val CountInter  : Int = 16 // Interupt by timer
     //CLINT
     val CLINTBASE   : String = "x02000000"
@@ -356,6 +357,12 @@ object func{
     def Mask (imm: UInt, mask : UInt) = imm & mask
     def EcallMstatus (localmstatus : UInt) : UInt ={
         val mstatus = localmstatus
+        //
+        val oldmie = mstatus(3)
+        val newmstatus = (mstatus &  (~ parm.MPIE.U(parm.REGWIDTH.W))) | (oldmie << 7.U)
+        val finalmstatus =  newmstatus & (~ parm.MIE.U(parm.REGWIDTH.W))
+        /*
+        这里最现实按照C的思路写的 这里可以直接一点，加快verilator仿真速度
         //printf(p"mstatus=0x${Hexadecimal(mstatus)} \n")
         val mstatusMIE = mstatus|parm.MPIE.U(parm.REGWIDTH.W)
         //printf(p"mstatus=0x${Hexadecimal(mstatusMIE)} \n")
@@ -372,10 +379,19 @@ object func{
         //printf(p"mstatus=0x${Hexadecimal(realfinal)} \n")
         //mstatus := mstatus & (~ parm.MIE.U)
         //mstatus := mstatus | "x1800".U
-        return realfinal
+        */
+        return finalmstatus
+        
     }  
     def MretMstatus (localmstatus : UInt) : UInt ={
         val mstatus = localmstatus
+        //mret 相当于ecall的逆过程
+        val oldmpie = mstatus(7)
+        val newmstatus = (mstatus &  (~ parm.MIE.U(parm.REGWIDTH.W))) | (oldmpie << 3.U)
+        //mstatus(3) := oldmpie
+        val finalmstatus =  mstatus | ( parm.MPIE.U(parm.REGWIDTH.W))
+        /*
+        这里也是以前按照C的思路写的，现在改一下
         //printf(p"mstatus=0x${Hexadecimal(mstatus)} \n")
         val mstatusMIE = mstatus|parm.MIE.U(parm.REGWIDTH.W)
         //printf(p"mstatus=0x${Hexadecimal(mstatusMIE)} \n")
@@ -392,7 +408,8 @@ object func{
         //printf(p"mstatus=0x${Hexadecimal(realfinal)} \n")
         //)
         //
-        return realfinal
+        */
+        return finalmstatus
     } 
     def Mcause (Mcauseflag : UInt, localmcause : UInt): UInt ={
         val mcause  = localmcause
