@@ -88,10 +88,14 @@ bool checkebreak ()
 
 extern int64_t instnum;
 extern int64_t wavecount;
+extern int64_t mtracecount;
 void assert_fail_msg() {
 #ifdef CONFIG_ITRACE
   Log("Total Instr num:%ld",instnum );
   printiringbuf((iringbufind+iringbufsize-1)%iringbufsize);  
+#endif
+#ifdef CONFIG_MTRACE
+  Log("Total Mtrace num:%ld",mtracecount );
 #endif
 #ifdef WAVE
   Log("Wave Cycle num:%ld",wavecount);
