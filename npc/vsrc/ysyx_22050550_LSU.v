@@ -34,12 +34,14 @@ module ysyx_22050550_LSU(
     output [63:0] io_LSWB_imm                   ,
     output [4:0]  io_LSWB_wdaddr                ,
     output        io_LSWB_wen                   ,
-    output        io_LSWB_csrflag               ,        
+    output        io_LSWB_csrflag               , 
+                  io_LSWB_readflag              ,       
                   io_LSWB_jalrflag              ,        
                   io_LSWB_ecallflag             ,        
                   io_LSWB_mretflag              ,        
                   io_LSWB_ebreak                ,   
-                  io_LSWB_abort                 ,     
+                  io_LSWB_abort                 , 
+                  io_LSWB_SkipRef               ,    
     output [63:0] io_LSWB_alures                ,  
     output [63:0] io_LSWB_lsures                ,
     output [2:0]  io_LSWB_func3                 ,
@@ -237,10 +239,12 @@ module ysyx_22050550_LSU(
     assign io_LSWB_wdaddr   =      io_EXLS_waddr                      ;
     assign io_LSWB_wen      =      io_EXLS_wen                        ;
     assign io_LSWB_csrflag  =      io_EXLS_csrflag                    ;
+    assign io_LSWB_readflag =      io_EXLS_rflag                      ;
     assign io_LSWB_jalrflag =      io_EXLS_jalrflag                   ;
     assign io_LSWB_ecallflag=      io_EXLS_ecallflag                  ;
     assign io_LSWB_mretflag =      io_EXLS_mretflag                   ;
     assign io_LSWB_ebreak   =      io_EXLS_ebreak                     ;
+    assign io_LSWB_SkipRef  =      (io_EXLS_wflag||io_EXLS_rflag) &&(!Pmem);//读写内存并且非pmem地址
     assign io_LSWB_func3    =      io_EXLS_func3                      ;
     assign io_LSWB_func7    =      io_EXLS_func7                      ;
     assign io_LSWB_NextPc   =      io_EXLS_NextPc                     ;

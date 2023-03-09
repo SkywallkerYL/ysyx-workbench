@@ -48,3 +48,10 @@
 //Pmem
 `define ysyx_22050550_PLeft           64'h80000000
 `define ysyx_22050550_PRight          64'h87ffffff
+//csr
+`define ysyx_22050550_MTVEC           12'h305
+`define ysyx_22050550_MCAUSE          12'h342
+`define ysyx_22050550_MSTATUS         12'h300
+`define ysyx_22050550_MEPC            12'h341
+`define ysyx_22050550_CSRMIE          12'h304
+`define ysyx_22050550_CSRMIP          12'h344
