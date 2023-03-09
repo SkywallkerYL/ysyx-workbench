@@ -9,7 +9,7 @@ class LSU extends Module{
       val EXLS = Flipped(new Exu2Lsu)
       val LSWB = new Lsu2Wbu
       val Cache = new Cpu2Cache
-      val LSRAM = new Lsu2Sram
+      //val LSRAM = new Lsu2Sram
 //if(parm.DIFFTEST){
       val SkipRef = Output(Bool())
 //}
@@ -42,12 +42,12 @@ class LSU extends Module{
   val LsuBusy = Wire(Bool())
   LsuBusy := false.B
   //数据在级间流水段锁存了，因此内部不需要所存了，这些都删掉。。
-  //val LsumaskReg = RegInit(0.U(parm.MaskWidth.W))//*
-  //val chooseReg  = RegInit(0.U(parm.RegFileChooseWidth.W))//*
-  //val IoRegfile = RegInit(0.U.asTypeOf(new REGFILEIO)) //*
-  //val RdAddrReg = RegInit(0.U(parm.REGWIDTH.W))
-  //val WrDataReg = RegInit(0.U(parm.REGWIDTH.W))
-  //val WrMaskReg = RegInit(0.U(parm.BYTEWIDTH.W))
+  //val LsumaskReg  = RegInit(0.U(parm.MaskWidth.W))//*
+  //val chooseReg   = RegInit(0.U(parm.RegFileChooseWidth.W))//*
+  //val IoRegfile   = RegInit(0.U.asTypeOf(new REGFILEIO)) //*
+  //val RdAddrReg   = RegInit(0.U(parm.REGWIDTH.W))
+  //val WrDataReg   = RegInit(0.U(parm.REGWIDTH.W))
+  //val WrMaskReg   = RegInit(0.U(parm.BYTEWIDTH.W))
   io.Cache.Cache.valid := false.B 
   io.Cache.Cache.op    := 0.U
   io.Cache.Cache.addr  := 0.U
@@ -75,6 +75,21 @@ class LSU extends Module{
   else{
     //非读写内存的情况下 的读写状态机,用于与总线之间通信
     //即转发给设备的情况
+    //仿真太慢了，还是先不通过状态机发给设备了，直接发
+    when(io.SkipRef ){
+      if(parm.DPI){
+        val LsuDPI = Module(new LSUDPI) 
+        LsuDPI.io.wflag := io.EXLS.wflag & !CLINTWRITE
+        LsuDPI.io.rflag := io.EXLS.rflag & !CLINTREAD
+        LsuDPI.io.raddr := EXLSreadaddr  
+        LsuDPI.io.waddr := EXLSwriteaddr 
+        LsuDPI.io.wdata := io.EXLS.writedata 
+        LsuDPI.io.wmask := io.EXLS.wmask 
+        LsuDpidata := LsuDPI.io.rdata
+        //io.LsuRes := LsuDPI.io.rdata
+      }
+    }
+    /*
     val readWait ::readReady :: read :: Nil = Enum(3)
     val ReadState = RegInit(readWait)
     //Intial
@@ -210,6 +225,7 @@ class LSU extends Module{
         }
       }
     }
+    */
     //地址非clint 非设备地址 转发给Cache
     when(!io.SkipRef){
       io.Cache.Cache.valid := (io.EXLS.rflag|io.EXLS.wflag) & (!CLINTREAD) & (!io.SkipRef)
@@ -293,7 +309,7 @@ class LSU extends Module{
   io.PC.Lsuvalid := Mux((io.EXLS.rflag|io.EXLS.wflag) & !CLINTREAD,0.U,!LsuBusyReg)
   //类似EXU模块 ready信号在dataok那个周期也要拉高，这样子下一个周期流水线正好继续
   //考虑到wbu 不会阻塞，所以这里一般没啥问题
-  val dataok = io.Cache.Cache.dataok || io.LSRAM.Axi.w.fire || io.LSRAM.Axi.r.fire
+  val dataok = io.Cache.Cache.dataok //|| io.LSRAM.Axi.w.fire || io.LSRAM.Axi.r.fire
   //这里注意data ok的那个周期 rflag wflag这个信号仍然是高的
   //因此或上dataok
   io.ReadyEX.ready := !LsuBusy && io.ReadyWB.ready

@@ -25,6 +25,7 @@
 
 VerilatedContext* contextp = NULL;
 VerilatedVcdC* tfp = NULL;
+uint64_t g_timer = 0;
 //static VRiscvCpu* top;
 int64_t wavecount = 0;
 void step_and_dump_wave(){
@@ -89,18 +90,27 @@ bool checkebreak ()
 extern int64_t instnum;
 extern int64_t wavecount;
 extern int64_t mtracecount;
-void assert_fail_msg() {
-#ifdef CONFIG_ITRACE
-  Log("Total Instr num:%ld",instnum );
-  printiringbuf((iringbufind+iringbufsize-1)%iringbufsize);  
-#endif
+void statistic() {
 #ifdef CONFIG_MTRACE
   Log("Total Mtrace num:%ld",mtracecount );
 #endif
 #ifdef WAVE
   Log("Wave Cycle num:%ld",wavecount);
 #endif
+  Log("host time spent = %ld us", g_timer);
+#ifdef CONFIG_ITRACE
+  Log("total guest instructions = %ld ", instnum);
+  if (g_timer > 0) Log("simulation frequency = %ld inst/s", instnum * 1000000 / g_timer);
+  else Log("Finish running in less than 1 us and can not calculate the simulation frequency");
+#endif
+}
+void assert_fail_msg() {
+#ifdef CONFIG_ITRACE
+  Log("Total Instr num:%ld",instnum );
+  printiringbuf((iringbufind+iringbufsize-1)%iringbufsize);  
+#endif
   isa_reg_display();
+  statistic();
 }
 //uint32_t instr_mem[MSIZE/4-1];
 long load_prog(const char *bin){
@@ -219,17 +229,19 @@ void sim_once(uint64_t n){
 
 static void execute(uint64_t n) {
 
-    switch (npc_state.state) {
-    case NPC_QUIT : exit(0);break;
-    case NPC_END: case NPC_ABORT:
-      //printf("Program execution has ended. To restart the program, exit NPC and run again.\n");
-      Log("Program execution has ended. To restart the program, exit NPC and run again.");
-      return;
-    default: npc_state.state = NPC_RUNNING;
-    }
+  switch (npc_state.state) {
+  case NPC_QUIT : exit(0);break;
+  case NPC_END: case NPC_ABORT:
+    //printf("Program execution has ended. To restart the program, exit NPC and run again.\n");
+    Log("Program execution has ended. To restart the program, exit NPC and run again.");
+    return;
+  default: npc_state.state = NPC_RUNNING;
+  }
+  uint64_t timer_start = get_time();
   while (n--){
 
       //这个n用来决定是否打印指令 而不是执行多少次
+
       sim_once(n);
 
       //printf("hhhh\n");
@@ -283,51 +295,53 @@ static void execute(uint64_t n) {
 #endif
       //sim_once();
   }
-    switch (npc_state.state) {
-    case NPC_RUNNING: npc_state.state = NPC_STOP; break;
-
-    case NPC_END: break;
-    case NPC_ABORT:
-      if (checkebreak())
-      {
-        if(top->io_halt == 1) printf( ANSI_FMT("HIT GOOD TRAP at pc:0x%016lx\n", ANSI_FG_GREEN),Pc_Fetch()) ;
-        else printf(ANSI_FMT("HIT BAD TRAP at pc:0x%016lx\n", ANSI_FG_RED),Pc_Fetch());
-        break;
-      }
-      //abort那个周期正好是有效的
-      else if (top->io_abort == 1) {
-        int ilen = 4;
-        char inst_buf[128];
-        char *p = inst_buf; 
-        //这里也是一样 ,valid 的那个周期把这些取出来
-        uint64_t pc = Pc_Fetch();
-        uint32_t instr = Instr_Fetch();
-        //uint32_t intsr1 = p_mem[pc-CONFIG_MBASE];
-        //printf("instr: 0x%08x\n",instr);
-        //printf("instr1: 0x%08x\n",intsr1);
-        uint8_t *inst =(uint8_t *)&instr;//(uint8_t *)&p_mem[pc-CONFIG_MBASE]; //(uint8_t *)&instr;
-        for (int i = ilen - 1; i >= 0; i --) {
-         p += snprintf(p, 4, " %02x", inst[i]);
-        }
-        int ilen_max = 4;
-        int space_len = ilen_max - ilen;
-        if (space_len < 0) space_len = 0;
-        space_len = space_len * 3 + 1;
-        memset(p, ' ', space_len);
-        p += space_len;
-        void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
-        disassemble(p,  inst_buf + sizeof(inst_buf) - p,pc, inst , ilen);
-        //assert_fail_msg();
-        printf(ANSI_FMT("Instr not implement or other situation!\n", ANSI_FG_RED));
-        printf("pc: 0x%016lx Inst: %s\n",pc,inst_buf);
-        break;
-      }
+  uint64_t timer_end = get_time();
+  g_timer+= timer_end-timer_start;
+  switch (npc_state.state) {
+  case NPC_RUNNING: npc_state.state = NPC_STOP; break;
+  case NPC_END: break;
+  case NPC_ABORT:
+    if (checkebreak())
+    {
+      if(top->io_halt == 1) printf( ANSI_FMT("HIT GOOD TRAP at pc:0x%016lx\n", ANSI_FG_GREEN),Pc_Fetch()) ;
+      else printf(ANSI_FMT("HIT BAD TRAP at pc:0x%016lx\n", ANSI_FG_RED),Pc_Fetch());
+      statistic();
       break;
-      // fall through
-    case NPC_QUIT: exit(0);break;
     }
-    //if (npc_state.state != NPC_RUNNING) {break;}
-    //IFDEF(CONFIG_DEVICE, device_update());
+    //abort那个周期正好是有效的
+    else if (top->io_abort == 1) {
+      int ilen = 4;
+      char inst_buf[128];
+      char *p = inst_buf; 
+      //这里也是一样 ,valid 的那个周期把这些取出来
+      uint64_t pc = Pc_Fetch();
+      uint32_t instr = Instr_Fetch();
+      //uint32_t intsr1 = p_mem[pc-CONFIG_MBASE];
+      //printf("instr: 0x%08x\n",instr);
+      //printf("instr1: 0x%08x\n",intsr1);
+      uint8_t *inst =(uint8_t *)&instr;//(uint8_t *)&p_mem[pc-CONFIG_MBASE]; //(uint8_t *)&instr;
+      for (int i = ilen - 1; i >= 0; i --) {
+       p += snprintf(p, 4, " %02x", inst[i]);
+      }
+      int ilen_max = 4;
+      int space_len = ilen_max - ilen;
+      if (space_len < 0) space_len = 0;
+      space_len = space_len * 3 + 1;
+      memset(p, ' ', space_len);
+      p += space_len;
+      void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
+      disassemble(p,  inst_buf + sizeof(inst_buf) - p,pc, inst , ilen);
+      //assert_fail_msg();
+      printf(ANSI_FMT("Instr not implement or other situation!\n", ANSI_FG_RED));
+      printf("pc: 0x%016lx Inst: %s\n",pc,inst_buf);
+      break;
+    }
+    break;
+    // fall through
+  case NPC_QUIT: exit(0);break;
+  }
+  //if (npc_state.state != NPC_RUNNING) {break;}
+  //IFDEF(CONFIG_DEVICE, device_update());
 }
 #endif
 

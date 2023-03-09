@@ -56,11 +56,11 @@ VERILATOR_FLAGS += -Os --x-assign fast
 VERILATOR_FLAGS += --x-initial fast --noassert
 VERILATOR_FLAGS += -Wno-fatal
 #for testbench
-VERILATOR_CFLAGS += -cc --exe 
+VERILATOR_CFLAGS += -cc --exe --noassert
 #-Os -x-assign 0
 VERILATOR_CFLAGS +=	--x-assign fast --x-initial fast
-VERILATOR_CFLAGS += --trace --coverage --build
-VERILATOR_CFLAGS += -Wno-fatal -Os 
+VERILATOR_CFLAGS += --trace --coverage --build 
+VERILATOR_CFLAGS += -Wno-fatal -O3 
 
 
 VERILATOR_CFLAGS += --top-module $(TOPNAMETEST)
@@ -104,7 +104,7 @@ VCFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""
 #CFLAGS += -fno-exceptions -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS 
 #CFLAGS += -D__STDC_LIMIT_MACROS
 #CFLAGS += -fPIE -g
-CFLAGS += $(shell llvm-config --cxxflags) -fPIE -g -O2
+CFLAGS += $(shell llvm-config --cxxflags) -fPIE -g 
 LDFLAGS += -lSDL2 -lSDL2_image 
 LDFLAGS += $(shell llvm-config --libs)
 LDFLAGS += -lreadline
@@ -176,6 +176,6 @@ perfdiff:
 show-config:
 	$(VERILATOR) -V
 clean:
-	-rm -rf obj_dir logs *.log *.dmp *.vpd *.vcd $(BUILD_DIR) vsrc perf.data perf.c.old perf.unfold perf.folded perf.svg
+	-rm -rf obj_dir logs *.log *.dmp *.vpd *.vcd $(BUILD_DIR)  perf.data perf.data.old perf.unfold perf.folded perf.svg
 #git clean -fd
 .PHONY: default all clean run

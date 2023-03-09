@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <iostream>
 #include <string>
+#include <ctime>
 #include "npc-exec.h"
 #include "macro.h"
 #include "state.h"
@@ -254,6 +255,7 @@ void sdb_set_batch_mode() {
 
 void sdb_mainloop() {
   if (is_batch_mode) {
+    
     cmd_c(NULL);
     return;
   }

@@ -194,6 +194,7 @@ class IDU extends Module{
             */
             //io.idex.CsrWb.CSRs := CSRs
             //这个
+            //这里有点问题 csrr 也要写入的。。
             io.idex.CsrWb.csrflag := csrflag && stype===OpIType.CSRRW  //要csrrw的情况下才进行写入
             //rr的情况下不要拉高不然会改变mcause的状态
             //这个bug不知道为啥是加了流水线才发现。。。按理说应该造就发现了。。

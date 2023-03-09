@@ -2,7 +2,7 @@ package  npc
 import circt.stage._
 
 object Elaborate extends App {
-  def top = new Multi(2) //Divder Multi
+  def top = new Multi(1) //Divder Multi
   val useMFC = false // use MLIR-based firrtl compiler
   val generator = Seq(chisel3.stage.ChiselGeneratorAnnotation(() => top))
   if (useMFC) {

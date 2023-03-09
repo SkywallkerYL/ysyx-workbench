@@ -4,7 +4,7 @@ import npc._
 
 object Elaborate extends App {
   def top = new RiscvCpu()
-  val useMFC = false // use MLIR-based firrtl compiler
+  val useMFC = true // use MLIR-based firrtl compiler
   val generator = Seq(
     chisel3.stage.ChiselGeneratorAnnotation(() => top),
     //firrtl.stage.RunFirrtlTransformAnnotation(new AddModulePrefix()),
