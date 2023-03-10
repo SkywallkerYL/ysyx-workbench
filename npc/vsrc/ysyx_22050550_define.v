@@ -55,3 +55,20 @@
 `define ysyx_22050550_MEPC            12'h341
 `define ysyx_22050550_CSRMIE          12'h304
 `define ysyx_22050550_CSRMIP          12'h344
+
+//Cache
+`define ysyx_22050550_AddrWidth       64
+`define ysyx_22050550_DataWidth       8     // 默认主存一个地址存8位
+`define ysyx_22050550_BlockWidth      4     // CACHE一行128   8* 2^4
+`define ysyx_22050550_BlockBus        (`ysyx_22050550_BlockWidth-1):0
+`define ysyx_22050550_BlockNum        2**(`ysyx_22050550_BlockWidth)   
+//64路感觉太多了 ，将一块CACHE分成多个组， 暂定4路组相连 一块CACHE分成16组
+//只用一块RAM
+`define ysyx_22050550_AssoWidth       2     //
+`define ysyx_22050550_AssoNum         2**(`ysyx_22050550_AssoWidth)    //2^2   4路组相连
+`define ysyx_22050550_GroupWidth       4     //两组
+`define ysyx_22050550_GroupBus         (`ysyx_22050550_GroupWidth-1):0
+`define ysyx_22050550_GroupBlockBus    (`ysyx_22050550_GroupWidth+`ysyx_22050550_AssoWidth-1):0
+`define ysyx_22050550_GroupNum         2**(`ysyx_22050550_GroupWidth)
+`define ysyx_22050550_TagWidth        56    // 64-4-4 addr-group-block
+`define ysyx_22050550_TagBus          (`ysyx_22050550_TagWidth-1):0    

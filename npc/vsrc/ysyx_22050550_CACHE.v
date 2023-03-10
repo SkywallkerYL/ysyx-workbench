@@ -1,0 +1,404 @@
+`include "/home/yangli/ysyx-workbench/npc/vsrc/ysyx_22050550_define.v"
+module ysyx_22050550_CACHE(
+    input         clock                         ,
+                  reset                         ,
+    
+    /***********AxiSram***********/
+    input  [0:0]  io_ar_ready               ,
+    output [0:0]  io_ar_valid               ,    
+    output [63:0] io_ar_addr                ,
+    output [7:0]  io_ar_len                 ,
+    output [2:0]  io_ar_size                ,    
+    output [1:0]  io_ar_burst               , 
+    input  [0:0]  io_r_valid                ,
+    input  [0:0]  io_r_last                 ,
+    input  [63:0] io_r_rdata                ,
+    output [0:0]  io_r_ready                ,
+    input  [0:0]  io_aw_ready               ,
+    output [0:0]  io_aw_valid               , 
+    output [63:0] io_aw_addr                ,
+    output [7:0]  io_aw_len                 ,
+    output [2:0]  io_aw_size                , 
+    output [1:0]  io_aw_burst               ,
+    input  [0:0]  io_w_ready                , 
+    output [0:0]  io_w_valid                ,
+    output [63:0] io_w_data                 ,
+    output [7:0]  io_w_strb                 ,
+    output [0:0]  io_w_last                 ,
+    output [0:0]  io_b_ready                ,
+    input  [0:0]  io_b_valid                ,
+    /***********Cache***********/
+    input  [0:0]  io_Cache_valid            ,
+    input  [0:0]  io_Cache_op               ,
+    input  [63:0] io_Cache_addr             ,
+    input  [63:0] io_Cache_wdata            ,
+    input  [7:0]  io_Cache_wmask            ,
+    output [63:0] io_Cache_data             ,
+    output        io_Cache_dataok           
+    /*********DataArray·的Sram 例化在顶层 这里内部只保留tagarray********/
+    /*********暂时先实现在内部 **********/
+
+);
+    /*
+        采用官方提供的RAM模板实现，
+        data array采用1块sram实现
+    */
+    wire [5:0]      useaddr;
+    wire [127:0]    DataRead;
+    wire DataWen;
+    wire [127:0] DataBen  ;
+    wire [127:0] DataWrite;
+    ysyx_22050550_S011HD1P_X32Y2D128_BW Data_Array(
+        .Q(DataRead), .CLK(clock), .CEN(1'b0),
+        .WEN(DataWen), .BWEN(DataBen), .A(useaddr), .D(DataWrite)
+    );
+    //Tag array  16组 每组4路   一共64行
+    /**** Tag例化4块，同时对一组内每一路读出Tag*****/
+    
+    wire [`ysyx_22050550_TagBus] Tag[3:0];
+    wire Tag0Wen = !(io_r_last && REFILL && io_r_valid && chooseway==2'd0) ;
+    wire [`ysyx_22050550_TagBus] Tag0Ben = 0;//写使能，写掩码，都是低位有效
+    wire [`ysyx_22050550_TagBus] Tag0Data = AddrTag; //写数据
+    ysyx_22050550_TagAaaryMem Tag_Array0(
+        .Q(Tag[0]), .CLK(clock), .CEN(1'b0), 
+        .WEN(Tag0Wen), .BWEN(Tag0Ben), .A(AddrGroup), .D(Tag0Data)
+    );
+    wire Tag1Wen = !(io_r_last && REFILL && io_r_valid && chooseway==2'd1);
+    wire [`ysyx_22050550_TagBus] Tag1Ben = 0;//写使能，写掩码，都是低位有效
+    wire [`ysyx_22050550_TagBus] Tag1Data = AddrTag; //写数据
+    ysyx_22050550_TagAaaryMem Tag_Array1(
+        .Q(Tag[1]), .CLK(clock), .CEN(1'b0), 
+        .WEN(Tag1Wen), .BWEN(Tag1Ben), .A(AddrGroup), .D(Tag1Data)
+    );
+    wire Tag2Wen = !(io_r_last && REFILL && io_r_valid && chooseway==2'd2);
+    wire [`ysyx_22050550_TagBus] Tag2Ben = 0;//写使能，写掩码，都是低位有效
+    wire [`ysyx_22050550_TagBus] Tag2Data = AddrTag; //写数据
+    ysyx_22050550_TagAaaryMem Tag_Array2(
+        .Q(Tag[2]), .CLK(clock), .CEN(1'b0), 
+        .WEN(Tag2Wen), .BWEN(Tag2Ben), .A(AddrGroup), .D(Tag2Data)
+    );
+    wire Tag3Wen = !(io_r_last && REFILL && io_r_valid && chooseway==2'd3);
+    wire [`ysyx_22050550_TagBus] Tag3Ben = 0;//写使能，写掩码，都是低位有效
+    wire [`ysyx_22050550_TagBus] Tag3Data = AddrTag; //写数据
+    ysyx_22050550_TagAaaryMem Tag_Array3(
+        .Q(Tag[3]), .CLK(clock), .CEN(1'b0), 
+        .WEN(Tag3Wen), .BWEN(Tag3Ben), .A(AddrGroup), .D(Tag3Data)
+    );
+    //reg [`ysyx_22050550_TagBus] tag [63 : 0];
+    //valid dirty
+    reg  valid [63:0];
+    reg  dirty [63:0];
+    wire validen [63:0];
+    wire validWriteEn ;
+    wire validWriteData;
+    wire dirtyen [63:0];
+    wire dirtyWriteEn ;
+    wire dirtyWriteData;
+    
+    generate
+        for (genvar i = 0; i < 64; i = i+1) begin : valid_dirty
+            assign validen[i] = validWriteEn & (useaddr == i);
+            ysyx_22050550_Reg # (1,1'd0) regvalid (
+                .clock(clock),.reset(reset),.wen(validen[i]),.din(validWriteData),
+                .dout(valid[i]));
+            assign dirtyen[i] = dirtyWriteEn & (useaddr == i);
+            ysyx_22050550_Reg # (1,1'd0) regdirty (
+                .clock(clock),.reset(reset),.wen(dirtyen[i]),.din(dirtyWriteData),
+                .dout(dirty[i]));
+        end
+    endgenerate
+    //记录对应组 某一路是否命中
+    wire hit   [3:0];
+    wire [`ysyx_22050550_AddrWidth-1:0] AddrTagshift = (io_Cache_addr >> (`ysyx_22050550_GroupWidth+`ysyx_22050550_BlockWidth));
+    wire [`ysyx_22050550_TagBus] AddrTag = AddrTagshift[`ysyx_22050550_TagBus];
+    wire [`ysyx_22050550_BlockBus]AddrBlock =  io_Cache_addr[`ysyx_22050550_BlockBus];
+    wire [`ysyx_22050550_AddrWidth-1:0]AddrGroupshift = (io_Cache_addr >> (`ysyx_22050550_BlockWidth));
+    wire [`ysyx_22050550_GroupBus] AddrGroup = AddrGroupshift[`ysyx_22050550_GroupBus];
+    wire [`ysyx_22050550_RegBus] DataOut;
+    //根据块内地址确定输出的   默认32位对齐
+    ysyx_22050550_MuxKeyWithDefault#(4,`ysyx_22050550_BlockWidth,`ysyx_22050550_REGWIDTH) DataMux(
+        .out(DataOut),.key(AddrBlock),.default_out(DataRead[63:0]),.lut({
+        4'd0    , DataRead[63:0],
+        4'd4    , DataRead[95:32],
+        4'd8    , DataRead[127:64],
+        4'd12   , {{32{1'b0}},DataRead[127:96]}
+    }));
+    
+    
+    /*
+        根据组号定位属于哪一组 然后在组内的每一路来比较tag看是否命中
+        第i组第j路在tag内的行地址为i*4+j =>  {i,j}  这样子就没有乘法了
+    */
+    //generate
+       // for (genvar i = 2'd0; i < 4; i = i+1'd1) begin : regfile
+       //     wire [5:0]groupaddr = {AddrGroup,i};//(AddrGroup <<2) | i;
+       //     assign hit[i] = (AddrTag == tag[groupaddr]) && valid[groupaddr];
+      //  end
+    //endgenerate
+    wire [5:0]groupaddr1 = {AddrGroup,2'd0};
+    assign hit[0] = (AddrTag == Tag[0]) && valid[groupaddr1];
+    wire [5:0]groupaddr2 = {AddrGroup,2'd1};
+    assign hit[1] = (AddrTag == Tag[1]) && valid[groupaddr2];
+    wire [5:0]groupaddr3 = {AddrGroup,2'd2};
+    assign hit[2] = (AddrTag == Tag[2]) && valid[groupaddr3];
+    wire [5:0]groupaddr4 = {AddrGroup,2'd3};
+    assign hit[3] = (AddrTag == Tag[3]) && valid[groupaddr4];
+
+    wire cachehit = hit[3] | hit[2] | hit[1] | hit[0];
+    //wire hit = cachehit;
+    wire [1:0] hitway = hit[3]? 2'd3:  hit[2]? 2'd1 :hit[1]? 2'd1 :hit[0]? 2'd0 : 2'd0;
+    wire [5:0] hitaddr = {AddrGroup,hitway};//(AddrGroup <<2) | hitway;
+    //lfsr 用于随机选取某一路
+    reg [15:0] lfsr;	
+    always @(posedge clock) begin
+        if (reset)
+          lfsr <= 16'h1;	
+        else
+          lfsr <= {lfsr[0] ^ lfsr[2] ^ lfsr[3] ^ lfsr[5], lfsr[15:1]};	
+    end 
+    //用来记录保存选中路数的寄存器 在进入miss的前一个周期保存
+    wire saveen;
+    ysyx_22050550_Reg # (2,2'd0) regvalid (
+                .clock(clock),.reset(reset),.wen(saveen),.din(lfsr[1:0]),
+                .dout(chooseway));
+    wire [1:0] chooseway ;
+    wire [5:0] chooseaddr = {AddrGroup,chooseway};//(AddrGroup <<2) | chooseway;
+    wire axivalid ;//有效且脏的情况下向总线申请 把cache内容写回内存
+    //cache 状态机 idle :: lookup :: miss :: replace :: refill 
+    localparam idle = 3'd0, lookup = 3'd1, miss = 3'd2, replace = 3'd3,refill = 3'd4;
+    reg [2:0] state, next;
+    //状态跳转
+    always@(posedge clock) begin
+        if(reset) state <= next;
+        else state <= next;
+    end
+    //读状态机组合逻辑
+    always@(*) begin
+        case (state)
+            idle:begin
+                if(io_Cache_valid) begin
+                    next = lookup;
+                end
+                else begin
+                    next = idle;
+                end
+            end 
+            lookup:begin
+                //命中
+                if(cachehit) begin 
+                    //读命中 直接读出数据 
+                    //写命中 ...
+                    next = idle;
+                end
+                else  begin
+                    next = miss;
+                end
+            end
+            miss:begin
+                //需要写回 向总线申请写回
+                if(axivalid) begin
+                    if(io_aw_valid && io_aw_ready) begin
+                        next = replace;
+                    end
+                    else begin
+                        next = miss;
+                    end
+                end
+                //不需要写回，向总线申请refill
+                else begin
+                    if(io_ar_valid && io_ar_ready) begin
+                        next = refill;
+                    end   
+                    else begin
+                        next = miss;
+                    end
+                end
+            end
+            replace:begin
+                //从总线写回cacheline
+                if (io_w_valid && io_w_ready) begin
+                    if(io_w_last) begin
+                        next = miss;
+                    end
+                    else begin
+                        next = replace;   
+                    end
+                end
+                else begin
+                    next = replace;
+                end
+            end 
+            refill:begin
+                if(io_r_valid && io_r_ready)begin
+                    if (io_r_last) begin
+                        next = lookup;
+                    end
+                    else begin
+                        next = refill;
+                    end
+                end
+                else begin
+                    next = refill;
+                end
+            end 
+            default:next = idle; 
+        endcase
+    end 
+    /*
+        根据不同的状态对总线 以及Mem申请读或者写 整理一下每个状态下做的事情
+        注意Tag和Mem的数据都是延迟一周期才能拿到
+        idle:  
+            cache valid的情况下 向Tag申请读
+    */
+    //wire IDLE = state == idle; // Tag一直在读 不用管 
+    //data addr mux
+    ysyx_22050550_MuxKeyWithDefault#(5,3,6) DataAddrMux(
+        .out(useaddr),.key(state),.default_out(hitaddr),.lut({
+        idle    , hitaddr,
+        lookup  , hitaddr,
+        miss    , chooseaddr,
+        replace , chooseaddr,
+        refill  , chooseaddr
+    }));
+    //hit 情况下的写入
+    //data write mux 
+    wire [127:0] CacheWdata = {{64{1'b0}},io_Cache_wdata};
+    wire [127:0] hitDataWrite;
+    ysyx_22050550_MuxKeyWithDefault#(3,`ysyx_22050550_BlockWidth,128) hitDataWriteMux(
+        .out(hitDataWrite),.key(AddrBlock),.default_out(CacheWdata),.lut({
+            4'd0    , CacheWdata,
+            4'd4    , CacheWdata << 32,
+            4'd8    , CacheWdata << 64
+    }));
+    //data write ben mux  //低有效
+    wire [127:0] low8mask  = 128'hff       ; wire [127:0] low16mask = 128'hffff             ; 
+    wire [127:0] low32mask = 128'hffffffff ; wire [127:0] low64mask = 128'hffffffffffffffff ;
+    wire [127:0] hitDataBen;
+    ysyx_22050550_MuxKeyWithDefault#(12,`ysyx_22050550_BlockWidth+8,128) hitDataBenMux(
+        .out(hitDataBen),.key({AddrBlock,io_Cache_wmask}),.default_out(128'b1),.lut({
+            {{4'd0},8'b1}       , ~low8mask ,
+            {{4'd0},8'b11}      , ~low16mask,
+            {{4'd0},8'hf}       , ~low32mask,
+            {{4'd0},8'hff}      , ~low64mask,
+            {{4'd4},8'b1}       , ~(low8mask  << 32), 
+            {{4'd4},8'b11}      , ~(low16mask << 32),
+            {{4'd4},8'hf}       , ~(low32mask << 32),
+            {{4'd4},8'hff}      , ~(low64mask << 32),
+            {{4'd8},8'b1}       , ~(low8mask  << 64), 
+            {{4'd8},8'b11}      , ~(low16mask << 64),
+            {{4'd8},8'hf}       , ~(low32mask << 64),
+            {{4'd8},8'hff}      , ~(low64mask << 64)
+    }));
+    //refill情况下的写入
+    wire[127:0] refilldata = Reglen ? {{64{1'b0}} ,io_r_rdata} : {io_r_rdata,{64{1'b0}}};
+    wire[127:0] refillben  = Reglen ? {{64{1'b1}} ,{64{1'b0}}} : {{64{1'b0}},{64{1'b1}}};
+    //dirty只在两种情况下写 一个是lookup命中了 写脏  一个是refill 回填完成，写干净
+    //dirty write   data en mux  en 高有效
+    ysyx_22050550_MuxKeyWithDefault#(2,3,1) DirtyEnMux(
+        .out(dirtyWriteEn),.key(state),.default_out(1),.lut({
+        lookup  , cachehit & io_Cache_op ? 1'b1:1'b0,
+        refill  , io_r_last& io_r_valid 
+    }));
+    ysyx_22050550_MuxKeyWithDefault#(2,3,1) DirtyDataMux(
+        .out(dirtyWriteData),.key(state),.default_out(0),.lut({
+        lookup  , cachehit & io_Cache_op ? 1'b1:1'b0,
+        refill  , !(io_r_last& io_r_valid)   
+    }));
+    //valid只有一种情况需要写入  refill完成写valid
+    assign validWriteEn = REFILL && io_r_last& io_r_valid;
+    assign validWriteData = 1'b1;
+    /*
+        lookup 
+            Hit 
+                读操作 向Mem申请读HITWAY的数据 dataok延迟一周期拉高
+                写操作 向hitway写 并且dirty使能拉高
+            !hit 
+                要跳转miss了 这个周期chooseway的random拉高 保存随即选择的路
+    */
+    wire LOOKUP = state == lookup;
+    //读
+    wire dataokin = LOOKUP && cachehit & !io_Cache_op;
+    ysyx_22050550_Reg # (1,1'd0) dataok (
+                .clock(clock),.reset(reset),.wen(1'b1),.din(dataokin),
+                .dout(io_Cache_dataok));
+    assign io_Cache_data = DataOut;
+    assign saveen = LOOKUP && !cachehit;
+    //写 hit dirty拉高
+    //assign dirtyWriteEn = LOOKUP && hit & io_Cache_op;
+    //assign dirtyWriteData = LOOKUP
+    /*
+        miss:
+            此时用chooseway的地址
+            axivalid 有效且脏 向总线写回
+                aw valid的时候传写回地址  把行内地址归0 即低block位掩去
+                同时向data array申请读 这样子下一个周期进入replace能把数据拿出来
+                写回的是一行cache 128位 一次最多写64位 突发写 写两次 写16个bytes
+                用一个len的寄存器记录
+                aw len = 1    aw size = 4  (2^4=16)
+            不需要写回 向总线申请refill
+                ar addr 行内地址归0 把低block位掩去
+                用一个len 寄存器记录
+                ar len = 1    ar size = 4  
+    */
+    reg Reglen ;
+    always @ (posedge clock) begin
+        if (reset) begin
+            Reglen <= 1'b0;
+        end
+        else if((io_aw_valid && io_aw_ready) || (io_ar_valid && io_ar_ready))  begin
+            Reglen <= 1'b1;
+        end
+        else if((io_w_valid && io_w_ready) || (io_r_valid&&io_r_ready))  begin 
+            if(io_w_last || io_r_last) Reglen <= 1'b0;
+            else Reglen <=  Reglen - 1'b1;
+        end
+        else 
+            Reglen <= Reglen;
+    end
+    wire MISS = state == miss;
+    assign axivalid    = valid[useaddr] && dirty[useaddr];
+    assign io_aw_valid =  MISS & axivalid ? 1'b1 : 1'b0;
+    assign io_aw_len   = 1;
+    assign io_aw_size  = 4;
+    assign io_aw_burst = 2'b01;
+    //要根据当前选中的Tag获取其在主存的块号确定回传的地址 低位舍掉
+    wire [`ysyx_22050550_RegBus] addr = {Tag[chooseway],AddrGroup,4'b0}; 
+    assign io_aw_addr =  Reglen? addr : addr + 64;
+    //不需要写回
+    assign io_ar_valid = MISS & !(axivalid);
+    assign io_ar_len   = 1;
+    assign io_ar_burst = 2'b01; 
+    assign io_ar_size  = 4;
+    assign io_ar_addr  =  Reglen? addr : addr + 64;
+    /*
+        replace :
+            w valid 并且 ready的时候
+                写回地址是掩去block的地址加上  (1-RegLen)*8  
+                同时向data申请读 addr + Reglen*8 这样子下个周期才能把数据拿出来
+                len = 0的时候 last拉高
+    */
+    wire REPLACE = state == replace         ;
+    assign io_w_valid   = REPLACE              ;
+    assign io_w_last    = REPLACE&&Reglen == 0 ;
+    assign io_w_data    = Reglen ? DataRead[63:0] : DataRead[127:64];
+    assign io_w_strb    = 8'hff;
+    assign io_b_ready   = 1'b1 ;
+    /*
+        refill :
+            r valid 并且ready的时候
+                写data 的地址是掩去block的地址加上 (1-Reglen)*8
+                写tag
+                len = 0 的时候 last拉高 // 这个是外面来的
+                同时 valid 拉高 并且 dirty拉低。
+    */
+    wire REFILL = state == refill;
+    assign io_r_ready = REFILL;
+    //向tag和mem写  valid 拉高 dirty 拉低
+    //只有这样个状态需要向mem写入   写入都是低位有效
+    //Tag的写使能已经在tag初始化的时候处理了
+    //Data 只有这两种情况需要写入
+    assign DataWen = !((REFILL&&(io_r_valid))||(LOOKUP && cachehit && io_Cache_op));
+    assign DataWrite = (LOOKUP && cachehit && io_Cache_op)? hitDataWrite : (REFILL&&(io_r_valid)) ? refilldata :0;
+    assign DataBen = (LOOKUP && cachehit && io_Cache_op) ? hitDataBen : (REFILL&&(io_r_valid)) ? refillben : {128{1'b1}};
+endmodule
+
