@@ -7,7 +7,7 @@ module ysyx_22050550_ByPass(
     input  [4:0]  io_IDU_raddr1                  ,
     input  [4:0]  io_IDU_raddr2                  ,
     output [63:0] io_IDU_rdata                   ,
-    input         io_IDU_wen                     ,
+    //input         io_IDU_wen                     ,
     output        io_IDU_pass1                   ,
     output        io_IDU_pass2                   ,
 

@@ -19,7 +19,6 @@ module ysyx_22050550_WBU(
                   io_LSWB_imm                   ,  
                   io_LSWB_alures                ,
                   io_LSWB_lsures                ,
-                  io_LSWB_writedata             ,
     input  [4:0]  io_LSWB_waddr                 ,    
     input         io_LSWB_wen                   ,      
     input  [2:0]  io_LSWB_func3                 , 

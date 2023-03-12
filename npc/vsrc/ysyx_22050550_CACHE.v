@@ -54,30 +54,30 @@ module ysyx_22050550_CACHE(
     );
     //Tag array  16组 每组4路   一共64行
     /**** Tag例化4块，同时对一组内每一路读出Tag*****/
-    
+    //不要Last那个周期写，进入refill了 valid了就写，这样子下个周期就能读Tag，下下个周期进入lookup就能拿到tag的数据
     wire [`ysyx_22050550_TagBus] Tag[3:0];
-    wire Tag0Wen = !(io_r_last && REFILL && io_r_valid && chooseway==2'd0) ;
+    wire Tag0Wen = !(!io_r_last && REFILL && io_r_valid && chooseway==2'd0) ;
     wire [`ysyx_22050550_TagBus] Tag0Ben = 0;//写使能，写掩码，都是低位有效
     wire [`ysyx_22050550_TagBus] Tag0Data = AddrTag; //写数据
     ysyx_22050550_TagAaaryMem Tag_Array0(
         .Q(Tag[0]), .CLK(clock), .CEN(1'b0), 
         .WEN(Tag0Wen), .BWEN(Tag0Ben), .A(AddrGroup), .D(Tag0Data)
     );
-    wire Tag1Wen = !(io_r_last && REFILL && io_r_valid && chooseway==2'd1);
+    wire Tag1Wen = !(!io_r_last && REFILL && io_r_valid && chooseway==2'd1);
     wire [`ysyx_22050550_TagBus] Tag1Ben = 0;//写使能，写掩码，都是低位有效
     wire [`ysyx_22050550_TagBus] Tag1Data = AddrTag; //写数据
     ysyx_22050550_TagAaaryMem Tag_Array1(
         .Q(Tag[1]), .CLK(clock), .CEN(1'b0), 
         .WEN(Tag1Wen), .BWEN(Tag1Ben), .A(AddrGroup), .D(Tag1Data)
     );
-    wire Tag2Wen = !(io_r_last && REFILL && io_r_valid && chooseway==2'd2);
+    wire Tag2Wen = !(!io_r_last && REFILL && io_r_valid && chooseway==2'd2);
     wire [`ysyx_22050550_TagBus] Tag2Ben = 0;//写使能，写掩码，都是低位有效
     wire [`ysyx_22050550_TagBus] Tag2Data = AddrTag; //写数据
     ysyx_22050550_TagAaaryMem Tag_Array2(
         .Q(Tag[2]), .CLK(clock), .CEN(1'b0), 
         .WEN(Tag2Wen), .BWEN(Tag2Ben), .A(AddrGroup), .D(Tag2Data)
     );
-    wire Tag3Wen = !(io_r_last && REFILL && io_r_valid && chooseway==2'd3);
+    wire Tag3Wen = !(!io_r_last && REFILL && io_r_valid && chooseway==2'd3);
     wire [`ysyx_22050550_TagBus] Tag3Ben = 0;//写使能，写掩码，都是低位有效
     wire [`ysyx_22050550_TagBus] Tag3Data = AddrTag; //写数据
     ysyx_22050550_TagAaaryMem Tag_Array3(
@@ -169,7 +169,7 @@ module ysyx_22050550_CACHE(
     reg [2:0] state, next;
     //状态跳转
     always@(posedge clock) begin
-        if(reset) state <= next;
+        if(reset) state <= idle;
         else state <= next;
     end
     //读状态机组合逻辑
@@ -362,14 +362,18 @@ module ysyx_22050550_CACHE(
     assign io_aw_size  = 4;
     assign io_aw_burst = 2'b01;
     //要根据当前选中的Tag获取其在主存的块号确定回传的地址 低位舍掉
+   
     wire [`ysyx_22050550_RegBus] addr = {Tag[chooseway],AddrGroup,4'b0}; 
-    assign io_aw_addr =  Reglen? addr : addr + 64;
-    //不需要写回
+    assign io_aw_addr =  Reglen==0? addr : addr + 8;
+    //不需要写回 不需要写回的时候用
     assign io_ar_valid = MISS & !(axivalid);
     assign io_ar_len   = 1;
     assign io_ar_burst = 2'b01; 
     assign io_ar_size  = 4;
-    assign io_ar_addr  =  Reglen? addr : addr + 64;
+    //Reglen 当前这个周期还是  miss这个周期  下一个周期变1
+     //这里其实应该有一个addrreg一直加的，直到last满足，但是只有两种情况，就简单一点了。
+     //其实这里的addr不用+ sram那边检测到突发传输，会自动+地址
+    assign io_ar_addr  =  Reglen==0? {AddrTag,AddrGroup,4'b0} : {AddrTag,AddrGroup,4'b0} + 8;
     /*
         replace :
             w valid 并且 ready的时候
@@ -390,6 +394,10 @@ module ysyx_22050550_CACHE(
                 写tag
                 len = 0 的时候 last拉高 // 这个是外面来的
                 同时 valid 拉高 并且 dirty拉低。
+        注意一下refill last 拉高那个周期，发送Tag写的信号
+        下一个周期如果跳到lookup的话，这个时候是读不出来数据的，因为上个周期在写
+        还要下一个周期才能读到，这种情况状态就走了。因此进入refill的那个周期 
+        r_valid r_ready了就把tag写入，
     */
     wire REFILL = state == refill;
     assign io_r_ready = REFILL;

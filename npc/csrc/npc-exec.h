@@ -5,9 +5,9 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <stdlib.h>
-#include "VRiscvCpu.h"
-#include "VRiscvCpu___024root.h"
-#include "VRiscvCpu__Dpi.h"
+#include "Vysyx_22050550.h"
+#include "Vysyx_22050550___024root.h"
+#include "Vysyx_22050550__Dpi.h"
 #include "verilated_dpi.h"
 #include "verilated_vcd_c.h"
 #include "svdpi.h"
@@ -49,7 +49,7 @@ void sim_init(){
   //top = new VRiscvCpu;
   tfp = new VerilatedVcdC;
 #endif
-  top = new VRiscvCpu;
+  top = new Vysyx_22050550;
 #ifdef WAVE
   contextp->traceEverOn(true);
   top->trace(tfp, 0);
@@ -80,7 +80,7 @@ void clockntimes(int n ){
 bool checkebreak ()
 {
   //这里的scpoe是调用函数位置的模块的名字
-  const svScope scope = svGetScopeFromName("TOP.RiscvCpu.ebrdpi");
+  const svScope scope = svGetScopeFromName("TOP.ysyx_22050550");
   assert(scope);
   svSetScope(scope);
   bool flag = ebreakflag();
@@ -334,6 +334,7 @@ static void execute(uint64_t n) {
       //assert_fail_msg();
       printf(ANSI_FMT("Instr not implement or other situation!\n", ANSI_FG_RED));
       printf("pc: 0x%016lx Inst: %s\n",pc,inst_buf);
+      statistic();
       break;
     }
     break;

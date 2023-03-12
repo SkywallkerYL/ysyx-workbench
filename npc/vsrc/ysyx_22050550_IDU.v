@@ -337,7 +337,7 @@ module ysyx_22050550_IDU(
     assign io_ReadyIF_ready = io_ReadyEX_ready & (!realbusy1) & (!realbusy2) & (!ebreak);//*
     assign io_Score_RScore_rdaddr1 = rs1; 
     assign io_Score_RScore_rdaddr2 = rs2;
-    assign io_Score_RScore_valid = io_IFID_valid;
+    assign io_Score_RScore_valid = io_IFID_valid & (!ebreak);
     assign io_Pass_rs1 = rs1; 
     assign io_Pass_rs2 = rs2;
     assign io_Score_WScore_wen = io_idex_wen && io_ReadyEX_ready && io_idex_valid;

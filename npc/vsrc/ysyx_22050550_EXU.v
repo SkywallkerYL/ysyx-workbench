@@ -1,4 +1,6 @@
 `include "/home/yangli/ysyx-workbench/npc/vsrc/ysyx_22050550_define.v"
+//`include "/home/yangli/ysyx-workbench/npc/vsrc/ysyx_22050550_Multi.v"
+//`include "/home/yangli/ysyx-workbench/npc/vsrc/ysyx_22050550_Diver.v"
 module ysyx_22050550_EXU(
     input         clock                     ,
                   reset                     ,
@@ -112,7 +114,8 @@ module ysyx_22050550_EXU(
         .io_Exu_Divisor       (src2),
         .io_Exu_DivReady      (divready),
         .io_Exu_OutValid      (divoutvalid),
-        .io_Exu_Quotient      (divres)
+        .io_Exu_Quotient      (divres),
+        .io_Exu_Remainder     ()
     );
     //乘除法部分状态机
     localparam swait = 2'd0, swaitready = 2'd1, sdoing = 2'd2, swaitlsu = 2'd3;

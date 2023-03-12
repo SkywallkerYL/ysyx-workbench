@@ -2,9 +2,9 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <stdlib.h>
-#include "VRiscvCpu.h"
-#include "VRiscvCpu___024root.h"
-#include "VRiscvCpu__Dpi.h"
+#include "Vysyx_22050550.h"
+#include "Vysyx_22050550___024root.h"
+#include "Vysyx_22050550__Dpi.h"
 #include "verilated_vcd_c.h"
 #include "svdpi.h"
 #include "state.h"

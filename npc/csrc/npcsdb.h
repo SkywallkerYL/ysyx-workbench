@@ -12,7 +12,7 @@
 #include "state.h"
 #include "vga.h"
 using namespace std;
-static VRiscvCpu* top;
+static Vysyx_22050550* top;
 #define max_instr_printnum 10
 static void execute(uint64_t n) ;
 
@@ -82,8 +82,10 @@ static int cmd_c(char *args) {
   return 0;
 }
 void sim_exit();
+void statistic();
 static int cmd_q(char *args) {
   npc_state.state= NPC_QUIT;
+  statistic();
   sim_exit();
   exit(0);
   //exit(0);

@@ -39,8 +39,8 @@ doit:
 #Makefile for Verilator
 
 
-TOPNAME?=RiscvCpu
-TOPNAMETEST?=RiscvCpu
+TOPNAME?=ysyx_22050550
+TOPNAMETEST?=ysyx_22050550
 #FSM_m #keyboard_top #top
 NXDC_FILES=constr/top.nxdc
 INC_PATH?=
@@ -60,7 +60,7 @@ VERILATOR_CFLAGS += -cc --exe --noassert
 #-Os -x-assign 0
 VERILATOR_CFLAGS +=	--x-assign fast --x-initial fast
 VERILATOR_CFLAGS += --trace --coverage --build 
-VERILATOR_CFLAGS += -Wno-fatal -O3 
+VERILATOR_CFLAGS += -Wno-fatal -O2 -DVL_DEBUG
 
 
 VERILATOR_CFLAGS += --top-module $(TOPNAMETEST)
@@ -87,7 +87,7 @@ SRC_AUTO_BIND = $(abspath $(BUILD_DIR)/auto_bind.cpp)
 $(SRC_AUTO_BIND): $(NXDC_FILES)
 	python3 $(NVBOARD_HOME)/scripts/auto_pin_bind.py $^ $@
 	
-VSRC = $(shell find $(abspath ./build) -name "*.v")
+VSRC = $(shell find $(abspath ./vsrc) -name "*.v")
 CSRC = $(shell find $(abspath ./csrc) -name "*.c" -or -name "main.cpp" -or -name "*.cc" )
 CSRC += $(SRC_AUTO_BIND)
 #VSRC += $(shell find $(abspath ./generated) -name "*.v")

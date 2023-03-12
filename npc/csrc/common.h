@@ -15,7 +15,7 @@
 #define word_t uint64_t
 #define paddr_t uint64_t
 #define vaddr_t uint64_t
-//#define CONFIG_DIFFTEST
+#define CONFIG_DIFFTEST
 //Itrace
 #define CONFIG_ITRACE
 
@@ -30,9 +30,9 @@
 #define MTRACE_BEGIN 0
 #define MTRACE_END   10000
 
-#define VGA
+//#define VGA
 
-//#define WAVE
+#define WAVE
 
 #define WAVE_BEGIN 0
 #define WAVE_END   10000

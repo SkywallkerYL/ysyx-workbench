@@ -39,6 +39,6 @@ module ysyx_22050550_PCREG(
         .din(jumpc),
         .dout(RegPc)
     );
-    assign npc = RegPc;
-    assign NextPc = jumpc;
+    assign npc = ((Id_jal != 4'd0 && Id_valid))? jumpc:RegPc;
+    assign NextPc = npc;
 endmodule

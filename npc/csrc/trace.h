@@ -7,9 +7,9 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <elf.h>
-#include "VRiscvCpu.h"
-#include "VRiscvCpu___024root.h"
-#include "VRiscvCpu__Dpi.h"
+#include "Vysyx_22050550.h"
+#include "Vysyx_22050550___024root.h"
+#include "Vysyx_22050550__Dpi.h"
 #include "verilated_dpi.h"
 #include "verilated_vcd_c.h"
 #include "svdpi.h"
@@ -83,7 +83,7 @@ void log_ftrace(paddr_t addr,bool jarlflag, int rd ,word_t imm, int rs1,word_t s
 uint64_t Pc_Fetch ()
 {
   //这里的scpoe是调用函数位置的模块的名字
-  const svScope scope = svGetScopeFromName("TOP.RiscvCpu.pcdpi");
+  const svScope scope = svGetScopeFromName("TOP.ysyx_22050550");
   assert(scope);
   svSetScope(scope);
   //printf("No file!!!!\n");
@@ -95,7 +95,7 @@ uint64_t Pc_Fetch ()
 uint64_t Dnpc_Fetch ()
 {
   //这里的scpoe是调用函数位置的模块的名字
-  const svScope scope = svGetScopeFromName("TOP.RiscvCpu.pcdpi");
+  const svScope scope = svGetScopeFromName("TOP.ysyx_22050550");
   assert(scope);
   svSetScope(scope);
   uint64_t pc = (uint64_t)npc_fetch();
@@ -105,7 +105,7 @@ uint64_t Dnpc_Fetch ()
 uint64_t imm_Fetch ()
 {
   //这里的scpoe是调用函数位置的模块的名字
-  const svScope scope = svGetScopeFromName("TOP.RiscvCpu.srcdpi");
+  const svScope scope = svGetScopeFromName("TOP.ysyx_22050550");
   assert(scope);
   svSetScope(scope);
   uint64_t imm = (uint64_t)imm_fetch();
@@ -114,7 +114,7 @@ uint64_t imm_Fetch ()
 int8_t rs1_Fetch ()
 {
   //这里的scpoe是调用函数位置的模块的名字
-  const svScope scope = svGetScopeFromName("TOP.RiscvCpu.srcdpi");
+  const svScope scope = svGetScopeFromName("TOP.ysyx_22050550");
   assert(scope);
   svSetScope(scope);
   uint64_t rs1 = (uint64_t)rs1_fetch();
@@ -124,7 +124,7 @@ int8_t rs1_Fetch ()
 int8_t rd_Fetch ()
 {
   //这里的scpoe是调用函数位置的模块的名字
-  const svScope scope = svGetScopeFromName("TOP.RiscvCpu.srcdpi");
+  const svScope scope = svGetScopeFromName("TOP.ysyx_22050550");
   assert(scope);
   svSetScope(scope);
   uint64_t rd = (uint64_t)rd_fetch();
@@ -134,7 +134,7 @@ int8_t rd_Fetch ()
 uint32_t Instr_Fetch ()
 {
   //这里的scpoe是调用函数位置的模块的名字
-  const svScope scope = svGetScopeFromName("TOP.RiscvCpu.instrdpi");
+  const svScope scope = svGetScopeFromName("TOP.ysyx_22050550");
   assert(scope);
   svSetScope(scope);
   uint32_t inst = instr_fetch();
