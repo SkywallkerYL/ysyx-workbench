@@ -28,6 +28,7 @@ module ysyx_22050550_CACHE(
     output [0:0]  io_b_ready                ,
     input  [0:0]  io_b_valid                ,
     /***********Cache***********/
+    input  [63:0] pc                        ,
     input  [0:0]  io_Cache_valid            ,
     input  [0:0]  io_Cache_op               ,
     input  [63:0] io_Cache_addr             ,
@@ -441,6 +442,7 @@ module ysyx_22050550_CACHE(
     //print一些debug信息
 `ifdef ysyx_22050550_CACHEDEBUG
     always@(posedge clock) begin
+    if(pc == `ysyx_22050550_DEBUGPC) begin
         if (LOOKUP) begin
             if(cachehit && io_Cache_op) begin
                 $display("group:%d hitway:%d hitwrite addr: %x  data: %x",AddrGroup,hitway,io_Cache_addr,hitDataWrite);
@@ -449,6 +451,7 @@ module ysyx_22050550_CACHE(
         else if (REFILL) begin
             $display("refill group%d chooseway%d refilladdr: %x dara %x",AddrGroup,chooseway,io_Cache_addr,refilldata);
         end
+    end
     end
 `endif 
 

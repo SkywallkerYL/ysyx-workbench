@@ -190,5 +190,13 @@ module ysyx_22050550_EXU(
     assign io_EXLS_func7    =      io_id_func7                      ;
     assign io_EXLS_NextPc   =      io_id_NextPc                     ;
     assign io_EXLS_alures   =      maskres                          ;
+`ifdef ysyx_22050550_CACHEDEBUG
+    always@(posedge clock) begin
+        if (io_EXLS_pc == `ysyx_22050550_DEBUGPC) begin
+            $display("optype:%d src1:%x src2:%x res:%x",OP,src1,src2,maskres);
+        end
+
+    end
+`endif 
 endmodule
 

@@ -30,9 +30,10 @@ uint64_t g_timer = 0;
 int64_t wavecount = 0;
 void step_and_dump_wave(){
   top->eval();
-#ifdef WAVE
-  if(!TRACE_CONDITION(wavecount,WAVE_BEGIN,WAVE_END)) {if(top->clock == 1)wavecount++;return;}
   if(top->clock == 1)wavecount++;
+#ifdef WAVE
+  if(!TRACE_CONDITION(wavecount,WAVE_BEGIN,WAVE_END)) {return;}
+  //if(top->clock == 1)wavecount++;
   //printf("pc:%x wavecount:%d\n",Pc_Fetch(),wavecount);
   contextp->timeInc(1);
   tfp->dump(contextp->time());
@@ -94,9 +95,9 @@ void statistic() {
 #ifdef CONFIG_MTRACE
   Log("Total Mtrace num:%ld",mtracecount );
 #endif
-#ifdef WAVE
+//#ifdef WAVE
   Log("Wave Cycle num:%ld",wavecount);
-#endif
+//#endif
   Log("host time spent = %ld us", g_timer);
 #ifdef CONFIG_ITRACE
   Log("total guest instructions = %ld ", instnum);
@@ -176,6 +177,7 @@ long initial_default_img(){
 CPU_state npc_r;
 #endif
 uint64_t localpc  ;
+uint32_t localinst;
 uint64_t localnpc ;
 void sim_once(uint64_t n){
   //clockntimes(1);
@@ -197,6 +199,7 @@ void sim_once(uint64_t n){
   if(top->io_instvalid){
     localpc  = Pc_Fetch();
     localnpc = Dnpc_Fetch();
+    localinst = Instr_Fetch();
   }
 #endif
   if(checkebreak()||top->io_abort){
@@ -226,7 +229,9 @@ void sim_once(uint64_t n){
   }
 #endif
 }
-
+//#ifdef  CONFIG_DIFFTEST
+//extern bool difftestfail = 0;
+//#endif
 static void execute(uint64_t n) {
 
   switch (npc_state.state) {
@@ -309,13 +314,13 @@ static void execute(uint64_t n) {
       break;
     }
     //abort那个周期正好是有效的
-    else if (top->io_abort == 1) {
+    else if (top->io_abort == 1 || difftestfail) {
       int ilen = 4;
       char inst_buf[128];
       char *p = inst_buf; 
       //这里也是一样 ,valid 的那个周期把这些取出来
-      uint64_t pc = Pc_Fetch();
-      uint32_t instr = Instr_Fetch();
+      uint64_t pc = localpc;//Pc_Fetch();
+      uint32_t instr = localinst;//
       //uint32_t intsr1 = p_mem[pc-CONFIG_MBASE];
       //printf("instr: 0x%08x\n",instr);
       //printf("instr1: 0x%08x\n",intsr1);
@@ -334,6 +339,7 @@ static void execute(uint64_t n) {
       //assert_fail_msg();
       printf(ANSI_FMT("Instr not implement or other situation!\n", ANSI_FG_RED));
       printf("pc: 0x%016lx Inst: %s\n",pc,inst_buf);
+      isa_reg_display();
       statistic();
       break;
     }

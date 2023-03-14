@@ -1,5 +1,7 @@
 `include "/home/yangli/ysyx-workbench/npc/vsrc/ysyx_22050550_define.v"
 module ysyx_22050550_IDU(
+  input         clock                     ,
+                reset                     ,
  //IF
   input  [31:0]     io_IFID_inst,
   input  [63:0]     io_IFID_pc,
@@ -134,7 +136,7 @@ module ysyx_22050550_IDU(
     wire alumaskflag = (opcode == `ysyx_22050550_I1) || (opcode == `ysyx_22050550_R2);
     //assign io_idex_alumask = alumaskflag;
     //I型指令选择shamt
-    wire shamtflag   =  InstType == I_type && func3 == 3'b101;
+    wire shamtflag   =  io_idex_inst[31:26]==0 &&(opcode==`ysyx_22050550_I1 || opcode==`ysyx_22050550_I2) && (func3 == 3'b101 || func3 == 3'b001);
     //处理一下csr指令
     //目前只考虑csrrs:t|x[rs1] csrrw:x[rs1]  x[rd] = t
     //csrflag拉高的时候 wbu阶段写回 csr寄存器的读出和写回都放到WBU阶段去做 用的时候截取Imm低12位即可
@@ -142,7 +144,8 @@ module ysyx_22050550_IDU(
     //根据func3决定做什么运算，并且x[rd]在csrflag拉高的情况下就不选择alu或者lsu的运算结果了
     //exu阶段发现csrflag拉高的时候，把alures直接赋值位x[rs1]
     //这样子I型指令就确定了。
-    wire csrflag = opcode == `ysyx_22050550_I5;
+    // mret 和 ecall的时候要拉低
+    wire csrflag = opcode == `ysyx_22050550_I5 && !ecallflag && !mret;
     //assign io_idex_csrflag = csrflag;
     //srliw sraiw 特殊情况要对x[rs1]进行阶段和(无)符号拓展后，再送给EXU 方便进行逻辑移位和算术移位
     wire srliw = opcode == `ysyx_22050550_I1 && (func3 == 3'b101) &&(func7[6:1]==6'b000000); 
@@ -351,5 +354,14 @@ module ysyx_22050550_IDU(
     //assign io_Score_WScore_waddr = io_idex_waddr;
 
     assign io_Pass_valid = io_IFID_valid;
+
+`ifdef ysyx_22050550_CACHEDEBUG
+    always@(posedge clock) begin
+        if (io_idex_pc == `ysyx_22050550_DEBUGPC) begin
+            $display("src1:%x src2:%x rd1:%x rd2:%x pass:%x",rd1,rd2,rData1,rData2,io_Pass_rdata);
+        end
+    end
+`endif
+
 
 endmodule

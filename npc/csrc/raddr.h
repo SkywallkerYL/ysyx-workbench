@@ -45,7 +45,8 @@ extern "C" void pmem_read(long long raddr, long long *rdata){
     }
     else {
 
-        printf("read out!!!\n");
+        printf("read out raddr = %llx!!!\n",raddr);
+        *rdata = 0;
         out_of_bound(raddr);
     }       
 }

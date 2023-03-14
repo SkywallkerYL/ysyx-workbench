@@ -125,6 +125,8 @@ wire [ 2:0] idex_func3       ;
 wire [ 6:0] idex_func7       ;       
 wire [63:0] idex_NextPc      ;       
 ysyx_22050550_IDU IDU(
+  .reset       (reset)        ,
+  .clock       (clock)        ,
  //IF
   .io_IFID_inst  (Rif_id_valid ? Rif_id_inst : 0)   ,
   .io_IFID_pc    (Rif_id_valid ? Rif_id_pc : 0  )   ,  
@@ -754,7 +756,7 @@ ysyx_22050550_CACHE ICache(
     .io_b_ready   ()             ,
     .io_b_valid   (0)             ,
 
-
+    .pc              (if_id_pc)             ,
     .io_Cache_valid  (ICache_valid  )          ,
     .io_Cache_op     (0             )          ,
     .io_Cache_addr   (ICache_addr)          ,
@@ -815,7 +817,7 @@ ysyx_22050550_CACHE DCache(
     .io_b_ready   (Lsu_b_ready  )             ,
     .io_b_valid   (Lsu_b_valid  )             ,
 
-
+    .pc              (REXLS_valid?REXLS_pc       :0),
     .io_Cache_valid  (Lsu_Cache_valid    )          ,
     .io_Cache_op     (Lsu_Cache_op       )          ,
     .io_Cache_addr   (Lsu_Cache_addr     )          ,
@@ -925,7 +927,7 @@ ysyx_22050550_SRAM DSRAM(
   .reset                (reset)                 ,
   .io_Sram_ar_valid     (DevSram_ar_valid   )   ,
   .io_Sram_ar_bits_addr (DevSram_ar_addr    )   ,
-  .io_Sram_r_ready      (DevSram_ar_ready   )   ,
+  .io_Sram_r_ready      (DevSram_r_ready   )   ,
   .io_ar_len            (DevSram_ar_len     )   ,
   .io_ar_size           (DevSram_ar_size    )   ,
   .io_ar_burst          (DevSram_ar_burst   )   ,

@@ -62,6 +62,11 @@ module ysyx_22050550_SRAM(
     end
     wire [6:0] ReadAddrAdd;
     //DPI最多只支持64位，更大的size一次也只传64个
+    assign ReadAddrAdd = io_ar_size ==  3'b000 ? 7'd1
+                        :io_ar_size ==  3'b001 ? 7'd2   
+                        :io_ar_size ==  3'b010 ? 7'd4   
+                        :io_ar_size ==  3'b011 ? 7'd8 : 7'd8;
+    /*
     ysyx_22050550_MuxKeyWithDefault#(4,3,7) AddrAddMux(
         .out(ReadAddrAdd),.key(io_ar_size),.default_out(7'd8),.lut({
         3'b000   ,   7'd1   ,
@@ -69,7 +74,13 @@ module ysyx_22050550_SRAM(
         3'b010   ,   7'd4   ,
         3'b011   ,   7'd8 
     }));
+    */
     wire [63:0] ReadData ;
+    assign ReadData = io_ar_size == 3'b000 ? {{56{1'b0}},Dpi_rdata[ 7:0]} :
+                      io_ar_size == 3'b001 ? {{48{1'b0}},Dpi_rdata[15:0]} :
+                      io_ar_size == 3'b010 ? {{32{1'b0}},Dpi_rdata[31:0]} :
+                      io_ar_size == 3'b011 ? Dpi_rdata : Dpi_rdata;
+    /*
     ysyx_22050550_MuxKeyWithDefault#(4,3,64) ReadDataMux(
         .out(ReadData),.key(io_ar_size),.default_out(Dpi_rdata),.lut({
         3'b000   ,   {{56{1'b0}},Dpi_rdata[ 7:0]}   ,
@@ -77,6 +88,7 @@ module ysyx_22050550_SRAM(
         3'b010   ,   {{32{1'b0}},Dpi_rdata[31:0]}   ,
         3'b011   ,   Dpi_rdata 
     }));
+    */
     assign io_Sram_ar_ready = ReadState == readwait;
     wire ReglenEn = (ReadState == readwait && io_Sram_ar_valid) 
                  || (ReadState == read && io_Sram_r_valid);
@@ -123,6 +135,11 @@ module ysyx_22050550_SRAM(
     end
     wire [6:0] WriteAddrAdd;
     //DPI最多只支持64位，更大的size一次也只传64个
+    assign WriteAddrAdd =  io_aw_size == 3'b000 ?  7'd1 :
+                           io_aw_size == 3'b001 ?  7'd2 :
+                           io_aw_size == 3'b010 ?  7'd4 :
+                           io_aw_size == 3'b011 ?  7'd8 :7'd8;
+    /*
     ysyx_22050550_MuxKeyWithDefault#(4,3,7) WAddrAddMux(
         .out(WriteAddrAdd),.key(io_aw_size),.default_out(7'd8),.lut({
         3'b000   ,   7'd1   ,
@@ -130,7 +147,13 @@ module ysyx_22050550_SRAM(
         3'b010   ,   7'd4   ,
         3'b011   ,   7'd8 
     }));
+    */
     wire [63:0] WriteData ;
+    assign WriteData = io_aw_size == 3'b000 ? {{56{1'b0}},io_Sram_w_bits_data[ 7:0]}: 
+                       io_aw_size == 3'b001 ? {{48{1'b0}},io_Sram_w_bits_data[15:0]}: 
+                       io_aw_size == 3'b010 ? {{32{1'b0}},io_Sram_w_bits_data[31:0]}: 
+                       io_aw_size == 3'b011 ? io_Sram_w_bits_data :io_Sram_w_bits_data;
+    /*
     ysyx_22050550_MuxKeyWithDefault#(4,3,64) WriteDataMux(
         .out(WriteData),.key(io_aw_size),.default_out(io_Sram_w_bits_data),.lut({
         3'b000   ,   {{56{1'b0}},io_Sram_w_bits_data[ 7:0]}   ,
@@ -138,6 +161,7 @@ module ysyx_22050550_SRAM(
         3'b010   ,   {{32{1'b0}},io_Sram_w_bits_data[31:0]}   ,
         3'b011   ,   io_Sram_w_bits_data 
     }));
+    */
     assign io_Sram_aw_ready = WriteState == writewait;
     wire WReglenEn = (WriteState == writewait && io_Sram_aw_valid) 
                  || (WriteState == write && io_Sram_w_valid);

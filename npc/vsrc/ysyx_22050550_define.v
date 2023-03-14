@@ -63,6 +63,7 @@
 `define ysyx_22050550_BlockBus        (`ysyx_22050550_BlockWidth-1):0
 `define ysyx_22050550_BlockNum        2**(`ysyx_22050550_BlockWidth)  
 //`define ysyx_22050550_CACHEDEBUG 
+`define ysyx_22050550_DEBUGPC         64'h8302c748
 //64路感觉太多了 ，将一块CACHE分成多个组， 暂定4路组相连 一块CACHE分成16组
 //只用一块RAM
 `define ysyx_22050550_AssoWidth       2     //
