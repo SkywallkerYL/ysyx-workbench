@@ -14,7 +14,7 @@
 #include "common.h"
 #include "raddr.h"
 #include "verilated_dpi.h"
-
+#include "keyboard.h"
 
 //寄存器堆的值
 

@@ -88,9 +88,10 @@ bool checkebreak ()
   return flag;
 }
 
-extern int64_t instnum;
+int64_t instnum;
 extern int64_t wavecount;
 extern int64_t mtracecount;
+//extern bool difftestfail;
 void statistic() {
 #ifdef CONFIG_MTRACE
   Log("Total Mtrace num:%ld",mtracecount );
@@ -99,15 +100,16 @@ void statistic() {
   Log("Wave Cycle num:%ld",wavecount);
 //#endif
   Log("host time spent = %ld us", g_timer);
-#ifdef CONFIG_ITRACE
+//#ifdef CONFIG_ITRACE
   Log("total guest instructions = %ld ", instnum);
   if (g_timer > 0) Log("simulation frequency = %ld inst/s", instnum * 1000000 / g_timer);
   else Log("Finish running in less than 1 us and can not calculate the simulation frequency");
-#endif
+//#endif
 }
 void assert_fail_msg() {
-#ifdef CONFIG_ITRACE
+//#ifdef CONFIG_ITRACE
   Log("Total Instr num:%ld",instnum );
+#ifdef CONFIG_ITRACE
   printiringbuf((iringbufind+iringbufsize-1)%iringbufsize);  
 #endif
   isa_reg_display();
@@ -181,8 +183,9 @@ uint32_t localinst;
 uint64_t localnpc ;
 void sim_once(uint64_t n){
   //clockntimes(1);
+  if(top->io_instvalid) instnum++;
 #ifdef CONFIG_ITRACE
-  if(top->io_instvalid)instr_tracelog(n<=max_instr_printnum);
+  if(top->io_instvalid && TRACE_CONDITION(instnum,ITRACE_BEGIN,ITRACE_END))instr_tracelog(n<=max_instr_printnum);
   uint64_t dnpc = Dnpc_Fetch();
   bool jalrflag = top->io_jalr;
   int d = rd_Fetch();

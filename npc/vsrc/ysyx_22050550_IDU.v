@@ -136,7 +136,9 @@ module ysyx_22050550_IDU(
     wire alumaskflag = (opcode == `ysyx_22050550_I1) || (opcode == `ysyx_22050550_R2);
     //assign io_idex_alumask = alumaskflag;
     //I型指令选择shamt
-    wire shamtflag   =  io_idex_inst[31:26]==0 &&(opcode==`ysyx_22050550_I1 || opcode==`ysyx_22050550_I2) && (func3 == 3'b101 || func3 == 3'b001);
+    wire shamtflag   =  (io_idex_inst[31:26]==0 ||io_idex_inst[31:26]==6'b010000 ) 
+                    &&(opcode==`ysyx_22050550_I1 || opcode==`ysyx_22050550_I2) 
+                    && (func3 == 3'b101 || func3 == 3'b001);
     //处理一下csr指令
     //目前只考虑csrrs:t|x[rs1] csrrw:x[rs1]  x[rd] = t
     //csrflag拉高的时候 wbu阶段写回 csr寄存器的读出和写回都放到WBU阶段去做 用的时候截取Imm低12位即可

@@ -16,6 +16,7 @@
 #include "macro.h"
 #include "monitor.h"
 #include "common.h"
+//#include "npc-exec.h"
 
 
 
@@ -141,7 +142,7 @@ uint32_t Instr_Fetch ()
   return inst;
 }
 
-
+//int64_t instnum = 0;
 #ifdef  CONFIG_ITRACE
 //itrace 
 #define iringbufsize 16
@@ -157,7 +158,7 @@ void printiringbuf(int finalinst)
 extern "C" void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
 
 //int maxinst = 10000;
-int64_t instnum = 0;
+
 
 void instr_tracelog(bool flag){
     Decode s;
@@ -200,8 +201,9 @@ void instr_tracelog(bool flag){
     void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
     disassemble(p,  s.logbuf + sizeof(s.logbuf) - p,s.pc, inst , ilen);
     if(flag)printf("%s\n",s.logbuf);
-    if(TRACE_CONDITION(instnum,ITRACE_BEGIN,ITRACE_END))fprintf(file,"%s\n",s.logbuf);
-    instnum++;
+    //if(TRACE_CONDITION(instnum,ITRACE_BEGIN,ITRACE_END))
+    fprintf(file,"%s\n",s.logbuf);
+    //instnum++;
     fclose(file);
     strcpy(iringbuf[iringbufind],s.logbuf);
     iringbufind=(iringbufind+1)%iringbufsize;

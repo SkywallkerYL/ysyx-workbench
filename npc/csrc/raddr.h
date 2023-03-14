@@ -3,7 +3,7 @@
 #include "npcsdb.h"
 #include "trace.h"
 #include "timer.h"
-
+#include "keyboard.h"
 static void out_of_bound(paddr_t addr) {
     
 #ifdef CONFIG_ITRACE
@@ -24,6 +24,12 @@ extern "C" void pmem_read(long long raddr, long long *rdata){
     else if (raddr ==RTC_ADDR ){//rtc addr
         *rdata = get_time();//(uint32_t)(get_time()) &0xff;
         //printf("time%d\n",get_time());
+    }
+    else if (raddr == KBD_ADDR) {
+        i8042_data_io_handler(0,0,0);
+
+        printf("hhhhhh\n");
+        *rdata = (uint64_t)i8042_data_port_base[0];
     }
     else if (raddr == VGACTL_ADDR){ //vga H W
         *rdata = ((uint64_t)vgactl_port_base[1]<<32) | vgactl_port_base[0];

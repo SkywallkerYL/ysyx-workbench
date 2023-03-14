@@ -98,7 +98,7 @@ module ysyx_22050550_WBU(
     wire [`ysyx_22050550_RegBus] ecallnewmstatus = (mstatus & (~64'h80)) | (oldmie << 4);//赋给mpie
     wire [`ysyx_22050550_RegBus] ecallfinal = ecallnewmstatus & (~64'h8); //mie置0禁用中断
     wire [`ysyx_22050550_RegBus] ecallpc = io_LSWB_pc;
-    wire [`ysyx_22050550_RegBus] ecallmcause = (Reg17==(~64'h0)||Reg17<=64'd15)? 64'd11:0;
+    wire [`ysyx_22050550_RegBus] ecallmcause = (Reg17==(~64'h0)||Reg17<=64'd19)? 64'd11:0;
     //mret
     wire [7:0] mretcsren  = 8'b00001000;
     wire [`ysyx_22050550_RegBus] oldmpie = mstatus & (64'h80);//保存mpie位
@@ -128,5 +128,15 @@ module ysyx_22050550_WBU(
     assign io_WBTOP_SkipRef  =      io_LSWB_SkipRef                    ;
     assign io_WBTOP_ebreak   =      io_LSWB_ebreak                     ;
     assign io_WBTOP_NextPc   =      io_LSWB_NextPc                     ;
+
+
+`ifdef ysyx_22050550_CACHEDEBUG
+    always@(posedge clock) begin
+        if (io_WBTOP_pc == `ysyx_22050550_DEBUGPC) begin
+            $display("csrflag:%d ecallflag:%d mretflag:%d ",io_LSWB_csrflag,io_LSWB_ecallflag,io_LSWB_mretflag);
+            $display("NO:%x ecallmcause:%x",Reg17,ecallmcause);
+        end
+    end
+`endif
 endmodule
 

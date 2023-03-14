@@ -9,6 +9,7 @@
 #include "npcsdb.h"
 #include "trace.h"
 #include "difftest.h"
+#include "keyboard.h"
 static char *img_file = NULL;
 static char *log_file = NULL;
 static char *elf_file = NULL;
@@ -120,6 +121,7 @@ void init_monitor(int argc, char *argv[])
 #ifdef VGA
   init_vga();
 #endif
+  //init_i8042();
   /* Perform ISA dependent initialization. */
   //init_isa();
   long img_size = 0;
