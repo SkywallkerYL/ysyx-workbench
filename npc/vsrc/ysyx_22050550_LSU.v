@@ -130,7 +130,7 @@ module ysyx_22050550_LSU(
     reg [1:0] Wstate, Wnext;
     //状态跳转
     always@(posedge clock) begin
-        if(reset) Wstate <= Wnext;
+        if(reset) Wstate <= swaitW;
         else Wstate <= Wnext;
     end
     //读状态机组合逻辑
@@ -161,7 +161,7 @@ module ysyx_22050550_LSU(
                 end
                 else Wnext = sresp;
             end
-            default:Rnext = swaitW; 
+            default:Wnext = swaitW; 
         endcase
     end 
     //写状态地址连线 // 这里还没有考虑CLint
@@ -170,7 +170,7 @@ module ysyx_22050550_LSU(
     assign io_aw_len   = 0;           
     assign io_aw_size  = 3;          
     assign io_aw_burst = 2'b01; 
-    assign io_w_valid  = Rstate == sread;
+    assign io_w_valid  = Wstate == swrite;
     assign io_w_data   = io_EXLS_writedata;
     assign io_w_strb   = io_EXLS_wmask;
     assign io_w_last   = 1'b1;
@@ -204,7 +204,12 @@ module ysyx_22050550_LSU(
         endcase
     end
     //Cache逻辑连线
-    assign io_Cache_valid = Pmem&&(io_EXLS_rflag||io_EXLS_wflag)    ;  
+    //注意cachedataok那个周期  这里的valid不能拉高， 
+    /*
+        因为dataok那个周期 是lookup的后一个周期，lookup那个周期 读数据是拿不出来的
+        如果lookuph后又跳转回idle，会因为这边的valid又进行状态跳转。
+    */
+    assign io_Cache_valid = Pmem&&(io_EXLS_rflag||io_EXLS_wflag) && !(io_Cache_dataok)    ;  
     assign io_Cache_op    = io_EXLS_wflag & (!io_EXLS_rflag)        ;
     assign io_Cache_addr  = io_EXLS_alures                          ;  
     assign io_Cache_wdata = io_EXLS_writedata                       ;  

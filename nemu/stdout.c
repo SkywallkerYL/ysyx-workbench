@@ -3039,7 +3039,7 @@ typedef struct Decode {
   vaddr_t snpc;
   vaddr_t dnpc;
   ISADecodeInfo isa;
-  ;
+  char logbuf[128];
 } Decode;
 
 
@@ -5698,17 +5698,7 @@ static void out_of_bound(paddr_t addr) {
 }
 
 void init_mem() {
-
-
-
-
-
-  uint32_t *p = (uint32_t *)pmem;
-  int i;
-  for (i = 0; i < (int) (0x8000000 / sizeof(p[0])); i ++) {
-    p[i] = rand();
-  }
-
+# 67 "src/memory/paddr.c"
   do { printf("\33[1;34m" "[%s:%d %s] " "physical memory area [" "0x%08"
 # 67 "src/memory/paddr.c" 3 4
  "x" 

@@ -92,11 +92,12 @@ wire [0:0]  Pass_valid ;
 //ID_ScoreBoard
 wire Score_RScore_busy1         ;
 wire Score_RScore_busy2         ;
-wire [0:0] Score_WScore_wen     ;
-wire [4:0] Score_WScore_waddr   ;
+
 wire [0:0] Score_RScore_valid   ;
 wire [4:0] Score_RScore_rdaddr1 ;
 wire [4:0] Score_RScore_rdaddr2 ;
+wire [0:0] Score_RScore_wen     ;
+wire [4:0] Score_RScore_waddr   ;
 //ID_EX;
 wire [63:0] idex_pc          ;       
 wire [31:0] idex_inst        ;       
@@ -180,9 +181,9 @@ ysyx_22050550_IDU IDU(
   .io_IDNPC_mretpc         (io_IDNPC_mretpc ) ,
   .io_IDNPC_valid          (io_IDNPC_valid  ) ,
   .io_ReadyIF_ready        (Id_ready        ) ,
-  .io_Score_WScore_wen     (Score_WScore_wen     ) ,
-  .io_Score_WScore_waddr   (Score_WScore_waddr   ) ,
   .io_Score_RScore_valid   (Score_RScore_valid   ) ,
+  .io_Score_RScore_wen     (Score_RScore_wen     ) ,
+  .io_Score_RScore_waddr   (Score_RScore_waddr   ) ,
   .io_Score_RScore_rdaddr1 (Score_RScore_rdaddr1 ) ,
   .io_Score_RScore_rdaddr2 (Score_RScore_rdaddr2 ) ,
   .io_Pass_rs1             (Pass_rs1   ) ,     
@@ -560,7 +561,8 @@ wire [ 7:0] wbcsren     ;
 wire [ 4:0] Wbu_waddr   ;
 wire [63:0] Wbu_wdata   ;
 wire [ 0:0] Wbu_wen     ;
-
+wire [0:0] Score_WScore_wen    =  Wbu_wen   ;
+wire [4:0] Score_WScore_waddr  =  Wbu_waddr ;
 
 ysyx_22050550_WBU WBU(
     .clock             (clock)            ,
@@ -927,8 +929,8 @@ ysyx_22050550_SRAM DSRAM(
   .io_ar_len            (DevSram_ar_len     )   ,
   .io_ar_size           (DevSram_ar_size    )   ,
   .io_ar_burst          (DevSram_ar_burst   )   ,
-  .io_Sram_aw_valid     (DevSram_r_valid    )   ,
-  .io_Sram_aw_bits_addr (DevSram_r_rdata    )   ,
+  .io_Sram_aw_valid     (DevSram_aw_valid    )   ,
+  .io_Sram_aw_bits_addr (DevSram_aw_addr    )   ,
   .io_aw_len            (DevSram_aw_len     )   ,
   .io_aw_size           (DevSram_aw_size    )   ,   
   .io_aw_burst          (DevSram_aw_burst   )   ,
@@ -936,7 +938,7 @@ ysyx_22050550_SRAM DSRAM(
   .io_Sram_w_bits_data  (DevSram_w_data     )   ,
   .io_Sram_w_bits_strb  (DevSram_w_strb     )   ,
   .io_Sram_ar_ready     (DevSram_ar_ready   )   ,
-  .io_Sram_r_valid      (DevSram_w_ready    )   ,
+  .io_Sram_r_valid      (DevSram_r_valid    )   ,
   .io_Sram_r_bits_data  (DevSram_r_rdata    )   ,
   .io_Sram_r_bits_last  (                   )   ,
   .io_Sram_aw_ready     (DevSram_aw_ready   )   ,
@@ -964,8 +966,8 @@ ysyx_22050550_ScoreBoard ScoreBoard(
     .io_IDU_valid (Score_RScore_valid)                  ,
     .io_IDU_raddr1(Score_RScore_rdaddr1)                  ,
     .io_IDU_raddr2(Score_RScore_rdaddr2)                  ,
-    .io_IDU_waddr (Score_WScore_waddr)                  ,
-    .io_IDU_wen   (Score_WScore_wen)                  ,
+    .io_IDU_waddr (Score_RScore_waddr)                  ,
+    .io_IDU_wen   (Score_RScore_wen)                  ,
     .io_IDU_busy1 (Score_RScore_busy1  )                  ,
     .io_IDU_busy2 (Score_RScore_busy2  )                  ,
 

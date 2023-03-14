@@ -87,7 +87,7 @@ SRC_AUTO_BIND = $(abspath $(BUILD_DIR)/auto_bind.cpp)
 $(SRC_AUTO_BIND): $(NXDC_FILES)
 	python3 $(NVBOARD_HOME)/scripts/auto_pin_bind.py $^ $@
 	
-VSRC = $(shell find $(abspath ./build) -name "*.v")
+VSRC = $(shell find $(abspath ./vsrc) -name "*.v")
 CSRC = $(shell find $(abspath ./csrc) -name "*.c" -or -name "main.cpp" -or -name "*.cc" )
 CSRC += $(SRC_AUTO_BIND)
 #VSRC += $(shell find $(abspath ./generated) -name "*.v")
@@ -168,6 +168,6 @@ perfdiff:
 show-config:
 	$(VERILATOR) -V
 clean:
-	-rm -rf obj_dir logs *.log *.dmp *.vpd *.vcd $(BUILD_DIR) vsrc perf.data perf.data.old perf.unfold perf.folded perf.svg
+	-rm -rf obj_dir logs *.log *.dmp *.vpd *.vcd $(BUILD_DIR) perf.data perf.data.old perf.unfold perf.folded perf.svg
 #git clean -fd
 .PHONY: default all clean run

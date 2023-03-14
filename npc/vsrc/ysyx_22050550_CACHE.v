@@ -116,6 +116,11 @@ module ysyx_22050550_CACHE(
     wire [`ysyx_22050550_GroupBus] AddrGroup = AddrGroupshift[`ysyx_22050550_GroupBus];
     wire [`ysyx_22050550_RegBus] DataOut;
     //根据块内地址确定输出的   默认32位对齐
+    //实际情况是存在非对齐的访问，这里不用MUX来写了，直接通过移位解决。
+    wire [3+`ysyx_22050550_BlockWidth-1:0] addrblockshift = {{3'b0},AddrBlock} << 3;
+    wire [127:0] DataReadshift = (DataRead >> addrblockshift);
+    assign DataOut = DataReadshift[63:0];
+    /*
     ysyx_22050550_MuxKeyWithDefault#(4,`ysyx_22050550_BlockWidth,`ysyx_22050550_REGWIDTH) DataMux(
         .out(DataOut),.key(AddrBlock),.default_out(DataRead[63:0]),.lut({
         4'd0    , DataRead[63:0],
@@ -123,7 +128,7 @@ module ysyx_22050550_CACHE(
         4'd8    , DataRead[127:64],
         4'd12   , {{32{1'b0}},DataRead[127:96]}
     }));
-    
+    */
     
     /*
         根据组号定位属于哪一组 然后在组内的每一路来比较tag看是否命中
@@ -146,7 +151,7 @@ module ysyx_22050550_CACHE(
 
     wire cachehit = hit[3] | hit[2] | hit[1] | hit[0];
     //wire hit = cachehit;
-    wire [1:0] hitway = hit[3]? 2'd3:  hit[2]? 2'd1 :hit[1]? 2'd1 :hit[0]? 2'd0 : 2'd0;
+    wire [1:0] hitway = hit[3]? 2'd3:  hit[2]? 2'd2 :hit[1]? 2'd1 :hit[0]? 2'd0 : 2'd0;
     wire [5:0] hitaddr = {AddrGroup,hitway};//(AddrGroup <<2) | hitway;
     //lfsr 用于随机选取某一路
     reg [15:0] lfsr;	
@@ -250,8 +255,10 @@ module ysyx_22050550_CACHE(
         idle:  
             cache valid的情况下 向Tag申请读
     */
-    //wire IDLE = state == idle; // Tag一直在读 不用管 
+    wire IDLE = state == idle; // Tag一直在读 不用管 
     //data addr mux
+    assign useaddr = IDLE||LOOKUP ? hitaddr : chooseaddr;
+    /*
     ysyx_22050550_MuxKeyWithDefault#(5,3,6) DataAddrMux(
         .out(useaddr),.key(state),.default_out(hitaddr),.lut({
         idle    , hitaddr,
@@ -260,26 +267,33 @@ module ysyx_22050550_CACHE(
         replace , chooseaddr,
         refill  , chooseaddr
     }));
+    */
     //hit 情况下的写入
     //data write mux 
+    //需要考虑非对齐的情况 ，不用Mux了
     wire [127:0] CacheWdata = {{64{1'b0}},io_Cache_wdata};
-    wire [127:0] hitDataWrite;
-    ysyx_22050550_MuxKeyWithDefault#(3,`ysyx_22050550_BlockWidth,128) hitDataWriteMux(
+    wire [127:0] CacheWdatashift = CacheWdata << addrblockshift;
+    wire [127:0] hitDataWrite = CacheWdatashift;
+    /*
+    ysyx_22050550_MuxKeyWithDefault#(4,`ysyx_22050550_BlockWidth,128) hitDataWriteMux(
         .out(hitDataWrite),.key(AddrBlock),.default_out(CacheWdata),.lut({
             4'd0    , CacheWdata,
             4'd4    , CacheWdata << 32,
-            4'd8    , CacheWdata << 64
+            4'd8    , CacheWdata << 64,
+            4'd12   , CacheWdata << 96
     }));
+    */
     //data write ben mux  //低有效
     wire [127:0] low8mask  = 128'hff       ; wire [127:0] low16mask = 128'hffff             ; 
     wire [127:0] low32mask = 128'hffffffff ; wire [127:0] low64mask = 128'hffffffffffffffff ;
     wire [127:0] hitDataBen;
-    ysyx_22050550_MuxKeyWithDefault#(12,`ysyx_22050550_BlockWidth+8,128) hitDataBenMux(
-        .out(hitDataBen),.key({AddrBlock,io_Cache_wmask}),.default_out(128'b1),.lut({
-            {{4'd0},8'b1}       , ~low8mask ,
-            {{4'd0},8'b11}      , ~low16mask,
-            {{4'd0},8'hf}       , ~low32mask,
-            {{4'd0},8'hff}      , ~low64mask,
+    ysyx_22050550_MuxKeyWithDefault#(4,8,128) hitDataBenMux(
+        .out(hitDataBen),.key({io_Cache_wmask}),.default_out(~128'b0),.lut({
+            {8'b1}       , ~(low8mask << addrblockshift),
+            {8'b11}      , ~(low16mask<< addrblockshift),
+            {8'hf}       , ~(low32mask<< addrblockshift),
+            {8'hff}      , ~(low64mask<< addrblockshift)
+            /*
             {{4'd4},8'b1}       , ~(low8mask  << 32), 
             {{4'd4},8'b11}      , ~(low16mask << 32),
             {{4'd4},8'hf}       , ~(low32mask << 32),
@@ -287,23 +301,38 @@ module ysyx_22050550_CACHE(
             {{4'd8},8'b1}       , ~(low8mask  << 64), 
             {{4'd8},8'b11}      , ~(low16mask << 64),
             {{4'd8},8'hf}       , ~(low32mask << 64),
-            {{4'd8},8'hff}      , ~(low64mask << 64)
+            {{4'd8},8'hff}      , ~(low64mask << 64),
+            {{4'd12},8'b1}       , ~(low8mask  << 96), 
+            {{4'd12},8'b11}      , ~(low16mask << 96),
+            {{4'd12},8'hf}       , ~(low32mask << 96),
+            {{4'd12},8'hff}      , ~(low64mask << 96)
+            */
     }));
     //refill情况下的写入
     wire[127:0] refilldata = Reglen ? {{64{1'b0}} ,io_r_rdata} : {io_r_rdata,{64{1'b0}}};
     wire[127:0] refillben  = Reglen ? {{64{1'b1}} ,{64{1'b0}}} : {{64{1'b0}},{64{1'b1}}};
-    //dirty只在两种情况下写 一个是lookup命中了 写脏  一个是refill 回填完成，写干净
+    //dirty只在两种情况下写 一个是lookup命中了 写脏  replace完成//一个是refill 回填完成，写干净
     //dirty write   data en mux  en 高有效
+    assign dirtyWriteEn = LOOKUP? cachehit & io_Cache_op 
+                        : REPLACE ? io_w_valid & io_w_last: 0; 
+    //REFILL? io_r_last& io_r_valid : 0;
+    /*
     ysyx_22050550_MuxKeyWithDefault#(2,3,1) DirtyEnMux(
-        .out(dirtyWriteEn),.key(state),.default_out(1),.lut({
+        .out(dirtyWriteEn),.key(state),.default_out(0),.lut({
         lookup  , cachehit & io_Cache_op ? 1'b1:1'b0,
         refill  , io_r_last& io_r_valid 
     }));
+    */
+    assign dirtyWriteData = LOOKUP? cachehit & io_Cache_op 
+                         :REPLACE ? !(io_w_valid & io_w_last): 0;
+    // REFILL? !(io_r_last& io_r_valid) : 0;
+    /*
     ysyx_22050550_MuxKeyWithDefault#(2,3,1) DirtyDataMux(
         .out(dirtyWriteData),.key(state),.default_out(0),.lut({
         lookup  , cachehit & io_Cache_op ? 1'b1:1'b0,
         refill  , !(io_r_last& io_r_valid)   
     }));
+    */
     //valid只有一种情况需要写入  refill完成写valid
     assign validWriteEn = REFILL && io_r_last& io_r_valid;
     assign validWriteData = 1'b1;
@@ -317,7 +346,8 @@ module ysyx_22050550_CACHE(
     */
     wire LOOKUP = state == lookup;
     //读
-    wire dataokin = LOOKUP && cachehit & !io_Cache_op;
+    //写也是一样的 cachehit了就行
+    wire dataokin = LOOKUP && cachehit;
     ysyx_22050550_Reg # (1,1'd0) dataok (
                 .clock(clock),.reset(reset),.wen(1'b1),.din(dataokin),
                 .dout(io_Cache_dataok));
@@ -408,5 +438,20 @@ module ysyx_22050550_CACHE(
     assign DataWen = !((REFILL&&(io_r_valid))||(LOOKUP && cachehit && io_Cache_op));
     assign DataWrite = (LOOKUP && cachehit && io_Cache_op)? hitDataWrite : (REFILL&&(io_r_valid)) ? refilldata :0;
     assign DataBen = (LOOKUP && cachehit && io_Cache_op) ? hitDataBen : (REFILL&&(io_r_valid)) ? refillben : {128{1'b1}};
+    //print一些debug信息
+`ifdef ysyx_22050550_CACHEDEBUG
+    always@(posedge clock) begin
+        if (LOOKUP) begin
+            if(cachehit && io_Cache_op) begin
+                $display("group:%d hitway:%d hitwrite addr: %x  data: %x",AddrGroup,hitway,io_Cache_addr,hitDataWrite);
+            end
+        end
+        else if (REFILL) begin
+            $display("refill group%d chooseway%d refilladdr: %x dara %x",AddrGroup,chooseway,io_Cache_addr,refilldata);
+        end
+    end
+`endif 
+
+
 endmodule
 

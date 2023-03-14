@@ -57,11 +57,13 @@ module ysyx_22050550_IDU(
                     io_IDNPC_mretpc,
   output            io_IDNPC_valid,
                     io_ReadyIF_ready,
-                    io_Score_WScore_wen,
-  output [4:0]      io_Score_WScore_waddr,
+  //                  io_Score_WScore_wen,
+  //output [4:0]      io_Score_WScore_waddr,
   output            io_Score_RScore_valid,
+  output            io_Score_RScore_wen ,
   output [4:0]      io_Score_RScore_rdaddr1,
                     io_Score_RScore_rdaddr2,
+                    io_Score_RScore_waddr  ,
                     io_Pass_rs1,
                     io_Pass_rs2,
   output            io_Pass_valid   
@@ -116,8 +118,10 @@ module ysyx_22050550_IDU(
     //assign io_IDNPC_imm = imm;
     reg [`ysyx_22050550_RegBus] rd1,rd2;
     wire [`ysyx_22050550_RegBus] rData1,rData2;
-    assign rData1  = io_Pass_pass1?io_Pass_rdata:io_RegFileID_rdata1;
-    assign rData2  = io_Pass_pass2?io_Pass_rdata:io_RegFileID_rdata2;
+    //注意一下Busy了才使用旁路转发的数据，不然的话比如某些指令有对0号寄存器写入的行为
+    //会把写入的值给转发过来，但是取0号寄存器的时候，只是要一个0
+    assign rData1  = (io_Score_RScore_busy1&io_Pass_pass1)?io_Pass_rdata:io_RegFileID_rdata1;
+    assign rData2  = (io_Score_RScore_busy2&io_Pass_pass2)?io_Pass_rdata:io_RegFileID_rdata2;
     //load
     //wbu还有一个choose信号用来指示使用从内存里读出来的还是用alu计算的 这里与readflag是一个信号
     wire readflag = (opcode == `ysyx_22050550_I3);
@@ -178,7 +182,7 @@ module ysyx_22050550_IDU(
         {7'b0000001,3'b101,`ysyx_22050550_R1},`ysyx_22050550_DIV,
         {7'b0000001,3'b100,`ysyx_22050550_R1},`ysyx_22050550_DIVS,
         {7'b0000000,3'b100,`ysyx_22050550_R1},`ysyx_22050550_XOR,
-        {7'b0000001,3'b100,`ysyx_22050550_R1},`ysyx_22050550_REM, // REMU
+        {7'b0000001,3'b111,`ysyx_22050550_R1},`ysyx_22050550_REM, // REMU
         {7'b0000000,3'b010,`ysyx_22050550_R1},`ysyx_22050550_SLT,
         {7'b0000000,3'b011,`ysyx_22050550_R1},`ysyx_22050550_SLTU,
         {7'b0100000,3'b000,`ysyx_22050550_R2},`ysyx_22050550_SUB,
@@ -224,12 +228,12 @@ module ysyx_22050550_IDU(
     wire[2:0] BtypeKey = {func3};
     ysyx_22050550_MuxKeyWithDefault#(6,3,5) BtypeOpMux(
         .out(Btype),.key(BtypeKey),.default_out(5'd0),.lut({
-        3'b100,5'b01000,//
-        3'b110,5'b10000,
-        3'b111,5'b01100,
-        3'b011,5'b01101,
-        3'b010,5'b00010,
-        3'b101,5'b00010
+        3'b000,5'b01000,//BEQ  = 000    b01000
+        3'b001,5'b10000,//BNE  = 001    b10000
+        3'b101,5'b01100,//BGE  = 101    b01100
+        3'b111,5'b01101,//BGEU = 111    b01101
+        3'b100,5'b00010,//BLT  = 100    b00010
+        3'b110,5'b00011 //BLTU = 110    b00011
     }));
     wire Unless = rData1 < rData2; wire Unbigger = rData1 > rData2;
     wire Sless  = $signed(rData1) < $signed(rData2); wire Sbigger  = $signed(rData1) > $signed(rData2);
@@ -313,6 +317,7 @@ module ysyx_22050550_IDU(
     assign io_idex_AluOp_rd2    = rd2;
     assign io_idex_AluOp_op     = ExuOp;
     assign io_idex_waddr        = rd;
+    //注意ret指令也会把wen拉高，但是这个时候rd
     assign io_idex_wen          = (InstType !=S_type) && (InstType != B_type)&& (InstType != Bad_type);
     assign io_idex_wflag        = writeflag;
     assign io_idex_rflag        = readflag;
@@ -338,10 +343,12 @@ module ysyx_22050550_IDU(
     assign io_Score_RScore_rdaddr1 = rs1; 
     assign io_Score_RScore_rdaddr2 = rs2;
     assign io_Score_RScore_valid = io_IFID_valid & (!ebreak);
+    assign io_Score_RScore_wen   = io_idex_valid && io_idex_wen &&io_ReadyEX_ready;
+    assign io_Score_RScore_waddr = rd;
     assign io_Pass_rs1 = rs1; 
     assign io_Pass_rs2 = rs2;
-    assign io_Score_WScore_wen = io_idex_wen && io_ReadyEX_ready && io_idex_valid;
-    assign io_Score_WScore_waddr = io_idex_waddr;
+    //assign io_Score_WScore_wen = io_idex_wen && io_ReadyEX_ready && io_idex_valid;
+    //assign io_Score_WScore_waddr = io_idex_waddr;
 
     assign io_Pass_valid = io_IFID_valid;
 

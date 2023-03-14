@@ -15,13 +15,15 @@ module ysyx_22050550_Diver (
     reg     [127:0] Divend;
     wire    [127:0] Divsor;
     reg     [127:0] DivRes ;
-    wire    [63:0]  cmpRes  = !io_Exu_Divw ? DivRes[127:64] :{ {32{1'b0}},DivRes[63:32]};
-    wire    [63:0]  cmpDivs = !io_Exu_Divw ? Divsor[127:64] :{ {32{1'b0}},Divsor[63:32]};
+    wire    [63:0]  cmpRes  = !io_Exu_Divw ? DivRes[127:64] :{ {32{DivRes[63]}},DivRes[63:32]};
+    wire    [63:0]  cmpDivs = !io_Exu_Divw ? Divsor[127:64] :{ {32{Divsor[63]}},Divsor[63:32]};
+    //wire    [63:0]  cmpRes = io_Exu_DivSigned==2'b11 ?$signed(cmpResraw) : cmpResraw;
+    //wire    [63:0]  cmpDivs = io_Exu_DivSigned==2'b11 ?$signed(cmpDivsraw) : cmpDivsraw;
     wire    divendsign = io_Exu_Divw ? io_Exu_Divdend[31] : io_Exu_Divdend[63];
     wire    divsorsign = io_Exu_Divw ? io_Exu_Divisor[31] : io_Exu_Divisor[63];
     wire    symbol = divendsign ^ divsorsign;
     wire    [127:0] choosdivend  = (io_Exu_DivSigned==2'b11 && divendsign )? {{64{1'b0}},(~io_Exu_Divdend+1)}: { {64{1'b0}},io_Exu_Divdend};
-    wire    [127:0] choosdivsior = (io_Exu_DivSigned==2'b11 && divendsign )? {{64{1'b0}},(~io_Exu_Divisor+1)}: { {64{1'b0}},io_Exu_Divisor};
+    wire    [127:0] choosdivsior = (io_Exu_DivSigned==2'b11 && divsorsign )? {{64{1'b0}},(~io_Exu_Divisor+1)}: { {64{1'b0}},io_Exu_Divisor};
     assign  Divsor  = io_Exu_Divw ? choosdivsior << 32 : choosdivsior << 64;
     reg     [5:0]   divcount ;
     wire    [5:0]   divcountInit = io_Exu_Divw ? 31 : 63;
@@ -53,9 +55,10 @@ module ysyx_22050550_Diver (
         endcase
     end
     wire DivResEn = (state == Idle)|| (state == Busy) || (state== Valid) ;
-    wire [127:0] DivResIn = (state == Idle) ? choosdivend << 1 
+    wire [127:0] DivResIn = (state == Idle && io_Exu_DivValid) ? choosdivend << 1 
                            :(state == Busy && io_Exu_Flush) ? 0 
                            :(state == Busy && divcount==0&&cmpRes >=cmpDivs) ? DivRes- Divsor+1
+                           :(state == Busy && divcount==0&&cmpRes < cmpDivs) ? DivRes
                            :(state == Busy && divcount!=0&&cmpRes >=cmpDivs) ? (DivRes- Divsor+1)<<1
                            :(state == Busy && divcount!=0&&cmpRes < cmpDivs) ? DivRes << 1
                            :(state == Valid) ? 0 : DivRes;

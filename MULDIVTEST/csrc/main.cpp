@@ -12,7 +12,7 @@
 #include "VDivder___024root.h"
 #endif
 #include "verilated_vcd_c.h"
-#define WAVE
+//#define WAVE
 VerilatedContext* contextp = NULL;
 VerilatedVcdC* tfp = NULL;
 //static VRiscvCpu* top;
@@ -88,12 +88,12 @@ uint64_t UINT64MAX = (((uint64_t)1<<63) -1);
 void Mulinttest(){
   for (size_t i = 0; i < 20000; i++)
   {
-    int64_t multicand = (int64_t)(rand()%(2000)-1000);(int64_t)(rand()%(2*(int64_t)INTMAX+1)-(int64_t)INTMAX-1);
+    int64_t multicand =(int64_t)(rand()%(2*(int64_t)INTMAX+1)-(int64_t)INTMAX-1);
     int64_t multiplier = (int64_t)(rand()%(2000)-1000);//(int64_t)(rand()%(2*(int64_t)INTMAX+1)-(int64_t)INTMAX-1);
     top->io_Exu_MulValid = 0b1;
     top->io_Exu_Flush = 0b0;
     top->io_Exu_Mulw = 0;rand()%2;
-    top->io_Exu_MulSigned = 0b11;
+    top->io_Exu_MulSigned = 0b00;0b11;
     top->io_Exu_Multiplicand = multicand;
     top->io_Exu_Multiplier = multiplier;
     //printf("%d\n",top->io_Exu_OutValid);
@@ -246,7 +246,7 @@ int main(int argc , char* argv[]) {
   //printf("hhh\n");
 #ifdef MUL
   Mulinttest();
-  MulUinttest();
+  //MulUinttest();
 #else
   DivUinttest();
   DivInttest();

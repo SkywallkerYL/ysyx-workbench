@@ -30,7 +30,7 @@ module ysyx_22050550_SRAM(
     .clock(clock),.reset(reset),.wen(io_Sram_ar_valid&&io_Sram_ar_ready),
     .din(io_Sram_ar_bits_addr),.dout(raddrReg));
     ysyx_22050550_Reg # (64,64'd0)Regwaddr(
-    .clock(clock),.reset(reset),.wen(io_Sram_ar_valid&&io_Sram_ar_ready),
+    .clock(clock),.reset(reset),.wen(io_Sram_aw_valid&&io_Sram_aw_ready),
     .din(io_Sram_aw_bits_addr),.dout(waddrReg));
     //实现类似chisel 只不过用DPI访问内存
     //仅支持INCR型突发传输   size 设定为 128//CACHE那边的突发传输类型只能是这个
@@ -99,8 +99,8 @@ module ysyx_22050550_SRAM(
     localparam writewait = 1'b0 , write = 1'b1;
     reg WriteState,WriteNext;
     always @(posedge clock) begin
-        if (reset) WriteState <= WriteNext;
-        else WriteState <= writewait;
+        if (reset) WriteState <= writewait ;
+        else WriteState <= WriteNext;
     end
     reg [7:0] WReglen;
     always @(*) begin
@@ -140,7 +140,7 @@ module ysyx_22050550_SRAM(
     }));
     assign io_Sram_aw_ready = WriteState == writewait;
     wire WReglenEn = (WriteState == writewait && io_Sram_aw_valid) 
-                 || (ReadState == write && io_Sram_w_valid);
+                 || (WriteState == write && io_Sram_w_valid);
     wire [7:0] WRegLenIn = (WriteState == writewait && io_Sram_aw_valid) ? io_aw_len
                         : (WriteState == write && io_Sram_w_valid) ? WReglen-1 : WReglen;
     ysyx_22050550_Reg # (8,8'd0) WRegLen (
@@ -151,7 +151,7 @@ module ysyx_22050550_SRAM(
         .dout(WReglen)
     );
     //目前只有两种情况，先这样写了
-    assign Dpi_waddr =  (io_aw_len==0 || Reglen==1) ? waddrReg : waddrReg + WriteAddrAdd;
+    assign Dpi_waddr =  (io_aw_len==0 || WReglen==1) ? waddrReg : waddrReg + WriteAddrAdd;
     assign Dpi_wdata =  io_Sram_w_bits_data;
     assign Dpi_wmask =  io_Sram_w_bits_strb;
     assign io_Sram_w_ready = WriteState == write;

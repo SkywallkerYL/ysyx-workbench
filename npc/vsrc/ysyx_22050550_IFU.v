@@ -20,6 +20,11 @@ module ysyx_22050550_IFU(
     assign inst = Cache_DataOk ? Cache_Data[31:0] : 32'h0;	
     assign pc = Pc;
     assign valid = Cache_DataOk;	
-    assign Cache_valid = Id_ready;	
+    //这里也是  
+    /*  
+        cache 那边的发出dataok的那个周期已经是idle了，所以如果这边的valid一直拉高的话
+        就会导致那边又进行状态跳转，导致取道错误的指令
+    */
+    assign Cache_valid = Id_ready & !Cache_DataOk;	
     assign Cache_addr = Pc;
 endmodule

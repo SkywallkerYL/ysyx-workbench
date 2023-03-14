@@ -17,8 +17,8 @@ module ysyx_22050550_PartProductGen(
         3'b010   ,   io_Choose_S     ,
         3'b011   ,   io_Choose_S << 1,
         3'b100   ,   io_Choose_HighUsign?io_Choose_S << 1: (~io_Choose_S+1)<<1,
-        3'b101   ,   io_Choose_HighUsign?(io_Choose_S << 1) + io_Choose_S: (~io_Choose_S+1)<<1,
-        3'b110   ,   io_Choose_HighUsign?(io_Choose_S << 1) + io_Choose_S: (~io_Choose_S+1)<<1,
+        3'b101   ,   io_Choose_HighUsign?(io_Choose_S << 1) + io_Choose_S: (~io_Choose_S+1),
+        3'b110   ,   io_Choose_HighUsign?(io_Choose_S << 1) + io_Choose_S: (~io_Choose_S+1),
         3'b111   ,   io_Choose_HighUsign?io_Choose_S << 2: 0
     }));
     assign io_Choose_PartProdOut = (io_Choose_PartProdIn + add) >> 2;
@@ -82,12 +82,13 @@ module  ysyx_22050550_Multi(
             default: next = Idle;
         endcase
     end
-    wire Proden = state == Busy ;
+    wire Proden = state == Busy || state == Valid;
+    wire [131:0] realProd = state == Busy ? Prodin : 0;
     ysyx_22050550_Reg # (132,132'd0)ProdReg(
         .clock(clock),
         .reset(reset),
         .wen(Proden),
-        .din(Prodin),
+        .din(realProd),
         .dout(Prod)
     );
     wire Sumen = state == Idle && io_Exu_MulValid ;
