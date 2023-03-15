@@ -46,15 +46,19 @@ static void key_enqueue(uint32_t am_scancode) {
 
 static uint32_t key_dequeue() {
   uint32_t key = _KEY_NONE;
+  //printf("key_f:%d,key_r:%d\n",key_f,key_r);
   if (key_f != key_r) {
     key = key_queue[key_f];
     key_f = (key_f + 1) % KEY_QUEUE_LEN;
   }
+  //printf("key_f:%d,key_r:%d key:%d\n",key_f,key_r,key);
   return key;
 }
 
 void send_key(uint8_t scancode, bool is_keydown) {
+  //printf("state:%d  scancode%d\n",npc_state.state, keymap[scancode]);
   if (npc_state.state == NPC_RUNNING && keymap[scancode] != _KEY_NONE) {
+    //printf("a key was pressed\n");
     uint32_t am_scancode = keymap[scancode] | (is_keydown ? KEYDOWN_MASK : 0);
     key_enqueue(am_scancode);
   }
@@ -69,18 +73,22 @@ static uint32_t key_dequeue() {
 }
 #endif
 
-uint32_t *i8042_data_port_base = NULL;
+uint32_t i8042_data_port_base[1];
 
 void i8042_data_io_handler(uint32_t offset, int len, bool is_write) {
   assert(!is_write);
   assert(offset == 0);
+  //printf("in i8042\n");
   i8042_data_port_base[0] = key_dequeue();
+  //printf("in i8042 after key_dequeue\n");
 }
 
 void init_i8042() {
   //i8042_data_port_base = (uint32_t *)new_space(4);
+  //i8042_data_port_base = (uint32_t *)malloc(sizeof(uint32_t));
   i8042_data_port_base[0] = _KEY_NONE;
   init_keymap();
+  //for (int i= 0;i<100 ;i++) printf("key:%d ",keymap[i]);
 }
 
 

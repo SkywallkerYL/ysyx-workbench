@@ -17,8 +17,11 @@ static void drain_keys() {
   }
 
   if (has_kbd) {
+    //printf("has_uart:%d has_kbd:%d  \n",has_uart,has_kbd);
     while (1) {
+      //printf("hhhhhh\n");
       AM_INPUT_KEYBRD_T ev = io_read(AM_INPUT_KEYBRD);
+      //printf("keycode:%d \n",ev.keycode );
       if (ev.keycode == AM_KEY_NONE) break;
       printf("Got  (kbd): %s (%d) %s\n", names[ev.keycode], ev.keycode, ev.keydown ? "DOWN" : "UP");
     }
@@ -29,6 +32,7 @@ void keyboard_test() {
   printf("Try to press any key (uart or keyboard)...\n");
   has_uart = io_read(AM_UART_CONFIG).present;
   has_kbd  = io_read(AM_INPUT_CONFIG).present;
+  printf("has_uart:%d has_kbd:%d  \n",has_uart,has_kbd);
   while (1) {
     drain_keys();
   }

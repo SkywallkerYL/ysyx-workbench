@@ -26,9 +26,10 @@ extern "C" void pmem_read(long long raddr, long long *rdata){
         //printf("time%d\n",get_time());
     }
     else if (raddr == KBD_ADDR) {
+        //printf("hhhhhh\n");
         i8042_data_io_handler(0,0,0);
-
-        printf("hhhhhh\n");
+        //printf("hhhhhh1\n");
+        //printf("hhhhhh\n");
         *rdata = (uint64_t)i8042_data_port_base[0];
     }
     else if (raddr == VGACTL_ADDR){ //vga H W
@@ -136,6 +137,12 @@ extern "C" void pmem_write(long long waddr, long long wdata,char wmask){
         //printf("pc:0x%08x\n",Pc_Fetch());
         printf("%c",c);
     }
+    //else if (waddr == KBD_ADDR) {
+        //i8042_data_io_handler(0,0,0);
+        //i8042_data_port_base[0] = (uint32_t)wdata;
+        //printf("hhhhhh\n");
+        //*rdata = (uint64_t)i8042_data_port_base[0];
+    //}
     else {
         //printf("pc 0x%08x w\n",cpu_gpr[32]);
        out_of_bound(waddr);
