@@ -96,6 +96,7 @@ module ysyx_22050550_IDU(
     wire [`ysyx_22050550_RegBus] S_imm= {{(`ysyx_22050550_REGWIDTH-12){io_IFID_inst[31]}},io_IFID_inst[31:25],io_IFID_inst[11:7]};
     wire    [2:0] InstType;
     wire    [`ysyx_22050550_RegBus] imm  ;
+    //其实这样并不能完全识别出所有未实现的指令。。。但是目前只能这样了先，出问题的时候开difftest看看。
     ysyx_22050550_MuxKeyWithDefault#(12,7,3) InstMux(
         .out(InstType),.key(opcode),.default_out(Bad_type),.lut({
         `ysyx_22050550_R1   ,R_type,`ysyx_22050550_R2   ,R_type,
@@ -180,7 +181,7 @@ module ysyx_22050550_IDU(
     }));
     wire[4:0] Rtype_Op;
     wire[16:0] RtypeOpKey = {func7,func3,opcode};
-    ysyx_22050550_MuxKeyWithDefault#(20,17,5) RtypeOpMux(
+    ysyx_22050550_MuxKeyWithDefault#(21,17,5) RtypeOpMux(
         .out(Rtype_Op),.key(RtypeOpKey),.default_out(`ysyx_22050550_ADD),.lut({
         {7'b0100000,3'b000,`ysyx_22050550_R1},`ysyx_22050550_SUB,
         {7'b0000001,3'b000,`ysyx_22050550_R1},`ysyx_22050550_MUL ,
@@ -195,6 +196,7 @@ module ysyx_22050550_IDU(
         {7'b0000001,3'b100,`ysyx_22050550_R2},`ysyx_22050550_DIVS,
         {7'b0000001,3'b101,`ysyx_22050550_R2},`ysyx_22050550_DIV,
         {7'b0000001,3'b110,`ysyx_22050550_R2},`ysyx_22050550_REMS,
+        {7'b0000001,3'b111,`ysyx_22050550_R2},`ysyx_22050550_REM, //REMUW
         {7'b0000000,3'b001,`ysyx_22050550_R2},`ysyx_22050550_SLLW,
         {7'b0000000,3'b001,`ysyx_22050550_R1},`ysyx_22050550_SLL,
         {7'b0100000,3'b101,`ysyx_22050550_R2},`ysyx_22050550_SRA,
@@ -222,11 +224,13 @@ module ysyx_22050550_IDU(
     wire divw  = (opcode == `ysyx_22050550_R2) && (func7 == 7'b1) &&(func3 == 3'b100);
     wire divuw = (opcode == `ysyx_22050550_R2) && (func7 == 7'b1) &&(func3 == 3'b101);
     wire remw  = (opcode == `ysyx_22050550_R2) && (func7 == 7'b1) &&(func3 == 3'b110);
+    wire remuw = (opcode == `ysyx_22050550_R2) && (func7 == 7'b1) &&(func3 == 3'b111);
     wire sllw  = (opcode == `ysyx_22050550_R2) && (func7 == 7'b0) &&(func3 == 3'b001);
     wire sraw  = (opcode == `ysyx_22050550_R2) && (func7 == 7'b0100000) &&(func3 == 3'b101);
     wire srlw  = (opcode == `ysyx_22050550_R2) && (func7 == 7'b0) &&(func3 == 3'b101);
     wire srl   = (opcode == `ysyx_22050550_R1) && (func7 == 7'b0) &&(func3 == 3'b101);
     wire sign32  = divw || divuw || remw;
+    wire usign32 = remuw;
     wire rs2low5 = srlw || sllw  || sraw;
     //Btype相关 这里与chisel相同的思路
     wire[4:0] Btype;
@@ -276,8 +280,8 @@ module ysyx_22050550_IDU(
                 rd2 = csrflag? 64'd0 : jalrflag?4:shamtflag ?{{58{1'b0}},shamt} : imm; 
             end 
             R_type : begin
-                rd1 = sign32 ? Signedrs1 : srlw ? USignedrs1: sraw ? Signedrs1 : rData1;
-                rd2 = sign32 ? Signedrs2 : rs2low5 ?{{59{1'b0}},rData2[4:0]}:srl?{{58{1'b0}},rData2[5:0]}:rData2;
+                rd1 = usign32? USignedrs1:sign32 ? Signedrs1 : srlw ? USignedrs1: sraw ? Signedrs1 : rData1;
+                rd2 = usign32? USignedrs2:sign32 ? Signedrs2 : rs2low5 ?{{59{1'b0}},rData2[4:0]}:srl?{{58{1'b0}},rData2[5:0]}:rData2;
             end
             B_type : begin
                 rd1 = 0;

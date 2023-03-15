@@ -10,7 +10,7 @@ static void out_of_bound(paddr_t addr) {
     instr_tracelog(1);
 #endif
   panic("address = " FMT_PADDR " is out of bound of pmem [" FMT_PADDR ", " FMT_PADDR "] at pc = " FMT_WORD,
-      addr, PMEM_LEFT, PMEM_RIGHT, cpu_gpr[32]);
+      addr, PMEM_LEFT, PMEM_RIGHT, localnpc);
 }
 
 extern "C" void pmem_read(long long raddr, long long *rdata){
