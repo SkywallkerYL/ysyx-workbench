@@ -1,11 +1,25 @@
 include $(AM_HOME)/scripts/isa/riscv64.mk
 
-AM_SRCS := riscv/npc/trm.c \
-           riscv/npc/ioe.c \
-           riscv/npc/timer.c \
-           riscv/npc/input.c \
-           riscv/npc/gpu.c \
-           platform/nemu/mpe.c 
+AM_SRCS :=  riscv/npc/trm.c \
+            riscv/npc/ioe.c \
+            riscv/npc/timer.c \
+            riscv/npc/input.c \
+            riscv/npc/gpu.c \
+            platform/nemu/mpe.c 
+#platform/nemu/trm.c \
+#platform/nemu/ioe/ioe.c \
+#platform/nemu/ioe/timer.c \
+#platform/nemu/ioe/input.c \
+#platform/nemu/ioe/gpu.c \
+#platform/nemu/ioe/audio.c \
+#platform/nemu/ioe/disk.c \
+#platform/nemu/mpe.c 
+#riscv/npc/trm.c \
+#riscv/npc/ioe.c \
+#riscv/npc/timer.c \
+#riscv/npc/input.c \
+#riscv/npc/gpu.c \
+#platform/nemu/mpe.c 
            
 CFLAGS    += -fdata-sections -ffunction-sections
 LDFLAGS   += -T $(AM_HOME)/scripts/linker.ld --defsym=_pmem_start=0x80000000 --defsym=_entry_offset=0x0
@@ -38,7 +52,7 @@ run: image
 
 CFLAGS  += -DISA_H=\"riscv/riscv.h\"
 
-AM_SRCS += riscv/nemu/start.S \
-           riscv/nemu/cte.c \
-           riscv/nemu/trap.S \
-           riscv/nemu/vme.c    
+AM_SRCS += riscv/npc/start.S \
+           riscv/npc/cte.c \
+           riscv/npc/trap.S \
+           riscv/npc/vme.c    

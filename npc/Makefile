@@ -61,7 +61,7 @@ VERILATOR_CFLAGS += -cc --exe --noassert
 VERILATOR_CFLAGS +=	--x-assign fast --x-initial fast
 #VERILATOR_CFLAGS +=  --trace --coverage 
 VERILATOR_CFLAGS +=  --build 
-VERILATOR_CFLAGS += -Wno-fatal -O2 -DVL_DEBUG
+VERILATOR_CFLAGS += -Wno-fatal -O3 -DVL_DEBUG
 
 
 VERILATOR_CFLAGS += --top-module $(TOPNAMETEST)

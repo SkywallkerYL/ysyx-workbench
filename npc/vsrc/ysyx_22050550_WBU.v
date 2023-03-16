@@ -98,7 +98,7 @@ module ysyx_22050550_WBU(
     wire [`ysyx_22050550_RegBus] ecallnewmstatus = (mstatus & (~64'h80)) | (oldmie << 4);//赋给mpie
     wire [`ysyx_22050550_RegBus] ecallfinal = ecallnewmstatus & (~64'h8); //mie置0禁用中断
     wire [`ysyx_22050550_RegBus] ecallpc = io_LSWB_pc;
-    wire [`ysyx_22050550_RegBus] ecallmcause = (Reg17==(~64'h0)||Reg17<=64'd19)? 64'd11:0;
+    wire [`ysyx_22050550_RegBus] ecallmcause = (Reg17==(~64'h0)||Reg17<=64'h13)? 64'hb:0;
     //mret
     wire [7:0] mretcsren  = 8'b00001000;
     wire [`ysyx_22050550_RegBus] oldmpie = mstatus & (64'h80);//保存mpie位

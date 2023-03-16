@@ -1,5 +1,5 @@
 #include <am.h>
-#include <nemu.h>
+#include "./include/nemu.h"
 
 extern char _heap_start;
 int main(const char *args);

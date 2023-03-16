@@ -15,6 +15,7 @@ static void out_of_bound(paddr_t addr) {
 
 extern "C" void pmem_read(long long raddr, long long *rdata){
     if ((uint64_t)raddr == 0){
+        out_of_bound(raddr);
         *rdata = 0;
         return;
 #ifdef CONFIG_MTRACE
@@ -22,7 +23,12 @@ extern "C" void pmem_read(long long raddr, long long *rdata){
 #endif
     }
     else if (raddr ==RTC_ADDR ){//rtc addr
-        *rdata = get_time();//(uint32_t)(get_time()) &0xff;
+        //*rdata = get_time();//(uint32_t)(get_time()) &0xff;
+        *rdata = (uint32_t)get_time();
+        //printf("time%d\n",get_time());
+    }
+    else if (raddr ==RTC_ADDR+0x4 ){//rtc addr
+        *rdata = ((uint64_t)get_time()&0xffffffff00000000)>>32;//(uint32_t)(get_time()) &0xff;
         //printf("time%d\n",get_time());
     }
     else if (raddr == KBD_ADDR) {
@@ -33,7 +39,10 @@ extern "C" void pmem_read(long long raddr, long long *rdata){
         *rdata = (uint64_t)i8042_data_port_base[0];
     }
     else if (raddr == VGACTL_ADDR){ //vga H W
-        *rdata = ((uint64_t)vgactl_port_base[1]<<32) | vgactl_port_base[0];
+        *rdata = (uint32_t)vgactl_port_base[0];
+    }
+    else if (raddr == VGACTL_ADDR+2){ //vga H W
+        *rdata = (uint32_t)vgactl_port_base[0] >> 16;
     }
     else if (raddr >= FB_ADDR && raddr < (FB_ADDR+0x00100000)){//vga addr
         *rdata = *(uint64_t *)((uint8_t *)vmem + raddr - FB_ADDR);
@@ -64,7 +73,7 @@ extern "C" void pmem_write(long long waddr, long long wdata,char wmask){
     char c = wdata&0xff;
     if ((uint64_t)waddr == 0){
         
-        return;
+        out_of_bound(waddr);
         //*rdata = 0;
     }
     else if ((uint64_t)waddr == VGACTL_ADDR){
@@ -84,7 +93,31 @@ extern "C" void pmem_write(long long waddr, long long wdata,char wmask){
     }
     else if (waddr >= FB_ADDR && waddr < (FB_ADDR+0x00100000)){
         uint64_t write_data = wdata;
+        //printf("hjhhhhh\n");
+        uint64_t write_mask =   ((wmask&0x1<<7)?(uint64_t)(0xffull<<56):(uint64_t)(0x00ull<<56)) | \
+                                ((wmask&0x1<<6)?(uint64_t)(0xffull<<48):(uint64_t)(0x00ull<<48)) | \
+                                ((wmask&0x1<<5)?(uint64_t)(0xffull<<40):(uint64_t)(0x00ull<<40)) | \
+                                ((wmask&0x1<<4)?(uint64_t)(0xffull<<32):(uint64_t)(0x00ull<<32)) | \
+                                ((wmask&0x1<<3)?(uint64_t)(0xffull<<24):(uint64_t)(0x00ull<<24)) | \
+                                ((wmask&0x1<<2)?(uint64_t)(0xffull<<16):(uint64_t)(0x00ull<<16)) | \
+                                ((wmask&0x1<<1)?(uint64_t)(0xffull<<8 ):(uint64_t)(0x00ull<<8 )) | \
+                                ((wmask&0x1<<0)?(uint64_t)(0xffull<<0 ):(uint64_t)(0x00ull<<0 ));
+        //printf("mask %x datapartmask %lx\n",wmask,(wmask&0x1<<7)?(0xfful<<56):(0x00ul<<56));
+        //printf("mask %x datapartmask %lx\n",wmask,(wmask&0x1<<6)?(0xfful<<48):(0x00ul<<48));
+        //printf("mask %x datapartmask %lx\n",wmask,(wmask&0x1<<5)?(0xfful<<40):(0x00ul<<40));
+        //printf("mask %x datapartmask %lx\n",wmask,(wmask&0x1<<4)?(0xfful<<32):(0x00ul<<32));
+        //printf("mask %x datapartmask %lx\n",wmask,(wmask&0x1<<3)?(0xfful<<24):(0x00ul<<24));
+        //printf("mask %x datapartmask %lx\n",wmask,(wmask&0x1<<2)?(0xfful<<16):(0x00ul<<16));
+        //printf("mask %x datapartmask %lx\n",wmask,(wmask&0x1<<1)?(0xfful<<8 ):(0x00ul<<8 ));
+        //printf("mask %x datapartmask %lx\n",wmask,(wmask&0x1<<0)?(0xfful<<0 ):(0x00ul<<0 ));
+        //printf("mask %x datamask %lx\n",wmask,write_mask);
+        //printf("hjhhhhh1\n");                       
+        uint64_t origindata = *(uint64_t *)((uint8_t *)vmem + waddr - FB_ADDR);
+        //printf("hjhhhhh2\n");
+        uint64_t writedata =  (write_data&write_mask)|(origindata&~write_mask);
+        *(uint64_t *)((uint8_t *)vmem + waddr - FB_ADDR)= writedata;
         //if ()
+        /*
         for (char i = 0; i < 8; i++)
         {
             //判断mask的i位是否为1,从地到高。
@@ -99,6 +132,7 @@ extern "C" void pmem_write(long long waddr, long long wdata,char wmask){
             //进入下一位。
             write_data  = write_data>> 8;
         }
+        */
         /*
         if (wmask&0xff == 0xf0){
             *(uint32_t *)((uint8_t *)vmem + waddr - FB_ADDR+0x4)= wdata;
@@ -118,6 +152,21 @@ extern "C" void pmem_write(long long waddr, long long wdata,char wmask){
         //*wdata = *(uint64_t *)(&instr_mem[pmem_addr]);
         
         uint64_t write_data = wdata;
+        uint64_t write_mask =   ((wmask&0x1<<7)?(uint64_t)(0xffull<<56):(uint64_t)(0x00ull<<56)) | \
+                                ((wmask&0x1<<6)?(uint64_t)(0xffull<<48):(uint64_t)(0x00ull<<48)) | \
+                                ((wmask&0x1<<5)?(uint64_t)(0xffull<<40):(uint64_t)(0x00ull<<40)) | \
+                                ((wmask&0x1<<4)?(uint64_t)(0xffull<<32):(uint64_t)(0x00ull<<32)) | \
+                                ((wmask&0x1<<3)?(uint64_t)(0xffull<<24):(uint64_t)(0x00ull<<24)) | \
+                                ((wmask&0x1<<2)?(uint64_t)(0xffull<<16):(uint64_t)(0x00ull<<16)) | \
+                                ((wmask&0x1<<1)?(uint64_t)(0xffull<<8 ):(uint64_t)(0x00ull<<8 )) | \
+                                ((wmask&0x1<<0)?(uint64_t)(0xffull<<0 ):(uint64_t)(0x00ull<<0 ));
+        uint64_t origindata = *(uint64_t *)((uint8_t *)p_mem + pmem_addr);
+        uint64_t writedata =  (write_data&write_mask)|(origindata&~write_mask);
+        *(uint64_t *)((uint8_t *)p_mem + pmem_addr)= writedata;
+#ifdef CONFIG_MTRACE
+        mtrace(1,waddr,8,p_mem[pmem_addr]);
+#endif
+        /*
         for (char i = 0; i < 8; i++)
         {
             //判断mask的i位是否为1,从地到高。
@@ -132,6 +181,7 @@ extern "C" void pmem_write(long long waddr, long long wdata,char wmask){
             //进入下一位。
             write_data  = write_data>> 8;
         }
+        */
     }
     else if(waddr == 0xa00003f8){ // serial port
         //printf("pc:0x%08x\n",Pc_Fetch());

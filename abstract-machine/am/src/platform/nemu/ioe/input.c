@@ -1,5 +1,5 @@
 #include <am.h>
-#include <nemu.h>
+#include "../include/nemu.h"
 
 //#include </home/yangli/ysyx-workbench/nemu/src/device/keyboard.c>
 #define KEYDOWN_MASK 0x8000

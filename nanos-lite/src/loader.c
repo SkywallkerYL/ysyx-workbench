@@ -64,7 +64,7 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
   //size_t prooffset = elf_head.e_phoff;
   //Log("e_phoff %x",elf_head.e_phoff);
   assert(fs_lseek(fd, elf_head.e_phoff, SEEK_SET) >= 0);
-  assert(fs_read(fd,elf_phdr,sizeof(Elf_Phdr) * elf_head.e_phnum) >= 0);
+  assert(fs_read(fd,elf_phdr,sizeof(Elf_Phdr) * elf_head.e_phnum) == sizeof(Elf_Phdr) * elf_head.e_phnum);
   //ramdisk_read(elf_phdr, elf_head.e_phoff, sizeof(Elf_Phdr) * elf_head.e_phnum);
   for (int i = 0; i < elf_head.e_phnum; i++)
   {
@@ -75,7 +75,7 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
     //printf("offset:%08x\n",elf_phdr[i].p_offset);
     //修改之后不直接用ramdisk_read,而是用fs_read();
     assert(fs_lseek(fd, elf_phdr[i].p_offset, SEEK_SET) >= 0);
-    assert(fs_read(fd,buf_malloc,elf_phdr[i].p_filesz ) >= 0);
+    assert(fs_read(fd,buf_malloc,elf_phdr[i].p_filesz ) == elf_phdr[i].p_filesz);
     //ramdisk_read(buf_malloc, elf_phdr[i].p_offset,  elf_phdr[i].p_filesz );
     memcpy((void *)elf_phdr[i].p_vaddr, buf_malloc, elf_phdr[i].p_filesz );
     memset((void *)(elf_phdr[i].p_vaddr + elf_phdr[i].p_filesz), 0, elf_phdr[i].p_memsz - elf_phdr[i].p_filesz);

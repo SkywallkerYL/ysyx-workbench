@@ -132,12 +132,14 @@ void isa_reg_display(){
   {
     printf("%s \t 0x%08lx\n",regs[i],cpu_gpr[i]);
   }
+
   printf("mepc:%08lx\n",cpu_gpr[33]);
   printf("mcause:%08lx\n",cpu_gpr[34]);
   printf("mtvec:%08lx\n",cpu_gpr[35]);
   printf("mstatus:%08lx\n",cpu_gpr[36]);
   printf("mie:%08lx\n",cpu_gpr[37]);
   printf("mip:%08lx\n",cpu_gpr[38]);
+  //Log("local pc at :%08lx inst:%08x  Next pc:%08lx",localpc,localinst,localnpc);
   //printf("0x%08lx\n",*cpu_gpr);
   return;
 }

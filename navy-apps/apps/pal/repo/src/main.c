@@ -270,9 +270,11 @@ PAL_SplashScreen(
    srcrect.w = 320;
    dstrect.x = 0;
    dstrect.w = 320;
-
+   int hhhcount = 0;
    while (TRUE)
    {
+      hhhcount ++;
+      printf("hhhcount:%d\n",hhhcount);
       PAL_ProcessEvent();
       dwTime = SDL_GetTicks() - dwBeginTime;
 
@@ -470,7 +472,7 @@ main(
    // Show the trademark screen and splash screen
    //
    //PAL_TrademarkScreen();
-   //PAL_SplashScreen();
+   PAL_SplashScreen();
 
    //
    // Run the main game routine

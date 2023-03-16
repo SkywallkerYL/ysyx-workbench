@@ -8,10 +8,10 @@ static uint64_t boot_time = 0;
 #define TIME_BASE RTC_ADDR
 
 static uint64_t read_time() {
-  uint64_t readtime = *(volatile uint64_t *)TIME_BASE;
-  //uint32_t lo = *(volatile uint32_t *)(TIME_BASE + 0);
-  //uint32_t hi = *(volatile uint32_t *)(TIME_BASE + 4);
-  //uint64_t time = ((uint64_t)hi << 32) | lo;
+ // uint64_t readtime = *(volatile uint64_t *)TIME_BASE;
+  uint32_t lo = *(volatile uint32_t *)(TIME_BASE + 0);
+  uint32_t hi = *(volatile uint32_t *)(TIME_BASE + 4);
+  uint64_t readtime = ((uint64_t)hi << 32) | lo;
   //这里的time会影响跑分的数据，d当就返回time时，进行real time test可以1s打印一个
   //但是跑分数据不对
   /*

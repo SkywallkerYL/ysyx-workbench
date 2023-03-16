@@ -183,6 +183,7 @@ uint32_t localinst;
 uint64_t localnpc ;
 void sim_once(uint64_t n){
   //clockntimes(1);
+  
   if(top->io_instvalid) instnum++;
 #ifdef CONFIG_ITRACE
   if(top->io_instvalid && TRACE_CONDITION(instnum,ITRACE_BEGIN,ITRACE_END))instr_tracelog(n<=max_instr_printnum);
@@ -200,6 +201,7 @@ void sim_once(uint64_t n){
 #ifdef CONFIG_DIFFTEST
   //instvalid的那个周期把pc 拿出来
   if(top->io_instvalid){
+    //Log("local pc at :%08lx inst:%08x  Next pc:%08lx",localpc,localinst,localnpc);
     localpc  = Pc_Fetch();
     localnpc = Dnpc_Fetch();
     localinst = Instr_Fetch();
@@ -236,7 +238,10 @@ void sim_once(uint64_t n){
 //extern bool difftestfail = 0;
 //#endif
 static void execute(uint64_t n) {
-
+#ifdef LOOKUPINST
+  uint64_t inststart = 0;
+  uint64_t instend   = 0;
+#endif
   switch (npc_state.state) {
   case NPC_QUIT : exit(0);break;
   case NPC_END: case NPC_ABORT:
@@ -247,7 +252,6 @@ static void execute(uint64_t n) {
   }
   uint64_t timer_start = get_time();
   while (n--){
-
       //这个n用来决定是否打印指令 而不是执行多少次
 
       sim_once(n);
@@ -300,6 +304,14 @@ static void execute(uint64_t n) {
 #endif
 #ifdef VGA
   device_update();
+#endif
+    //uint64_t timer_printend = get_time();
+#ifdef LOOKUPINST
+    instend++;
+    if ((instend-inststart) >= LOOKUPINST ){
+      instend = 0;
+      Log("local pc at :%08lx inst:%08x  Next pc:%08lx",localpc,localinst,localnpc);
+    }
 #endif
       //sim_once();
   }
