@@ -46,10 +46,10 @@ static void *lut[128] = {
   [AM_NET_CONFIG  ] = __am_net_config,
 };
 
-//static void fail(void *buf ) { panic("access nonexist register"); }
+static void fail(void *buf ) { panic("access nonexist register"); }
 bool ioe_init() {
-  //for (int i = 0; i < LENGTH(lut); i++)
-    //if (!lut[i]) {lut[i] = fail;}
+  for (int i = 0; i < LENGTH(lut); i++)
+    if (!lut[i]) {lut[i] = fail;}
   __am_gpu_init();
   __am_timer_init();
   __am_audio_init();
@@ -57,8 +57,8 @@ bool ioe_init() {
   return true;
 }
 
-void ioe_read (int reg, void *buf) {if(!lut[reg]) printf("NULL READ%d\n",reg); ((handler_t)lut[reg])(buf); }
-void ioe_write(int reg, void *buf) {if(!lut[reg]) printf("NULL WRITE%d\n",reg); ((handler_t)lut[reg])(buf); }
+void ioe_read (int reg, void *buf) {((handler_t)lut[reg])(buf); }
+void ioe_write(int reg, void *buf) {((handler_t)lut[reg])(buf); }
 #define AUDIO_FREQ_ADDR      (AUDIO_ADDR + 0x00)
 #define AUDIO_CHANNELS_ADDR  (AUDIO_ADDR + 0x04)
 #define AUDIO_SAMPLES_ADDR   (AUDIO_ADDR + 0x08)

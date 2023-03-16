@@ -190,8 +190,10 @@ ysyx_22050550_IDU IDU(
   .io_Score_RScore_rdaddr2 (Score_RScore_rdaddr2 ) ,
   .io_Pass_rs1             (Pass_rs1   ) ,     
   .io_Pass_rs2             (Pass_rs2   ) ,
-  .io_Pass_valid           (Pass_valid )
+  .io_Pass_valid           (Pass_valid ) 
+  //.printflag                (printflag)
 );
+//wire printflag;
 //ID_EX
 reg [63:0] Ridex_pc          ;
 reg [31:0] Ridex_inst        ;
@@ -380,6 +382,7 @@ wire [ 4:0] LSWB_wdaddr    ;
 wire [ 0:0] LSWB_wen       ;
 wire [ 0:0] LSWB_csrflag   ;
 wire [ 0:0] LSWB_readflag  ;
+//wire [ 0:0] LSWB_writeflag ;
 wire [ 0:0] LSWB_jalrflag  ;
 wire [ 0:0] LSWB_ecallflag ;
 wire [ 0:0] LSWB_mretflag  ;
@@ -457,7 +460,8 @@ ysyx_22050550_LSU LSU(
     .io_LSWB_wdaddr   (LSWB_wdaddr    )      ,
     .io_LSWB_wen      (LSWB_wen       )      ,
     .io_LSWB_csrflag  (LSWB_csrflag   )      , 
-    .io_LSWB_readflag (LSWB_readflag  )      ,       
+    .io_LSWB_readflag (LSWB_readflag  )      , 
+//   .io_LSWB_writeflag(LSWB_writeflag )      ,      
     .io_LSWB_jalrflag (LSWB_jalrflag  )      ,        
     .io_LSWB_ecallflag(LSWB_ecallflag )      ,        
     .io_LSWB_mretflag (LSWB_mretflag  )      ,        
@@ -500,7 +504,8 @@ ysyx_22050550_LSU LSU(
     .io_Cache_wdata   (Lsu_Cache_wdata    )         ,
     .io_Cache_wmask   (Lsu_Cache_wmask    )         ,
     .io_Cache_data    (Lsu_Cache_data     )         ,
-    .io_Cache_dataok  (Lsu_Cache_dataok   )
+    .io_Cache_dataok  (Lsu_Cache_dataok   )         
+    //.printflag        (printflag)
 );
 //LS_WB
 reg [63:0] RLSWB_pc        ;
@@ -513,6 +518,7 @@ reg [ 4:0] RLSWB_wdaddr    ;
 reg [ 0:0] RLSWB_wen       ;
 reg [ 0:0] RLSWB_csrflag   ;
 reg [ 0:0] RLSWB_readflag  ;
+//reg [ 0:0] RLSWB_writeflag ;
 reg [ 0:0] RLSWB_jalrflag  ;
 reg [ 0:0] RLSWB_ecallflag ;
 reg [ 0:0] RLSWB_mretflag  ;
@@ -534,6 +540,7 @@ ysyx_22050550_Reg # ( 5, 5'd0)RegLSWB_wdaddr           (.clock(clock),.reset(res
 ysyx_22050550_Reg # ( 1, 1'd0)RegLSWB_wen              (.clock(clock),.reset(reset),.wen(WB_ready),.din(LSWB_wen       ),.dout(RLSWB_wen        ));
 ysyx_22050550_Reg # ( 1, 1'd0)RegLSWB_csrflag          (.clock(clock),.reset(reset),.wen(WB_ready),.din(LSWB_csrflag   ),.dout(RLSWB_csrflag    ));
 ysyx_22050550_Reg # ( 1, 1'd0)RegLSWB_readflag         (.clock(clock),.reset(reset),.wen(WB_ready),.din(LSWB_readflag  ),.dout(RLSWB_readflag   ));
+//ysyx_22050550_Reg # ( 1, 1'd0)RegLSWB_writeflag        (.clock(clock),.reset(reset),.wen(WB_ready),.din(LSWB_writeflag ),.dout(RLSWB_writeflag  ));
 ysyx_22050550_Reg # ( 1, 1'd0)RegLSWB_jalrflag         (.clock(clock),.reset(reset),.wen(WB_ready),.din(LSWB_jalrflag  ),.dout(RLSWB_jalrflag   ));
 ysyx_22050550_Reg # ( 1, 1'd0)RegLSWB_ecallflag        (.clock(clock),.reset(reset),.wen(WB_ready),.din(LSWB_ecallflag ),.dout(RLSWB_ecallflag  ));
 ysyx_22050550_Reg # ( 1, 1'd0)RegLSWB_mretflag         (.clock(clock),.reset(reset),.wen(WB_ready),.din(LSWB_mretflag  ),.dout(RLSWB_mretflag   ));
@@ -576,6 +583,7 @@ ysyx_22050550_WBU WBU(
     .io_LSWB_abort     (RLSWB_valid? RLSWB_abort    :0 )            ,
     .io_LSWB_jalrflag  (RLSWB_valid? RLSWB_jalrflag :0 )            ,
     .io_LSWB_readflag  (RLSWB_valid? RLSWB_readflag :0 )            ,
+    //.io_LSWB_writeflag (RLSWB_valid? RLSWB_writeflag:0 )            ,
     .io_LSWB_csrflag   (RLSWB_valid? RLSWB_csrflag  :0 )            ,
     .io_LSWB_ecallflag (RLSWB_valid? RLSWB_ecallflag:0 )            ,
     .io_LSWB_mretflag  (RLSWB_valid? RLSWB_mretflag :0 )            ,
@@ -619,7 +627,9 @@ ysyx_22050550_WBU WBU(
     .io_WBTOP_ebreak   (DeBugebreak   )             ,   
     .io_WBTOP_abort    (DeBugabort    )             , 
     .io_WBTOP_SkipRef  (DeBugSkipRef  )             ,
-    .io_WBTOP_NextPc   (DeBugNextPc   )             ,  
+    .io_WBTOP_NextPc   (DeBugNextPc   )             ,
+    //.io_WBTOP_writeflag(writeflag     )             ,
+    //.io_WBTOP_writeaddr(writeaddr     )             ,  
     .io_ReadyWB_ready  (WB_ready)             
 );
 wire [63:0] DeBugpc       ; 
@@ -634,6 +644,8 @@ wire [ 0:0] DeBugabort    ;
 wire [ 0:0] DeBugSkipRef  ; 
 wire [63:0] DeBugNextPc   ; 
 wire [63:0] Reg10         ;
+//wire [ 0:0] writeflag     ;
+//wire [63:0] writeaddr     ;
 reg difftest;
 reg skipref ;
 
@@ -712,6 +724,9 @@ ysyx_22050550_REGS REGS(
     .wbcsren       (wbcsren             )                  ,
     .io_IDU_raddr1 (rsaddr1)           ,
     .io_IDU_raddr2 (rsaddr2)           ,
+    //.addrdataen    (writeflag)                 ,
+    //.waddr         (writeaddr)                 ,
+    //.wdata         (DeBugrs2)                  ,
     .io_waddr      (Wbu_waddr       )                  ,
     .io_wdata      (Wbu_wdata       )                  ,
     .io_wen        (Wbu_wen         )                  ,
@@ -921,7 +936,7 @@ ysyx_22050550_SRAM PSRAM(
   .io_Sram_w_ready      (Sram_w_ready      )
 );
 
-
+`ifdef ysyx_22050550_DEVICEUSEAXI
 ysyx_22050550_SRAM DSRAM(	
   .clock                (clock)                 ,
   .reset                (reset)                 ,
@@ -946,7 +961,7 @@ ysyx_22050550_SRAM DSRAM(
   .io_Sram_aw_ready     (DevSram_aw_ready   )   ,
   .io_Sram_w_ready      (DevSram_w_ready    ) 
 );
-
+`endif 
 ysyx_22050550_ByPass ByPass(
     .clock         (clock)                ,
     .reset         (reset)                ,

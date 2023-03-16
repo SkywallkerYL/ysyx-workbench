@@ -116,6 +116,7 @@ extern "C" void pmem_write(long long waddr, long long wdata,char wmask){
         //printf("hjhhhhh2\n");
         uint64_t writedata =  (write_data&write_mask)|(origindata&~write_mask);
         *(uint64_t *)((uint8_t *)vmem + waddr - FB_ADDR)= writedata;
+        //if(writedata ==0 ) printf("may be wrong!\n");
         //if ()
         /*
         for (char i = 0; i < 8; i++)

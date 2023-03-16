@@ -24,11 +24,14 @@ module ysyx_22050550_REGS(
     input  [4:0]  io_waddr                       ,
     input  [63:0] io_wdata                       ,
     input         io_wen                         ,
+    //input         addrdataen                     ,
+    //input  [63:0] waddr                          ,
+    //input  [63:0] wdata                          ,
     output [63:0] io_IDU_rdata1                  ,
     output [63:0] io_IDU_rdata2                  
 );
     //
-    reg  [`ysyx_22050550_RegBus] regs [38 : 0] ;//32+pc+6 = 39
+    reg  [`ysyx_22050550_RegBus] regs [38 : 0] ;//32+pc+6 = 39  + 2
     wire [31:1] regwen;
     assign regs[0] = 64'd0;
     generate
@@ -103,6 +106,24 @@ module ysyx_22050550_REGS(
         .din(wbmip),
         .dout(regs[38])
     );
+    //waddr
+    /*
+    ysyx_22050550_Reg # (`ysyx_22050550_REGWIDTH,64'd0)Rwaddr (
+        .clock(clock),
+        .reset(reset),
+        .wen(addrdataen),
+        .din(waddr),
+        .dout(regs[39])
+    );
+    //wdata
+    ysyx_22050550_Reg # (`ysyx_22050550_REGWIDTH,64'd0)Rwdata (
+        .clock(clock),
+        .reset(reset),
+        .wen(addrdataen),
+        .din(wdata),
+        .dout(regs[40])
+    );
+    */
     //DPI
     import "DPI-C" function void set_gpr_ptr(input logic [63:0] regs[]);
     initial set_gpr_ptr(regs);

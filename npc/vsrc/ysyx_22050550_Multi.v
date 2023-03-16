@@ -10,17 +10,28 @@ module ysyx_22050550_PartProductGen(
 );
     wire [2:0] chooseSignal = {io_Choose_BAdd,io_Choose_B,io_Choose_BSub};
     wire [131:0] add;
+    assign add = 
+    chooseSignal == 3'b000 ? 132'd0                                                                  :
+    chooseSignal == 3'b001 ? io_Choose_S                                                             :
+    chooseSignal == 3'b010 ? io_Choose_S                                                             :
+    chooseSignal == 3'b011 ? io_Choose_S << 1                                                        :
+    chooseSignal == 3'b100 ? (io_Choose_HighUsign?io_Choose_S << 1: (~io_Choose_S+1)<<1             ):
+    chooseSignal == 3'b101 ? (io_Choose_HighUsign?(io_Choose_S << 1) + io_Choose_S: (~io_Choose_S+1)):
+    chooseSignal == 3'b110 ? (io_Choose_HighUsign?(io_Choose_S << 1) + io_Choose_S: (~io_Choose_S+1)):
+    chooseSignal == 3'b111 ? (io_Choose_HighUsign?io_Choose_S << 2: 0  ):132'b0;
+    /*
     ysyx_22050550_MuxKeyWithDefault#(8,3,132) ProductMux(
         .out(add),.key(chooseSignal),.default_out(132'b0),.lut({
-        3'b000   ,   132'd0          ,
-        3'b001   ,   io_Choose_S     ,
-        3'b010   ,   io_Choose_S     ,
-        3'b011   ,   io_Choose_S << 1,
-        3'b100   ,   io_Choose_HighUsign?io_Choose_S << 1: (~io_Choose_S+1)<<1,
-        3'b101   ,   io_Choose_HighUsign?(io_Choose_S << 1) + io_Choose_S: (~io_Choose_S+1),
-        3'b110   ,   io_Choose_HighUsign?(io_Choose_S << 1) + io_Choose_S: (~io_Choose_S+1),
-        3'b111   ,   io_Choose_HighUsign?io_Choose_S << 2: 0
+        3'b000   ,   132'd0                                                                 ,
+        3'b001   ,   io_Choose_S                                                            ,
+        3'b010   ,   io_Choose_S                                                            ,
+        3'b011   ,   io_Choose_S << 1                                                       ,
+        3'b100   ,   io_Choose_HighUsign?io_Choose_S << 1: (~io_Choose_S+1)<<1              ,
+        3'b101   ,   io_Choose_HighUsign?(io_Choose_S << 1) + io_Choose_S: (~io_Choose_S+1) ,
+        3'b110   ,   io_Choose_HighUsign?(io_Choose_S << 1) + io_Choose_S: (~io_Choose_S+1) ,
+        3'b111   ,   io_Choose_HighUsign?io_Choose_S << 2: 0                                
     }));
+    */
     assign io_Choose_PartProdOut = (io_Choose_PartProdIn + add) >> 2;
 endmodule
 module  ysyx_22050550_Multi(

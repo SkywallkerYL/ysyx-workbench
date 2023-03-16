@@ -2955,6 +2955,10 @@ typedef struct {
   word_t mie ,mip;
 
 
+  word_t rwaddr;
+  word_t wdata;
+
+
 } riscv64_CPU_state;
 
 

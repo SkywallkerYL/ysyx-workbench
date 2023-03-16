@@ -40,10 +40,18 @@ void __am_gpu_fbdraw(AM_GPU_FBDRAW_T *ctl) {
   //在x y处绘制w*h的图像，行优先存储在pixels中
   uint32_t *fb=(uint32_t *)(uintptr_t)FB_ADDR;
   uint32_t * base = (uint32_t *)ctl->pixels;
-  int cp_bytes = sizeof(uint32_t)* ((w<W-x)?w:W-x);
+  int line = sizeof(uint32_t)* (((w+x)<W)?w:W-x);
+  //printf("x:%d y:%d w:%d h:%d firstrcolor:%x\n",x,y,w,h,*(base));
   for (int j = 0; j<h&&y+j<H; j++)
   {
-    memcpy(&fb[(y+j)*W+x],base,cp_bytes);
+    /*
+    int initoff = (y+j)*W;
+    for (int i = 0; i < ((w+x)<W)?w:W-x; i++)
+    {
+      fb[initoff+i+x] = base[i];
+    }
+    */
+    memcpy(&fb[(y+j)*W+x],base,line);
     //base跳到下一行，因此总是+w
     base+=w;
   }

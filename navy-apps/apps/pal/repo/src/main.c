@@ -270,27 +270,34 @@ PAL_SplashScreen(
    srcrect.w = 320;
    dstrect.x = 0;
    dstrect.w = 320;
-   int hhhcount = 0;
+   //int hhhcount = 0;
    while (TRUE)
    {
-      hhhcount ++;
-      printf("hhhcount:%d\n",hhhcount);
+      //hhhcount ++;
+      //printf("hhhcount:%d\n",hhhcount);
       PAL_ProcessEvent();
       dwTime = SDL_GetTicks() - dwBeginTime;
-
-      //
+      //printf("dwTime:%d\n",dwTime);
+      // 这里由于npc的运行时间较长，更新一帧的时间dwtime>15000了，导致调色板只在dwtime=10左右的时候初始化了一次
+      //这样子就很暗，让我以为没有初始化。一帧dwtime大概要70000左右
       // Set the palette
       //
-      if (dwTime < 15000)
+      //if (dwTime < 15000)
+      //{
+      //   //printf("hhhcount:%d\n",hhhcount);
+      //   for (i = 0; i < 256; i++)
+      //   {
+      //      rgCurrentPalette[i].r = (BYTE)(palette[i].r * dwTime / 15000);
+      //      rgCurrentPalette[i].g = (BYTE)(palette[i].g * dwTime / 15000);
+      //      rgCurrentPalette[i].b = (BYTE)(palette[i].b * dwTime / 15000);
+      //   }
+      //}
+      for (i = 0; i < 256; i++)
       {
-         for (i = 0; i < 256; i++)
-         {
-            rgCurrentPalette[i].r = (BYTE)(palette[i].r * dwTime / 15000);
-            rgCurrentPalette[i].g = (BYTE)(palette[i].g * dwTime / 15000);
-            rgCurrentPalette[i].b = (BYTE)(palette[i].b * dwTime / 15000);
-         }
+         rgCurrentPalette[i].r = (BYTE)(palette[i].r);
+         rgCurrentPalette[i].g = (BYTE)(palette[i].g);
+         rgCurrentPalette[i].b = (BYTE)(palette[i].b);
       }
-
       VIDEO_SetPalette(rgCurrentPalette);
       VIDEO_UpdateSurfacePalette(lpBitmapDown);
       VIDEO_UpdateSurfacePalette(lpBitmapUp);
@@ -359,8 +366,10 @@ PAL_SplashScreen(
       //
       // Check for keypress...
       //
+      //printf("no press hhhcount:%d\n",hhhcount);
       if (g_InputState.dwKeyPress & (kKeyMenu | kKeySearch))
       {
+         //printf("press hhhcount:%d\n",hhhcount);
          //
          // User has pressed a key...
          //
@@ -472,7 +481,7 @@ main(
    // Show the trademark screen and splash screen
    //
    //PAL_TrademarkScreen();
-   PAL_SplashScreen();
+   //PAL_SplashScreen();
 
    //
    // Run the main game routine

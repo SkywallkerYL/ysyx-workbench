@@ -10,6 +10,7 @@ module ysyx_22050550_WBU(
     input         io_LSWB_abort                 ,
                   io_LSWB_jalrflag              ,
                   io_LSWB_readflag              ,
+//                  io_LSWB_writeflag             ,
                   io_LSWB_csrflag               ,
                   io_LSWB_ecallflag             ,
                   io_LSWB_mretflag              ,
@@ -53,12 +54,22 @@ module ysyx_22050550_WBU(
                   io_WBTOP_ebreak                ,   
                   io_WBTOP_abort                 , 
                   io_WBTOP_SkipRef               ,
+    //              io_WBTOP_writeflag             ,
+    //output [63:0] io_WBTOP_writeaddr             ,
     output [63:0] io_WBTOP_NextPc                ,  
     output        io_ReadyWB_ready               
 );
     //根据是否是csr 指令或者load指令 决定对寄存器的写回的数据的选取
     wire [11:0] csrind = io_LSWB_inst[31:20]; 
     wire [63:0] csrwritedata;
+    assign csrwritedata = 
+    csrind ==`ysyx_22050550_MTVEC   ? mtvec  :
+    csrind ==`ysyx_22050550_MCAUSE  ? mcause :
+    csrind ==`ysyx_22050550_MSTATUS ? mstatus:
+    csrind ==`ysyx_22050550_MEPC    ? mepc   :
+    csrind ==`ysyx_22050550_CSRMIE  ? mie    :
+    csrind ==`ysyx_22050550_CSRMIP  ? mip    :64'h0;
+    /*
     ysyx_22050550_MuxKeyWithDefault#(6,12,`ysyx_22050550_REGWIDTH) CsrMux(
         .out(csrwritedata),.key(csrind),.default_out(64'h0),.lut({
         `ysyx_22050550_MTVEC    ,   mtvec   ,
@@ -68,17 +79,31 @@ module ysyx_22050550_WBU(
         `ysyx_22050550_CSRMIE   ,   mie     ,
         `ysyx_22050550_CSRMIP   ,   mip     
     }));
+    */
     wire [`ysyx_22050550_RegBus] writebackdata = io_LSWB_csrflag?csrwritedata : io_LSWB_readflag ? io_LSWB_lsures : io_LSWB_alures;
     //处理csr指令 对csr进行写回
     wire [63:0] csrwrite;
     //Idu那边在csrflag拉高的时候就把 rd2置0 这样子这里过来的就是rs1
+    assign csrwrite = 
+    io_LSWB_func3 == 3'b001 ? io_LSWB_alures :
+    io_LSWB_func3 == 3'b010 ? io_LSWB_alures | csrwritedata : 64'h0;
+    /*
     ysyx_22050550_MuxKeyWithDefault#(2,3,`ysyx_22050550_REGWIDTH) CsrwriteMux(
         .out(csrwrite),.key(io_LSWB_func3),.default_out(64'h0),.lut({
         3'b001 , io_LSWB_alures, 
         3'b010 , io_LSWB_alures | csrwritedata 
     }));
+    */
     //根据匹配结果进行写回
     wire [7:0] csren;
+    assign csren = 
+    csrind == `ysyx_22050550_MTVEC   ? 8'b00000100 : 
+    csrind == `ysyx_22050550_MCAUSE  ? 8'b00000010 : 
+    csrind == `ysyx_22050550_MSTATUS ? 8'b00001000 : 
+    csrind == `ysyx_22050550_MEPC    ? 8'b00000001 : 
+    csrind == `ysyx_22050550_CSRMIE  ? 8'b00010000 : 
+    csrind == `ysyx_22050550_CSRMIP  ? 8'b00100000 : 8'h0;
+    /* 
     ysyx_22050550_MuxKeyWithDefault#(6,12,8) CsrenMux(
         .out(csren),.key(csrind),.default_out(8'h0),.lut({
         `ysyx_22050550_MTVEC    ,   8'b00000100 ,
@@ -88,6 +113,7 @@ module ysyx_22050550_WBU(
         `ysyx_22050550_CSRMIE   ,   8'b00010000 ,
         `ysyx_22050550_CSRMIP   ,   8'b00100000     
     }));
+    */
     //csrflag为高的情况下的写回使能
     wire [`ysyx_22050550_RegBus] flagwbcsr = csrwrite;
     wire [7:0] flagwbcsren = csren & {(8){io_LSWB_csrflag}};
@@ -128,9 +154,9 @@ module ysyx_22050550_WBU(
     assign io_WBTOP_SkipRef  =      io_LSWB_SkipRef                    ;
     assign io_WBTOP_ebreak   =      io_LSWB_ebreak                     ;
     assign io_WBTOP_NextPc   =      io_LSWB_NextPc                     ;
-
-
-`ifdef ysyx_22050550_CACHEDEBUG
+    //assign io_WBTOP_writeflag=      io_LSWB_writeflag                  ;
+    //assign io_WBTOP_writeaddr=      io_LSWB_alures                     ;
+`ifdef ysyx_22050550_WBUDEBUG
     always@(posedge clock) begin
         if (io_WBTOP_pc == `ysyx_22050550_DEBUGPC) begin
             $display("csrflag:%d ecallflag:%d mretflag:%d ",io_LSWB_csrflag,io_LSWB_ecallflag,io_LSWB_mretflag);

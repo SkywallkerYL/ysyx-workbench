@@ -59,26 +59,46 @@ module ysyx_22050550_EXU(
     wire [`ysyx_22050550_RegBus] src1 = io_id_AluOp_rd1;
     wire [`ysyx_22050550_RegBus] src2 = io_id_AluOp_rd2;
     wire [4:0] OP = io_id_AluOp_op;
+    assign ALURes = 
+    OP == `ysyx_22050550_ADD  ? src1 + src2                               :
+    OP == `ysyx_22050550_SUB  ? src1 - src2                               :
+    OP == `ysyx_22050550_MUL  ? MulDivRes                                 :
+    OP == `ysyx_22050550_MULW ? MulDivRes                                 :
+    OP == `ysyx_22050550_DIV  ? MulDivRes                                 :
+    OP == `ysyx_22050550_DIVS ? MulDivRes                                 :
+    OP == `ysyx_22050550_REM  ? src1 % src2                               :
+    OP == `ysyx_22050550_REMS ? $signed(src1) % $signed(src2)             :
+    OP == `ysyx_22050550_XOR  ? src1 ^ src2                               :
+    OP == `ysyx_22050550_OR   ? src1 | src2                               :
+    OP == `ysyx_22050550_AND  ? src1 & src2                               :
+    OP == `ysyx_22050550_SLTU ? {{63{1'b0}},src1 < src2}                  :
+    OP == `ysyx_22050550_SLT  ? {{63{1'b0}},$signed(src1) < $signed(src2)}:
+    OP == `ysyx_22050550_SRA  ? $signed(src1) >>> src2                    :
+    OP == `ysyx_22050550_SRL  ? src1 >> src2                              :
+    OP == `ysyx_22050550_SLL  ? src1 << src2[5:0]                         :
+    OP == `ysyx_22050550_SLLW ? src1 << src2[4:0]  :   src1+src2;
+    /* 
     ysyx_22050550_MuxKeyWithDefault#(17,5,`ysyx_22050550_REGWIDTH) AluMux(
         .out(ALURes),.key(OP),.default_out(src1+src2),.lut({
-        `ysyx_22050550_ADD  , src1 + src2,
-        `ysyx_22050550_SUB  , src1 - src2,
-        `ysyx_22050550_MUL  , MulDivRes  ,
-        `ysyx_22050550_MULW , MulDivRes  ,
-        `ysyx_22050550_DIV  , MulDivRes  ,
-        `ysyx_22050550_DIVS , MulDivRes  ,
-        `ysyx_22050550_REM  , src1 % src2,
-        `ysyx_22050550_REMS , $signed(src1) % $signed(src2),
-        `ysyx_22050550_XOR  , src1 ^ src2,
-        `ysyx_22050550_OR   , src1 | src2,
-        `ysyx_22050550_AND  , src1 & src2,
-        `ysyx_22050550_SLTU , {{63{1'b0}},src1 < src2},
+        `ysyx_22050550_ADD  , src1 + src2                               ,
+        `ysyx_22050550_SUB  , src1 - src2                               ,
+        `ysyx_22050550_MUL  , MulDivRes                                 ,
+        `ysyx_22050550_MULW , MulDivRes                                 ,
+        `ysyx_22050550_DIV  , MulDivRes                                 ,
+        `ysyx_22050550_DIVS , MulDivRes                                 ,
+        `ysyx_22050550_REM  , src1 % src2                               ,
+        `ysyx_22050550_REMS , $signed(src1) % $signed(src2)             ,
+        `ysyx_22050550_XOR  , src1 ^ src2                               ,
+        `ysyx_22050550_OR   , src1 | src2                               ,
+        `ysyx_22050550_AND  , src1 & src2                               ,
+        `ysyx_22050550_SLTU , {{63{1'b0}},src1 < src2}                  ,
         `ysyx_22050550_SLT  , {{63{1'b0}},$signed(src1) < $signed(src2)},
-        `ysyx_22050550_SRA  , $signed(src1) >>> src2,
-        `ysyx_22050550_SRL  , src1 >> src2,
-        `ysyx_22050550_SLL  , src1 << src2[5:0],
-        `ysyx_22050550_SLLW , src1 << src2[4:0]
+        `ysyx_22050550_SRA  , $signed(src1) >>> src2                    ,
+        `ysyx_22050550_SRL  , src1 >> src2                              ,
+        `ysyx_22050550_SLL  , src1 << src2[5:0]                         ,
+        `ysyx_22050550_SLLW , src1 << src2[4:0]                         
     }));
+    */
     wire [`ysyx_22050550_RegBus] maskres = io_id_alumask ? {{(32){ALURes[31]}},ALURes[31:0]} : ALURes;
     //乘除法模块例化 以及相关信号
     wire mulvalid = OP == `ysyx_22050550_MUL || OP ==`ysyx_22050550_MULW;
@@ -190,7 +210,7 @@ module ysyx_22050550_EXU(
     assign io_EXLS_func7    =      io_id_func7                      ;
     assign io_EXLS_NextPc   =      io_id_NextPc                     ;
     assign io_EXLS_alures   =      maskres                          ;
-`ifdef ysyx_22050550_CACHEDEBUG
+`ifdef ysyx_22050550_EXUDEBUG
     always@(posedge clock) begin
         if (io_EXLS_pc == `ysyx_22050550_DEBUGPC) begin
             $display("optype:%d src1:%x src2:%x res:%x",OP,src1,src2,maskres);

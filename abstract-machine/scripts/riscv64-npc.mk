@@ -43,7 +43,7 @@ image: $(IMAGE).elf
 	@echo + OBJCOPY "->" $(IMAGE_REL).bin
 	@$(OBJCOPY) -S --set-section-flags .bss=alloc,contents -O binary $(IMAGE).elf $(IMAGE).bin
 
-#如果要用性能工具Perf 把这里的run 改称perfrun  即下面的那个npchome 里的run
+#如果要用性能工具Perf 把这里的 run 改称 perfrun  即下面的那个npchome 里的run
 run: image
 	echo "$(IMAGE)" "$(NEMUFLAGS )" "$(NEMUFLAG)"
 	$(MAKE) -C $(NPC_HOME) run NPCMODE+=-l NPCMODE+=$(FILENAME) NPCMODE+=-f NPCMODE+=$(ELFFILE) NPCMODE+=-v NPCMODE+=$(ELFLOGFILE) NPCMODE+=-d NPCMODE+=$(DIFFTESTNEMUFILE)  IMG=$(IMAGE).bin

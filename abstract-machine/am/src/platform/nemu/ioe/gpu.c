@@ -39,6 +39,7 @@ void __am_gpu_fbdraw(AM_GPU_FBDRAW_T *ctl) {
   //在x y处绘制w*h的图像，行优先存储在pixels中
   uint32_t *fb=(uint32_t *)(uintptr_t)FB_ADDR;
   uint32_t * base = (uint32_t *)ctl->pixels;
+  //printf("x:%d y:%d w:%d h:%d firstrcolor:%x\n",x,y,w,h,*(base));
   int line = sizeof(uint32_t)* (((w+x)<W)?w:W-x);
   //把像素写到fb里面，注意不要超过屏幕边界
   for (int j = 0; j<h&&(y+j<H); j++)

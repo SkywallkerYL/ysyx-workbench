@@ -68,7 +68,9 @@ module ysyx_22050550_IDU(
                     io_Score_RScore_waddr  ,
                     io_Pass_rs1,
                     io_Pass_rs2,
-  output            io_Pass_valid   
+  output            io_Pass_valid 
+
+  //input             printflag 
 );
     //assign io_idex_pc = io_IFID_pc;
     //assign io_idex_inst = io_IFID_inst;
@@ -97,6 +99,14 @@ module ysyx_22050550_IDU(
     wire    [2:0] InstType;
     wire    [`ysyx_22050550_RegBus] imm  ;
     //其实这样并不能完全识别出所有未实现的指令。。。但是目前只能这样了先，出问题的时候开difftest看看。
+    assign InstType = (opcode ==`ysyx_22050550_R1 ||opcode ==`ysyx_22050550_R2 )? R_type:
+    (opcode ==`ysyx_22050550_I1 ||opcode ==`ysyx_22050550_I2||opcode ==`ysyx_22050550_I3)||
+    (opcode ==`ysyx_22050550_I4 ||opcode ==`ysyx_22050550_I5) ? I_type :
+    (opcode ==`ysyx_22050550_S1 )? S_type :
+    (opcode ==`ysyx_22050550_J1 )? J_type :
+    (opcode ==`ysyx_22050550_B1 )? B_type :
+    (opcode ==`ysyx_22050550_U1 ||opcode ==`ysyx_22050550_U2  )? U_type : Bad_type;
+    /*
     ysyx_22050550_MuxKeyWithDefault#(12,7,3) InstMux(
         .out(InstType),.key(opcode),.default_out(Bad_type),.lut({
         `ysyx_22050550_R1   ,R_type,`ysyx_22050550_R2   ,R_type,
@@ -107,8 +117,15 @@ module ysyx_22050550_IDU(
         `ysyx_22050550_U1   ,U_type,`ysyx_22050550_U2   ,U_type,
         `ysyx_22050550_J1   ,J_type,`ysyx_22050550_B1   ,B_type
     }));
+    */
     //assign io_idex_instType = InstType;
     //assign io_idex_wen = (InstType !=S_type) && (InstType != B_type)&& (InstType != Bad_type);
+    assign imm =InstType == I_type ? I_imm :
+                InstType == U_type ? U_imm :
+                InstType == J_type ? J_imm :
+                InstType == B_type ? B_imm :
+                InstType == S_type ? S_imm :`ysyx_22050550_REGWIDTH'h0;
+    /*
     ysyx_22050550_MuxKeyWithDefault#(5,3,`ysyx_22050550_REGWIDTH) ImmMux(
         .out(imm),.key(InstType),.default_out(`ysyx_22050550_REGWIDTH'h0),.lut({
         I_type   ,I_imm,
@@ -117,6 +134,7 @@ module ysyx_22050550_IDU(
         B_type   ,B_imm,
         S_type   ,S_imm
     }));
+    */
     //assign io_idex_imm = imm;
     //assign io_IDNPC_imm = imm;
     reg [`ysyx_22050550_RegBus] rd1,rd2;
@@ -167,21 +185,55 @@ module ysyx_22050550_IDU(
 
     wire[4:0] Itype_Op;
     wire[9:0] ItypeOpKey = {func3,opcode};
+    assign Itype_Op = ItypeOpKey== {3'b100,`ysyx_22050550_I2}? `ysyx_22050550_XOR             :                           
+        ItypeOpKey == {3'b110,`ysyx_22050550_I2}? `ysyx_22050550_OR                           : 
+        ItypeOpKey == {3'b111,`ysyx_22050550_I2}? `ysyx_22050550_AND                          : 
+        ItypeOpKey == {3'b011,`ysyx_22050550_I2}? `ysyx_22050550_SLTU                         : 
+        ItypeOpKey == {3'b010,`ysyx_22050550_I2}? `ysyx_22050550_SLT                          : 
+        ItypeOpKey == {3'b101,`ysyx_22050550_I2}? ALflag?`ysyx_22050550_SRA:`ysyx_22050550_SRL: 
+        ItypeOpKey == {3'b101,`ysyx_22050550_I1}? ALflag?`ysyx_22050550_SRA:`ysyx_22050550_SRL: 
+        ItypeOpKey == {3'b001,`ysyx_22050550_I2}? `ysyx_22050550_SLL                          : 
+        ItypeOpKey == {3'b001,`ysyx_22050550_I1}? `ysyx_22050550_SLLW  :  `ysyx_22050550_ADD;
+        /*
     ysyx_22050550_MuxKeyWithDefault#(9,10,5) ItypeOpMux(
         .out(Itype_Op),.key(ItypeOpKey),.default_out(`ysyx_22050550_ADD),.lut({
-        {3'b100,`ysyx_22050550_I2},`ysyx_22050550_XOR,//xori
-        {3'b110,`ysyx_22050550_I2},`ysyx_22050550_OR ,//ori
-        {3'b111,`ysyx_22050550_I2},`ysyx_22050550_AND,//andi
-        {3'b011,`ysyx_22050550_I2},`ysyx_22050550_SLTU,//sltiu
-        {3'b010,`ysyx_22050550_I2},`ysyx_22050550_SLT,//slti
-        {3'b101,`ysyx_22050550_I2},ALflag?`ysyx_22050550_SRA:`ysyx_22050550_SRL,
-        {3'b101,`ysyx_22050550_I1},ALflag?`ysyx_22050550_SRA:`ysyx_22050550_SRL,//
-        {3'b001,`ysyx_22050550_I2},`ysyx_22050550_SLL,
+        {3'b100,`ysyx_22050550_I2},`ysyx_22050550_XOR                           ,//xori
+        {3'b110,`ysyx_22050550_I2},`ysyx_22050550_OR                            ,//ori
+        {3'b111,`ysyx_22050550_I2},`ysyx_22050550_AND                           ,     //andi
+        {3'b011,`ysyx_22050550_I2},`ysyx_22050550_SLTU                          ,//sltiu
+        {3'b010,`ysyx_22050550_I2},`ysyx_22050550_SLT                           ,//slti
+        {3'b101,`ysyx_22050550_I2},ALflag?`ysyx_22050550_SRA:`ysyx_22050550_SRL ,    
+        {3'b101,`ysyx_22050550_I1},ALflag?`ysyx_22050550_SRA:`ysyx_22050550_SRL ,//
+        {3'b001,`ysyx_22050550_I2},`ysyx_22050550_SLL                           ,
         {3'b001,`ysyx_22050550_I1},`ysyx_22050550_SLLW
     }));
+        */
     wire[4:0] Rtype_Op;
     wire[16:0] RtypeOpKey = {func7,func3,opcode};
-    ysyx_22050550_MuxKeyWithDefault#(21,17,5) RtypeOpMux(
+    assign Rtype_Op = RtypeOpKey == {7'b0100000,3'b000,`ysyx_22050550_R1} ?`ysyx_22050550_SUB   :
+                    RtypeOpKey == {7'b0000001,3'b000,`ysyx_22050550_R1} ? `ysyx_22050550_MUL   :
+                    RtypeOpKey == {7'b0000001,3'b101,`ysyx_22050550_R1} ? `ysyx_22050550_DIV   :
+                    RtypeOpKey == {7'b0000001,3'b100,`ysyx_22050550_R1} ? `ysyx_22050550_DIVS  :
+                    RtypeOpKey == {7'b0000000,3'b100,`ysyx_22050550_R1} ? `ysyx_22050550_XOR   :
+                    RtypeOpKey == {7'b0000001,3'b111,`ysyx_22050550_R1} ? `ysyx_22050550_REM   : 
+                    RtypeOpKey == {7'b0000001,3'b110,`ysyx_22050550_R1} ? `ysyx_22050550_REMS  :
+                    RtypeOpKey == {7'b0000000,3'b010,`ysyx_22050550_R1} ? `ysyx_22050550_SLT   :
+                    RtypeOpKey == {7'b0000000,3'b011,`ysyx_22050550_R1} ? `ysyx_22050550_SLTU  :
+                    RtypeOpKey == {7'b0100000,3'b000,`ysyx_22050550_R2} ? `ysyx_22050550_SUB   :
+                    RtypeOpKey == {7'b0000001,3'b000,`ysyx_22050550_R2} ? `ysyx_22050550_MUL   :
+                    RtypeOpKey == {7'b0000001,3'b100,`ysyx_22050550_R2} ? `ysyx_22050550_DIVS  :
+                    RtypeOpKey == {7'b0000001,3'b101,`ysyx_22050550_R2} ? `ysyx_22050550_DIV   :
+                    RtypeOpKey == {7'b0000001,3'b110,`ysyx_22050550_R2} ? `ysyx_22050550_REMS  :
+                    RtypeOpKey == {7'b0000001,3'b111,`ysyx_22050550_R2} ? `ysyx_22050550_REM   : 
+                    RtypeOpKey == {7'b0000000,3'b001,`ysyx_22050550_R2} ? `ysyx_22050550_SLLW  :
+                    RtypeOpKey == {7'b0000000,3'b001,`ysyx_22050550_R1} ? `ysyx_22050550_SLL   :
+                    RtypeOpKey == {7'b0100000,3'b101,`ysyx_22050550_R2} ? `ysyx_22050550_SRA   :
+                    RtypeOpKey == {7'b0000000,3'b101,`ysyx_22050550_R2} ? `ysyx_22050550_SRL   :
+                    RtypeOpKey == {7'b0000000,3'b101,`ysyx_22050550_R1} ? `ysyx_22050550_SRL   :
+                    RtypeOpKey == {7'b0000000,3'b111,`ysyx_22050550_R1} ? `ysyx_22050550_AND   :
+                    RtypeOpKey == {7'b0000000,3'b110,`ysyx_22050550_R1} ? `ysyx_22050550_OR :`ysyx_22050550_ADD;
+    /*
+    ysyx_22050550_MuxKeyWithDefault#(22,17,5) RtypeOpMux(
         .out(Rtype_Op),.key(RtypeOpKey),.default_out(`ysyx_22050550_ADD),.lut({
         {7'b0100000,3'b000,`ysyx_22050550_R1},`ysyx_22050550_SUB,
         {7'b0000001,3'b000,`ysyx_22050550_R1},`ysyx_22050550_MUL ,
@@ -189,6 +241,7 @@ module ysyx_22050550_IDU(
         {7'b0000001,3'b100,`ysyx_22050550_R1},`ysyx_22050550_DIVS,
         {7'b0000000,3'b100,`ysyx_22050550_R1},`ysyx_22050550_XOR,
         {7'b0000001,3'b111,`ysyx_22050550_R1},`ysyx_22050550_REM, // REMU
+        {7'b0000001,3'b110,`ysyx_22050550_R1},`ysyx_22050550_REMS, // REM
         {7'b0000000,3'b010,`ysyx_22050550_R1},`ysyx_22050550_SLT,
         {7'b0000000,3'b011,`ysyx_22050550_R1},`ysyx_22050550_SLTU,
         {7'b0100000,3'b000,`ysyx_22050550_R2},`ysyx_22050550_SUB,
@@ -205,6 +258,7 @@ module ysyx_22050550_IDU(
         {7'b0000000,3'b111,`ysyx_22050550_R1},`ysyx_22050550_AND,
         {7'b0000000,3'b110,`ysyx_22050550_R1},`ysyx_22050550_OR
     }));
+    */
     wire mret = io_IFID_inst == 32'h30200073;
     assign io_idex_mretflag = mret;
     /*
@@ -266,11 +320,15 @@ module ysyx_22050550_IDU(
 
     //final op
     wire[4:0] ExuOp;
+    assign ExuOp = InstType == I_type ? Itype_Op:
+                   InstType == R_type ? Rtype_Op:`ysyx_22050550_ADD;
+    /*
     ysyx_22050550_MuxKeyWithDefault#(2,3,5) ExuOpMux(
         .out(ExuOp),.key(InstType),.default_out(`ysyx_22050550_ADD),.lut({
             I_type , Itype_Op,
             R_type , Rtype_Op
     }));
+    */
     wire Jalflag = InstType == J_type;
     wire [3:0] jal = jalrflag?4'd2:ecallflag?4'd4:jump ?4'd3 :mret?4'd5 :Jalflag?4'd1: 4'd0;
     always@(*)begin
@@ -361,10 +419,17 @@ module ysyx_22050550_IDU(
 
     assign io_Pass_valid = io_IFID_valid;
 
-`ifdef ysyx_22050550_CACHEDEBUG
+`ifdef ysyx_22050550_IDUDEBUG
+    wire printflagin =  1;
     always@(posedge clock) begin
-        if (io_idex_pc == `ysyx_22050550_DEBUGPC) begin
+        if (io_idex_pc == `ysyx_22050550_DEBUGPC && printflagin) begin
             $display("src1:%x src2:%x rd1:%x rd2:%x pass:%x",rd1,rd2,rData1,rData2,io_Pass_rdata);
+        end
+    end
+    always@(posedge clock) begin
+        if (io_idex_pc == `ysyx_22050550_DEBUGPC && printflagin) begin
+            $display("pc:%x inst:%x imm:%x addr:%x",io_IFID_pc,io_IFID_inst,imm,rd1+imm);
+            $display("rs2:%d regfilerd2:%x rd2:%x pass:%x",rs2,io_RegFileID_rdata2,rData2,io_Pass_rdata);
         end
     end
 `endif

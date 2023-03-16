@@ -28,6 +28,7 @@ typedef struct {
   vaddr_t pc;
   word_t mepc,mcause,mtvec,mstatus; //
   word_t mie , mip; 
+  //为了对内存设备访问作出更好地比较
 } riscv64_CPU_state;
 
 typedef riscv64_CPU_state CPU_state;

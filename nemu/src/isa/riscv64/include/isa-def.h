@@ -24,6 +24,10 @@ typedef struct {
   //word_t mtvec;
   word_t mepc,mcause,mtvec,mstatus;
   word_t mie ,mip;
+  //为了对内存操作作出更好的比较，这里新增两个寄存器  一个是读写地址的 一个是写数据的
+  //在LD  或在 store指令的时候才对其进行修改
+  word_t rwaddr;
+  word_t wdata;
   //word_t mstatus;
   //word_t mcause;
 } riscv64_CPU_state;
