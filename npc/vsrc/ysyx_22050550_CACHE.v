@@ -288,27 +288,20 @@ module ysyx_22050550_CACHE(
     wire [127:0] low8mask  = 128'hff       ; wire [127:0] low16mask = 128'hffff             ; 
     wire [127:0] low32mask = 128'hffffffff ; wire [127:0] low64mask = 128'hffffffffffffffff ;
     wire [127:0] hitDataBen;
+    assign hitDataBen = 
+    io_Cache_wmask == {8'b1}  ? ~(low8mask << addrblockshift):
+    io_Cache_wmask == {8'b11} ? ~(low16mask<< addrblockshift):
+    io_Cache_wmask == {8'hf}  ? ~(low32mask<< addrblockshift):
+    io_Cache_wmask == {8'hff} ? ~(low64mask<< addrblockshift):~128'b0;
+    /*
     ysyx_22050550_MuxKeyWithDefault#(4,8,128) hitDataBenMux(
         .out(hitDataBen),.key({io_Cache_wmask}),.default_out(~128'b0),.lut({
             {8'b1}       , ~(low8mask << addrblockshift),
             {8'b11}      , ~(low16mask<< addrblockshift),
             {8'hf}       , ~(low32mask<< addrblockshift),
-            {8'hff}      , ~(low64mask<< addrblockshift)
-            /*
-            {{4'd4},8'b1}       , ~(low8mask  << 32), 
-            {{4'd4},8'b11}      , ~(low16mask << 32),
-            {{4'd4},8'hf}       , ~(low32mask << 32),
-            {{4'd4},8'hff}      , ~(low64mask << 32),
-            {{4'd8},8'b1}       , ~(low8mask  << 64), 
-            {{4'd8},8'b11}      , ~(low16mask << 64),
-            {{4'd8},8'hf}       , ~(low32mask << 64),
-            {{4'd8},8'hff}      , ~(low64mask << 64),
-            {{4'd12},8'b1}       , ~(low8mask  << 96), 
-            {{4'd12},8'b11}      , ~(low16mask << 96),
-            {{4'd12},8'hf}       , ~(low32mask << 96),
-            {{4'd12},8'hff}      , ~(low64mask << 96)
-            */
+            {8'hff}      , ~(low64mask<< addrblockshift) 
     }));
+    */
     //refill情况下的写入
     wire[127:0] refilldata = Reglen ? {{64{1'b0}} ,io_r_rdata} : {io_r_rdata,{64{1'b0}}};
     wire[127:0] refillben  = Reglen ? {{64{1'b1}} ,{64{1'b0}}} : {{64{1'b0}},{64{1'b1}}};
