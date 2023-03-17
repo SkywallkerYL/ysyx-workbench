@@ -18,6 +18,6 @@ module ysyx_22050550_ByPass(
     //旁路转发 
     assign io_IDU_rdata    = io_WBU_rdata;
     wire   passvalid = io_IDU_valid && io_WBU_valid;
-    assign io_IDU_pass1 = (passvalid&&(io_IDU_raddr1==io_WBU_waddr))?1'd1:1'd0;
-    assign io_IDU_pass2 = (passvalid&&(io_IDU_raddr2==io_WBU_waddr))?1'd1:1'd0;
+    assign io_IDU_pass1 = (passvalid&&(io_IDU_raddr1==io_WBU_waddr));//?1'd1:1'd0;
+    assign io_IDU_pass2 = (passvalid&&(io_IDU_raddr2==io_WBU_waddr));//?1'd1:1'd0;
 endmodule

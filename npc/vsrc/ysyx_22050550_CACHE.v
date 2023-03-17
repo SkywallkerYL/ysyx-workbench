@@ -89,10 +89,10 @@ module ysyx_22050550_CACHE(
     //valid dirty
     reg  valid [63:0];
     reg  dirty [63:0];
-    wire validen [63:0];
+    wire [63:0] validen ;
     wire validWriteEn ;
     wire validWriteData;
-    wire dirtyen [63:0];
+    wire [63:0] dirtyen ;
     wire dirtyWriteEn ;
     wire dirtyWriteData;
     
@@ -118,7 +118,7 @@ module ysyx_22050550_CACHE(
     wire [`ysyx_22050550_RegBus] DataOut;
     //根据块内地址确定输出的   默认32位对齐
     //实际情况是存在非对齐的访问，这里不用MUX来写了，直接通过移位解决。
-    wire [3+`ysyx_22050550_BlockWidth-1:0] addrblockshift = {{3'b0},AddrBlock} << 3;
+    wire [3+`ysyx_22050550_BlockWidth-1:0] addrblockshift = {AddrBlock,{3'b0}} ;
     wire [127:0] DataReadshift = (DataRead >> addrblockshift);
     assign DataOut = DataReadshift[63:0];
     /*
@@ -155,30 +155,73 @@ module ysyx_22050550_CACHE(
     wire [1:0] hitway = hit[3]? 2'd3:  hit[2]? 2'd2 :hit[1]? 2'd1 :hit[0]? 2'd0 : 2'd0;
     wire [5:0] hitaddr = {AddrGroup,hitway};//(AddrGroup <<2) | hitway;
     //lfsr 用于随机选取某一路
-    reg [15:0] lfsr;	
+    reg [15:0] lfsr;
+    /*	
+    ysyx_22050550_Reg # (16,16'd1) reglfsr (
+        .clock(clock)                   ,
+        .reset(reset)                   ,
+        .wen(1'b1)      ,
+        .din({lfsr[0] ^ lfsr[2] ^ lfsr[3] ^ lfsr[5], lfsr[15:1]})               ,
+        .dout(lfsr)
+    );
+    */
+    
     always @(posedge clock) begin
         if (reset)
           lfsr <= 16'h1;	
         else
           lfsr <= {lfsr[0] ^ lfsr[2] ^ lfsr[3] ^ lfsr[5], lfsr[15:1]};	
     end 
+    
     //用来记录保存选中路数的寄存器 在进入miss的前一个周期保存
     wire saveen;
+    //
+    
     ysyx_22050550_Reg # (2,2'd0) regvalid (
                 .clock(clock),.reset(reset),.wen(saveen),.din(lfsr[1:0]),
                 .dout(chooseway));
+    
+                
     wire [1:0] chooseway ;
+    /*
+    always @(posedge clock) begin
+        if(reset) chooseway <= 2'd0;
+        else if (saveen) chooseway <= lfsr[1:0];
+    end
+    */
     wire [5:0] chooseaddr = {AddrGroup,chooseway};//(AddrGroup <<2) | chooseway;
     wire axivalid ;//有效且脏的情况下向总线申请 把cache内容写回内存
     //cache 状态机 idle :: lookup :: miss :: replace :: refill 
     localparam idle = 3'd0, lookup = 3'd1, miss = 3'd2, replace = 3'd3,refill = 3'd4;
-    reg [2:0] state, next;
+    reg [2:0] state ;
+    reg [2:0] next  ;
     //状态跳转
     always@(posedge clock) begin
         if(reset) state <= idle;
         else state <= next;
     end
     //读状态机组合逻辑
+    /*
+        优化一下状态机的写法 不用always好像会更快 额，用always好像快一些。。
+    */
+    /*
+    assign next = 
+    state == idle   ? (io_Cache_valid ? lookup : idle)      :    
+    state == lookup ? (cachehit ? idle : miss )             :
+    state == miss   ? 
+        axivalid ? 
+        (io_aw_valid && io_aw_ready ? replace : miss) :
+        (io_ar_valid && io_ar_ready ? refill  : miss)       :
+    state == replace?  
+        io_w_valid && io_w_ready ? 
+        (io_w_last ? miss : replace): 
+                            replace                         :
+    state == refill ?    
+        io_r_valid && io_r_ready ?
+        (io_r_last ? lookup : refill):
+                              refill            : idle; 
+    */
+    
     always@(*) begin
         case (state)
             idle:begin
@@ -250,6 +293,7 @@ module ysyx_22050550_CACHE(
             default:next = idle; 
         endcase
     end 
+    
     /*
         根据不同的状态对总线 以及Mem申请读或者写 整理一下每个状态下做的事情
         注意Tag和Mem的数据都是延迟一周期才能拿到
@@ -305,10 +349,10 @@ module ysyx_22050550_CACHE(
     //refill情况下的写入
     wire[127:0] refilldata = Reglen ? {{64{1'b0}} ,io_r_rdata} : {io_r_rdata,{64{1'b0}}};
     wire[127:0] refillben  = Reglen ? {{64{1'b1}} ,{64{1'b0}}} : {{64{1'b0}},{64{1'b1}}};
-    //dirty只在两种情况下写 一个是lookup命中了 写脏  replace完成//一个是refill 回填完成，写干净
+    //dirty只在两种情况下写 一个是lookup命中了 写脏  一个是replace完成
     //dirty write   data en mux  en 高有效
-    assign dirtyWriteEn = LOOKUP? cachehit & io_Cache_op 
-                        : REPLACE ? io_w_valid & io_w_last: 0; 
+    assign dirtyWriteEn = (LOOKUP & cachehit & io_Cache_op) ||  
+                          (REPLACE& io_w_valid & io_w_last); 
     //REFILL? io_r_last& io_r_valid : 0;
     /*
     ysyx_22050550_MuxKeyWithDefault#(2,3,1) DirtyEnMux(
@@ -317,8 +361,8 @@ module ysyx_22050550_CACHE(
         refill  , io_r_last& io_r_valid 
     }));
     */
-    assign dirtyWriteData = LOOKUP? cachehit & io_Cache_op 
-                         :REPLACE ? !(io_w_valid & io_w_last): 0;
+    assign dirtyWriteData = (LOOKUP& cachehit & io_Cache_op); 
+                         //:REPLACE ? !(io_w_valid & io_w_last): 0;
     // REFILL? !(io_r_last& io_r_valid) : 0;
     /*
     ysyx_22050550_MuxKeyWithDefault#(2,3,1) DirtyDataMux(
@@ -365,6 +409,19 @@ module ysyx_22050550_CACHE(
                 ar len = 1    ar size = 4  
     */
     reg Reglen ;
+    /*
+    wire reglenEn = 1'b1;
+                //(io_aw_valid && io_aw_ready) || (io_ar_valid && io_ar_ready) 
+                //||  (io_w_valid  && io_w_ready)  || (io_r_valid&&io_r_ready    );
+    wire reglenData = 
+    (io_aw_valid && io_aw_ready) || (io_ar_valid && io_ar_ready) ? 1'b1 :
+    (io_w_valid && io_w_ready) || (io_r_valid&&io_r_ready) ? 
+        io_w_last || io_r_last ? 1'b0 : Reglen - 1'b1   : Reglen;
+    ysyx_22050550_Reg # (1,1'd0) ReglenR (
+        .clock(clock),.reset(reset),.wen(1'b1),.din(reglenData),
+        .dout(Reglen));
+        */
+    
     always @ (posedge clock) begin
         if (reset) begin
             Reglen <= 1'b0;
@@ -379,6 +436,7 @@ module ysyx_22050550_CACHE(
         else 
             Reglen <= Reglen;
     end
+    
     wire MISS = state == miss;
     assign axivalid    = valid[useaddr] && dirty[useaddr];
     assign io_aw_valid =  MISS & axivalid ? 1'b1 : 1'b0;
@@ -431,7 +489,7 @@ module ysyx_22050550_CACHE(
     //Data 只有这两种情况需要写入
     assign DataWen = !((REFILL&&(io_r_valid))||(LOOKUP && cachehit && io_Cache_op));
     assign DataWrite = (LOOKUP && cachehit && io_Cache_op)? hitDataWrite : (REFILL&&(io_r_valid)) ? refilldata :0;
-    assign DataBen = (LOOKUP && cachehit && io_Cache_op) ? hitDataBen : (REFILL&&(io_r_valid)) ? refillben : {128{1'b1}};
+    assign DataBen   = (LOOKUP && cachehit && io_Cache_op)? hitDataBen   : (REFILL&&(io_r_valid)) ? refillben  : {128{1'b1}};
     //print一些debug信息
 `ifdef ysyx_22050550_CACHEDEBUG
     always@(posedge clock) begin

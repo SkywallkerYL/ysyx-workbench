@@ -32,11 +32,19 @@ module ysyx_22050550_REGS(
 );
     //
     reg  [`ysyx_22050550_RegBus] regs [38 : 0] ;//32+pc+6 = 39  + 2
-    wire [31:1] regwen;
+    wire   [31:1] regwen  ;
     assign regs[0] = 64'd0;
     generate
         for (genvar i = 1; i < 32; i = i+1) begin : regfile
             assign regwen[i] = io_wen & (io_waddr == i);
+            /*
+            always @(posedge clock) begin
+                if(reset) regs[i]<= 64'd0;
+                else if(regwen[i])regs[i] <= io_wdata;
+                //else regs[i] <=regs[i];
+            end
+            */
+            
             ysyx_22050550_Reg # (
                 `ysyx_22050550_REGWIDTH,
                 64'd0
@@ -48,6 +56,7 @@ module ysyx_22050550_REGS(
                     .din(io_wdata),
                     .dout(regs[i])
             );
+            
         end
     endgenerate
     //pc regs[32]

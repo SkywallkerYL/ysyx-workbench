@@ -686,13 +686,13 @@ endfunction
 export "DPI-C" function rs1_fetch;
 
 function int rs1_fetch;
-   rs1_fetch = DeBugrs1;
+   rs1_fetch = {{27{1'b0}},DeBugrs1};
 endfunction
 
 export "DPI-C" function rd_fetch;
 
 function int rd_fetch;
-   rd_fetch = Wbu_waddr;
+   rd_fetch = {{27{1'b0}},Wbu_waddr};
 endfunction
 
 export "DPI-C" function imm_fetch;

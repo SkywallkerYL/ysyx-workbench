@@ -142,13 +142,24 @@ module ysyx_22050550_EXU(
     reg [1:0] state, next;
     reg [`ysyx_22050550_RegBus] RegMulDiv;
     //状态跳转
+    /*
+    ysyx_22050550_Reg # (`ysyx_22050550_REGWIDTH,64'd0)RegMulDivR (
+        .clock(clock),
+        .reset(reset),
+        .wen(1'b1),
+        .din(muloutvalid ? mulres : divoutvalid ? divres : RegMulDiv),
+        .dout(RegMulDiv)
+    );
+    */
     always@(posedge clock) begin
         if(reset) state <= swait;
         else state <= next;
+        
         if(reset) RegMulDiv <= `ysyx_22050550_REGWIDTH'h0;
         else if(muloutvalid) RegMulDiv <= mulres;
         else if(divoutvalid) RegMulDiv <= divres;
         else RegMulDiv <= RegMulDiv;
+        
     end
     //组合逻辑
     always@(*) begin
@@ -211,11 +222,24 @@ module ysyx_22050550_EXU(
     assign io_EXLS_NextPc   =      io_id_NextPc                     ;
     assign io_EXLS_alures   =      maskres                          ;
 `ifdef ysyx_22050550_EXUDEBUG
+    reg [31:0] divcount;
+    reg [31:0] mulcount;
     always@(posedge clock) begin
         if (io_EXLS_pc == `ysyx_22050550_DEBUGPC) begin
             $display("optype:%d src1:%x src2:%x res:%x",OP,src1,src2,maskres);
         end
-
+        if (reset ) begin
+            divcount <= 0;
+            mulcount <= 0;
+        end 
+        if (divoutvalid) begin
+            divcount <= divcount + 1;
+        end
+        if (muloutvalid) begin
+            mulcount <= mulcount + 1;
+        end
+        if(io_EXLS_inst == `ysyx_22050550_INSTWIDTH'h00100073)
+            $display("divtimes:%d multimes:%d",divcount,mulcount);
     end
 `endif 
 endmodule

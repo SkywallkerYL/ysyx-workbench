@@ -103,7 +103,7 @@ module ysyx_22050550_SRAM(
     );
     assign io_Sram_r_bits_last = ReadState == read && Reglen == 0;
     //目前只有两种情况，先这样写了  作为设备内存 arlen本身就是0
-    assign Dpi_raddr =  (io_ar_len==0 || Reglen==1) ? raddrReg : raddrReg + ReadAddrAdd;
+    assign Dpi_raddr =  (io_ar_len==0 || Reglen==1) ? raddrReg : raddrReg + {{57'b0},ReadAddrAdd};
     assign io_Sram_r_bits_data = ReadData;
     assign io_Sram_r_valid = ReadState == read;
     assign Dpi_rflag = io_Sram_r_valid && io_Sram_r_ready;
@@ -175,7 +175,7 @@ module ysyx_22050550_SRAM(
         .dout(WReglen)
     );
     //目前只有两种情况，先这样写了
-    assign Dpi_waddr =  (io_aw_len==0 || WReglen==1) ? waddrReg : waddrReg + WriteAddrAdd;
+    assign Dpi_waddr =  (io_aw_len==0 || WReglen==1) ? waddrReg : waddrReg + {{57'b0},WriteAddrAdd };
     assign Dpi_wdata =  io_Sram_w_bits_data;
     assign Dpi_wmask =  io_Sram_w_bits_strb;
     assign io_Sram_w_ready = WriteState == write;
