@@ -24,7 +24,11 @@ always @(posedge CLK) begin
     if(cen && wen) begin
         ram[A] <= (D & bwen) | (ram[A] & ~bwen);
     end
-    Q <= cen && !wen ? ram[A] : {56'b0};
+`ifdef ysyx_22050550_RealRam
+    Q <= cen && !wen ? ram[A] : (D & bwen) | {56'b0};
+`else 
+    Q <= cen && !wen ? ram[A] : (D & bwen) | (ram[A] & ~bwen);
+`endif
 end
 
 endmodule

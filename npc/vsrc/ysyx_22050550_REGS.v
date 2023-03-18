@@ -24,6 +24,7 @@ module ysyx_22050550_REGS(
     input  [4:0]  io_waddr                       ,
     input  [63:0] io_wdata                       ,
     input         io_wen                         ,
+    input         io_valid                       ,    
     //input         addrdataen                     ,
     //input  [63:0] waddr                          ,
     //input  [63:0] wdata                          ,
@@ -32,19 +33,27 @@ module ysyx_22050550_REGS(
 );
     //
     reg  [`ysyx_22050550_RegBus] regs [38 : 0] ;//32+pc+6 = 39  + 2
-    wire   [31:1] regwen  ;
+    //wire   [31:1] regwen  ;
     assign regs[0] = 64'd0;
+`ifdef ysyx_22050550_FAST
+    always@(posedge clock) begin
+        if(io_wen && |io_waddr) begin
+            regs[{{1'b0},io_waddr}] <= io_wdata;
+        end
+        if(io_valid)    regs[32] <= pc;
+        if(wbcsren[0])  regs[33] <= wbmepc   ;
+        if(wbcsren[1])  regs[34] <= wbmcause ; 
+        if(wbcsren[2])  regs[35] <= wbmtvec  ; 
+        if(wbcsren[3])  regs[36] <= wbmstatus; 
+        if(wbcsren[4])  regs[37] <= wbmie    ; 
+        if(wbcsren[5])  regs[38] <= wbmip    ; 
+        if(reset)   regs[36] <= 64'hA00001800;
+    end
+`else
+    
     generate
         for (genvar i = 1; i < 32; i = i+1) begin : regfile
             assign regwen[i] = io_wen & (io_waddr == i);
-            /*
-            always @(posedge clock) begin
-                if(reset) regs[i]<= 64'd0;
-                else if(regwen[i])regs[i] <= io_wdata;
-                //else regs[i] <=regs[i];
-            end
-            */
-            
             ysyx_22050550_Reg # (
                 `ysyx_22050550_REGWIDTH,
                 64'd0
@@ -59,6 +68,7 @@ module ysyx_22050550_REGS(
             
         end
     endgenerate
+
     //pc regs[32]
     ysyx_22050550_Reg # (`ysyx_22050550_REGWIDTH,64'd0)regpc (
         .clock(clock),
@@ -115,6 +125,7 @@ module ysyx_22050550_REGS(
         .din(wbmip),
         .dout(regs[38])
     );
+`endif 
     //waddr
     /*
     ysyx_22050550_Reg # (`ysyx_22050550_REGWIDTH,64'd0)Rwaddr (

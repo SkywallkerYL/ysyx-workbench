@@ -26,7 +26,7 @@ module ysyx_22050550_EXU(
     input  [7:0]  io_id_wmask               ,      
     input         io_id_alumask             ,     
     input  [2:0]  io_id_func3               , 
-    input  [6:0]  io_id_func7               ,      
+    //input  [6:0]  io_id_func7               ,      
     input  [63:0] io_id_NextPc              ,
     input         io_ReadyLS_ready          , 
     output [63:0] io_EXLS_pc                ,
@@ -49,8 +49,14 @@ module ysyx_22050550_EXU(
     output [63:0] io_EXLS_writedata         ,
     output [7:0]  io_EXLS_wmask             ,
     output [2:0]  io_EXLS_func3             ,
-    output [6:0]  io_EXLS_func7             ,
+   //output [6:0]  io_EXLS_func7             ,
     output [63:0] io_EXLS_NextPc            ,  
+
+    //output  [4:0]  io_EXU_waddr              ,
+    //output         io_EXU_valid              ,
+    //output [63:0]  io_EXU_rdata              ,
+
+
     output        io_ReadyID_ready          
 );
     /*************ALU****************/
@@ -101,9 +107,9 @@ module ysyx_22050550_EXU(
     */
     wire [`ysyx_22050550_RegBus] maskres = io_id_alumask ? {{(32){ALURes[31]}},ALURes[31:0]} : ALURes;
     //乘除法模块例化 以及相关信号
-    wire mulvalid = OP == `ysyx_22050550_MUL || OP ==`ysyx_22050550_MULW;
+    wire mulvalid = (OP == `ysyx_22050550_MUL || OP ==`ysyx_22050550_MULW)&&io_id_valid;
     wire mulw = OP ==`ysyx_22050550_MULW;
-    wire divvalid = OP == `ysyx_22050550_DIV || OP ==`ysyx_22050550_DIVS;
+    wire divvalid = (OP == `ysyx_22050550_DIV || OP ==`ysyx_22050550_DIVS)&&io_id_valid;
     wire [1:0] divsigned = OP ==`ysyx_22050550_DIVS ? 2'b11: 2'b00;
     wire mulready,divready;
     wire muloutvalid,divoutvalid;
@@ -151,14 +157,14 @@ module ysyx_22050550_EXU(
         .dout(RegMulDiv)
     );
     */
+    //把寄存器的保持信号给删掉也可以极大的提高仿真效率
     always@(posedge clock) begin
         if(reset) state <= swait;
-        else state <= next;
-        
+        else if (mulvalid || divvalid) state <= next;
         if(reset) RegMulDiv <= `ysyx_22050550_REGWIDTH'h0;
         else if(muloutvalid) RegMulDiv <= mulres;
         else if(divoutvalid) RegMulDiv <= divres;
-        else RegMulDiv <= RegMulDiv;
+        //else RegMulDiv <= RegMulDiv;
         
     end
     //组合逻辑
@@ -218,9 +224,14 @@ module ysyx_22050550_EXU(
     assign io_EXLS_ebreak   =      io_id_ebreak                     ;
     assign io_EXLS_wmask    =      io_id_wmask                      ;
     assign io_EXLS_func3    =      io_id_func3                      ;
-    assign io_EXLS_func7    =      io_id_func7                      ;
+    //assign io_EXLS_func7    =      io_id_func7                      ;
     assign io_EXLS_NextPc   =      io_id_NextPc                     ;
     assign io_EXLS_alures   =      maskres                          ;
+
+    //bypass
+    //assign io_EXU_waddr = io_EXLS_wdaddr;
+    //assign io_EXU_valid = io_EXLS_wen && io_EXLS_valid && !io_id_csrflag && !io_id_rflag;
+    //assign io_EXU_rdata = io_EXLS_alures;
 `ifdef ysyx_22050550_EXUDEBUG
     reg [31:0] divcount;
     reg [31:0] mulcount;

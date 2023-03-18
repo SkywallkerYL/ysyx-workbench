@@ -56,6 +56,7 @@ module ysyx_22050550_CACHE(
     //Tag array  16组 每组4路   一共64行
     /**** Tag例化4块，同时对一组内每一路读出Tag*****/
     //不要Last那个周期写，进入refill了 valid了就写，这样子下个周期就能读Tag，下下个周期进入lookup就能拿到tag的数据
+`ifdef ysyx_22050550_TagUseRam
     wire [`ysyx_22050550_TagBus] Tag[3:0];
     wire Tag0Wen = !(!io_r_last && REFILL && io_r_valid && chooseway==2'd0) ;
     wire [`ysyx_22050550_TagBus] Tag0Ben = 0;//写使能，写掩码，都是低位有效
@@ -85,6 +86,96 @@ module ysyx_22050550_CACHE(
         .Q(Tag[3]), .CLK(clock), .CEN(1'b0), 
         .WEN(Tag3Wen), .BWEN(Tag3Ben), .A(AddrGroup), .D(Tag3Data)
     );
+`else
+`ifdef ysyx_22050550_FAST
+    wire [`ysyx_22050550_TagBus] Tag[3:0];
+    wire Tag0Wen = (!io_r_last && REFILL && io_r_valid && chooseway==2'd0) ;
+    //wire [`ysyx_22050550_TagBus] Tag0Data = AddrTag; //写数据
+    reg [`ysyx_22050550_TagWidth-1:0] Tag0 [0:`ysyx_22050550_GroupNum-1];
+    assign Tag[0] = Tag0[AddrGroup];
+    always @(posedge clock) begin
+        if (Tag0Wen) Tag0[AddrGroup] <= AddrTag;
+    end
+    wire Tag1Wen = (!io_r_last && REFILL && io_r_valid && chooseway==2'd1);
+    //wire [`ysyx_22050550_TagBus] Tag1Data = AddrTag; //写数据
+    reg [`ysyx_22050550_TagWidth-1:0] Tag1 [0:`ysyx_22050550_GroupNum-1];
+    assign Tag[1] = Tag1[AddrGroup];
+    wire Tag1en[0:`ysyx_22050550_GroupNum-1];
+    always @(posedge clock) begin
+        if (Tag1Wen) Tag1[AddrGroup] <= AddrTag;
+    end
+    wire Tag2Wen = (!io_r_last && REFILL && io_r_valid && chooseway==2'd2);
+    //wire [`ysyx_22050550_TagBus] Tag2Data = AddrTag; //写数据
+    reg [`ysyx_22050550_TagWidth-1:0] Tag2 [0:`ysyx_22050550_GroupNum-1];
+    assign Tag[2] = Tag2[AddrGroup];
+    wire Tag2en[0:`ysyx_22050550_GroupNum-1];
+    always @(posedge clock) begin
+        if (Tag2Wen) Tag2[AddrGroup] <= AddrTag;
+    end
+    wire Tag3Wen = (!io_r_last && REFILL && io_r_valid && chooseway==2'd3);
+    //wire [`ysyx_22050550_TagBus] Tag3Data = AddrTag; //写数据
+    reg [`ysyx_22050550_TagWidth-1:0] Tag3 [0:`ysyx_22050550_GroupNum-1];
+    assign Tag[3] = Tag3[AddrGroup];
+    wire Tag3en[0:`ysyx_22050550_GroupNum-1];
+    always @(posedge clock) begin
+        if (Tag3Wen) Tag3[AddrGroup] <= AddrTag;
+    end
+`else
+    wire [`ysyx_22050550_TagBus] Tag[3:0];
+    wire Tag0Wen = (!io_r_last && REFILL && io_r_valid && chooseway==2'd0) ;
+    wire [`ysyx_22050550_TagBus] Tag0Data = AddrTag; //写数据
+    reg [`ysyx_22050550_TagWidth-1:0] Tag0 [0:`ysyx_22050550_GroupNum-1];
+    assign Tag[0] = Tag0[AddrGroup];
+    wire Tag0en[0:`ysyx_22050550_GroupNum-1];
+    generate
+        for (genvar i = 0; i < `ysyx_22050550_GroupNum; i = i+1) begin 
+            assign Tag0en[i] = Tag0Wen & (AddrGroup == i);
+            ysyx_22050550_Reg # (`ysyx_22050550_TagWidth,`ysyx_22050550_TagWidth'd0)
+                Treg0 (.clock(clock),.reset(reset),.wen(Tag0en[i]),
+                .din(Tag0Data),.dout(Tag0[i]));
+        end
+    endgenerate
+    wire Tag1Wen = (!io_r_last && REFILL && io_r_valid && chooseway==2'd1);
+    wire [`ysyx_22050550_TagBus] Tag1Data = AddrTag; //写数据
+    reg [`ysyx_22050550_TagWidth-1:0] Tag1 [0:`ysyx_22050550_GroupNum-1];
+    assign Tag[1] = Tag1[AddrGroup];
+    wire Tag1en[0:`ysyx_22050550_GroupNum-1];
+    generate
+        for (genvar i = 0; i < `ysyx_22050550_GroupNum; i = i+1) begin  
+            assign Tag1en[i] = Tag1Wen & (AddrGroup == i);
+            ysyx_22050550_Reg # (`ysyx_22050550_TagWidth,`ysyx_22050550_TagWidth'd0)
+                Treg1 (.clock(clock),.reset(reset),.wen(Tag1en[i]),
+                .din(Tag1Data),.dout(Tag1[i]));
+        end
+    endgenerate
+    wire Tag2Wen = (!io_r_last && REFILL && io_r_valid && chooseway==2'd2);
+    wire [`ysyx_22050550_TagBus] Tag2Data = AddrTag; //写数据
+    reg [`ysyx_22050550_TagWidth-1:0] Tag2 [0:`ysyx_22050550_GroupNum-1];
+    assign Tag[2] = Tag2[AddrGroup];
+    wire Tag2en[0:`ysyx_22050550_GroupNum-1];
+    generate
+        for (genvar i = 0; i < `ysyx_22050550_GroupNum; i = i+1) begin  
+            assign Tag2en[i] = Tag2Wen & (AddrGroup == i);
+            ysyx_22050550_Reg # (`ysyx_22050550_TagWidth,`ysyx_22050550_TagWidth'd0)
+                Treg2 (.clock(clock),.reset(reset),.wen(Tag2en[i]),
+                .din(Tag2Data),.dout(Tag2[i]));
+        end
+    endgenerate
+    wire Tag3Wen = (!io_r_last && REFILL && io_r_valid && chooseway==2'd3);
+    wire [`ysyx_22050550_TagBus] Tag3Data = AddrTag; //写数据
+    reg [`ysyx_22050550_TagWidth-1:0] Tag3 [0:`ysyx_22050550_GroupNum-1];
+    assign Tag[3] = Tag3[AddrGroup];
+    wire Tag3en[0:`ysyx_22050550_GroupNum-1];
+    generate
+        for (genvar i = 0; i < `ysyx_22050550_GroupNum; i = i+1) begin  
+            assign Tag3en[i] = Tag3Wen & (AddrGroup == i);
+            ysyx_22050550_Reg # (`ysyx_22050550_TagWidth,`ysyx_22050550_TagWidth'd0)
+                Treg2 (.clock(clock),.reset(reset),.wen(Tag3en[i]),
+                .din(Tag3Data),.dout(Tag3[i]));
+        end
+    endgenerate
+`endif 
+`endif 
     //reg [`ysyx_22050550_TagBus] tag [63 : 0];
     //valid dirty
     reg  valid [63:0];
@@ -95,7 +186,12 @@ module ysyx_22050550_CACHE(
     wire [63:0] dirtyen ;
     wire dirtyWriteEn ;
     wire dirtyWriteData;
-    
+`ifdef ysyx_22050550_FAST
+    always @(posedge clock) begin
+        if(validWriteEn) valid[useaddr] <= validWriteData;
+        if(dirtyWriteEn) dirty[useaddr] <= dirtyWriteData;
+    end
+`else
     generate
         for (genvar i = 0; i < 64; i = i+1) begin : valid_dirty
             assign validen[i] = validWriteEn & (useaddr == i);
@@ -108,13 +204,17 @@ module ysyx_22050550_CACHE(
                 .dout(dirty[i]));
         end
     endgenerate
+`endif
     //记录对应组 某一路是否命中
-    wire hit   [3:0];
-    wire [`ysyx_22050550_AddrWidth-1:0] AddrTagshift = (io_Cache_addr >> (`ysyx_22050550_GroupWidth+`ysyx_22050550_BlockWidth));
-    wire [`ysyx_22050550_TagBus] AddrTag = AddrTagshift[`ysyx_22050550_TagBus];
+    wire [3:0] hit   ;
+    //wire [`ysyx_22050550_AddrWidth-1:0] AddrTagshift =(io_Cache_addr >> (`ysyx_22050550_GroupWidth+`ysyx_22050550_BlockWidth));
+    //wire [`ysyx_22050550_TagBus] AddrTag = AddrTagshift[`ysyx_22050550_TagBus];
+    //移位的操作好像也会降低性能，能够不移位的地方就换成位拼接
+    wire [`ysyx_22050550_TagBus] AddrTag = io_Cache_addr[31:`ysyx_22050550_GroupWidth+`ysyx_22050550_BlockWidth];
     wire [`ysyx_22050550_BlockBus]AddrBlock =  io_Cache_addr[`ysyx_22050550_BlockBus];
-    wire [`ysyx_22050550_AddrWidth-1:0]AddrGroupshift = (io_Cache_addr >> (`ysyx_22050550_BlockWidth));
-    wire [`ysyx_22050550_GroupBus] AddrGroup = AddrGroupshift[`ysyx_22050550_GroupBus];
+    //wire [`ysyx_22050550_AddrWidth-1:0]AddrGroupshift = (io_Cache_addr >> (`ysyx_22050550_BlockWidth));
+    //wire [`ysyx_22050550_GroupBus] AddrGroup = AddrGroupshift[`ysyx_22050550_GroupBus];
+    wire [`ysyx_22050550_GroupBus] AddrGroup = io_Cache_addr[7:`ysyx_22050550_BlockWidth];
     wire [`ysyx_22050550_RegBus] DataOut;
     //根据块内地址确定输出的   默认32位对齐
     //实际情况是存在非对齐的访问，这里不用MUX来写了，直接通过移位解决。
@@ -142,15 +242,20 @@ module ysyx_22050550_CACHE(
       //  end
     //endgenerate
     wire [5:0]groupaddr1 = {AddrGroup,2'd0};
-    assign hit[0] = (AddrTag == Tag[0]) && valid[groupaddr1];
+    //assign hit[0] = (AddrTag == Tag[0]) && valid[groupaddr1];
     wire [5:0]groupaddr2 = {AddrGroup,2'd1};
-    assign hit[1] = (AddrTag == Tag[1]) && valid[groupaddr2];
+    //assign hit[1] = (AddrTag == Tag[1]) && valid[groupaddr2];
     wire [5:0]groupaddr3 = {AddrGroup,2'd2};
-    assign hit[2] = (AddrTag == Tag[2]) && valid[groupaddr3];
+    //assign hit[2] = (AddrTag == Tag[2]) && valid[groupaddr3];
     wire [5:0]groupaddr4 = {AddrGroup,2'd3};
-    assign hit[3] = (AddrTag == Tag[3]) && valid[groupaddr4];
-
-    wire cachehit = hit[3] | hit[2] | hit[1] | hit[0];
+    //assign hit[3] = (AddrTag == Tag[3]) && valid[groupaddr4];
+    assign hit = {
+        (AddrTag == Tag[3]) && valid[groupaddr4],
+        (AddrTag == Tag[2]) && valid[groupaddr3],
+        (AddrTag == Tag[1]) && valid[groupaddr2],
+        (AddrTag == Tag[0]) && valid[groupaddr1]
+    };
+    wire cachehit = |hit;//hit[3] | hit[2] | hit[1] | hit[0];
     //wire hit = cachehit;
     wire [1:0] hitway = hit[3]? 2'd3:  hit[2]? 2'd2 :hit[1]? 2'd1 :hit[0]? 2'd0 : 2'd0;
     wire [5:0] hitaddr = {AddrGroup,hitway};//(AddrGroup <<2) | hitway;
@@ -168,7 +273,7 @@ module ysyx_22050550_CACHE(
     
     always @(posedge clock) begin
         if (reset)
-          lfsr <= 16'h1;	
+          lfsr <= 16'b1;	
         else
           lfsr <= {lfsr[0] ^ lfsr[2] ^ lfsr[3] ^ lfsr[5], lfsr[15:1]};	
     end 
@@ -176,13 +281,18 @@ module ysyx_22050550_CACHE(
     //用来记录保存选中路数的寄存器 在进入miss的前一个周期保存
     wire saveen;
     //
-    
+`ifdef ysyx_22050550_FAST
+    reg [1:0] chooseway ;
+    always @ (posedge clock) begin
+        if(saveen ) chooseway<= lfsr[1:0];
+    end
+`else
     ysyx_22050550_Reg # (2,2'd0) regvalid (
                 .clock(clock),.reset(reset),.wen(saveen),.din(lfsr[1:0]),
                 .dout(chooseway));
-    
-                
     wire [1:0] chooseway ;
+`endif         
+    
     /*
     always @(posedge clock) begin
         if(reset) chooseway <= 2'd0;
@@ -198,7 +308,7 @@ module ysyx_22050550_CACHE(
     //状态跳转
     always@(posedge clock) begin
         if(reset) state <= idle;
-        else state <= next;
+        else  state <= next;
     end
     //读状态机组合逻辑
     /*
@@ -297,6 +407,7 @@ module ysyx_22050550_CACHE(
     /*
         根据不同的状态对总线 以及Mem申请读或者写 整理一下每个状态下做的事情
         注意Tag和Mem的数据都是延迟一周期才能拿到
+        Tag使用寄存器的时候当周期即拿到了hitaddr
         idle:  
             cache valid的情况下 向Tag申请读
     */
@@ -329,8 +440,8 @@ module ysyx_22050550_CACHE(
     }));
     */
     //data write ben mux  //低有效
-    wire [127:0] low8mask  = 128'hff       ; wire [127:0] low16mask = 128'hffff             ; 
-    wire [127:0] low32mask = 128'hffffffff ; wire [127:0] low64mask = 128'hffffffffffffffff ;
+    wire [127:0] low8mask  = 128'hff        ; wire [127:0] low16mask = 128'hffff                ; 
+    wire [127:0] low32mask = 128'hffff_ffff ; wire [127:0] low64mask = 128'hffff_ffff_ffff_ffff ;
     wire [127:0] hitDataBen;
     assign hitDataBen = 
     io_Cache_wmask == {8'b1}  ? ~(low8mask << addrblockshift):
@@ -385,10 +496,21 @@ module ysyx_22050550_CACHE(
     wire LOOKUP = state == lookup;
     //读
     //写也是一样的 cachehit了就行
+    //如果Tag使用寄存器  idle那个周期useaddr就发过去了，hit的话，lookup当周期就能拿到数据
+    //所以dataok不用延迟一周期。 但如果是从refill跳回lookup 回到lookup当周期才申请读，此时dataok还是要延迟的
+    //Ram那边改了，支持同时读写 CACHE仍然使用寄存器，这样子仿真可以更快
     wire dataokin = LOOKUP && cachehit;
+`ifdef ysyx_22050550_TagUseRam
+`ifdef ysyx_22050550_RealRam
     ysyx_22050550_Reg # (1,1'd0) dataok (
                 .clock(clock),.reset(reset),.wen(1'b1),.din(dataokin),
                 .dout(io_Cache_dataok));
+`else
+    assign io_Cache_dataok = dataokin;
+`endif 
+`else
+    assign io_Cache_dataok = dataokin;
+`endif 
     assign io_Cache_data = DataOut;
     assign saveen = LOOKUP && !cachehit;
     //写 hit dirty拉高
@@ -421,7 +543,17 @@ module ysyx_22050550_CACHE(
         .clock(clock),.reset(reset),.wen(1'b1),.din(reglenData),
         .dout(Reglen));
         */
-    
+`ifdef ysyx_22050550_FAST
+    always @ (posedge clock) begin
+        if((io_aw_valid && io_aw_ready) || (io_ar_valid && io_ar_ready))  begin
+            Reglen <= 1'b1;
+        end
+        else if((io_w_valid && io_w_ready) || (io_r_valid&&io_r_ready))  begin 
+            if(io_w_last || io_r_last) Reglen <= 1'b0;
+            else Reglen <=  Reglen - 1'b1;
+        end
+    end
+`else
     always @ (posedge clock) begin
         if (reset) begin
             Reglen <= 1'b0;
@@ -436,7 +568,7 @@ module ysyx_22050550_CACHE(
         else 
             Reglen <= Reglen;
     end
-    
+`endif 
     wire MISS = state == miss;
     assign axivalid    = valid[useaddr] && dirty[useaddr];
     assign io_aw_valid =  MISS & axivalid ? 1'b1 : 1'b0;
@@ -493,7 +625,8 @@ module ysyx_22050550_CACHE(
     //print一些debug信息
 `ifdef ysyx_22050550_CACHEDEBUG
     always@(posedge clock) begin
-    if(pc == `ysyx_22050550_DEBUGPC) begin
+        //pc == `ysyx_22050550_DEBUGPC
+    if(1) begin
         if (LOOKUP) begin
             if(cachehit && io_Cache_op) begin
                 $display("group:%d hitway:%d hitwrite addr: %x  data: %x",AddrGroup,hitway,io_Cache_addr,hitDataWrite);

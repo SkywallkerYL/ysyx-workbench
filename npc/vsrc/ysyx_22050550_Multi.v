@@ -4,25 +4,25 @@ module ysyx_22050550_PartProductGen(
     input          io_Choose_B              ,
     input          io_Choose_BSub           ,
     input          io_Choose_HighUsign      ,
-    input  [131:0] io_Choose_PartProdIn     ,
-    input  [131:0] io_Choose_S              ,
-    output [131:0] io_Choose_PartProdOut
+    input  [127:0] io_Choose_PartProdIn     ,
+    input  [127:0] io_Choose_S              ,
+    output [127:0] io_Choose_PartProdOut
 );
     wire [2:0] chooseSignal = {io_Choose_BAdd,io_Choose_B,io_Choose_BSub};
-    wire [131:0] add;
+    wire [127:0] add;
     assign add = 
-    chooseSignal == 3'b000 ? 132'd0                                                                  :
+    chooseSignal == 3'b000 ? 128'd0                                                                  :
     chooseSignal == 3'b001 ? io_Choose_S                                                             :
     chooseSignal == 3'b010 ? io_Choose_S                                                             :
     chooseSignal == 3'b011 ? io_Choose_S << 1                                                        :
     chooseSignal == 3'b100 ? (io_Choose_HighUsign?io_Choose_S << 1: (~io_Choose_S+1)<<1             ):
     chooseSignal == 3'b101 ? (io_Choose_HighUsign?(io_Choose_S << 1) + io_Choose_S: (~io_Choose_S+1)):
     chooseSignal == 3'b110 ? (io_Choose_HighUsign?(io_Choose_S << 1) + io_Choose_S: (~io_Choose_S+1)):
-    chooseSignal == 3'b111 ? (io_Choose_HighUsign?io_Choose_S << 2: 0  ):132'b0;
+    chooseSignal == 3'b111 ? (io_Choose_HighUsign?io_Choose_S << 2: 0  ):128'b0;
     /*
-    ysyx_22050550_MuxKeyWithDefault#(8,3,132) ProductMux(
-        .out(add),.key(chooseSignal),.default_out(132'b0),.lut({
-        3'b000   ,   132'd0                                                                 ,
+    ysyx_22050550_MuxKeyWithDefault#(8,3,128) ProductMux(
+        .out(add),.key(chooseSignal),.default_out(128'b0),.lut({
+        3'b000   ,   128'd0                                                                 ,
         3'b001   ,   io_Choose_S                                                            ,
         3'b010   ,   io_Choose_S                                                            ,
         3'b011   ,   io_Choose_S << 1                                                       ,
@@ -32,7 +32,8 @@ module ysyx_22050550_PartProductGen(
         3'b111   ,   io_Choose_HighUsign?io_Choose_S << 2: 0                                
     }));
     */
-    assign io_Choose_PartProdOut = (io_Choose_PartProdIn + add) >> 2;
+    wire [127:0] out = (io_Choose_PartProdIn + add);
+    assign io_Choose_PartProdOut = {{2'b0},out[127:2]};
 endmodule
 module  ysyx_22050550_Multi(
     input  [0:0]     clock               ,  
@@ -49,9 +50,9 @@ module  ysyx_22050550_Multi(
     output [63:0]    io_Exu_ResultL        
 );
 //Radix4-booth 
-    reg     [131:0] Prod;
-    wire    [131:0] Prodin;
-    reg     [131:0] Sum ;
+    reg     [127:0] Prod;
+    wire    [127:0] Prodin;
+    reg     [127:0] Sum ;
     reg     [5:0]   ind ;
     wire    [5:0]   maxind = io_Exu_Mulw ? 30 : 62;
     wire    Bsub  = ind == 0 ? 0 : io_Exu_Multiplier[ind-1];
@@ -72,7 +73,7 @@ module  ysyx_22050550_Multi(
         if(reset) begin
             state <= Idle;
         end
-        else state <= next;
+        else if (io_Exu_MulValid)state <= next;
     end 
     always @(*) begin
         case (state)
@@ -93,9 +94,24 @@ module  ysyx_22050550_Multi(
             default: next = Idle;
         endcase
     end
+`ifdef ysyx_22050550_FAST
+    always @(posedge clock) begin
+        if(state == Busy)       Prod <= Prodin  ;
+        else if (state == Valid)Prod <= 0       ;
+    end
+    wire [127:0] MultiplicandEx1 = {{32{1'b0}},io_Exu_Multiplicand,{32{1'b0}}};
+    wire [127:0] MultiplicandEx2 = {io_Exu_Multiplicand,{64{1'b0}}};
+    always @(posedge clock) begin
+        if(state == Idle && io_Exu_MulValid) Sum <= io_Exu_Mulw ? MultiplicandEx1 : MultiplicandEx2;
+    end
+    always @(posedge clock) begin
+        if(state == Busy)                           ind <= ind + 2;
+        else if (state == Idle && io_Exu_MulValid)  ind <= 0      ;
+    end
+`else 
     wire Proden = state == Busy || state == Valid;
-    wire [131:0] realProd = state == Busy ? Prodin : 0;
-    ysyx_22050550_Reg # (132,132'd0)ProdReg(
+    wire [127:0] realProd = state == Busy ? Prodin : 0;
+    ysyx_22050550_Reg # (128,128'd0)ProdReg(
         .clock(clock),
         .reset(reset),
         .wen(Proden),
@@ -103,11 +119,11 @@ module  ysyx_22050550_Multi(
         .dout(Prod)
     );
     wire Sumen = state == Idle && io_Exu_MulValid ;
-    ysyx_22050550_Reg # (132,132'd0)SumReg(
+    ysyx_22050550_Reg # (128,128'd0)SumReg(
         .clock(clock),
         .reset(reset),
         .wen(Sumen),
-        .din(io_Exu_Mulw?{{68{1'b0}},io_Exu_Multiplicand}<<32:{{68{1'b0}},io_Exu_Multiplicand}<<64),
+        .din(io_Exu_Mulw?{{64{1'b0}},io_Exu_Multiplicand}<<32:{{64{1'b0}},io_Exu_Multiplicand}<<64),
         .dout(Sum)
     );
     wire inden =  (state == Idle && io_Exu_MulValid) || (state == Busy);
@@ -119,6 +135,7 @@ module  ysyx_22050550_Multi(
         .din(indinput),
         .dout(ind)
     );
+`endif 
     assign io_Exu_MulReady = state == Idle;
     assign io_Exu_OutValid = state == Valid;
     assign io_Exu_ResultL  = Prod[63:0];

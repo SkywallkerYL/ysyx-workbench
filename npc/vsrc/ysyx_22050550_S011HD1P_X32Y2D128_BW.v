@@ -23,7 +23,12 @@ always @(posedge CLK) begin
     if(cen && wen) begin
         ram[A] <= (D & bwen) | (ram[A] & ~bwen);
     end
-    Q <= cen && !wen ? ram[A] : {4{$random}};
+    //改一下 支持同时读写这样子仿真快一些
+`ifdef ysyx_22050550_RealRam
+    Q <= cen && !wen ? ram[A] : (D & bwen) | {4{$random}};
+`else 
+    Q <= cen && !wen ? ram[A] : (D & bwen) | (ram[A] & ~bwen);
+`endif
 end
 
 endmodule

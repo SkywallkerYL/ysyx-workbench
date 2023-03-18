@@ -26,5 +26,5 @@ module ysyx_22050550_IFU(
         就会导致那边又进行状态跳转，导致取道错误的指令
     */
     assign Cache_valid = Id_ready & !Cache_DataOk;	
-    assign Cache_addr = Pc;
+    assign Cache_addr  = Pc;
 endmodule

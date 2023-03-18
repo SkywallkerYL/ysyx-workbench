@@ -86,7 +86,7 @@ uint64_t UINTMAX = (((uint64_t)1<<32) -1);
 uint64_t UINT64MAX = (((uint64_t)1<<63) -1);
 #ifdef MUL
 void Mulinttest(){
-  for (size_t i = 0; i < 20000; i++)
+  for (size_t i = 0; i < 200000; i++)
   {
     int64_t multicand =(int64_t)(rand()%(2*(int64_t)INTMAX+1)-(int64_t)INTMAX-1);
     int64_t multiplier = (int64_t)(rand()%(2000)-1000);//(int64_t)(rand()%(2*(int64_t)INTMAX+1)-(int64_t)INTMAX-1);
@@ -126,7 +126,7 @@ void Mulinttest(){
 }
 
 void MulUinttest(){
-  for (size_t i = 0; i < 20000; i++)
+  for (size_t i = 0; i < 200000; i++)
   {
     uint64_t multicand = rand()%(UINTMAX);
     uint64_t multiplier = rand()%(UINTMAX);
@@ -246,7 +246,7 @@ int main(int argc , char* argv[]) {
   //printf("hhh\n");
 #ifdef MUL
   Mulinttest();
-  //MulUinttest();
+  MulUinttest();
 #else
   DivUinttest();
   DivInttest();

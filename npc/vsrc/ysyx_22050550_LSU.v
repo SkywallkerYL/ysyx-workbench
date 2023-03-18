@@ -22,7 +22,7 @@ module ysyx_22050550_LSU(
                   io_EXLS_rflag                 ,   
     input  [7:0]  io_EXLS_wmask                 ,          
     input  [2:0]  io_EXLS_func3                 , 
-    input  [6:0]  io_EXLS_func7                 ,      
+    //input  [6:0]  io_EXLS_func7                 ,      
     input  [63:0] io_EXLS_NextPc                ,
     input         io_ReadyWB_ready              , 
     output [63:0] io_LSWB_pc                    ,
@@ -45,10 +45,15 @@ module ysyx_22050550_LSU(
     output [63:0] io_LSWB_alures                ,  
     output [63:0] io_LSWB_lsures                ,
     output [2:0]  io_LSWB_func3                 ,
-    output [6:0]  io_LSWB_func7                 ,
+    //output [6:0]  io_LSWB_func7                 ,
     output [63:0] io_LSWB_NextPc                ,  
     output        io_ReadyEX_ready              ,
+    //bypass
+    //output  [4:0]  io_LSU_waddr                   ,
+    //output         io_LSU_valid                   ,
+    //output [63:0]  io_LSU_rdata                   ,
     /***********AxiSram***********/
+`ifdef ysyx_22050550_DEVICEUSEAXI
     input  [0:0]  io_ar_ready               ,
     output [0:0]  io_ar_valid               ,    
     output [63:0] io_ar_addr                ,
@@ -71,6 +76,7 @@ module ysyx_22050550_LSU(
     output [0:0]  io_w_last                 ,
     output [0:0]  io_b_ready                ,
     input  [0:0]  io_b_valid                ,
+`endif 
     /***********Cache***********/
     output [0:0]  io_Cache_valid            ,
     output [0:0]  io_Cache_op               ,
@@ -91,7 +97,7 @@ module ysyx_22050550_LSU(
     reg [1:0] Rstate, Rnext;
     //状态跳转
     always@(posedge clock) begin
-        if(reset) Rstate <= Rnext;
+        if(reset) Rstate <= swait;
         else Rstate <= Rnext;
     end
     //读状态机组合逻辑
@@ -184,13 +190,16 @@ module ysyx_22050550_LSU(
     wire [`ysyx_22050550_RegBus] LsuData   = io_Cache_dataok?cachedata:io_r_ready&&io_r_valid?Devicedata:64'h0;
 
 `else
+    /*
     assign io_ar_valid = 0;
     assign io_ar_addr  = io_EXLS_alures;
     assign io_ar_len   = 0;           
     assign io_ar_size  = 3;          
     assign io_ar_burst = 2'b01;          
     assign io_r_ready  = 0;
+    */
     wire DeviceReadBusy = 0;
+    /*
     assign io_aw_valid = 0;
     assign io_aw_addr  = io_EXLS_alures;
     assign io_aw_len   = 0;           
@@ -201,17 +210,18 @@ module ysyx_22050550_LSU(
     assign io_w_strb   = io_EXLS_wmask;
     assign io_w_last   = 1'b1;
     assign io_b_ready  = 1'b0;
+    */
     wire DeviceWriteBusy = 0;
     wire [`ysyx_22050550_RegBus] Devicedata ;
 import "DPI-C" function void pmem_read(input longint Dpi_raddr, output longint Dpi_rdata);
 import "DPI-C" function void pmem_write(input longint Dpi_waddr, input longint Dpi_wdata,input byte Dpi_wmask);
     wire Dpi_wflag = io_EXLS_wflag && !Pmem;
     always@(Dpi_wflag)begin
-       if(Dpi_wflag) pmem_write(io_aw_addr,io_w_data,io_w_strb);
+       if(Dpi_wflag) pmem_write(io_EXLS_alures,io_EXLS_writedata,io_EXLS_wmask);
     end
     wire Dpi_rflag = io_EXLS_rflag && !Pmem;
     always@(Dpi_rflag)begin
-       if(Dpi_rflag) pmem_read(io_ar_addr,Devicedata);
+       if(Dpi_rflag) pmem_read(io_EXLS_alures,Devicedata);
     end
 
     wire [`ysyx_22050550_RegBus] LsuData   = io_Cache_dataok?cachedata:Dpi_rflag?Devicedata:64'h0;
@@ -305,12 +315,15 @@ import "DPI-C" function void pmem_write(input longint Dpi_waddr, input longint D
     assign io_LSWB_ebreak   =      io_EXLS_ebreak                     ;
     assign io_LSWB_SkipRef  =      (io_EXLS_wflag||io_EXLS_rflag) &&(!Pmem);//读写内存并且非pmem地址
     assign io_LSWB_func3    =      io_EXLS_func3                      ;
-    assign io_LSWB_func7    =      io_EXLS_func7                      ;
+    //assign io_LSWB_func7    =      io_EXLS_func7                      ;
     assign io_LSWB_NextPc   =      io_EXLS_NextPc                     ;
     assign io_LSWB_alures   =      io_EXLS_alures                     ;
     assign io_LSWB_lsures   =      maskData                           ; 
     
-    
+    //
+    //assign io_LSU_waddr = io_EXLS_waddr                                     ; 
+    //assign io_LSU_valid = io_EXLS_wen && io_LSWB_valid && !io_EXLS_csrflag  ;
+    //assign io_LSU_rdata = io_EXLS_rflag ?io_LSWB_lsures : io_LSWB_alures    ;
     
 `ifdef ysyx_22050550_LSUDEBUG
     

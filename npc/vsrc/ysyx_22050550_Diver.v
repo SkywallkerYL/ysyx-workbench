@@ -23,8 +23,8 @@ module ysyx_22050550_Diver (
     wire    divsorsign = io_Exu_Divw ? io_Exu_Divisor[31] : io_Exu_Divisor[63];
     wire    symbol = divendsign ^ divsorsign;
     wire    [127:0] choosdivend  = (io_Exu_DivSigned==2'b11 && divendsign )? {{64{1'b0}},(~io_Exu_Divdend+1)}: { {64{1'b0}},io_Exu_Divdend};
-    wire    [127:0] choosdivsior = (io_Exu_DivSigned==2'b11 && divsorsign )? {{64{1'b0}},(~io_Exu_Divisor+1)}: { {64{1'b0}},io_Exu_Divisor};
-    assign  Divsor  = io_Exu_Divw ? choosdivsior << 32 : choosdivsior << 64;
+    wire    [63:0]  choosdivsior = (io_Exu_DivSigned==2'b11 && divsorsign )? (~io_Exu_Divisor+1): io_Exu_Divisor;
+    assign  Divsor  = io_Exu_Divw ? {{32{1'b0}},choosdivsior,{32{1'b0}}} :{choosdivsior,{64{1'b0}}};
     reg     [5:0]   divcount ;
     wire    [5:0]   divcountInit = io_Exu_Divw ? 31 : 63;
     localparam Idle = 2'd0, Busy = 2'd1, Valid = 2'd2;
@@ -33,7 +33,7 @@ module ysyx_22050550_Diver (
         if(reset) begin
             state <= Idle;
         end
-        else state <= next;
+        else if(io_Exu_DivValid) state <= next;
     end 
     always @(*) begin
         case (state)
@@ -54,7 +54,21 @@ module ysyx_22050550_Diver (
             default: next = Idle;
         endcase
     end
+`ifdef ysyx_22050550_FAST
+    always@(posedge clock) begin
+        if      (state == Idle && io_Exu_DivValid)              DivRes <= choosdivend << 1      ;
+        else if (state == Busy && divcount==0&&cmpRes >=cmpDivs)DivRes <= DivRes- Divsor+1      ;
+        else if (state == Busy && divcount!=0&&cmpRes >=cmpDivs)DivRes <= (DivRes- Divsor+1)<<1 ;
+        else if (state == Busy && divcount!=0&&cmpRes < cmpDivs)DivRes <= DivRes << 1           ;
+        else if (state == Valid)                                DivRes <= 0                     ;
+    end 
+    always@(posedge clock) begin
+        if      (state == Idle && io_Exu_DivValid)divcount <= divcountInit       ;
+        else if (state == Busy && divcount!=0    )divcount <= divcount - 1       ;
+    end 
+`else
     wire DivResEn = (state == Idle)|| (state == Busy) || (state== Valid) ;
+
     wire [127:0] DivResIn = (state == Idle && io_Exu_DivValid) ? choosdivend << 1 
                            :(state == Busy && io_Exu_Flush) ? 0 
                            :(state == Busy && divcount==0&&cmpRes >=cmpDivs) ? DivRes- Divsor+1
@@ -68,7 +82,7 @@ module ysyx_22050550_Diver (
         .wen(DivResEn),
         .din(DivResIn),
         .dout(DivRes)
-    );
+    );    
     wire inden =  (state == Idle && io_Exu_DivValid) || (state == Busy);
     wire [5:0] indinput = (state == Idle && io_Exu_DivValid) ? divcountInit 
                         : (state == Busy && divcount!=0) ? divcount - 1 : 0;
@@ -79,6 +93,8 @@ module ysyx_22050550_Diver (
         .din(indinput),
         .dout(divcount)
     );
+`endif 
+
     assign io_Exu_DivReady = state == Idle;
     assign io_Exu_OutValid = state == Valid;
     wire [63:0] quotient  = io_Exu_Divw ? { {32{1'b0}},DivRes[31:0]}  : DivRes[63:0];

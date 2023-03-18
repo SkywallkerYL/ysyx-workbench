@@ -60,18 +60,27 @@ ysyx_22050550_IFU IFU(
 //IF_ID
 wire [`ysyx_22050550_RegBus]    if_id_pc;
 wire [`ysyx_22050550_InstBus]   if_id_inst;
-wire if_id_valid;
+wire                            if_id_valid;
 
-reg [`ysyx_22050550_RegBus]    Rif_id_pc;
-reg [`ysyx_22050550_InstBus]   Rif_id_inst;
-reg Rif_id_valid;
-
+reg [`ysyx_22050550_RegBus]     Rif_id_pc;
+reg [`ysyx_22050550_InstBus]    Rif_id_inst;
+reg                             Rif_id_valid;
+`ifdef ysyx_22050550_FAST
+always@(posedge clock) begin
+    if (Id_ready) begin
+        Rif_id_pc    <= if_id_pc    ;
+        Rif_id_inst  <= if_id_inst  ;
+        Rif_id_valid <= if_id_valid ;
+    end
+end
+`else
 ysyx_22050550_Reg # (`ysyx_22050550_REGWIDTH,64'd0)Regif_id_pc(
-    .clock(clock),.reset(reset),.wen(Id_ready),.din(if_id_pc),.dout(Rif_id_pc));
+    .clock(clock),.reset(reset),.wen(Id_ready),.din(if_id_pc),      .dout(Rif_id_pc     ));
 ysyx_22050550_Reg # (`ysyx_22050550_INSTWIDTH,32'd0)Regif_id_inst(
-    .clock(clock),.reset(reset),.wen(Id_ready),.din(if_id_inst),.dout(Rif_id_inst));
+    .clock(clock),.reset(reset),.wen(Id_ready),.din(if_id_inst),    .dout(Rif_id_inst   ));
 ysyx_22050550_Reg # (1,1'd0)Regif_id_valid(
-    .clock(clock),.reset(reset),.wen(Id_ready),.din(if_id_valid),.dout(Rif_id_valid));
+    .clock(clock),.reset(reset),.wen(Id_ready),.din(if_id_valid),   .dout(Rif_id_valid  ));
+`endif 
 // ID_Regfile
 wire [63:0] RegFileID_CSRs_mepc  ;
 wire [63:0] RegFileID_CSRs_mtvec ;
@@ -122,14 +131,14 @@ wire [ 7:0] idex_wmask       ;
 wire [ 1:0] idex_choose      ;       
 wire [ 0:0] idex_alumask     ;       
 wire [ 2:0] idex_func3       ;       
-wire [ 6:0] idex_func7       ;       
+//wire [ 6:0] idex_func7       ;       
 wire [63:0] idex_NextPc      ;       
 ysyx_22050550_IDU IDU(
   .reset       (reset)        ,
   .clock       (clock)        ,
  //IF
-  .io_IFID_inst  (Rif_id_valid ? Rif_id_inst : 0)   ,
-  .io_IFID_pc    (Rif_id_valid ? Rif_id_pc : 0  )   ,  
+  .io_IFID_inst  (Rif_id_inst                   )   ,
+  .io_IFID_pc    (Rif_id_pc                     )   ,  
   .io_IFID_valid (Rif_id_valid                  )   ,
   //REGFILE
   .io_RegFileID_CSRs_mepc (RegFileID_CSRs_mepc )      ,
@@ -173,7 +182,7 @@ ysyx_22050550_IDU IDU(
   .io_idex_choose          (idex_choose      ) ,
   .io_idex_alumask         (idex_alumask     ) ,
   .io_idex_func3           (idex_func3       ) ,
-  .io_idex_func7           (idex_func7       ) ,
+  //.io_idex_func7           (idex_func7       ) ,
   .io_idex_NextPc          (idex_NextPc      ) ,
   .io_IDNPC_jal            (io_IDNPC_jal    ) ,
   .io_IDNPC_IdPc           (io_IDNPC_IdPc   ) ,
@@ -218,8 +227,38 @@ reg [ 7:0] Ridex_wmask       ;
 reg [ 1:0] Ridex_choose      ;
 reg [ 0:0] Ridex_alumask     ;
 reg [ 2:0] Ridex_func3       ;
-reg [ 6:0] Ridex_func7       ;
+//reg [ 6:0] Ridex_func7       ;
 reg [63:0] Ridex_NextPc      ;
+`ifdef ysyx_22050550_FAST
+always @(posedge clock) begin
+    if(EX_ID_ready) begin
+        Ridex_pc        <= idex_pc        ;
+        Ridex_inst      <= idex_inst      ;
+        Ridex_valid     <= idex_valid     ;
+        Ridex_rs1addr   <= idex_rs1addr   ;
+        Ridex_abort     <= idex_abort     ;
+        Ridex_rs2       <= idex_rs2       ;
+        Ridex_imm       <= idex_imm       ;
+        Ridex_AluOp_rd1 <= idex_AluOp_rd1 ;
+        Ridex_AluOp_rd2 <= idex_AluOp_rd2 ;
+        Ridex_AluOp_op  <= idex_AluOp_op  ;
+        Ridex_waddr     <= idex_waddr     ;
+        Ridex_wen       <= idex_wen       ;
+        Ridex_wflag     <= idex_wflag     ;
+        Ridex_rflag     <= idex_rflag     ;
+        Ridex_csrflag   <= idex_csrflag   ;
+        Ridex_jalrflag  <= idex_jalrflag  ;
+        Ridex_ecallflag <= idex_ecallflag ;
+        Ridex_mretflag  <= idex_mretflag  ;
+        Ridex_breakflag <= idex_breakflag ;
+        Ridex_wmask     <= idex_wmask     ;
+        Ridex_choose    <= idex_choose    ;
+        Ridex_alumask   <= idex_alumask   ;
+        Ridex_func3     <= idex_func3     ;
+        Ridex_NextPc    <= idex_NextPc    ;
+    end
+end
+`else
 ysyx_22050550_Reg # (`ysyx_22050550_REGWIDTH,64'd0)Regidex_pc       (.clock(clock),.reset(reset),.wen(EX_ID_ready),.din(idex_pc        ),.dout(Ridex_pc       ));
 ysyx_22050550_Reg # (`ysyx_22050550_INSTWIDTH,32'd0)Regidex_inst    (.clock(clock),.reset(reset),.wen(EX_ID_ready),.din(idex_inst      ),.dout(Ridex_inst     ));
 ysyx_22050550_Reg # (1,1'd0)                       Regidex_valid    (.clock(clock),.reset(reset),.wen(EX_ID_ready),.din(idex_valid     ),.dout(Ridex_valid    ));
@@ -243,9 +282,9 @@ ysyx_22050550_Reg # (8,8'd0)                       Regidex_wmask    (.clock(cloc
 ysyx_22050550_Reg # (2,2'd0)                       Regidex_choose   (.clock(clock),.reset(reset),.wen(EX_ID_ready),.din(idex_choose    ),.dout(Ridex_choose   ));
 ysyx_22050550_Reg # (1,1'd0)                       Regidex_alumask  (.clock(clock),.reset(reset),.wen(EX_ID_ready),.din(idex_alumask   ),.dout(Ridex_alumask  ));
 ysyx_22050550_Reg # (3,3'd0)                       Regidex_func3    (.clock(clock),.reset(reset),.wen(EX_ID_ready),.din(idex_func3     ),.dout(Ridex_func3    ));
-ysyx_22050550_Reg # (7,7'd0)                       Regidex_func7    (.clock(clock),.reset(reset),.wen(EX_ID_ready),.din(idex_func7     ),.dout(Ridex_func7    ));
+//ysyx_22050550_Reg # (7,7'd0)                       Regidex_func7    (.clock(clock),.reset(reset),.wen(EX_ID_ready),.din(idex_func7     ),.dout(Ridex_func7    ));
 ysyx_22050550_Reg # (`ysyx_22050550_REGWIDTH,64'd0)Regidex_NextPc   (.clock(clock),.reset(reset),.wen(EX_ID_ready),.din(idex_NextPc    ),.dout(Ridex_NextPc   ));
-
+`endif 
 //EXU TO LsU
 wire [ 0:0] LS_ready       ; 
 wire [63:0] EXLS_pc        ;
@@ -268,38 +307,40 @@ wire [ 0:0] EXLS_rflag     ;
 wire [63:0] EXLS_writedata ;
 wire [ 7:0] EXLS_wmask     ;
 wire [ 2:0] EXLS_func3     ;
-wire [ 6:0] EXLS_func7     ;
+//wire [ 6:0] EXLS_func7     ;
 wire [63:0] EXLS_NextPc    ;
 
+//wire [ 4:0] Exu_waddr   ; 
+//wire [63:0] Exu_wdata   ; 
+//wire [ 0:0] Exu_wen     ; 
 
 
 ysyx_22050550_EXU EXU(
     .clock            (clock)         ,
     .reset            (reset)         ,
-    .io_id_pc         (Ridex_valid?Ridex_pc       :0  )         ,
-    .io_id_inst       (Ridex_valid?Ridex_inst     :0  )         , 
-    .io_id_valid      (Ridex_valid?Ridex_valid    :0  )         ,
-    .io_id_rs1addr    (Ridex_valid?Ridex_rs1addr  :0  )         , 
+    .io_id_pc         (            Ridex_pc           )         ,
+    .io_id_inst       (            Ridex_inst         )         , 
+    .io_id_valid      (            Ridex_valid        )         ,
+    .io_id_rs1addr    (            Ridex_rs1addr      )         , 
     .io_id_abort      (Ridex_valid?Ridex_abort    :0  )         ,
     .io_id_jalrflag   (Ridex_valid?Ridex_jalrflag :0  )         ,
     .io_id_csrflag    (Ridex_valid?Ridex_csrflag  :0  )         ,
     .io_id_ecallflag  (Ridex_valid?Ridex_ecallflag:0  )         ,
     .io_id_mretflag   (Ridex_valid?Ridex_mretflag :0  )         ,
     .io_id_ebreak     (Ridex_valid?Ridex_breakflag:0  )         ,
-    .io_id_rs2        (Ridex_valid?Ridex_rs2      :0  )         ,
-    .io_id_imm        (Ridex_valid?Ridex_imm      :0  )         ,
-    .io_id_AluOp_rd1  (Ridex_valid?Ridex_AluOp_rd1:0  )         ,       
-    .io_id_AluOp_rd2  (Ridex_valid?Ridex_AluOp_rd2:0  )         ,       
-    .io_id_AluOp_op   (Ridex_valid?Ridex_AluOp_op :0  )         ,      
-    .io_id_waddr      (Ridex_valid?Ridex_waddr    :0  )         ,    
-    .io_id_wen        (Ridex_valid?Ridex_wen      :0  )         ,  
-    .io_id_wflag      (Ridex_valid?Ridex_wflag    :0  )         ,   
-    .io_id_rflag      (Ridex_valid?Ridex_rflag    :0  )         ,   
-    .io_id_wmask      (Ridex_valid?Ridex_wmask    :0  )         ,      
-    .io_id_alumask    (Ridex_valid?Ridex_alumask  :0  )         ,     
-    .io_id_func3      (Ridex_valid?Ridex_func3    :0  )         , 
-    .io_id_func7      (Ridex_valid?Ridex_func7    :0  )         ,      
-    .io_id_NextPc     (Ridex_valid?Ridex_NextPc   :0  )         ,
+    .io_id_rs2        (            Ridex_rs2          )         ,
+    .io_id_imm        (            Ridex_imm          )         ,
+    .io_id_AluOp_rd1  (            Ridex_AluOp_rd1    )         ,       
+    .io_id_AluOp_rd2  (            Ridex_AluOp_rd2    )         ,       
+    .io_id_AluOp_op   (            Ridex_AluOp_op     )         ,      
+    .io_id_waddr      (            Ridex_waddr        )         ,    
+    .io_id_wen        (            Ridex_wen          )         ,  
+    .io_id_wflag      (            Ridex_wflag        )         ,   
+    .io_id_rflag      (            Ridex_rflag        )         ,   
+    .io_id_wmask      (            Ridex_wmask        )         ,      
+    .io_id_alumask    (            Ridex_alumask      )         ,     
+    .io_id_func3      (            Ridex_func3        )         ,     
+    .io_id_NextPc     (            Ridex_NextPc       )         ,
     .io_ReadyLS_ready (LS_ready)                , 
     .io_EXLS_pc       (EXLS_pc        )         ,
     .io_EXLS_rs2      (EXLS_rs2       )         ,
@@ -321,8 +362,11 @@ ysyx_22050550_EXU EXU(
     .io_EXLS_writedata(EXLS_writedata )         ,
     .io_EXLS_wmask    (EXLS_wmask     )         ,
     .io_EXLS_func3    (EXLS_func3     )         ,
-    .io_EXLS_func7    (EXLS_func7     )         ,
+    //.io_EXLS_func7    (EXLS_func7     )         ,
     .io_EXLS_NextPc   (EXLS_NextPc    )         ,  
+    //.io_EXU_waddr   (Exu_waddr  )  , 
+    //.io_EXU_valid   (Exu_wen    )  , 
+    //.io_EXU_rdata   (Exu_wdata  )  , 
     .io_ReadyID_ready (EX_ID_ready    )         
 );
 //EX_LS
@@ -346,8 +390,35 @@ reg [ 0:0] REXLS_rflag     ;
 reg [63:0] REXLS_writedata ;
 reg [ 7:0] REXLS_wmask     ;
 reg [ 2:0] REXLS_func3     ;
-reg [ 6:0] REXLS_func7     ;
+//reg [ 6:0] REXLS_func7     ;
 reg [63:0] REXLS_NextPc    ;
+`ifdef ysyx_22050550_FAST
+always @ (posedge clock) begin
+    if(LS_ready) begin
+        REXLS_pc         <= EXLS_pc        ;
+        REXLS_rs2        <= EXLS_rs2       ;
+        REXLS_inst       <= EXLS_inst      ;
+        REXLS_valid      <= EXLS_valid     ;
+        REXLS_rs1        <= EXLS_rs1       ;
+        REXLS_imm        <= EXLS_imm       ;
+        REXLS_wdaddr     <= EXLS_wdaddr    ;
+        REXLS_wen        <= EXLS_wen       ;
+        REXLS_csrflag    <= EXLS_csrflag   ;
+        REXLS_jalrflag   <= EXLS_jalrflag  ;
+        REXLS_ecallflag  <= EXLS_ecallflag ;
+        REXLS_mretflag   <= EXLS_mretflag  ;
+        REXLS_ebreak     <= EXLS_ebreak    ;
+        REXLS_abort      <= EXLS_abort     ;
+        REXLS_alures     <= EXLS_alures    ;
+        REXLS_wflag      <= EXLS_wflag     ;
+        REXLS_rflag      <= EXLS_rflag     ;
+        REXLS_writedata  <= EXLS_writedata ;
+        REXLS_wmask      <= EXLS_wmask     ;
+        REXLS_func3      <= EXLS_func3     ;
+        REXLS_NextPc     <= EXLS_NextPc    ;
+    end
+end
+`else
 ysyx_22050550_Reg # (64,64'd0)RegEXLS_pc        (.clock(clock),.reset(reset),.wen(LS_ready),.din(EXLS_pc        ),.dout(REXLS_pc        ));
 ysyx_22050550_Reg # (64,64'd0)RegEXLS_rs2       (.clock(clock),.reset(reset),.wen(LS_ready),.din(EXLS_rs2       ),.dout(REXLS_rs2       ));
 ysyx_22050550_Reg # (32,32'd0)RegEXLS_inst      (.clock(clock),.reset(reset),.wen(LS_ready),.din(EXLS_inst      ),.dout(REXLS_inst      ));
@@ -368,8 +439,9 @@ ysyx_22050550_Reg # ( 1, 1'd0)RegEXLS_rflag     (.clock(clock),.reset(reset),.we
 ysyx_22050550_Reg # (64,64'd0)RegEXLS_writedata (.clock(clock),.reset(reset),.wen(LS_ready),.din(EXLS_writedata ),.dout(REXLS_writedata ));
 ysyx_22050550_Reg # ( 8, 8'd0)RegEXLS_wmask     (.clock(clock),.reset(reset),.wen(LS_ready),.din(EXLS_wmask     ),.dout(REXLS_wmask     ));
 ysyx_22050550_Reg # ( 3, 3'd0)RegEXLS_func3     (.clock(clock),.reset(reset),.wen(LS_ready),.din(EXLS_func3     ),.dout(REXLS_func3     ));
-ysyx_22050550_Reg # ( 7, 7'd0)RegEXLS_func7     (.clock(clock),.reset(reset),.wen(LS_ready),.din(EXLS_func7     ),.dout(REXLS_func7     ));
+//ysyx_22050550_Reg # ( 7, 7'd0)RegEXLS_func7     (.clock(clock),.reset(reset),.wen(LS_ready),.din(EXLS_func7     ),.dout(REXLS_func7     ));
 ysyx_22050550_Reg # (64,64'd0)RegEXLS_NextPc    (.clock(clock),.reset(reset),.wen(LS_ready),.din(EXLS_NextPc    ),.dout(REXLS_NextPc    ));
+`endif 
 //LS TO WB
 wire [ 0:0] WB_ready  ;
 wire [63:0] LSWB_pc        ;
@@ -392,9 +464,10 @@ wire [ 0:0] LSWB_SkipRef   ;
 wire [63:0] LSWB_alures    ;
 wire [63:0] LSWB_lsures    ;
 wire [ 2:0] LSWB_func3     ;
-wire [ 6:0] LSWB_func7     ;
+//wire [ 6:0] LSWB_func7     ;
 wire [63:0] LSWB_NextPc    ;
 //LS TO Device Ram
+`ifdef  ysyx_22050550_DEVICEUSEAXI
 wire [ 0:0] DevSram_ar_ready   ; 
 wire [ 0:0] DevSram_ar_valid   ; 
 wire [63:0] DevSram_ar_addr    ; 
@@ -417,6 +490,7 @@ wire [ 7:0] DevSram_w_strb     ;
 wire [ 0:0] DevSram_w_last     ; 
 wire [ 0:0] DevSram_b_ready    ; 
 wire [ 0:0] DevSram_b_valid    ; 
+`endif 
 //LS TO Abiter
 wire [ 0:0] Lsu_Cache_valid    ;  
 wire [ 0:0] Lsu_Cache_op       ;  
@@ -425,30 +499,36 @@ wire [63:0] Lsu_Cache_wdata    ;
 wire [ 7:0] Lsu_Cache_wmask    ;  
 wire [63:0] Lsu_Cache_data     ;  
 wire [ 0:0] Lsu_Cache_dataok   ;  
+//LS TO BYPASS
+//wire [ 4:0] Lsu_waddr   ;
+//wire [63:0] Lsu_wdata   ;
+//wire [ 0:0] Lsu_wen     ;
+
+
 ysyx_22050550_LSU LSU(
     .clock            (clock)             ,
     .reset            (reset)             ,
-    .io_EXLS_pc       (REXLS_valid?REXLS_pc       :0 ) ,
-    .io_EXLS_inst     (REXLS_valid?REXLS_inst     :0 ) , 
-    .io_EXLS_valid    (REXLS_valid?REXLS_valid    :0 ) ,
-    .io_EXLS_rs1addr  (REXLS_valid?REXLS_rs1      :0 ) , 
+    .io_EXLS_pc       (            REXLS_pc          ) ,
+    .io_EXLS_inst     (            REXLS_inst        ) , 
+    .io_EXLS_valid    (            REXLS_valid       ) ,
+    .io_EXLS_rs1addr  (            REXLS_rs1         ) , 
     .io_EXLS_abort    (REXLS_valid?REXLS_abort    :0 ) ,
     .io_EXLS_jalrflag (REXLS_valid?REXLS_jalrflag :0 ) ,
     .io_EXLS_csrflag  (REXLS_valid?REXLS_csrflag  :0 ) ,
     .io_EXLS_ecallflag(REXLS_valid?REXLS_ecallflag:0 ) ,
     .io_EXLS_mretflag (REXLS_valid?REXLS_mretflag :0 ) ,
     .io_EXLS_ebreak   (REXLS_valid?REXLS_ebreak   :0 ) ,
-    .io_EXLS_rs2      (REXLS_valid?REXLS_rs2      :0 ) ,
-    .io_EXLS_imm      (REXLS_valid?REXLS_imm      :0 ) ,  
-    .io_EXLS_alures   (REXLS_valid?REXLS_alures   :0 ) ,
-    .io_EXLS_writedata(REXLS_valid?REXLS_writedata:0 ) ,
-    .io_EXLS_waddr    (REXLS_valid?REXLS_wdaddr   :0 ) ,    
+    .io_EXLS_rs2      (            REXLS_rs2         ) ,
+    .io_EXLS_imm      (            REXLS_imm         ) ,  
+    .io_EXLS_alures   (            REXLS_alures      ) ,
+    .io_EXLS_writedata(            REXLS_writedata   ) ,
+    .io_EXLS_waddr    (            REXLS_wdaddr      ) ,    
     .io_EXLS_wen      (REXLS_valid?REXLS_wen      :0 ) ,  
     .io_EXLS_wflag    (REXLS_valid?REXLS_wflag    :0 ) ,   
     .io_EXLS_rflag    (REXLS_valid?REXLS_rflag    :0 ) ,   
-    .io_EXLS_wmask    (REXLS_valid?REXLS_wmask    :0 ) ,          
-    .io_EXLS_func3    (REXLS_valid?REXLS_func3    :0 ) , 
-    .io_EXLS_func7    (REXLS_valid?REXLS_func7    :0 ) ,      
+    .io_EXLS_wmask    (            REXLS_wmask       ) ,          
+    .io_EXLS_func3    (            REXLS_func3       ) , 
+    //.io_EXLS_func7    (REXLS_valid?REXLS_func7    :0 ) ,      
     .io_EXLS_NextPc   (REXLS_valid?REXLS_NextPc   :0 ) ,
     .io_ReadyWB_ready (WB_ready)             , 
     .io_LSWB_pc       (LSWB_pc        )      ,
@@ -471,10 +551,13 @@ ysyx_22050550_LSU LSU(
     .io_LSWB_alures   (LSWB_alures    )      ,  
     .io_LSWB_lsures   (LSWB_lsures    )      ,
     .io_LSWB_func3    (LSWB_func3     )      ,
-    .io_LSWB_func7    (LSWB_func7     )      ,
+    //.io_LSWB_func7    (LSWB_func7     )      ,
     .io_LSWB_NextPc   (LSWB_NextPc    )      ,  
     .io_ReadyEX_ready (LS_ready)             ,
-
+    //.io_LSU_waddr     (Lsu_waddr    )           ,
+    //.io_LSU_valid     (Lsu_wen      )           ,
+    //.io_LSU_rdata     (Lsu_wdata    )           ,
+`ifdef ysyx_22050550_DEVICEUSEAXI
     .io_ar_ready      (DevSram_ar_ready )         ,
     .io_ar_valid      (DevSram_ar_valid )         ,    
     .io_ar_addr       (DevSram_ar_addr  )         ,
@@ -497,7 +580,7 @@ ysyx_22050550_LSU LSU(
     .io_w_last        (DevSram_w_last   )         ,
     .io_b_ready       (DevSram_b_ready  )         ,
     .io_b_valid       (DevSram_b_valid  )         ,
-
+`endif
     .io_Cache_valid   (Lsu_Cache_valid    )         ,
     .io_Cache_op      (Lsu_Cache_op       )         ,
     .io_Cache_addr    (Lsu_Cache_addr     )         ,
@@ -528,8 +611,34 @@ reg [ 0:0] RLSWB_SkipRef   ;
 reg [63:0] RLSWB_alures    ;
 reg [63:0] RLSWB_lsures    ;
 reg [ 2:0] RLSWB_func3     ;
-reg [ 6:0] RLSWB_func7     ;
+//reg [ 6:0] RLSWB_func7     ;
 reg [63:0] RLSWB_NextPc    ;
+`ifdef ysyx_22050550_FAST
+    always@(posedge clock) begin
+        if(WB_ready) begin
+            RLSWB_pc         <= LSWB_pc         ;
+            RLSWB_rs2        <= LSWB_rs2        ;
+            RLSWB_inst       <= LSWB_inst       ;
+            RLSWB_valid      <= LSWB_valid      ;
+            RLSWB_rs1        <= LSWB_rs1        ;
+            RLSWB_imm        <= LSWB_imm        ;
+            RLSWB_wdaddr     <= LSWB_wdaddr     ;
+            RLSWB_wen        <= LSWB_wen        ;
+            RLSWB_csrflag    <= LSWB_csrflag    ;
+            RLSWB_readflag   <= LSWB_readflag   ;
+            RLSWB_jalrflag   <= LSWB_jalrflag   ;
+            RLSWB_ecallflag  <= LSWB_ecallflag  ;
+            RLSWB_mretflag   <= LSWB_mretflag   ;
+            RLSWB_ebreak     <= LSWB_ebreak     ;
+            RLSWB_abort      <= LSWB_abort      ;
+            RLSWB_SkipRef    <= LSWB_SkipRef    ;
+            RLSWB_alures     <= LSWB_alures     ;
+            RLSWB_lsures     <= LSWB_lsures     ;
+            RLSWB_func3      <= LSWB_func3      ;
+            RLSWB_NextPc     <= LSWB_NextPc     ; 
+        end
+    end
+`else
 ysyx_22050550_Reg # (64,64'd0)RegLSWB_pc               (.clock(clock),.reset(reset),.wen(WB_ready),.din(LSWB_pc        ),.dout(RLSWB_pc         ));
 ysyx_22050550_Reg # (64,64'd0)RegLSWB_rs2              (.clock(clock),.reset(reset),.wen(WB_ready),.din(LSWB_rs2       ),.dout(RLSWB_rs2        ));
 ysyx_22050550_Reg # (32,32'd0)RegLSWB_inst             (.clock(clock),.reset(reset),.wen(WB_ready),.din(LSWB_inst      ),.dout(RLSWB_inst       ));
@@ -550,8 +659,9 @@ ysyx_22050550_Reg # ( 1, 1'd0)RegLSWB_SkipRef          (.clock(clock),.reset(res
 ysyx_22050550_Reg # (64,64'd0)RegLSWB_alures           (.clock(clock),.reset(reset),.wen(WB_ready),.din(LSWB_alures    ),.dout(RLSWB_alures     ));
 ysyx_22050550_Reg # (64,64'd0)RegLSWB_lsures           (.clock(clock),.reset(reset),.wen(WB_ready),.din(LSWB_lsures    ),.dout(RLSWB_lsures     ));
 ysyx_22050550_Reg # ( 3, 3'd0)RegLSWB_func3            (.clock(clock),.reset(reset),.wen(WB_ready),.din(LSWB_func3     ),.dout(RLSWB_func3      ));
-ysyx_22050550_Reg # ( 7, 7'd0)RegLSWB_func7            (.clock(clock),.reset(reset),.wen(WB_ready),.din(LSWB_func7     ),.dout(RLSWB_func7      ));
+//ysyx_22050550_Reg # ( 7, 7'd0)RegLSWB_func7            (.clock(clock),.reset(reset),.wen(WB_ready),.din(LSWB_func7     ),.dout(RLSWB_func7      ));
 ysyx_22050550_Reg # (64,64'd0)RegLSWB_NextPc           (.clock(clock),.reset(reset),.wen(WB_ready),.din(LSWB_NextPc    ),.dout(RLSWB_NextPc     ));
+`endif 
 //WBU REGFILE
 wire [63:0] WBU_mepc    ;
 wire [63:0] WBU_mcause  ;
@@ -576,10 +686,10 @@ wire [4:0] Score_WScore_waddr  =  Wbu_waddr ;
 ysyx_22050550_WBU WBU(
     .clock             (clock)            ,
     .reset             (reset)            ,
-    .io_LSWB_pc        (RLSWB_valid? RLSWB_pc       :0 )            ,
-    .io_LSWB_inst      (RLSWB_valid? RLSWB_inst     :0 )            , 
-    .io_LSWB_valid     (RLSWB_valid? RLSWB_valid    :0 )            ,
-    .io_LSWB_rs1addr   (RLSWB_valid? RLSWB_rs1      :0 )            , 
+    .io_LSWB_pc        (             RLSWB_pc          )            ,
+    .io_LSWB_inst      (             RLSWB_inst        )            , 
+    .io_LSWB_valid     (             RLSWB_valid       )            ,
+    .io_LSWB_rs1addr   (             RLSWB_rs1         )            , 
     .io_LSWB_abort     (RLSWB_valid? RLSWB_abort    :0 )            ,
     .io_LSWB_jalrflag  (RLSWB_valid? RLSWB_jalrflag :0 )            ,
     .io_LSWB_readflag  (RLSWB_valid? RLSWB_readflag :0 )            ,
@@ -589,15 +699,15 @@ ysyx_22050550_WBU WBU(
     .io_LSWB_mretflag  (RLSWB_valid? RLSWB_mretflag :0 )            ,
     .io_LSWB_ebreak    (RLSWB_valid? RLSWB_ebreak   :0 )            ,
     .io_LSWB_SkipRef   (RLSWB_valid? RLSWB_SkipRef  :0 )            ,
-    .io_LSWB_rs2       (RLSWB_valid? RLSWB_rs2      :0 )            ,
-    .io_LSWB_imm       (RLSWB_valid? RLSWB_imm      :0 )            ,  
-    .io_LSWB_alures    (RLSWB_valid? RLSWB_alures   :0 )            ,
-    .io_LSWB_lsures    (RLSWB_valid? RLSWB_lsures   :0 )            ,
-    .io_LSWB_waddr     (RLSWB_valid? RLSWB_wdaddr   :0 )            ,    
+    .io_LSWB_rs2       (             RLSWB_rs2         )            ,
+    .io_LSWB_imm       (             RLSWB_imm         )            ,  
+    .io_LSWB_alures    (             RLSWB_alures      )            ,
+    .io_LSWB_lsures    (             RLSWB_lsures      )            ,
+    .io_LSWB_waddr     (             RLSWB_wdaddr      )            ,    
     .io_LSWB_wen       (RLSWB_valid? RLSWB_wen      :0 )            ,      
-    .io_LSWB_func3     (RLSWB_valid? RLSWB_func3    :0 )            , 
-    .io_LSWB_func7     (RLSWB_valid? RLSWB_func7    :0 )            ,      
-    .io_LSWB_NextPc    (RLSWB_valid? RLSWB_NextPc   :0 )            ,
+    .io_LSWB_func3     (             RLSWB_func3       )            , 
+    //.io_LSWB_func7     (RLSWB_valid? RLSWB_func7    :0 )            ,      
+    .io_LSWB_NextPc    (             RLSWB_NextPc      )            ,
 
     .mepc              (RegFileID_CSRs_mepc )             ,
     .mcause            (WBU_mcause          )             ,
@@ -730,6 +840,7 @@ ysyx_22050550_REGS REGS(
     .io_waddr      (Wbu_waddr       )                  ,
     .io_wdata      (Wbu_wdata       )                  ,
     .io_wen        (Wbu_wen         )                  ,
+    .io_valid      (DeBugvalid      )                  ,
     .io_IDU_rdata1 (RegFileID_rdata1)                  ,
     .io_IDU_rdata2 (RegFileID_rdata2)                  
 );
@@ -972,6 +1083,13 @@ ysyx_22050550_ByPass ByPass(
     //.io_IDU_wen    ()                 ,
     .io_IDU_pass1  (Pass_pass1)                 ,
     .io_IDU_pass2  (Pass_pass2)                 ,
+    
+    //.io_EXU_waddr  (Exu_waddr   )           ,
+    //.io_EXU_valid  (Exu_wen     )           ,
+    //.io_EXU_rdata  (Exu_wdata   )           ,
+    //.io_LSU_waddr  (Lsu_waddr   )           ,
+    //.io_LSU_valid  (Lsu_wen     )           ,
+    //.io_LSU_rdata  (Lsu_wdata   )           ,
     .io_WBU_waddr  (Wbu_waddr   )                 ,
     .io_WBU_valid  (Wbu_wen     )                 ,
     .io_WBU_rdata  (Wbu_wdata   )                 

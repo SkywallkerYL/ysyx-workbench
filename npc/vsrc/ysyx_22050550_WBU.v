@@ -23,7 +23,7 @@ module ysyx_22050550_WBU(
     input  [4:0]  io_LSWB_waddr                 ,    
     input         io_LSWB_wen                   ,      
     input  [2:0]  io_LSWB_func3                 , 
-    input  [6:0]  io_LSWB_func7                 ,      
+    //input  [6:0]  io_LSWB_func7                 ,      
     input  [63:0] io_LSWB_NextPc                ,
     /************Regfile*******Csr******/
     input  [63:0] mepc                           ,

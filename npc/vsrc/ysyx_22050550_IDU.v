@@ -49,7 +49,7 @@ module ysyx_22050550_IDU(
   output [1:0]      io_idex_choose,
   output            io_idex_alumask,
   output [2:0]      io_idex_func3,
-  output [6:0]      io_idex_func7,
+  //output [6:0]      io_idex_func7,
   output [63:0]     io_idex_NextPc,
   output [3:0]      io_IDNPC_jal,
   output [63:0]     io_IDNPC_IdPc,
@@ -411,16 +411,18 @@ module ysyx_22050550_IDU(
                 rd1 = usign32? USignedrs1:sign32 ? Signedrs1 : srlw ? USignedrs1: sraw ? Signedrs1 : rData1;
                 rd2 = usign32? USignedrs2:sign32 ? Signedrs2 : rs2low5 ?{{59{1'b0}},rData2[4:0]}:srl?{{58{1'b0}},rData2[5:0]}:rData2;
             end
+            /*
             B_type : begin
                 rd1 = 0;
                 rd2 = 0;
             end
+            */
             S_type : begin
                 rd1 = rData1;
                 rd2 = imm;
             end
             U_type : begin
-                rd1 = aupic?io_IFID_pc:lui?0:0;
+                rd1 = aupic?io_IFID_pc:0;
                 rd2 = imm;
             end
             J_type : begin
@@ -456,17 +458,17 @@ module ysyx_22050550_IDU(
     assign io_idex_waddr        = rd;
     //注意ret指令也会把wen拉高，但是这个时候rd
     assign io_idex_wen          = (InstType !=S_type) && (InstType != B_type)&& (InstType != Bad_type);
-    assign io_idex_wflag        = writeflag;
-    assign io_idex_rflag        = readflag;
-    assign io_idex_csrflag      = csrflag;
-    assign io_idex_jalrflag     = jalrflag;
-    assign io_idex_ecallflag    = ecallflag;
-    assign io_idex_breakflag    = ebreak;
-    assign io_idex_mretflag     = mret;
+    assign io_idex_wflag        = writeflag ;
+    assign io_idex_rflag        = readflag  ;
+    assign io_idex_csrflag      = csrflag   ;
+    assign io_idex_jalrflag     = jalrflag  ;
+    assign io_idex_ecallflag    = ecallflag ;
+    assign io_idex_breakflag    = ebreak    ;
+    assign io_idex_mretflag     = mret      ;
     assign io_idex_wmask        = wmask;
     assign io_idex_alumask      = alumaskflag;
     assign io_idex_func3        = func3;
-    assign io_idex_func7        = func7;
+    //assign io_idex_func7        = func7;
     assign io_idex_NextPc       = io_RegPc_nextpc;
     assign io_IDNPC_jal         = jal;
     assign io_IDNPC_IdPc        = io_IFID_pc;

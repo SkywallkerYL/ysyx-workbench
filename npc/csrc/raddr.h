@@ -92,8 +92,10 @@ extern "C" void pmem_write(long long waddr, long long wdata,char wmask){
         vgactl_port_base[1] = wdata;
     }
     else if (waddr >= FB_ADDR && waddr < (FB_ADDR+0x00100000)){
+        
         uint64_t write_data = wdata;
         //printf("hjhhhhh\n");
+        /*
         uint64_t write_mask =   ((wmask&0x1<<7)?(uint64_t)(0xffull<<56):(uint64_t)(0x00ull<<56)) | \
                                 ((wmask&0x1<<6)?(uint64_t)(0xffull<<48):(uint64_t)(0x00ull<<48)) | \
                                 ((wmask&0x1<<5)?(uint64_t)(0xffull<<40):(uint64_t)(0x00ull<<40)) | \
@@ -116,9 +118,10 @@ extern "C" void pmem_write(long long waddr, long long wdata,char wmask){
         //printf("hjhhhhh2\n");
         uint64_t writedata =  (write_data&write_mask)|(origindata&~write_mask);
         *(uint64_t *)((uint8_t *)vmem + waddr - FB_ADDR)= writedata;
+        */
         //if(writedata ==0 ) printf("may be wrong!\n");
         //if ()
-        /*
+        
         for (char i = 0; i < 8; i++)
         {
             //判断mask的i位是否为1,从地到高。
@@ -133,7 +136,7 @@ extern "C" void pmem_write(long long waddr, long long wdata,char wmask){
             //进入下一位。
             write_data  = write_data>> 8;
         }
-        */
+        
         /*
         if (wmask&0xff == 0xf0){
             *(uint32_t *)((uint8_t *)vmem + waddr - FB_ADDR+0x4)= wdata;
@@ -148,11 +151,12 @@ extern "C" void pmem_write(long long waddr, long long wdata,char wmask){
     }
     else if ((uint64_t)waddr>=(uint64_t)PMEM_LEFT&&(uint64_t)waddr<=PMEM_RIGHT){
         uint64_t pmem_addr = (waddr-CONFIG_MBASE);
+        uint64_t write_data = wdata;
         //mask为1的写入，为0的保持原来的内存
         //mask = 0x3 表示只写入最低两个字节，其他的保持不变
         //*wdata = *(uint64_t *)(&instr_mem[pmem_addr]);
+        /*
         
-        uint64_t write_data = wdata;
         uint64_t write_mask =   ((wmask&0x1<<7)?(uint64_t)(0xffull<<56):(uint64_t)(0x00ull<<56)) | \
                                 ((wmask&0x1<<6)?(uint64_t)(0xffull<<48):(uint64_t)(0x00ull<<48)) | \
                                 ((wmask&0x1<<5)?(uint64_t)(0xffull<<40):(uint64_t)(0x00ull<<40)) | \
@@ -167,7 +171,8 @@ extern "C" void pmem_write(long long waddr, long long wdata,char wmask){
 #ifdef CONFIG_MTRACE
         mtrace(1,waddr,8,p_mem[pmem_addr]);
 #endif
-        /*
+        */
+        
         for (char i = 0; i < 8; i++)
         {
             //判断mask的i位是否为1,从地到高。
@@ -182,7 +187,7 @@ extern "C" void pmem_write(long long waddr, long long wdata,char wmask){
             //进入下一位。
             write_data  = write_data>> 8;
         }
-        */
+        
     }
     else if(waddr == 0xa00003f8){ // serial port
         //printf("pc:0x%08x\n",Pc_Fetch());
