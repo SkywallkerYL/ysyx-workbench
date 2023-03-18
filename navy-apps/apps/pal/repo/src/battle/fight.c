@@ -622,14 +622,14 @@ PAL_BattleDisplayStatChange(
    SHORT    sDamage;
    WORD     wPlayerRole;
    BOOL     f = FALSE;
-
+   
    for (i = 0; i <= g_Battle.wMaxEnemyIndex; i++)
    {
       if (g_Battle.rgEnemy[i].wObjectID == 0)
       {
          continue;
       }
-
+      //printf("rgEnemyID:%d wPrevHP:%d wHealth:%d\n",i,g_Battle.rgEnemy[i].wPrevHP,g_Battle.rgEnemy[i].e.wHealth);
       if (g_Battle.rgEnemy[i].wPrevHP != g_Battle.rgEnemy[i].e.wHealth)
       {
          //

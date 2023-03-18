@@ -1743,14 +1743,18 @@ end:
    {
       if (g_Battle.UI.rgShowNum[i].wNum > 0)
       {
-         if ((SDL_GetTicks() - g_Battle.UI.rgShowNum[i].dwTime) / BATTLE_FRAME_TIME > 10)
+         //打印一下可以看到 对npc来说几百比较合适
+         //printf("time scale %d\n",(SDL_GetTicks() - g_Battle.UI.rgShowNum[i].dwTime) / BATTLE_FRAME_TIME);
+         if ((SDL_GetTicks() - g_Battle.UI.rgShowNum[i].dwTime) / BATTLE_FRAME_TIME > 400)
          {
             g_Battle.UI.rgShowNum[i].wNum = 0;
          }
          else
          {
             PAL_DrawNumber(g_Battle.UI.rgShowNum[i].wNum, 5,
-               PAL_XY(PAL_X(g_Battle.UI.rgShowNum[i].pos), PAL_Y(g_Battle.UI.rgShowNum[i].pos) - (SDL_GetTicks() - g_Battle.UI.rgShowNum[i].dwTime) / BATTLE_FRAME_TIME),
+            //npc运行时间较长，不让数字提高什么的了
+               //PAL_XY(PAL_X(g_Battle.UI.rgShowNum[i].pos), PAL_Y(g_Battle.UI.rgShowNum[i].pos) - (SDL_GetTicks() - g_Battle.UI.rgShowNum[i].dwTime) / BATTLE_FRAME_TIME),
+               PAL_XY(PAL_X(g_Battle.UI.rgShowNum[i].pos), PAL_Y(g_Battle.UI.rgShowNum[i].pos)),
                g_Battle.UI.rgShowNum[i].color, kNumAlignRight);
          }
       }

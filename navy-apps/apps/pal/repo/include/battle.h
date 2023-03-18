@@ -25,7 +25,9 @@
 
 #include "global.h"
 #include "uibattle.h"
-
+// npc 运行很慢 这个数值影响到是否显示上海，因此要改一下 原来的值 25 1000
+//或者把打印条件放宽
+//在 uibattle.c 1746行
 #define       BATTLE_FPS               25
 #define       BATTLE_FRAME_TIME        (1000 / BATTLE_FPS)
 
