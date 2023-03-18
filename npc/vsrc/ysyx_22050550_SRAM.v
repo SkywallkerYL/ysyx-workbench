@@ -26,12 +26,19 @@ module ysyx_22050550_SRAM(
     wire [63:0] Dpi_raddr, Dpi_waddr ,Dpi_rdata, Dpi_wdata;
     wire [7:0]  Dpi_wmask; 
     reg [63:0] raddrReg, waddrReg;
+`ifdef ysyx_22050550_FAST
+    always@(posedge clock) begin
+        if(io_Sram_ar_valid&&io_Sram_ar_ready) raddrReg <= io_Sram_ar_bits_addr;
+        if(io_Sram_aw_valid&&io_Sram_aw_ready) waddrReg <= io_Sram_aw_bits_addr;
+    end
+`else
     ysyx_22050550_Reg # (64,64'd0)Regraddr(
     .clock(clock),.reset(reset),.wen(io_Sram_ar_valid&&io_Sram_ar_ready),
     .din(io_Sram_ar_bits_addr),.dout(raddrReg));
     ysyx_22050550_Reg # (64,64'd0)Regwaddr(
     .clock(clock),.reset(reset),.wen(io_Sram_aw_valid&&io_Sram_aw_ready),
     .din(io_Sram_aw_bits_addr),.dout(waddrReg));
+`endif 
     //实现类似chisel 只不过用DPI访问内存
     //仅支持INCR型突发传输   size 设定为 128//CACHE那边的突发传输类型只能是这个
     //读状态机
@@ -39,7 +46,12 @@ module ysyx_22050550_SRAM(
     reg ReadState,ReadNext;
     always @(posedge clock) begin
         if (reset) ReadState <= readwait;
+`ifdef ysyx_22050550_FAST
+        else if(!(ReadState==readwait&&!(io_Sram_ar_valid&&io_Sram_ar_ready))) 
+            ReadState <= ReadNext;
+`else
         else ReadState <= ReadNext;
+`endif 
     end
     reg [7:0] Reglen;
     always @(*) begin
@@ -112,7 +124,12 @@ module ysyx_22050550_SRAM(
     reg WriteState,WriteNext;
     always @(posedge clock) begin
         if (reset) WriteState <= writewait ;
+`ifdef ysyx_22050550_FAST
+        else if(!(WriteState==writewait&&!(io_Sram_aw_valid&&io_Sram_aw_ready))) 
+            WriteState <= WriteNext;
+`else
         else WriteState <= WriteNext;
+`endif 
     end
     reg [7:0] WReglen;
     always @(*) begin

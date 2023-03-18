@@ -49,9 +49,9 @@ module ysyx_22050550_CACHE(
     wire DataWen;
     wire [127:0] DataBen  ;
     wire [127:0] DataWrite;
-    
+    wire DataCen;
     ysyx_22050550_S011HD1P_X32Y2D128_BW Data_Array(
-        .Q(DataRead), .CLK(clock), .CEN(1'b0),
+        .Q(DataRead), .CLK(clock), .CEN(DataCen),
         .WEN(DataWen), .BWEN(DataBen), .A(useaddr), .D(DataWrite)
     );
     //Tag array  16组 每组4路   一共64行
@@ -306,10 +306,14 @@ module ysyx_22050550_CACHE(
     localparam idle = 3'd0, lookup = 3'd1, miss = 3'd2, replace = 3'd3,refill = 3'd4;
     reg [2:0] state ;
     reg [2:0] next  ;
-    //状态跳转
+    //状态跳转 省掉一些状态的跳转，这样子性能又能快一些了。
     always@(posedge clock) begin
         if(reset) state <= idle;
-        else  state <= next;
+`ifdef ysyx_22050550_FAST
+        else if(!(state==idle && !io_Cache_valid))state <= next;
+`else
+        else state <= next;
+`endif 
     end
     //读状态机组合逻辑
     /*
@@ -560,7 +564,7 @@ module ysyx_22050550_CACHE(
 `endif 
     wire MISS = state == miss;
     assign axivalid    = valid[useaddr] && dirty[useaddr];
-    assign io_aw_valid =  MISS & axivalid ? 1'b1 : 1'b0;
+    assign io_aw_valid =  MISS & axivalid ;
     assign io_aw_len   = 1;
     assign io_aw_size  = 4;
     assign io_aw_burst = 2'b01;
@@ -611,6 +615,15 @@ module ysyx_22050550_CACHE(
     assign DataWen = !((REFILL&&(io_r_valid))||(LOOKUP && cachehit && io_Cache_op));
     assign DataWrite = (LOOKUP && cachehit && io_Cache_op)? hitDataWrite : (REFILL&&(io_r_valid)) ? refilldata :0;
     assign DataBen   = (LOOKUP && cachehit && io_Cache_op)? hitDataBen   : (REFILL&&(io_r_valid)) ? refillben  : {128{1'b1}};
+    //Data 需要读出的情况有 一：IDLE并且valid 二：refill完成跳转回lookup
+    //三向总线写回cacheline miss的时候要跳replace 或者在replace并且不会跳miss
+    //这样子该后可以在部分周期内省掉对寄存器的操作，仿真更快
+`ifndef ysyx_22050550_RealRam
+    assign DataCen = !((IDLE&&io_Cache_valid) || (REFILL && io_r_last)||
+     (io_aw_valid&&io_aw_ready ) || (REPLACE && !io_w_last));
+`else
+    assign DataCen = 1'b0;
+`endif
     //print一些debug信息
 `ifdef ysyx_22050550_CACHEDEBUG
     always@(posedge clock) begin
