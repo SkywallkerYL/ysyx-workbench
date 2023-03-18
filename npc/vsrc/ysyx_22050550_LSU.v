@@ -87,8 +87,10 @@ module ysyx_22050550_LSU(
     input         io_Cache_dataok           
     //To IDU for DEGUB
     //output printflag 
-);
-    wire Pmem = io_EXLS_alures>=`ysyx_22050550_PLeft && io_EXLS_alures < `ysyx_22050550_PRight;
+);  
+    //设备地址都在 a0000000+ 这里判断可以简单一点
+    wire Pmem = io_EXLS_alures[31:28] == 4'h8;
+    //wire Pmem = io_EXLS_alures>=`ysyx_22050550_PLeft && io_EXLS_alures < `ysyx_22050550_PRight;
 
     //访问设备地址时，采用AXI总线与设备通信，暂时不与总线通信 加快仿真效率
     //设备通信状态机 读状态机

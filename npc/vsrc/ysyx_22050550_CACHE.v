@@ -49,6 +49,7 @@ module ysyx_22050550_CACHE(
     wire DataWen;
     wire [127:0] DataBen  ;
     wire [127:0] DataWrite;
+    
     ysyx_22050550_S011HD1P_X32Y2D128_BW Data_Array(
         .Q(DataRead), .CLK(clock), .CEN(1'b0),
         .WEN(DataWen), .BWEN(DataBen), .A(useaddr), .D(DataWrite)
@@ -458,8 +459,8 @@ module ysyx_22050550_CACHE(
     }));
     */
     //refill情况下的写入
-    wire[127:0] refilldata = Reglen ? {{64{1'b0}} ,io_r_rdata} : {io_r_rdata,{64{1'b0}}};
-    wire[127:0] refillben  = Reglen ? {{64{1'b1}} ,{64{1'b0}}} : {{64{1'b0}},{64{1'b1}}};
+    wire[127:0] refilldata = !io_r_last ? {{64{1'b0}} ,io_r_rdata} : {io_r_rdata,{64{1'b0}}};
+    wire[127:0] refillben  = !io_r_last ? {{64{1'b1}} ,{64{1'b0}}} : {{64{1'b0}},{64{1'b1}}};
     //dirty只在两种情况下写 一个是lookup命中了 写脏  一个是replace完成
     //dirty write   data en mux  en 高有效
     assign dirtyWriteEn = (LOOKUP & cachehit & io_Cache_op) ||  
@@ -531,25 +532,13 @@ module ysyx_22050550_CACHE(
                 ar len = 1    ar size = 4  
     */
     reg Reglen ;
-    /*
-    wire reglenEn = 1'b1;
-                //(io_aw_valid && io_aw_ready) || (io_ar_valid && io_ar_ready) 
-                //||  (io_w_valid  && io_w_ready)  || (io_r_valid&&io_r_ready    );
-    wire reglenData = 
-    (io_aw_valid && io_aw_ready) || (io_ar_valid && io_ar_ready) ? 1'b1 :
-    (io_w_valid && io_w_ready) || (io_r_valid&&io_r_ready) ? 
-        io_w_last || io_r_last ? 1'b0 : Reglen - 1'b1   : Reglen;
-    ysyx_22050550_Reg # (1,1'd0) ReglenR (
-        .clock(clock),.reset(reset),.wen(1'b1),.din(reglenData),
-        .dout(Reglen));
-        */
 `ifdef ysyx_22050550_FAST
     always @ (posedge clock) begin
-        if((io_aw_valid && io_aw_ready) || (io_ar_valid && io_ar_ready))  begin
+        if((io_aw_valid && io_aw_ready))  begin
             Reglen <= 1'b1;
         end
-        else if((io_w_valid && io_w_ready) || (io_r_valid&&io_r_ready))  begin 
-            if(io_w_last || io_r_last) Reglen <= 1'b0;
+        else if((io_w_valid && io_w_ready))  begin 
+            if(io_w_last ) Reglen <= 1'b0;
             else Reglen <=  Reglen - 1'b1;
         end
     end
@@ -578,7 +567,7 @@ module ysyx_22050550_CACHE(
     //要根据当前选中的Tag获取其在主存的块号确定回传的地址 低位舍掉
    
     wire [`ysyx_22050550_RegBus] addr = {Tag[chooseway],AddrGroup,4'b0}; 
-    assign io_aw_addr =  Reglen==0? addr : addr + 8;
+    assign io_aw_addr = Reglen==0? addr : addr + 8;
     //不需要写回 不需要写回的时候用
     assign io_ar_valid = MISS & !(axivalid);
     assign io_ar_len   = 1;
@@ -587,7 +576,7 @@ module ysyx_22050550_CACHE(
     //Reglen 当前这个周期还是  miss这个周期  下一个周期变1
      //这里其实应该有一个addrreg一直加的，直到last满足，但是只有两种情况，就简单一点了。
      //其实这里的addr不用+ sram那边检测到突发传输，会自动+地址
-    assign io_ar_addr  =  Reglen==0? {AddrTag,AddrGroup,4'b0} : {AddrTag,AddrGroup,4'b0} + 8;
+    assign io_ar_addr  = {AddrTag,AddrGroup,4'b0} ;//Reglen==0? {AddrTag,AddrGroup,4'b0} : {AddrTag,AddrGroup,4'b0} + 8;
     /*
         replace :
             w valid 并且 ready的时候
