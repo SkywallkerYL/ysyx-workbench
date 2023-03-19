@@ -41,7 +41,8 @@ int SDL_PollEvent(SDL_Event *ev) {
       if (strncmp(keybuf, keyname[i],len)==0&& strlen(keyname[i])==len)
       {
         keystates[i] = ev->type ==SDL_KEYDOWN?1:0;
-        printf("%s %s\n",keybuf,keyname[i]);
+        //printf("down %d ",event->type);
+        //printf("%s %s\n",keybuf,keyname[i]);
         ev->key.keysym.sym = i;
         break;
       }
@@ -83,7 +84,8 @@ int SDL_WaitEvent(SDL_Event *event) {
       if (strncmp(keybuf, keyname[i],len)==0 && strlen(keyname[i])==len)
       {
         keystates[i] = event->type ==SDL_KEYDOWN?1:0;
-        printf("%s %s\n",keybuf,keyname[i]);
+        //printf("down %d ",event->type);
+        //printf("%s %s\n",keybuf,keyname[i]);
         findflag = 1;
         event->key.keysym.sym = i;
         break;
