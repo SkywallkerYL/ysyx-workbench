@@ -1,4 +1,4 @@
-`include "/home/yangli/ysyx-workbench/npc/vsrc/ysyx_22050550_define.v"
+`include "./vsrc/ysyx_22050550_define.v"
 module ysyx_22050550_LSU(
     input         clock                         ,
                   reset                         ,

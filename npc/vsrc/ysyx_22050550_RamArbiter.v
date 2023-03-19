@@ -43,6 +43,7 @@ module ysyx_22050550_RamArbiter(
   output [7:0]  io_sram_Axi_w_bits_strb
 );
   //好像直接用chisel生存的会快一些
+`ifdef ysyx_22050550_FAST
   wire _io_ifu_Axi_ar_ready_T_2 = io_ifu_Axi_ar_valid & io_sram_Axi_ar_ready & ~io_lsu_Axi_ar_valid;	
   wire _io_lsu_Axi_ar_ready_T = io_lsu_Axi_ar_valid & io_sram_Axi_ar_ready;	
   wire _io_ifu_Axi_aw_ready_T_2 = io_ifu_Axi_aw_valid & io_sram_Axi_aw_ready & ~io_lsu_Axi_aw_valid;	
@@ -73,10 +74,10 @@ module ysyx_22050550_RamArbiter(
                 io_ifu_Axi_w_bits_data : 64'h0;	
   assign io_sram_Axi_w_bits_strb = _io_lsu_Axi_w_ready_T ? io_lsu_Axi_w_bits_strb : _io_ifu_Axi_w_ready_T_2 ?
                 io_ifu_Axi_w_bits_strb : 8'h0;
-                
+`else         
   //这里直接从chisel 赋值过来
   //ar 
-  /*
+  
     assign io_sram_Axi_ar_valid = io_ifu_Axi_ar_valid || io_lsu_Axi_ar_valid                          ;
     assign io_ifu_Axi_ar_ready = io_ifu_Axi_ar_valid && io_sram_Axi_ar_ready &&(!io_lsu_Axi_ar_valid) ;
     assign io_lsu_Axi_ar_ready = io_lsu_Axi_ar_valid && io_sram_Axi_ar_ready                          ;
@@ -128,5 +129,6 @@ module ysyx_22050550_RamArbiter(
     //assign io_lsu_Axi_b_valid = io_lsu_Axi_b_ready && io_sram_Axi_b_valid                         ;
     //assign io_ifu_Axi_b_bits_resp = io_sram_Axi_b_bits_resp                                       ;
     //assign io_lsu_Axi_b_bits_resp = io_sram_Axi_b_bits_resp                                       ;
-  */
+  
+`endif 
 endmodule
