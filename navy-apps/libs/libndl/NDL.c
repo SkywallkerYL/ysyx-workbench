@@ -74,6 +74,8 @@ int NDL_PollEvent(char *buf, int len) {
 //man 2 read
   //printf("in ndl\n");
   int value = read(fd,buf,len);
+  //if(value!=0)printf("value%d len%d\n",value,len);
+  //assert(value ==len || value==0 );
   close(fd);
   return (value != 0);
   //return 0;
