@@ -4,8 +4,12 @@
 #include "trace.h"
 #include "timer.h"
 #include "keyboard.h"
+
+
 static void out_of_bound(paddr_t addr) {
-    
+    Log("Out of bound for npc at about :%08lx inst:%08x  npc:%08lx",localpc,localinst,localnpc);
+    statistic();
+    //sim_exit();
 #ifdef CONFIG_ITRACE
     instr_tracelog(1);
 #endif
@@ -14,6 +18,7 @@ static void out_of_bound(paddr_t addr) {
 }
 
 extern "C" void pmem_read(long long raddr, long long *rdata){
+    //Log("Out of bound for npc at about :%08lx inst:%08x  npc:%08lx",localpc,localinst,localnpc);
     if ((uint64_t)raddr == 0){
         out_of_bound(raddr);
         *rdata = 0;

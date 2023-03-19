@@ -198,7 +198,7 @@ void sim_once(uint64_t n){
   if(top->io_instvalid)log_ftrace(dnpc,jalrflag,d,imm,rs1,src1);
 #endif
 
-#ifdef CONFIG_DIFFTEST
+//#ifdef CONFIG_DIFFTEST
   //instvalid的那个周期把pc 拿出来
   if(top->io_instvalid){
     //Log("local pc at :%08lx inst:%08x  Next pc:%08lx",localpc,localinst,localnpc);
@@ -206,7 +206,7 @@ void sim_once(uint64_t n){
     localnpc = Dnpc_Fetch();
     localinst = Instr_Fetch();
   }
-#endif
+//#endif
   if(checkebreak()||top->io_abort){
     npc_state.state = NPC_ABORT;
     return;
