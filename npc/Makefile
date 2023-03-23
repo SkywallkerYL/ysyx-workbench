@@ -106,11 +106,18 @@ VCFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""
 #CFLAGS += -fno-exceptions -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS 
 #CFLAGS += -D__STDC_LIMIT_MACROS
 #CFLAGS += -fPIE -g
+
 CFLAGS += $(shell llvm-config --cxxflags) -fPIE -g 
 LDFLAGS += -lSDL2 -lSDL2_image 
 LDFLAGS += $(shell llvm-config --libs)
 LDFLAGS += -lreadline
-
+CFLAGS_BUILD ?=
+#CFLAGS_BUILD += $(if $(CONFIG_CC_DEBUG),-Og -ggdb3		,)
+#CFLAGS_BUILD += $(if $(CONFIG_CC_ASAN) ,-fsanitize=address,)
+CFLAGS_BUILD += -Og -ggdb3			
+CFLAGS_BUILD += -fsanitize=address	
+#CFLAGS += $(CFLAGS_BUILD)
+#LDFLAGS+= $(CFLAGS_BUILD)
 IMG?=
 
 	
