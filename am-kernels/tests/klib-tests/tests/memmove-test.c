@@ -1,7 +1,7 @@
 #include "trap.h"
 #include "testfunc.h"
 
-void test_memcpy(){
+void test_memmove(){
     char src[] = "vvvadw123vvvv";
     reset();
     memmove(data,src,13);
@@ -14,9 +14,10 @@ void test_memcpy(){
     check_eq(7,8,'2');
     check_eq(8,9,'3');
     check_eq(10,13,'v');
+    //check_seq(r,N,r+1);
 }
 int main()
 {
-    test_memcpy();
+    test_memmove();
     return 0;
 }
