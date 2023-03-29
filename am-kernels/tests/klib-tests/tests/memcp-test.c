@@ -15,8 +15,32 @@ void test_memcpy(){
     check_eq(8,9,'3');
     check_eq(10,13,'v');
 }
+void test_strcpy(){
+    char src[] = "vvvadw123vvvv";
+    char srccp[] = "vvvadw";
+    char src1 [] = "113";
+    char src2 [] = "113vvvadw123vvvv";
+    char dest[128];
+    strcpy(dest,src);
+    printf("%s\n",src);
+    assert(strcmp(dest,src) == 0);
+    strcat(src1,src);
+    printf("%s\n",src);
+    assert(strcmp(src1,src2) == 0);
+    char dest2[128];
+    strncpy(dest2,src,6);
+    printf("%s\n",dest2);
+    printf("%s\n",src1);
+    printf("%s\n",src);
+    printf("%s\n",dest);
+
+    assert(strcmp(dest2,srccp) == 0);
+
+}
 int main()
 {
     test_memcpy();
+    printf("hhh\n");
+    test_strcpy();
     return 0;
 }
