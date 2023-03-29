@@ -32,6 +32,8 @@ char *strcpy(char *dst, const char *src)
     dstpoint++;
     srcpoint++;
   }
+  *dstpoint = *(srcpoint);
+
   /*
   if (dstpoint<size)
   {
@@ -55,6 +57,7 @@ char *strncpy(char *dst, const char *src, size_t n)
     dstpoint++;
     srcpoint++;
   }
+  *dstpoint = '\0';
   /*
   if (dstpoint<size)
   {
@@ -99,6 +102,7 @@ int strcmp(const char *s1, const char *s2)
   // 也可以用strlen，但是就不能应对没有'\0'的情况了
   int sizes1 = strlen(s1); // sizeof (s1)/sizeof(char);
   int sizes2 = strlen(s2); // sizeof (s2)/sizeof(char);
+  //printf("%d %d",sizes1,sizes2);
   int point = 0;
   // 两个都非空时
   while (point < sizes1 && point < sizes2)

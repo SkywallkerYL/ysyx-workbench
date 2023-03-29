@@ -12,7 +12,7 @@ void test_sprintf(){
     
     for (int i = 0; i < 8; i++)
     {   
-        char str[12];
+        char str[20];
         sprintf(str,"%d",data[i]);
         //printf("%d",data[i]);
         printf("%s %d\n",str,data[i]);

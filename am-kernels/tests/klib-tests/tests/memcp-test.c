@@ -22,7 +22,7 @@ void test_strcpy(){
     char src2 [20] = "113vvvadw123vvvv";
     char dest[128];
     strcpy(dest,src);
-    //printf("%s\n",src);
+    printf("%s %s\n",dest,src);
     assert(strcmp(dest,src) == 0);
     strcat(src1,src);
     //printf("%s\n",src);
