@@ -4,7 +4,7 @@
 void test_memcpy(){
     char src[] = "vvvadw123vvvv";
     reset();
-    memmove(data,src,13);
+    memcpy(data,src,13);
     //check_seq(0,l,1);
     check_eq(0,3,'v');
     check_eq(3,4,'a');
