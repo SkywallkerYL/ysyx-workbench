@@ -201,10 +201,11 @@ void *memmove(void *dst, const void *src, size_t n)
   {
     while (n--)
     {
-      *pdst = *psrc;
+      *pdst = *psrc;    
+      pdst++;
+      psrc++;
     }
-    pdst++;
-    psrc++;
+
   }
   else
   {
@@ -212,10 +213,11 @@ void *memmove(void *dst, const void *src, size_t n)
     psrc = psrc + n - 1;
     while (n--)
     {
-      *pdst = *psrc;
+      *pdst = *psrc; 
+      pdst--;
+      psrc--;
     }
-    pdst--;
-    psrc--;
+   
   }
   return dst;
 }
