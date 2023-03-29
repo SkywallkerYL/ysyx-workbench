@@ -14,7 +14,7 @@ void test_sprintf(){
     {
         sprintf(str,"%d",data[i]);
         //printf("%d",data[i]);
-        printf("%d\n",data[i]);
+        printf("%s %d\n",str,data[i]);
     }
     //0 126322567 2147483647 -7562067968 -2147483647 252645135 126322567
 }
