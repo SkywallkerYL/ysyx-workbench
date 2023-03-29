@@ -9,12 +9,16 @@ void test_sprintf(){
     //{
       //  printf("%d ",data[i]);
     //}
-    char str[12];
+    
     for (int i = 0; i < 8; i++)
-    {
+    {   
+        char str[12];
         sprintf(str,"%d",data[i]);
         //printf("%d",data[i]);
         printf("%s %d\n",str,data[i]);
+        char str1[12];
+        snprintf(str1,5,"%d",data[i]);
+        printf("%s %d\n",str1,data[i]);
     }
     //0 126322567 2147483647 -7562067968 -2147483647 252645135 126322567
 }
