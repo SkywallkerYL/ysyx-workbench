@@ -274,12 +274,16 @@ int sprintf(char *out, const char *fmt, ...) {
         intval = va_arg(ap,int);
         if (intval < 0)
         {
+          //printf("int %d\n",intval);
           intval = -intval;
+          //printf("int %d\n",intval);
           *out = '-';
           out++;
           resnum++;
         }
+        //printf("int %d\n",intval);
         tempval = intval;
+        //printf("%d\n",tempval);
         //因为得按顺序打印，因此要先计算长度
         if (intval)
         {
@@ -295,6 +299,8 @@ int sprintf(char *out, const char *fmt, ...) {
           tempval = intval/(mpown(system_,lencnt-1));
           intval = intval%(mpown(system_,lencnt-1));
           *out = ((char)tempval+'0');
+          //printf("%d\n",tempval);
+          //myputch((char)tempval+'0');
           out++;
           lencnt--;
         }

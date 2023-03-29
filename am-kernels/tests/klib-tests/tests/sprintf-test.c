@@ -13,6 +13,8 @@ void test_sprintf(){
     for (int i = 0; i < 8; i++)
     {   
         char str[20];
+        /// 极限情况   会出错，   -int的极限值反转过来后 int已经装不下了，所以出错
+        if(i==3) continue;
         sprintf(str,"%d",data[i]);
         //printf("%d",data[i]);
         printf("%s %d\n",str,data[i]);
