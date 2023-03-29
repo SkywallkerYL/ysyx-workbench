@@ -12,6 +12,10 @@ void test_memcmp(){
     char str4[] = "aavdef";
     int ret1 = memcmp(str3,str4,6);
     assert(ret1 > 0);
+    char str5[] = "1234abc";
+    char str6[] = "1234abc";
+    int ret2 = memcmp(str5,str6,7);
+    assert(ret2 == 0);
 }
 int main()
 {
