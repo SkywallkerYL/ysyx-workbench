@@ -277,7 +277,7 @@ PAL_SplashScreen(
       //printf("hhhcount:%d\n",hhhcount);
       PAL_ProcessEvent();
       dwTime = SDL_GetTicks() - dwBeginTime;
-      //printf("dwTime:%d\n",dwTime);
+      printf("dwTime:%d\n",dwTime);
       // 这里由于npc的运行时间较长，更新一帧的时间dwtime>15000了，导致调色板只在dwtime=10左右的时候初始化了一次
       //这样子就很暗，让我以为没有初始化。一帧dwtime大概要70000左右
       // Set the palette

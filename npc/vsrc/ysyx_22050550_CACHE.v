@@ -511,7 +511,9 @@ module ysyx_22050550_CACHE(
                 .clock(clock),.reset(reset),.wen(1'b1),.din(dataokin),
                 .dout(io_Cache_dataok));
 `else
-    assign io_Cache_dataok = dataokin;
+    ysyx_22050550_Reg # (1,1'd0) dataok (
+                .clock(clock),.reset(reset),.wen(1'b1),.din(dataokin),
+                .dout(io_Cache_dataok));
 `endif 
 `else
     assign io_Cache_dataok = dataokin;
@@ -619,8 +621,12 @@ module ysyx_22050550_CACHE(
     //三向总线写回cacheline miss的时候要跳replace 或者在replace并且不会跳miss
     //这样子该后可以在部分周期内省掉对寄存器的操作，仿真更快
 `ifndef ysyx_22050550_RealRam
+`ifdef ysyx_22050550_TagUseRam
+    assign DataCen = 1'b0;
+`else
     assign DataCen = !((IDLE&&io_Cache_valid) || (REFILL && io_r_last)||
      (io_aw_valid&&io_aw_ready ) || (REPLACE && !io_w_last));
+`endif 
 `else
     assign DataCen = 1'b0;
 `endif
@@ -643,4 +649,3 @@ module ysyx_22050550_CACHE(
 
 
 endmodule
-
