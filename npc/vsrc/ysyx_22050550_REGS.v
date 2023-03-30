@@ -50,7 +50,7 @@ module ysyx_22050550_REGS(
         if(reset)   regs[36] <= 64'hA00001800;
     end
 `else
-    
+    wire   [31:1] regwen  ;
     generate
         for (genvar i = 1; i < 32; i = i+1) begin : regfile
             assign regwen[i] = io_wen & (io_waddr == i);
