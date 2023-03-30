@@ -18,7 +18,7 @@ void test_sprintf(){
         sprintf(str,"%d",data[i]);
         //sprintf(str,"%s",str11[i]);
         //printf("%d",data[i]);
-        //printf("%s %d\n",str,data[i]);
+        printf("%s %d\n",str,data[i]);
         //printf("%s %s\n",str,str11[i]);
         assert(strcmp(str,str11[i])==0);
         char str1[12];

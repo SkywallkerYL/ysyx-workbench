@@ -202,7 +202,7 @@ size_t fs_write(int fd, const void *buf, size_t len)
     }
   }
   
-  assert(ramdisk_write(buf, file_table[fd].disk_offset + openoff, writelen)==writelen);
+  else assert(ramdisk_write(buf, file_table[fd].disk_offset + openoff, writelen)==writelen);
   //OpenFileTable[openind].open_offset += writelen;
   file_table[fd].open_offset = writelen;
   return writelen;
