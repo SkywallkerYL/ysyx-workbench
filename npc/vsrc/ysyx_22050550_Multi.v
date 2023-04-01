@@ -10,6 +10,7 @@ module ysyx_22050550_PartProductGen(
 );
     wire [2:0] chooseSignal = {io_Choose_BAdd,io_Choose_B,io_Choose_BSub};
     wire [127:0] add;
+    
     assign add = 
     chooseSignal == 3'b000 ? 128'd0                                                                  :
     chooseSignal == 3'b001 ? io_Choose_S                                                             :
@@ -19,6 +20,18 @@ module ysyx_22050550_PartProductGen(
     chooseSignal == 3'b101 ? (io_Choose_HighUsign?(io_Choose_S << 1) + io_Choose_S: (~io_Choose_S+1)):
     chooseSignal == 3'b110 ? (io_Choose_HighUsign?(io_Choose_S << 1) + io_Choose_S: (~io_Choose_S+1)):
     chooseSignal == 3'b111 ? (io_Choose_HighUsign?io_Choose_S << 2: 0  ):128'b0;
+    
+    /*
+    assign add = 
+    chooseSignal == 3'b000 ? 128'd0                                                                  :
+    chooseSignal == 3'b001 ? io_Choose_S                                                             :
+    chooseSignal == 3'b010 ? io_Choose_S                                                             :
+    chooseSignal == 3'b011 ? io_Choose_S  * 2                                                        :
+    chooseSignal == 3'b100 ? (io_Choose_HighUsign?io_Choose_S * 2: (~io_Choose_S+1) * 2             ):
+    chooseSignal == 3'b101 ? (io_Choose_HighUsign?(io_Choose_S  * 3)              : (~io_Choose_S+1)):
+    chooseSignal == 3'b110 ? (io_Choose_HighUsign?(io_Choose_S  * 3)              : (~io_Choose_S+1)):
+    chooseSignal == 3'b111 ? (io_Choose_HighUsign? io_Choose_S  * 3 : 0  ):128'b0;
+    */
     /*
     ysyx_22050550_MuxKeyWithDefault#(8,3,128) ProductMux(
         .out(add),.key(chooseSignal),.default_out(128'b0),.lut({
@@ -62,7 +75,7 @@ module  ysyx_22050550_Multi(
     .io_Choose_BAdd       (Badd),
     .io_Choose_B          (B),
     .io_Choose_BSub       (Bsub),
-    .io_Choose_HighUsign  ((ind==maxind &&io_Exu_MulSigned==2'b00)?1'b1:1'b0),
+    .io_Choose_HighUsign  ((ind==maxind &&io_Exu_MulSigned==2'b00)),
     .io_Choose_PartProdIn (Prod),
     .io_Choose_S          (Sum),
     .io_Choose_PartProdOut(Prodin)
@@ -84,8 +97,8 @@ module  ysyx_22050550_Multi(
                 else next = Idle;
             end 
             Busy: begin
-                if(io_Exu_Flush) next = Idle;
-                else if(ind != maxind) next = Busy;
+                //if(io_Exu_Flush) next = Idle;
+                if(ind != maxind) next = Busy;
                 else next = Valid;
             end
             Valid: begin

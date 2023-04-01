@@ -81,7 +81,8 @@
 //`define ysyx_22050550_TagUseRam
 //`define ysyx_22050550_RealRam
 //`define ysyx_22050550_DEVICEUSEAXI
-
+`define ysyx_22050550_UseArbiter
+`define ysyx_22050550_CacheUseLFSR
 
 `define ysyx_22050550_PipBundle
 //部分数组型的寄存器使用模板的话会极大的降低仿真效率，打开这个开关使用不用模板实现的寄存器

@@ -183,8 +183,27 @@ module ysyx_22050550_IDU(
     //assign io_idex_ecallflag = ecallflag;
     //assign io_IDNPC_ecallpc = io_RegFileID_CSRs_mtvec;
 
-    wire[4:0] Itype_Op;
+    
     wire[9:0] ItypeOpKey = {func3,opcode};
+    /*
+    reg [4:0] Itype_Op;
+    always @(func3,opcode)begin
+        case({func3,opcode})
+            {3'b100,`ysyx_22050550_I2} : Itype_Op <= `ysyx_22050550_XOR                          ;
+            {3'b110,`ysyx_22050550_I2} : Itype_Op <= `ysyx_22050550_OR                           ;
+            {3'b111,`ysyx_22050550_I2} : Itype_Op <= `ysyx_22050550_AND                          ;
+            {3'b011,`ysyx_22050550_I2} : Itype_Op <= `ysyx_22050550_SLTU                         ;
+            {3'b010,`ysyx_22050550_I2} : Itype_Op <= `ysyx_22050550_SLT                          ;
+            {3'b101,`ysyx_22050550_I2} : Itype_Op <= ALflag?`ysyx_22050550_SRA:`ysyx_22050550_SRL;
+            {3'b101,`ysyx_22050550_I1} : Itype_Op <= ALflag?`ysyx_22050550_SRA:`ysyx_22050550_SRL;
+            {3'b001,`ysyx_22050550_I2} : Itype_Op <= `ysyx_22050550_SLL                          ;
+            {3'b001,`ysyx_22050550_I1} : Itype_Op <= `ysyx_22050550_SLLW                         ;
+            default : Itype_Op <= `ysyx_22050550_ADD  ;
+        endcase
+    end
+    */
+    
+    wire[4:0] Itype_Op;
     assign Itype_Op = 
     ItypeOpKey == {3'b100,`ysyx_22050550_I2}? `ysyx_22050550_XOR                          :                           
     ItypeOpKey == {3'b110,`ysyx_22050550_I2}? `ysyx_22050550_OR                           : 
@@ -195,6 +214,7 @@ module ysyx_22050550_IDU(
     ItypeOpKey == {3'b101,`ysyx_22050550_I1}? ALflag?`ysyx_22050550_SRA:`ysyx_22050550_SRL: 
     ItypeOpKey == {3'b001,`ysyx_22050550_I2}? `ysyx_22050550_SLL                          : 
     ItypeOpKey == {3'b001,`ysyx_22050550_I1}? `ysyx_22050550_SLLW  :  `ysyx_22050550_ADD;
+    
         /*
     ysyx_22050550_MuxKeyWithDefault#(9,10,5) ItypeOpMux(
         .out(Itype_Op),.key(ItypeOpKey),.default_out(`ysyx_22050550_ADD),.lut({
@@ -209,39 +229,41 @@ module ysyx_22050550_IDU(
         {3'b001,`ysyx_22050550_I1},`ysyx_22050550_SLLW
     }));
         */
-    wire [4:0] Rtype_Op;
+    
     wire[16:0] RtypeOpKey = {func7,func3,opcode};
     //貌似三目运算符没有always 快，改称always试试 额 效果不大 还变慢了。。
     /*
-    always @(RtypeOpKey) begin
-        case (RtypeOpKey)
-            {7'b0100000,3'b000,`ysyx_22050550_R1}:Rtype_Op = `ysyx_22050550_SUB ; 
-            {7'b0000001,3'b000,`ysyx_22050550_R1}:Rtype_Op = `ysyx_22050550_MUL ; 
-            {7'b0000001,3'b101,`ysyx_22050550_R1}:Rtype_Op = `ysyx_22050550_DIV ; 
-            {7'b0000001,3'b100,`ysyx_22050550_R1}:Rtype_Op = `ysyx_22050550_DIVS; 
-            {7'b0000000,3'b100,`ysyx_22050550_R1}:Rtype_Op = `ysyx_22050550_XOR ; 
-            {7'b0000001,3'b111,`ysyx_22050550_R1}:Rtype_Op = `ysyx_22050550_REM ; 
-            {7'b0000001,3'b110,`ysyx_22050550_R1}:Rtype_Op = `ysyx_22050550_REMS; 
-            {7'b0000000,3'b010,`ysyx_22050550_R1}:Rtype_Op = `ysyx_22050550_SLT ; 
-            {7'b0000000,3'b011,`ysyx_22050550_R1}:Rtype_Op = `ysyx_22050550_SLTU; 
-            {7'b0100000,3'b000,`ysyx_22050550_R2}:Rtype_Op = `ysyx_22050550_SUB ; 
-            {7'b0000001,3'b000,`ysyx_22050550_R2}:Rtype_Op = `ysyx_22050550_MUL ; 
-            {7'b0000001,3'b100,`ysyx_22050550_R2}:Rtype_Op = `ysyx_22050550_DIVS; 
-            {7'b0000001,3'b101,`ysyx_22050550_R2}:Rtype_Op = `ysyx_22050550_DIV ; 
-            {7'b0000001,3'b110,`ysyx_22050550_R2}:Rtype_Op = `ysyx_22050550_REMS; 
-            {7'b0000001,3'b111,`ysyx_22050550_R2}:Rtype_Op = `ysyx_22050550_REM ; 
-            {7'b0000000,3'b001,`ysyx_22050550_R2}:Rtype_Op = `ysyx_22050550_SLLW; 
-            {7'b0000000,3'b001,`ysyx_22050550_R1}:Rtype_Op = `ysyx_22050550_SLL ; 
-            {7'b0100000,3'b101,`ysyx_22050550_R2}:Rtype_Op = `ysyx_22050550_SRA ; 
-            {7'b0000000,3'b101,`ysyx_22050550_R2}:Rtype_Op = `ysyx_22050550_SRL ; 
-            {7'b0000000,3'b101,`ysyx_22050550_R1}:Rtype_Op = `ysyx_22050550_SRL ; 
-            {7'b0000000,3'b111,`ysyx_22050550_R1}:Rtype_Op = `ysyx_22050550_AND ; 
-            {7'b0000000,3'b110,`ysyx_22050550_R1}:Rtype_Op = `ysyx_22050550_OR  ; 
-            default: Rtype_Op = `ysyx_22050550_ADD;
+    reg [4:0] Rtype_Op;
+    always @(func7,func3,opcode) begin
+        case ({func7,func3,opcode})
+            {7'b0100000,3'b000,`ysyx_22050550_R1}:Rtype_Op <= `ysyx_22050550_SUB ; 
+            {7'b0000001,3'b000,`ysyx_22050550_R1}:Rtype_Op <= `ysyx_22050550_MUL ; 
+            {7'b0000001,3'b101,`ysyx_22050550_R1}:Rtype_Op <= `ysyx_22050550_DIV ; 
+            {7'b0000001,3'b100,`ysyx_22050550_R1}:Rtype_Op <= `ysyx_22050550_DIVS; 
+            {7'b0000000,3'b100,`ysyx_22050550_R1}:Rtype_Op <= `ysyx_22050550_XOR ; 
+            {7'b0000001,3'b111,`ysyx_22050550_R1}:Rtype_Op <= `ysyx_22050550_REM ; 
+            {7'b0000001,3'b110,`ysyx_22050550_R1}:Rtype_Op <= `ysyx_22050550_REMS; 
+            {7'b0000000,3'b010,`ysyx_22050550_R1}:Rtype_Op <= `ysyx_22050550_SLT ; 
+            {7'b0000000,3'b011,`ysyx_22050550_R1}:Rtype_Op <= `ysyx_22050550_SLTU; 
+            {7'b0100000,3'b000,`ysyx_22050550_R2}:Rtype_Op <= `ysyx_22050550_SUB ; 
+            {7'b0000001,3'b000,`ysyx_22050550_R2}:Rtype_Op <= `ysyx_22050550_MUL ; 
+            {7'b0000001,3'b100,`ysyx_22050550_R2}:Rtype_Op <= `ysyx_22050550_DIVS; 
+            {7'b0000001,3'b101,`ysyx_22050550_R2}:Rtype_Op <= `ysyx_22050550_DIV ; 
+            {7'b0000001,3'b110,`ysyx_22050550_R2}:Rtype_Op <= `ysyx_22050550_REMS; 
+            {7'b0000001,3'b111,`ysyx_22050550_R2}:Rtype_Op <= `ysyx_22050550_REM ; 
+            {7'b0000000,3'b001,`ysyx_22050550_R2}:Rtype_Op <= `ysyx_22050550_SLLW; 
+            {7'b0000000,3'b001,`ysyx_22050550_R1}:Rtype_Op <= `ysyx_22050550_SLL ; 
+            {7'b0100000,3'b101,`ysyx_22050550_R2}:Rtype_Op <= `ysyx_22050550_SRA ; 
+            {7'b0000000,3'b101,`ysyx_22050550_R2}:Rtype_Op <= `ysyx_22050550_SRL ; 
+            {7'b0000000,3'b101,`ysyx_22050550_R1}:Rtype_Op <= `ysyx_22050550_SRL ; 
+            {7'b0000000,3'b111,`ysyx_22050550_R1}:Rtype_Op <= `ysyx_22050550_AND ; 
+            {7'b0000000,3'b110,`ysyx_22050550_R1}:Rtype_Op <= `ysyx_22050550_OR  ; 
+            default: Rtype_Op <= `ysyx_22050550_ADD;
         endcase
     end
     */
     
+    wire [4:0] Rtype_Op;
     assign Rtype_Op = 
     RtypeOpKey == {7'b0100000,3'b000,`ysyx_22050550_R1} ? `ysyx_22050550_SUB   :
     RtypeOpKey == {7'b0000001,3'b000,`ysyx_22050550_R1} ? `ysyx_22050550_MUL   :
@@ -264,7 +286,7 @@ module ysyx_22050550_IDU(
     RtypeOpKey == {7'b0000000,3'b101,`ysyx_22050550_R2} ? `ysyx_22050550_SRL   :
     RtypeOpKey == {7'b0000000,3'b101,`ysyx_22050550_R1} ? `ysyx_22050550_SRL   :
     RtypeOpKey == {7'b0000000,3'b111,`ysyx_22050550_R1} ? `ysyx_22050550_AND   :
-    RtypeOpKey == {7'b0000000,3'b110,`ysyx_22050550_R1} ? `ysyx_22050550_OR :`ysyx_22050550_ADD;
+    RtypeOpKey == {7'b0000000,3'b110,`ysyx_22050550_R1} ? `ysyx_22050550_OR    :`ysyx_22050550_ADD;
     
     /*
     ysyx_22050550_MuxKeyWithDefault#(22,17,5) RtypeOpMux(

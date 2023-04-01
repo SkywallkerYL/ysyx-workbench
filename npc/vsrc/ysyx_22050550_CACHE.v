@@ -27,6 +27,7 @@ module ysyx_22050550_CACHE(
     output [0:0]  io_w_last                 ,
     output [0:0]  io_b_ready                ,
     input  [0:0]  io_b_valid                ,
+    
     /***********Cache***********/
     input  [63:0] pc                        ,
     input  [0:0]  io_Cache_valid            ,
@@ -37,8 +38,7 @@ module ysyx_22050550_CACHE(
     output [63:0] io_Cache_data             ,
     output        io_Cache_dataok           
     /*********DataArray·的Sram 例化在顶层 这里内部只保留tagarray********/
-    /*********暂时先实现在内部 **********/
-
+    /*********暂时先实现在内部 **********/                   
 );
     /*
         采用官方提供的RAM模板实现，
@@ -261,6 +261,8 @@ module ysyx_22050550_CACHE(
     wire [1:0] hitway = hit[3]? 2'd3:  hit[2]? 2'd2 :hit[1]? 2'd1 :hit[0]? 2'd0 : 2'd0;
     wire [5:0] hitaddr = {AddrGroup,hitway};//(AddrGroup <<2) | hitway;
     //lfsr 用于随机选取某一路
+    wire [1:0] random;
+`ifdef ysyx_22050550_CacheUseLFSR
     reg [15:0] lfsr;
     /*	
     ysyx_22050550_Reg # (16,16'd1) reglfsr (
@@ -278,18 +280,21 @@ module ysyx_22050550_CACHE(
         else
           lfsr <= {lfsr[0] ^ lfsr[2] ^ lfsr[3] ^ lfsr[5], lfsr[15:1]};	
     end 
-    
+    assign random = lfsr[1:0];
+`else 
+    assign random = {$random}%4;
+`endif 
     //用来记录保存选中路数的寄存器 在进入miss的前一个周期保存
     wire saveen;
     //
 `ifdef ysyx_22050550_FAST
     reg [1:0] chooseway ;
     always @ (posedge clock) begin
-        if(saveen ) chooseway<= lfsr[1:0];
+        if(saveen ) chooseway<= random;
     end
 `else
     ysyx_22050550_Reg # (2,2'd0) regvalid (
-                .clock(clock),.reset(reset),.wen(saveen),.din(lfsr[1:0]),
+                .clock(clock),.reset(reset),.wen(saveen),.din(random),
                 .dout(chooseway));
     wire [1:0] chooseway ;
 `endif         

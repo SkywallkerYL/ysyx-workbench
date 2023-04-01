@@ -108,8 +108,8 @@ void NDL_OpenCanvas(int *w, int *h) {
   }
   Canvas_w = *w;
   Canvas_h = *h;
-  Canvas_x = (screen_w - Canvas_w)/2;
-  Canvas_y = (screen_h - Canvas_h)/2;
+  Canvas_x = (screen_w - Canvas_w)>>1;
+  Canvas_y = (screen_h - Canvas_h)>>1;
   assert(Canvas_x >=0 && Canvas_y >= 0);
   printf("NDL_OpenCanvas :h:%d w:%d\n",Canvas_h,Canvas_w);
 }
@@ -146,9 +146,9 @@ void NDL_DrawRect(uint32_t *pixels, int x, int y, int w, int h) {
     //}
     //printf("oout\n");
     //close(fd);
-    assert(lseek(fd,offset*4,SEEK_SET)==offset*4);
+    assert(lseek(fd,offset<<2,SEEK_SET)==offset<<2);
     //printf("fail line: i:%d\n",i);
-    assert(write(fd,pixels+(uint32_t)i*w,len*4)==len*4);
+    assert(write(fd,pixels+(uint32_t)i*w,len<<2)==len<<2);
     //close(fd);
   }
   

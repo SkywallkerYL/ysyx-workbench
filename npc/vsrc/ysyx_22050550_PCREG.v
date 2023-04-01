@@ -17,6 +17,7 @@ module ysyx_22050550_PCREG(
 );
     reg  [`ysyx_22050550_RegBus] RegPc ;
     wire [`ysyx_22050550_RegBus] Pc_4   = RegPc + 64'h4;
+    //J B
     wire [`ysyx_22050550_RegBus] jalpc  = (Id_jal == 4'd1 || Id_jal == 4'd3)?(Id_Pc + Id_imm):0;
     wire [`ysyx_22050550_RegBus] jalrpc = Id_jal == 4'd2 ?(Id_imm + Id_rs1) & (~(64'h1)):0;
     wire [`ysyx_22050550_RegBus] jumpc;
@@ -40,7 +41,7 @@ module ysyx_22050550_PCREG(
     );
     */
     wire wen;
-    assign wen = ready || (Id_jal != 4'd0 && Id_valid);
+    assign wen = ready || (|Id_jal && Id_valid);
 `ifdef ysyx_22050550_FAST
     always @( posedge clock) begin
         if(reset) RegPc <= `ysyx_22050550_REGWIDTH'h80000000;

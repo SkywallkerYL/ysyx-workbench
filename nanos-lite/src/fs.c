@@ -265,11 +265,11 @@ size_t fs_lseek(int fd, size_t offset, int whence)
 int fs_close(int fd)
 {
   //if (fd == FD_STDIN || fd == FD_STDOUT || fd == FD_STDERR)
-  if (fd < FB_DEV)
-  {
-    //ignore
-    return 0;
-  }
+  //if (fd < FB_DEV)
+  //{
+  //  //ignore
+  //  return 0;
+  //}
   /*
   int openind = GetOpenInd(fd);
   if (openind == -1)

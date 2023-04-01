@@ -55,7 +55,7 @@ size_t fb_write(const void *buf, size_t offset, size_t len) {
   //io_write(AM_GPU_FBDRAW, 0, 0, vmem, screen_width(), screen_height(), true);
   AM_GPU_CONFIG_T ev = io_read(AM_GPU_CONFIG);
   //uint32_t height = ev.height;
-  size_t realoffset = offset/4;
+  size_t realoffset = offset>>2;
   uint32_t width = ev.width;
   int y = realoffset/width;
   int x = realoffset%width;
@@ -64,7 +64,7 @@ size_t fb_write(const void *buf, size_t offset, size_t len) {
   //assert(wri_width%4==0);
   //io_write(AM_GPU_FBDRAW, x, y, (void *)buf, width, height, true);
   //传进来的是一行的像素
-  io_write(AM_GPU_FBDRAW, x, y, (void *)buf, len/4, 1, true);
+  io_write(AM_GPU_FBDRAW, x, y, (void *)buf, len>>2, 1, true);
   return 0;
 }
 
