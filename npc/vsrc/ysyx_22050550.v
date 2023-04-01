@@ -11,7 +11,7 @@ module ysyx_22050550(
 );
 
 wire IF_ready;
-wire [ 3:0] io_IDNPC_jal    ;
+wire [ 4:0] io_IDNPC_jal    ;
 wire [63:0] io_IDNPC_IdPc   ;
 wire [63:0] io_IDNPC_imm    ;
 wire [63:0] io_IDNPC_rs1    ;

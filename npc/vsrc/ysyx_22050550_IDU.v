@@ -51,7 +51,7 @@ module ysyx_22050550_IDU(
   output [2:0]      io_idex_func3,
   //output [6:0]      io_idex_func7,
   output [63:0]     io_idex_NextPc,
-  output [3:0]      io_IDNPC_jal,
+  output [4:0]      io_IDNPC_jal,
   output [63:0]     io_IDNPC_IdPc,
                     io_IDNPC_imm,
                     io_IDNPC_rs1,
@@ -402,7 +402,8 @@ module ysyx_22050550_IDU(
     }));
     */
     wire Jalflag = InstType == J_type;
-    wire [3:0] jal = jalrflag?4'd2:ecallflag?4'd4:jump ?4'd3 :mret?4'd5 :Jalflag?4'd1: 4'd0;
+    wire [4:0] jal = {jalrflag,ecallflag,jump,mret,Jalflag} ;
+    //wire [3:0] jal = jalrflag?4'd2:ecallflag?4'd4:jump ?4'd3 :mret?4'd5 :Jalflag?4'd1: 4'd0;
     /*
     这个感觉也可以换掉，应该会更快 还是用always快一些
     */

@@ -3,7 +3,7 @@ module ysyx_22050550_PCREG(
     input           reset,
     input           clock,
     input                                       ready       ,
-    input           [3:0]                       Id_jal      ,
+    input           [4:0]                       Id_jal      ,
     input           [`ysyx_22050550_RegBus]     Id_Pc       ,
     input           [`ysyx_22050550_RegBus]     Id_imm      ,
     input           [`ysyx_22050550_RegBus]     Id_rs1      ,
@@ -18,16 +18,25 @@ module ysyx_22050550_PCREG(
     reg  [`ysyx_22050550_RegBus] RegPc ;
     wire [`ysyx_22050550_RegBus] Pc_4   = RegPc + 64'h4;
     //J B
-    wire [`ysyx_22050550_RegBus] jalpc  = (Id_jal == 4'd1 || Id_jal == 4'd3)?(Id_Pc + Id_imm):0;
-    wire [`ysyx_22050550_RegBus] jalrpc = Id_jal == 4'd2 ?(Id_imm + Id_rs1) & (~(64'h1)):0;
-    wire [`ysyx_22050550_RegBus] jumpc;
-    assign jumpc = 
-    Id_jal == 4'd0 ? Pc_4       :
-    Id_jal == 4'd1 ? jalpc      :
-    Id_jal == 4'd2 ? jalrpc     :
-    Id_jal == 4'd3 ? jalpc      :
-    Id_jal == 4'd4 ? Id_ecallpc :
-    Id_jal == 4'd5 ? Id_mretpc  :Pc_4;
+    //{jalrflag,ecallflag,jump,mret,Jalflag} ;
+    //wire [`ysyx_22050550_RegBus] jalpc  = (Id_jal == 4'd1 || Id_jal == 4'd3)?(Id_Pc + Id_imm):0;
+    //wire [`ysyx_22050550_RegBus] jalrpc = Id_jal == 4'd2 ?(Id_imm + Id_rs1) & (~(64'h1)):0;
+    //wire [`ysyx_22050550_RegBus] jumpc;
+    //assign jumpc = 
+    //Id_jal == 4'd0 ? Pc_4       :
+    //Id_jal == 4'd1 ? jalpc      :
+    //Id_jal == 4'd2 ? jalrpc     :
+    //Id_jal == 4'd3 ? jalpc      :
+    //Id_jal == 4'd4 ? Id_ecallpc :
+    //Id_jal == 4'd5 ? Id_mretpc  :Pc_4;
+    //wire [`ysyx_22050550_RegBus] jalpc  = (Id_jal[0] || Id_jal[2])?(Id_Pc + Id_imm) : 0     ;
+    //wire [`ysyx_22050550_RegBus] jalrpc = Id_jal[4]?(Id_imm + Id_rs1) & (~(64'h1)):0  ;
+    wire [`ysyx_22050550_RegBus] jumpc = 
+    !(|Id_jal)              ? Pc_4                          :     
+    (Id_jal[0] || Id_jal[2])? (Id_Pc + Id_imm)              :
+    Id_jal[4]               ? (Id_imm + Id_rs1) & (~(64'h1)):
+    Id_jal[3]               ? Id_ecallpc                    :
+    Id_jal[1]               ? Id_mretpc                     : Pc_4;
     /*
     ysyx_22050550_MuxKeyWithDefault #(6,4,`ysyx_22050550_REGWIDTH) PCMUX(
         .out(jumpc),.key(Id_jal),.default_out(Pc_4),.lut({
