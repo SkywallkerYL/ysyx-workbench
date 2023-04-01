@@ -60,11 +60,34 @@ module ysyx_22050550_EXU(
     output        io_ReadyID_ready          
 );
     /*************ALU****************/
-    wire [`ysyx_22050550_RegBus] ALURes;
+    
     wire [`ysyx_22050550_RegBus] MulDivRes;
     wire [`ysyx_22050550_RegBus] src1 = io_id_AluOp_rd1;
     wire [`ysyx_22050550_RegBus] src2 = io_id_AluOp_rd2;
     wire [4:0] OP = io_id_AluOp_op;
+    //faster
+    reg  [`ysyx_22050550_RegBus] ALURes;
+    always@(io_id_AluOp_op) begin
+             if(OP == `ysyx_22050550_ADD ) ALURes = src1 + src2                               ;
+        else if(OP == `ysyx_22050550_SUB ) ALURes = src1 - src2                               ;
+        else if(OP == `ysyx_22050550_MUL ) ALURes = MulDivRes                                 ;
+        else if(OP == `ysyx_22050550_MULW) ALURes = MulDivRes                                 ;
+        else if(OP == `ysyx_22050550_DIV ) ALURes = MulDivRes                                 ;
+        else if(OP == `ysyx_22050550_DIVS) ALURes = MulDivRes                                 ;
+        else if(OP == `ysyx_22050550_REM ) ALURes = src1 % src2                               ;
+        else if(OP == `ysyx_22050550_REMS) ALURes = $signed(src1) % $signed(src2)             ;
+        else if(OP == `ysyx_22050550_XOR ) ALURes = src1 ^ src2                               ;
+        else if(OP == `ysyx_22050550_OR  ) ALURes = src1 | src2                               ;
+        else if(OP == `ysyx_22050550_AND ) ALURes = src1 & src2                               ;
+        else if(OP == `ysyx_22050550_SLTU) ALURes = {{63{1'b0}},src1 < src2}                  ;
+        else if(OP == `ysyx_22050550_SLT ) ALURes = {{63{1'b0}},$signed(src1) < $signed(src2)};
+        else if(OP == `ysyx_22050550_SRA ) ALURes = $signed(src1) >>> src2                    ;
+        else if(OP == `ysyx_22050550_SRL ) ALURes = src1 >> src2                              ;
+        else if(OP == `ysyx_22050550_SLL ) ALURes = src1 << src2[5:0]                         ;
+        else if(OP == `ysyx_22050550_SLLW) ALURes = src1 << src2[4:0]                         ;
+    end
+    /*
+    wire [`ysyx_22050550_RegBus] ALURes;
     assign ALURes = 
     OP == `ysyx_22050550_ADD  ? src1 + src2                               :
     OP == `ysyx_22050550_SUB  ? src1 - src2                               :
@@ -82,7 +105,8 @@ module ysyx_22050550_EXU(
     OP == `ysyx_22050550_SRA  ? $signed(src1) >>> src2                    :
     OP == `ysyx_22050550_SRL  ? src1 >> src2                              :
     OP == `ysyx_22050550_SLL  ? src1 << src2[5:0]                         :
-    OP == `ysyx_22050550_SLLW ? src1 << src2[4:0]  :   src1+src2;
+    OP == `ysyx_22050550_SLLW ? src1 << src2[4:0]                         :   src1+src2;
+    */
     /* 
     ysyx_22050550_MuxKeyWithDefault#(17,5,`ysyx_22050550_REGWIDTH) AluMux(
         .out(ALURes),.key(OP),.default_out(src1+src2),.lut({

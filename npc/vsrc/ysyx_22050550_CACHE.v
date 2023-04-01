@@ -452,12 +452,23 @@ module ysyx_22050550_CACHE(
     //data write ben mux  //低有效
     wire [127:0] low8mask  = 128'hff        ; wire [127:0] low16mask = 128'hffff                ; 
     wire [127:0] low32mask = 128'hffff_ffff ; wire [127:0] low64mask = 128'hffff_ffff_ffff_ffff ;
+    //for faster
+    reg  [127:0] hitDataBen;
+    always@(*) begin
+             if (io_Cache_wmask == 0)        hitDataBen <= ~128'b0                      ;
+        else if (io_Cache_wmask == {8'b1}  ) hitDataBen <= ~(low8mask << addrblockshift);
+        else if (io_Cache_wmask == {8'b11} ) hitDataBen <= ~(low16mask<< addrblockshift);
+        else if (io_Cache_wmask == {8'hf}  ) hitDataBen <= ~(low32mask<< addrblockshift);
+        else if (io_Cache_wmask == {8'hff} ) hitDataBen <= ~(low64mask<< addrblockshift);
+    end
+    /*
     wire [127:0] hitDataBen;
     assign hitDataBen = 
     io_Cache_wmask == {8'b1}  ? ~(low8mask << addrblockshift):
     io_Cache_wmask == {8'b11} ? ~(low16mask<< addrblockshift):
     io_Cache_wmask == {8'hf}  ? ~(low32mask<< addrblockshift):
     io_Cache_wmask == {8'hff} ? ~(low64mask<< addrblockshift):~128'b0;
+    */
     /*
     ysyx_22050550_MuxKeyWithDefault#(4,8,128) hitDataBenMux(
         .out(hitDataBen),.key({io_Cache_wmask}),.default_out(~128'b0),.lut({

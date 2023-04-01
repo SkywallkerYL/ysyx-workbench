@@ -56,7 +56,7 @@ module ysyx_22050550_Diver (
     end
 `ifdef ysyx_22050550_FAST
     always@(posedge clock) begin
-        if      (state == Idle && io_Exu_DivValid)              DivRes <= choosdivend << 1      ;
+        
         /*
         else if (state == Busy) begin
             if(divcount==0&&cmpRes >=cmpDivs) DivRes <= DivRes- Divsor+1      ;
@@ -66,6 +66,7 @@ module ysyx_22050550_Diver (
             end
         end
         */
+             if (state == Idle && io_Exu_DivValid              )DivRes <= choosdivend << 1      ;
         else if (state == Busy && divcount==0&&cmpRes >=cmpDivs)DivRes <= DivRes- Divsor+1      ;
         else if (state == Busy && divcount!=0&&cmpRes >=cmpDivs)DivRes <= (DivRes- Divsor+1)<<1 ;
         else if (state == Busy && divcount!=0&&cmpRes < cmpDivs)DivRes <= DivRes << 1           ;

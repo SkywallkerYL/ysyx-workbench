@@ -271,7 +271,20 @@ import "DPI-C" function void pmem_write(input longint Dpi_waddr, input longint D
     wire lsubusy = DeviceReadBusy || DeviceWriteBusy || cachebusy   ;
     wire lsuvalid = !lsubusy                                        ;
     wire [`ysyx_22050550_RegBus] cachedata = io_Cache_data          ;
-    
+    //for faster
+    //
+    reg [`ysyx_22050550_RegBus] maskData ;
+    always @(*) begin
+             if (!io_EXLS_rflag) maskData <= 0;
+        else if (io_EXLS_func3 ==`ysyx_22050550_LB ) maskData <= {{(56){LsuData[7]}},LsuData[7:0]}  ;   
+        else if (io_EXLS_func3 ==`ysyx_22050550_LH ) maskData <= {{(48){LsuData[15]}},LsuData[15:0]};
+        else if (io_EXLS_func3 ==`ysyx_22050550_LW ) maskData <= {{(32){LsuData[31]}},LsuData[31:0]};
+        else if (io_EXLS_func3 ==`ysyx_22050550_LD ) maskData <= LsuData                            ;   
+        else if (io_EXLS_func3 ==`ysyx_22050550_LWU) maskData <= {{(32){1'b0}},LsuData[31:0]}       ;   
+        else if (io_EXLS_func3 ==`ysyx_22050550_LHU) maskData <= {{(48){1'b0}},LsuData[15:0]}       ;   
+        else if (io_EXLS_func3 ==`ysyx_22050550_LBU) maskData <= {{(56){1'b0}},LsuData[7:0]}        ;  
+    end
+    /*
     wire [`ysyx_22050550_RegBus] maskData ;
     assign maskData = io_EXLS_func3 ==`ysyx_22050550_LB  ? {{(56){LsuData[7]}},LsuData[7:0]}  :    
                       io_EXLS_func3 ==`ysyx_22050550_LH  ? {{(48){LsuData[15]}},LsuData[15:0]}:
@@ -280,6 +293,7 @@ import "DPI-C" function void pmem_write(input longint Dpi_waddr, input longint D
                       io_EXLS_func3 ==`ysyx_22050550_LWU ? {{(32){1'b0}},LsuData[31:0]}       :      
                       io_EXLS_func3 ==`ysyx_22050550_LHU ? {{(48){1'b0}},LsuData[15:0]}       :       
                       io_EXLS_func3 ==`ysyx_22050550_LBU ? {{(56){1'b0}},LsuData[7:0]}:   LsuData; 
+    */
     /*
     ysyx_22050550_MuxKeyWithDefault#(7,3,`ysyx_22050550_REGWIDTH) LsuDataMux(
         .out(maskData),.key(io_EXLS_func3),.default_out(LsuData),.lut({
