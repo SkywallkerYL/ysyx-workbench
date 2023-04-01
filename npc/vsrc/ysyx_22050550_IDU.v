@@ -262,7 +262,7 @@ module ysyx_22050550_IDU(
     
     reg [4:0] Rtype_Op;
     always @(RtypeOpKey) begin
-             if(InstType !=  R_type)                                 Rtype_Op =`ysyx_22050550_ADD    ;
+             if(InstType !=  R_type)                                 Rtype_Op = `ysyx_22050550_ADD   ;
         else if(RtypeOpKey == {7'b0100000,3'b000,`ysyx_22050550_R1}) Rtype_Op = `ysyx_22050550_SUB   ;
         else if(RtypeOpKey == {7'b0000001,3'b000,`ysyx_22050550_R1}) Rtype_Op = `ysyx_22050550_MUL   ;
         else if(RtypeOpKey == {7'b0000001,3'b101,`ysyx_22050550_R1}) Rtype_Op = `ysyx_22050550_DIV   ;
