@@ -35,39 +35,38 @@ module ysyx_22050550_IDU(
                     io_idex_imm             ,
                     io_idex_AluOp_rd1       ,
                     io_idex_AluOp_rd2       ,
-  output [4:0]      io_idex_AluOp_op,
-  output [4:0]      io_idex_waddr,
-  output            io_idex_wen,
-                    io_idex_wflag,
-                    io_idex_rflag,
-                    io_idex_csrflag,
-                    io_idex_jalrflag,
-                    io_idex_ecallflag,
-                    io_idex_mretflag,
-                    io_idex_breakflag,
-  output [7:0]      io_idex_wmask,
-  output [1:0]      io_idex_choose,
-  output            io_idex_alumask,
-  output [2:0]      io_idex_func3,
-  //output [6:0]      io_idex_func7,
-  output [63:0]     io_idex_NextPc,
-  output [4:0]      io_IDNPC_jal,
-  output [63:0]     io_IDNPC_IdPc,
-                    io_IDNPC_imm,
-                    io_IDNPC_rs1,
-                    io_IDNPC_ecallpc,
-                    io_IDNPC_mretpc,
-  output            io_IDNPC_valid,
-                    io_ReadyIF_ready,
+  output [4:0]      io_idex_AluOp_op        ,
+  output [4:0]      io_idex_waddr           ,
+  output            io_idex_wen             ,
+                    io_idex_wflag           ,
+                    io_idex_rflag           ,
+                    io_idex_csrflag         ,
+                    io_idex_jalrflag        ,
+                    io_idex_ecallflag       ,
+                    io_idex_mretflag        ,
+                    io_idex_breakflag       ,
+  output [7:0]      io_idex_wmask           ,
+  output [1:0]      io_idex_choose          ,
+  output            io_idex_alumask         ,
+  output [2:0]      io_idex_func3           ,
+  output [63:0]     io_idex_NextPc          ,
+  output [4:0]      io_IDNPC_jal            ,
+  output [63:0]     io_IDNPC_IdPc           ,
+                    io_IDNPC_imm            ,
+                    io_IDNPC_rs1            ,
+                    io_IDNPC_ecallpc        ,
+                    io_IDNPC_mretpc         ,
+  output            io_IDNPC_valid          ,
+                    io_ReadyIF_ready        ,
   //                  io_Score_WScore_wen,
   //output [4:0]      io_Score_WScore_waddr,
-  output            io_Score_RScore_valid,
-  output            io_Score_RScore_wen ,
-  output [4:0]      io_Score_RScore_rdaddr1,
-                    io_Score_RScore_rdaddr2,
-                    io_Score_RScore_waddr  ,
-                    io_Pass_rs1,
-                    io_Pass_rs2,
+  output            io_Score_RScore_valid   ,
+  output            io_Score_RScore_wen     ,
+  output [4:0]      io_Score_RScore_rdaddr1 ,
+                    io_Score_RScore_rdaddr2 ,
+                    io_Score_RScore_waddr   ,
+                    io_Pass_rs1             ,
+                    io_Pass_rs2             ,
   output            io_Pass_valid 
 
   //input             printflag 
@@ -91,16 +90,13 @@ module ysyx_22050550_IDU(
     //assign io_IDRegFile_raddr1 = rs1;
     //assign io_IDRegFile_raddr2 = rs2;
     //assign io_idex_waddr       = rd ;
-    wire [`ysyx_22050550_RegBus] I_imm= {{(`ysyx_22050550_REGWIDTH-12){io_IFID_inst[31]}},io_IFID_inst[31:20]};
-    wire [`ysyx_22050550_RegBus] U_imm= {{(`ysyx_22050550_REGWIDTH-32){io_IFID_inst[31]}},io_IFID_inst[31:12],{12{1'b0}}};
-    wire [`ysyx_22050550_RegBus] J_imm= {{(`ysyx_22050550_REGWIDTH-20){io_IFID_inst[31]}},io_IFID_inst[19:12],io_IFID_inst[20],io_IFID_inst[30:21],1'b0};
-    wire [`ysyx_22050550_RegBus] B_imm= {{(`ysyx_22050550_REGWIDTH-12){io_IFID_inst[31]}},io_IFID_inst[7],io_IFID_inst[30:25],io_IFID_inst[11:8],1'b0};
-    wire [`ysyx_22050550_RegBus] S_imm= {{(`ysyx_22050550_REGWIDTH-12){io_IFID_inst[31]}},io_IFID_inst[31:25],io_IFID_inst[11:7]};
+
     
     //faster
     reg     [2:0] InstType;
     always@(opcode) begin
-        if(opcode ==`ysyx_22050550_R1 ||opcode ==`ysyx_22050550_R2 )        InstType = R_type ;
+             if(!io_IFID_valid)                                             InstType = Bad_type;
+        else if(opcode ==`ysyx_22050550_R1 ||opcode ==`ysyx_22050550_R2 )   InstType = R_type ;
         else if ((opcode ==`ysyx_22050550_I1 ||opcode ==`ysyx_22050550_I2||opcode ==`ysyx_22050550_I3)||
     (opcode ==`ysyx_22050550_I4 ||opcode ==`ysyx_22050550_I5))              InstType = I_type ;
         else if ((opcode ==`ysyx_22050550_S1 ))                             InstType = S_type ;
@@ -135,15 +131,36 @@ module ysyx_22050550_IDU(
     */
     //assign io_idex_instType = InstType;
     //assign io_idex_wen = (InstType !=S_type) && (InstType != B_type)&& (InstType != Bad_type);
+    //貌似这样写的话，这几个imm每个周期都在计算，额把这些给写到里面去看看 额没有什么太大的差别
+    
+    wire [`ysyx_22050550_RegBus] I_imm= {{(`ysyx_22050550_REGWIDTH-12){io_IFID_inst[31]}},io_IFID_inst[31:20]};
+    wire [`ysyx_22050550_RegBus] U_imm= {{(`ysyx_22050550_REGWIDTH-32){io_IFID_inst[31]}},io_IFID_inst[31:12],{12{1'b0}}};
+    wire [`ysyx_22050550_RegBus] J_imm= {{(`ysyx_22050550_REGWIDTH-20){io_IFID_inst[31]}},io_IFID_inst[19:12],io_IFID_inst[20],io_IFID_inst[30:21],1'b0};
+    wire [`ysyx_22050550_RegBus] B_imm= {{(`ysyx_22050550_REGWIDTH-12){io_IFID_inst[31]}},io_IFID_inst[7],io_IFID_inst[30:25],io_IFID_inst[11:8],1'b0};
+    wire [`ysyx_22050550_RegBus] S_imm= {{(`ysyx_22050550_REGWIDTH-12){io_IFID_inst[31]}},io_IFID_inst[31:25],io_IFID_inst[11:7]};
     reg     [`ysyx_22050550_RegBus] imm  ;
     always@(InstType)begin
-             if (InstType == I_type) imm = I_imm; 
+             if (!io_IFID_valid)     imm = 0    ;
+        else if (InstType == I_type) imm = I_imm; 
         else if (InstType == U_type) imm = U_imm; 
         else if (InstType == J_type) imm = J_imm; 
         else if (InstType == B_type) imm = B_imm; 
         else if (InstType == S_type) imm = S_imm;
-        else                         imm = 0    ;
+        //else                         imm = 0    ;
     end
+    
+    /*
+    reg     [`ysyx_22050550_RegBus] imm  ;
+    always@(InstType)begin
+             if (!io_IFID_valid)     imm = 0    ;
+        else if (InstType == I_type) imm = {{(`ysyx_22050550_REGWIDTH-12){io_IFID_inst[31]}},io_IFID_inst[31:20]}                                           ; 
+        else if (InstType == U_type) imm = {{(`ysyx_22050550_REGWIDTH-32){io_IFID_inst[31]}},io_IFID_inst[31:12],{12{1'b0}}}                                ; 
+        else if (InstType == J_type) imm = {{(`ysyx_22050550_REGWIDTH-20){io_IFID_inst[31]}},io_IFID_inst[19:12],io_IFID_inst[20],io_IFID_inst[30:21],1'b0} ; 
+        else if (InstType == B_type) imm = {{(`ysyx_22050550_REGWIDTH-12){io_IFID_inst[31]}},io_IFID_inst[7],io_IFID_inst[30:25],io_IFID_inst[11:8],1'b0}   ; 
+        else if (InstType == S_type) imm = {{(`ysyx_22050550_REGWIDTH-12){io_IFID_inst[31]}},io_IFID_inst[31:25],io_IFID_inst[11:7]}                        ;
+        //else                         imm = 0    ;
+    end
+    */
     /*
     assign imm =InstType == I_type ? I_imm :
                 InstType == U_type ? U_imm :

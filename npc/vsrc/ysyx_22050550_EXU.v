@@ -248,7 +248,7 @@ module ysyx_22050550_EXU(
     assign io_EXLS_ebreak   =      io_id_ebreak                     ;
     assign io_EXLS_wmask    =      io_id_wmask                      ;
     assign io_EXLS_func3    =      io_id_func3                      ;
-    //assign io_EXLS_func7    =      io_id_func7                      ;
+
     assign io_EXLS_NextPc   =      io_id_NextPc                     ;
     assign io_EXLS_alures   =      maskres                          ;
 
