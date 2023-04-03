@@ -11,14 +11,14 @@ module ysyx_22050550_PartProductGen(
     wire [2:0] chooseSignal = {io_Choose_BAdd,io_Choose_B,io_Choose_BSub};
     reg [127:0] add;
     always@(chooseSignal)begin
-             if(chooseSignal == 3'b000) add <= 128'd0                                                                  ;
-        else if(chooseSignal == 3'b001) add <= io_Choose_S                                                             ;
-        else if(chooseSignal == 3'b010) add <= io_Choose_S                                                             ;
-        else if(chooseSignal == 3'b011) add <= io_Choose_S << 1                                                        ;
-        else if(chooseSignal == 3'b100) add <= (io_Choose_HighUsign?io_Choose_S << 1: (~io_Choose_S+1)<<1             );
-        else if(chooseSignal == 3'b101) add <= (io_Choose_HighUsign?(io_Choose_S << 1) + io_Choose_S: (~io_Choose_S+1));
-        else if(chooseSignal == 3'b110) add <= (io_Choose_HighUsign?(io_Choose_S << 1) + io_Choose_S: (~io_Choose_S+1));
-        else if(chooseSignal == 3'b111) add <= (io_Choose_HighUsign?io_Choose_S << 2: 0  )                             ;
+             if(chooseSignal == 3'b000) add = 128'd0                                                                  ;
+        else if(chooseSignal == 3'b001) add = io_Choose_S                                                             ;
+        else if(chooseSignal == 3'b010) add = io_Choose_S                                                             ;
+        else if(chooseSignal == 3'b011) add = io_Choose_S << 1                                                        ;
+        else if(chooseSignal == 3'b100) add = (io_Choose_HighUsign?io_Choose_S << 1: (~io_Choose_S+1)<<1             );
+        else if(chooseSignal == 3'b101) add = (io_Choose_HighUsign?(io_Choose_S << 1) + io_Choose_S: (~io_Choose_S+1));
+        else if(chooseSignal == 3'b110) add = (io_Choose_HighUsign?(io_Choose_S << 1) + io_Choose_S: (~io_Choose_S+1));
+        else if(chooseSignal == 3'b111) add = (io_Choose_HighUsign?io_Choose_S << 2: 0  )                             ;
 
     end
     /*
