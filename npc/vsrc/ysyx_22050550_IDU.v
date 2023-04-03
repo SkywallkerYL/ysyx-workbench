@@ -146,7 +146,7 @@ module ysyx_22050550_IDU(
         else if (InstType == J_type) imm = J_imm; 
         else if (InstType == B_type) imm = B_imm; 
         else if (InstType == S_type) imm = S_imm;
-        //else                         imm = 0    ;
+        else                         imm = 0    ;
     end
     
     /*
