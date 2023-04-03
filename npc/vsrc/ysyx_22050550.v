@@ -137,7 +137,7 @@ ysyx_22050550_IDU IDU(
   .reset       (reset)        ,
   .clock       (clock)        ,
  //IF
-  .io_IFID_inst  (Rif_id_inst                   )   ,
+  .io_IFID_inst  (Rif_id_valid?Rif_id_inst:0    )   ,
   .io_IFID_pc    (Rif_id_pc                     )   ,  
   .io_IFID_valid (Rif_id_valid                  )   ,
   //REGFILE
