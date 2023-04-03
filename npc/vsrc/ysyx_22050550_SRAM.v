@@ -234,6 +234,12 @@ module ysyx_22050550_SRAM(
     }));
     */
     assign io_Sram_aw_ready = WriteState == writewait;
+`ifdef ysyx_22050550_FAST
+    always @ (posedge clock) begin
+        if((WriteState == writewait && io_Sram_aw_valid)) WReglen <= io_aw_len;
+        else if((WriteState == write && io_Sram_w_valid)) WReglen <= WReglen-1 ;
+    end
+`else 
     wire WReglenEn = (WriteState == writewait && io_Sram_aw_valid) 
                  || (WriteState == write && io_Sram_w_valid);
     wire [7:0] WRegLenIn = (WriteState == writewait && io_Sram_aw_valid) ? io_aw_len
@@ -245,6 +251,7 @@ module ysyx_22050550_SRAM(
         .din(WRegLenIn),
         .dout(WReglen)
     );
+`endif 
     //目前只有两种情况，先这样写了
     assign Dpi_waddr =  (io_aw_len==0 || WReglen==1) ? waddrReg : waddrReg + {{57'b0},WriteAddrAdd };
     assign Dpi_wdata =  io_Sram_w_bits_data;
