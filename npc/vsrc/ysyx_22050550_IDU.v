@@ -95,15 +95,15 @@ module ysyx_22050550_IDU(
     //faster
     reg     [2:0] InstType;
     always@(opcode) begin
-             //if(!io_IFID_valid)                                             InstType = Bad_type;
-             if(opcode ==`ysyx_22050550_R1 ||opcode ==`ysyx_22050550_R2 )   InstType = R_type ;
+             if(!io_IFID_valid)                                             InstType = Bad_type;
+        else if(opcode ==`ysyx_22050550_R1 ||opcode ==`ysyx_22050550_R2 )   InstType = R_type ;
         else if ((opcode ==`ysyx_22050550_I1 ||opcode ==`ysyx_22050550_I2||opcode ==`ysyx_22050550_I3)||
     (opcode ==`ysyx_22050550_I4 ||opcode ==`ysyx_22050550_I5))              InstType = I_type ;
         else if ((opcode ==`ysyx_22050550_S1 ))                             InstType = S_type ;
         else if ((opcode ==`ysyx_22050550_J1 ))                             InstType = J_type ;
         else if ((opcode ==`ysyx_22050550_B1 ))                             InstType = B_type ;
         else if (opcode ==`ysyx_22050550_U1 ||opcode ==`ysyx_22050550_U2  ) InstType = U_type ; 
-        else                                                                InstType = Bad_type;
+        //else                                                                InstType = Bad_type;
     end
     /*
     wire    [2:0] InstType;
@@ -146,7 +146,7 @@ module ysyx_22050550_IDU(
         else if (InstType == J_type) imm = J_imm; 
         else if (InstType == B_type) imm = B_imm; 
         else if (InstType == S_type) imm = S_imm;
-        else                         imm = 0    ;
+        //else                         imm = 0    ;
     end
     
     /*
@@ -241,7 +241,7 @@ module ysyx_22050550_IDU(
         else if(ItypeOpKey == {3'b101,`ysyx_22050550_I1})Itype_Op = ALflag?`ysyx_22050550_SRA:`ysyx_22050550_SRL;
         else if(ItypeOpKey == {3'b001,`ysyx_22050550_I2})Itype_Op = `ysyx_22050550_SLL                          ;
         else if(ItypeOpKey == {3'b001,`ysyx_22050550_I1})Itype_Op = `ysyx_22050550_SLLW                         ;
-        else                                             Itype_Op = `ysyx_22050550_ADD                          ;
+        //else                                             Itype_Op = `ysyx_22050550_ADD                          ;
     end
     
     /*
@@ -302,7 +302,7 @@ module ysyx_22050550_IDU(
         else if(RtypeOpKey == {7'b0000000,3'b101,`ysyx_22050550_R1}) Rtype_Op = `ysyx_22050550_SRL   ;
         else if(RtypeOpKey == {7'b0000000,3'b111,`ysyx_22050550_R1}) Rtype_Op = `ysyx_22050550_AND   ;
         else if(RtypeOpKey == {7'b0000000,3'b110,`ysyx_22050550_R1}) Rtype_Op = `ysyx_22050550_OR    ;
-        else                                                         Rtype_Op =`ysyx_22050550_ADD    ;
+        //else                                                         Rtype_Op =`ysyx_22050550_ADD    ;
     end
     
     /*
@@ -396,7 +396,7 @@ module ysyx_22050550_IDU(
         else if(func3 == 3'b111) Btype = 5'b01101 ;
         else if(func3 == 3'b100) Btype = 5'b00010 ;
         else if(func3 == 3'b110) Btype = 5'b00011 ;
-        else                     Btype = 5'd0     ;
+        //else                     Btype = 5'd0     ;
     end
     /*
     wire[4:0] Btype;
@@ -435,7 +435,7 @@ module ysyx_22050550_IDU(
         else if (StypeKey == 3'b010) wmask = 8'b00001111 ;
         else if (StypeKey == 3'b001) wmask = 8'b00000011 ;
         else if (StypeKey == 3'b000) wmask = 8'b00000001 ;
-        else                         wmask = 8'd0        ;
+        //else                         wmask = 8'd0        ;
     end
     /*
     wire [7:0] wmask;

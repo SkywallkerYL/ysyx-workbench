@@ -457,7 +457,7 @@ module ysyx_22050550_CACHE(
     //data write ben mux  //低有效
     wire [127:0] low8mask  = 128'hff        ; wire [127:0] low16mask = 128'hffff                ; 
     wire [127:0] low32mask = 128'hffff_ffff ; wire [127:0] low64mask = 128'hffff_ffff_ffff_ffff ;
-    //for faster
+    //for faster  保留latch
     reg  [127:0] hitDataBen;
     always@(*) begin
              if (io_Cache_wmask == 0)        hitDataBen = ~128'b0                      ;
@@ -465,7 +465,7 @@ module ysyx_22050550_CACHE(
         else if (io_Cache_wmask == {8'b11} ) hitDataBen = ~(low16mask<< addrblockshift);
         else if (io_Cache_wmask == {8'hf}  ) hitDataBen = ~(low32mask<< addrblockshift);
         else if (io_Cache_wmask == {8'hff} ) hitDataBen = ~(low64mask<< addrblockshift);
-        else                                 hitDataBen = ~128'b0                      ;
+        //else                                 hitDataBen = ~128'b0                      ;
     end
     /*
     wire [127:0] hitDataBen;

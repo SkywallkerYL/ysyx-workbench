@@ -88,7 +88,7 @@ module ysyx_22050550_SRAM(
         else if(io_ar_size ==  3'b001) ReadAddrAdd = 7'd2;
         else if(io_ar_size ==  3'b010) ReadAddrAdd = 7'd4;
         else if(io_ar_size ==  3'b011) ReadAddrAdd = 7'd8;
-        else                           ReadAddrAdd = 7'd8;
+        //else                           ReadAddrAdd = 7'd8;
     end
     /*
     ysyx_22050550_MuxKeyWithDefault#(4,3,7) AddrAddMux(
@@ -106,7 +106,7 @@ module ysyx_22050550_SRAM(
         else if(io_ar_size ==  3'b001) ReadData = {{48{1'b0}},Dpi_rdata[15:0]} ;
         else if(io_ar_size ==  3'b010) ReadData = {{32{1'b0}},Dpi_rdata[31:0]} ;
         else if(io_ar_size ==  3'b011) ReadData = Dpi_rdata                    ;
-        else                           ReadData = Dpi_rdata                    ;
+        //else                           ReadData = Dpi_rdata                    ;
     end
     /*
     wire [63:0] ReadData ;
@@ -188,7 +188,7 @@ module ysyx_22050550_SRAM(
         else if(io_aw_size == 3'b001)  WriteAddrAdd =  7'd2 ;
         else if(io_aw_size == 3'b010)  WriteAddrAdd =  7'd4 ;
         else if(io_aw_size == 3'b011)  WriteAddrAdd =  7'd8 ;
-        else                           WriteAddrAdd =  7'd8 ;
+        //else                           WriteAddrAdd =  7'd8 ;
     end
     /*
     wire [6:0] WriteAddrAdd;
@@ -215,7 +215,7 @@ module ysyx_22050550_SRAM(
         else if(io_aw_size == 3'b001)  WriteData =  {{48{1'b0}},io_Sram_w_bits_data[15:0]};
         else if(io_aw_size == 3'b010)  WriteData =  {{32{1'b0}},io_Sram_w_bits_data[31:0]};
         else if(io_aw_size == 3'b011)  WriteData =  io_Sram_w_bits_data                   ;
-        else                           WriteData =  io_Sram_w_bits_data                   ;
+        //else                           WriteData =  io_Sram_w_bits_data                   ;
     end
     /*
     wire [63:0] WriteData ;
