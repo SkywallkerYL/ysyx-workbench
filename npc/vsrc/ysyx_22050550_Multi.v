@@ -19,6 +19,7 @@ module ysyx_22050550_PartProductGen(
         else if(chooseSignal == 3'b101) add = (io_Choose_HighUsign?(io_Choose_S << 1) + io_Choose_S: (~io_Choose_S+1));
         else if(chooseSignal == 3'b110) add = (io_Choose_HighUsign?(io_Choose_S << 1) + io_Choose_S: (~io_Choose_S+1));
         else if(chooseSignal == 3'b111) add = (io_Choose_HighUsign?io_Choose_S << 2: 0  )                             ;
+        else                            add = 128'd0                                                                  ;
 
     end
     /*

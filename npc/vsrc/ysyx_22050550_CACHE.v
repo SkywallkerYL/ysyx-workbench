@@ -460,11 +460,12 @@ module ysyx_22050550_CACHE(
     //for faster
     reg  [127:0] hitDataBen;
     always@(*) begin
-             if (io_Cache_wmask == 0)        hitDataBen <= ~128'b0                      ;
-        else if (io_Cache_wmask == {8'b1}  ) hitDataBen <= ~(low8mask << addrblockshift);
-        else if (io_Cache_wmask == {8'b11} ) hitDataBen <= ~(low16mask<< addrblockshift);
-        else if (io_Cache_wmask == {8'hf}  ) hitDataBen <= ~(low32mask<< addrblockshift);
-        else if (io_Cache_wmask == {8'hff} ) hitDataBen <= ~(low64mask<< addrblockshift);
+             if (io_Cache_wmask == 0)        hitDataBen = ~128'b0                      ;
+        else if (io_Cache_wmask == {8'b1}  ) hitDataBen = ~(low8mask << addrblockshift);
+        else if (io_Cache_wmask == {8'b11} ) hitDataBen = ~(low16mask<< addrblockshift);
+        else if (io_Cache_wmask == {8'hf}  ) hitDataBen = ~(low32mask<< addrblockshift);
+        else if (io_Cache_wmask == {8'hff} ) hitDataBen = ~(low64mask<< addrblockshift);
+        else                                 hitDataBen = ~128'b0                      ;
     end
     /*
     wire [127:0] hitDataBen;

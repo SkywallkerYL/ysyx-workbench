@@ -282,7 +282,8 @@ import "DPI-C" function void pmem_write(input longint Dpi_waddr, input longint D
         else if (io_EXLS_func3 ==`ysyx_22050550_LD ) maskData <= LsuData                            ;   
         else if (io_EXLS_func3 ==`ysyx_22050550_LWU) maskData <= {{(32){1'b0}},LsuData[31:0]}       ;   
         else if (io_EXLS_func3 ==`ysyx_22050550_LHU) maskData <= {{(48){1'b0}},LsuData[15:0]}       ;   
-        else if (io_EXLS_func3 ==`ysyx_22050550_LBU) maskData <= {{(56){1'b0}},LsuData[7:0]}        ;  
+        else if (io_EXLS_func3 ==`ysyx_22050550_LBU) maskData <= {{(56){1'b0}},LsuData[7:0]}        ; 
+        else                                         maskData <= LsuData                            ; 
     end
     /*
     wire [`ysyx_22050550_RegBus] maskData ;

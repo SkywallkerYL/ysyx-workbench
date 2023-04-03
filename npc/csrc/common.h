@@ -34,7 +34,7 @@
 
 //#define WAVE
 
-#define WAVE_BEGIN 1000
+#define WAVE_BEGIN 0
 #define WAVE_END   10000
 
 //#define LOOKUPINST 1000000

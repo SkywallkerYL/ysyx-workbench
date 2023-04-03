@@ -85,6 +85,7 @@ module ysyx_22050550_EXU(
         else if(OP == `ysyx_22050550_SRL ) ALURes = src1 >> src2                              ;
         else if(OP == `ysyx_22050550_SLL ) ALURes = src1 << src2[5:0]                         ;
         else if(OP == `ysyx_22050550_SLLW) ALURes = src1 << src2[4:0]                         ;
+        else                               ALURes = 0                                         ;
     end
     /*
     wire [`ysyx_22050550_RegBus] ALURes;

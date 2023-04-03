@@ -389,13 +389,14 @@ module ysyx_22050550_IDU(
     reg [4:0] Btype;
     wire[2:0] BtypeKey = {func3};
     always@(func3) begin
-        if(InstType != B_type)   Btype = 5'd0;
+        if(InstType != B_type)   Btype = 5'd0     ;
         else if(func3 == 3'b000) Btype = 5'b01000 ;
         else if(func3 == 3'b001) Btype = 5'b10000 ;
         else if(func3 == 3'b101) Btype = 5'b01100 ;
         else if(func3 == 3'b111) Btype = 5'b01101 ;
         else if(func3 == 3'b100) Btype = 5'b00010 ;
         else if(func3 == 3'b110) Btype = 5'b00011 ;
+        else                     Btype = 5'd0     ;
     end
     /*
     wire[4:0] Btype;
@@ -429,11 +430,12 @@ module ysyx_22050550_IDU(
     reg [7:0] wmask ;
     wire[2:0] StypeKey = {func3};
     always@(func3) begin
-        if (InstType != S_type)      wmask = 8'd0;
+        if (InstType != S_type)      wmask = 8'd0        ;
         else if (StypeKey == 3'b011) wmask = 8'b11111111 ;
         else if (StypeKey == 3'b010) wmask = 8'b00001111 ;
         else if (StypeKey == 3'b001) wmask = 8'b00000011 ;
         else if (StypeKey == 3'b000) wmask = 8'b00000001 ;
+        else                         wmask = 8'd0        ;
     end
     /*
     wire [7:0] wmask;

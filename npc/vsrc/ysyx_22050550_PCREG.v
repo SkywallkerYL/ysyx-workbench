@@ -39,6 +39,7 @@ module ysyx_22050550_PCREG(
         else if (Id_jal[4]               ) jumpc = (Id_imm + Id_rs1) & (~(64'h1));
         else if (Id_jal[3]               ) jumpc = Id_ecallpc                    ;
         else if (Id_jal[1]               ) jumpc = Id_mretpc                     ;
+        else                               jumpc = Pc_4                          ;
     end
     /*
     wire [`ysyx_22050550_RegBus] jumpc = 
@@ -76,6 +77,6 @@ module ysyx_22050550_PCREG(
         .dout(RegPc)
     );
 `endif
-    assign npc = ((Id_jal != 4'd0 && Id_valid))? jumpc:RegPc;
+    assign npc = ((Id_jal != 0 && Id_valid))? jumpc:RegPc;
     assign NextPc = npc;
 endmodule
