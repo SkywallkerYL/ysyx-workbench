@@ -205,6 +205,12 @@ void sim_once(uint64_t n){
     localpc  = Pc_Fetch();
     localnpc = Dnpc_Fetch();
     localinst = Instr_Fetch();
+#ifdef LOOKUPINST
+    uint64_t init     = (localpc-CONFIG_MBASE)     ;
+    uint32_t realinst = *(uint32_t *)(&p_mem[init]);
+    //printf("localinst:%8x realinst:%8x\n",localinst,realinst);
+    assert(localinst == realinst);
+#endif
   }
 //#endif
   if(checkebreak()||top->io_abort){

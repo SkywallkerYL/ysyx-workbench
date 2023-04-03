@@ -38,6 +38,7 @@
 #define WAVE_END   10000
 
 //#define LOOKUPINST 1000000
+
 #define TRACE_CONDITION(a,begin,end)   ((a>=begin)&&(a<end))
 
 #define DIFFTEST_REG_SIZE (sizeof(uint64_t) * 41) // GRPs + pc + 8
