@@ -100,14 +100,14 @@ module ysyx_22050550_IDU(
     //faster
     reg     [2:0] InstType;
     always@(opcode) begin
-        if(opcode ==`ysyx_22050550_R1 ||opcode ==`ysyx_22050550_R2 )        InstType <= R_type ;
+        if(opcode ==`ysyx_22050550_R1 ||opcode ==`ysyx_22050550_R2 )        InstType = R_type ;
         else if ((opcode ==`ysyx_22050550_I1 ||opcode ==`ysyx_22050550_I2||opcode ==`ysyx_22050550_I3)||
-    (opcode ==`ysyx_22050550_I4 ||opcode ==`ysyx_22050550_I5))              InstType <= I_type ;
-        else if ((opcode ==`ysyx_22050550_S1 ))                             InstType <= S_type ;
-        else if ((opcode ==`ysyx_22050550_J1 ))                             InstType <= J_type ;
-        else if ((opcode ==`ysyx_22050550_B1 ))                             InstType <= B_type ;
-        else if (opcode ==`ysyx_22050550_U1 ||opcode ==`ysyx_22050550_U2  ) InstType <= U_type ; 
-        else                                                                InstType <= Bad_type;
+    (opcode ==`ysyx_22050550_I4 ||opcode ==`ysyx_22050550_I5))              InstType = I_type ;
+        else if ((opcode ==`ysyx_22050550_S1 ))                             InstType = S_type ;
+        else if ((opcode ==`ysyx_22050550_J1 ))                             InstType = J_type ;
+        else if ((opcode ==`ysyx_22050550_B1 ))                             InstType = B_type ;
+        else if (opcode ==`ysyx_22050550_U1 ||opcode ==`ysyx_22050550_U2  ) InstType = U_type ; 
+        else                                                                InstType = Bad_type;
     end
     /*
     wire    [2:0] InstType;
