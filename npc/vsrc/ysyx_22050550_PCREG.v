@@ -34,11 +34,11 @@ module ysyx_22050550_PCREG(
     //faster
     reg  [`ysyx_22050550_RegBus] jumpc;
     always@(Id_jal) begin
-             if (!(|Id_jal)              ) jumpc <= Pc_4                          ;
-        else if ((Id_jal[0] || Id_jal[2])) jumpc <= (Id_Pc + Id_imm)              ;
-        else if (Id_jal[4]               ) jumpc <= (Id_imm + Id_rs1) & (~(64'h1));
-        else if (Id_jal[3]               ) jumpc <= Id_ecallpc                    ;
-        else if (Id_jal[1]               ) jumpc <= Id_mretpc                     ;
+             if (!(|Id_jal)              ) jumpc = Pc_4                          ;
+        else if ((Id_jal[0] || Id_jal[2])) jumpc = (Id_Pc + Id_imm)              ;
+        else if (Id_jal[4]               ) jumpc = (Id_imm + Id_rs1) & (~(64'h1));
+        else if (Id_jal[3]               ) jumpc = Id_ecallpc                    ;
+        else if (Id_jal[1]               ) jumpc = Id_mretpc                     ;
     end
     /*
     wire [`ysyx_22050550_RegBus] jumpc = 
@@ -64,7 +64,7 @@ module ysyx_22050550_PCREG(
     assign wen = ready || (|Id_jal && Id_valid);
 `ifdef ysyx_22050550_FAST
     always @( posedge clock) begin
-        if(reset) RegPc <= `ysyx_22050550_REGWIDTH'h80000000;
+        if(reset)     RegPc <= `ysyx_22050550_REGWIDTH'h80000000;
         else if (wen) RegPc <= jumpc;
     end
 `else 

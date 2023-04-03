@@ -3,38 +3,38 @@ module ysyx_22050550_IDU(
   input         clock                     ,
                 reset                     ,
  //IF
-  input  [31:0]     io_IFID_inst,
-  input  [63:0]     io_IFID_pc,
-  input             io_IFID_valid,
+  input  [31:0]     io_IFID_inst            ,
+  input  [63:0]     io_IFID_pc              ,
+  input             io_IFID_valid           ,
   //REGFILE
-  input  [63:0]     io_RegFileID_CSRs_mepc,
-                    io_RegFileID_CSRs_mtvec,
-                    io_RegFileID_CSRs_mip,
-                    io_RegFileID_rdata1,
-                    io_RegFileID_rdata2,
+  input  [63:0]     io_RegFileID_CSRs_mepc  ,
+                    io_RegFileID_CSRs_mtvec ,
+                    io_RegFileID_CSRs_mip   ,
+                    io_RegFileID_rdata1     ,
+                    io_RegFileID_rdata2     ,
   // Ex
-  input             io_ReadyEX_ready,
-                    io_Score_RScore_busy1,
-                    io_Score_RScore_busy2,
+  input             io_ReadyEX_ready        ,
+                    io_Score_RScore_busy1   ,
+                    io_Score_RScore_busy2   ,
   // bypass
-  input  [63:0]     io_Pass_rdata,
-  input             io_Pass_pass1,
-                    io_Pass_pass2,
+  input  [63:0]     io_Pass_rdata           ,
+  input             io_Pass_pass1           ,
+                    io_Pass_pass2           ,
     //regpc
-  input  [63:0]     io_RegPc_nextpc,
-  output [4:0]      io_IDRegFile_raddr1,
-                    io_IDRegFile_raddr2,
-  output [63:0]     io_idex_pc,
-  output [31:0]     io_idex_inst,
+  input  [63:0]     io_RegPc_nextpc         ,
+  output [4:0]      io_IDRegFile_raddr1     ,
+                    io_IDRegFile_raddr2     ,
+  output [63:0]     io_idex_pc              ,
+  output [31:0]     io_idex_inst            ,
   //output [2:0]      io_idex_instType,
-  output            io_idex_valid,
-  output [4:0]      io_idex_rs1addr,
-  output            io_idex_abort,
+  output            io_idex_valid           ,
+  output [4:0]      io_idex_rs1addr         ,
+  output            io_idex_abort           ,
                     //io_idex_jalr,
-  output [63:0]     io_idex_rs2,
-                    io_idex_imm,
-                    io_idex_AluOp_rd1,
-                    io_idex_AluOp_rd2,
+  output [63:0]     io_idex_rs2             ,
+                    io_idex_imm             ,
+                    io_idex_AluOp_rd1       ,
+                    io_idex_AluOp_rd2       ,
   output [4:0]      io_idex_AluOp_op,
   output [4:0]      io_idex_waddr,
   output            io_idex_wen,
@@ -76,7 +76,7 @@ module ysyx_22050550_IDU(
     //assign io_idex_inst = io_IFID_inst;
     //assign io_IDNPC_IdPc =io_IFID_pc;
 
-    localparam  R_type   = 3'd0,I_type = 3'd1,S_type   = 3'd2,
+    localparam    R_type = 3'd0,I_type = 3'd1,S_type   = 3'd2,
     B_type = 3'd3,U_type = 3'd4,J_type = 3'd5,Bad_type = 3'd6;
    
     wire    [6:0] opcode = io_IFID_inst    [6:0];   
@@ -137,12 +137,12 @@ module ysyx_22050550_IDU(
     //assign io_idex_wen = (InstType !=S_type) && (InstType != B_type)&& (InstType != Bad_type);
     reg     [`ysyx_22050550_RegBus] imm  ;
     always@(InstType)begin
-             if (InstType == I_type) imm <= I_imm; 
-        else if (InstType == U_type) imm <= U_imm; 
-        else if (InstType == J_type) imm <= J_imm; 
-        else if (InstType == B_type) imm <= B_imm; 
-        else if (InstType == S_type) imm <= S_imm;
-        else                         imm <= 0    ;
+             if (InstType == I_type) imm = I_imm; 
+        else if (InstType == U_type) imm = U_imm; 
+        else if (InstType == J_type) imm = J_imm; 
+        else if (InstType == B_type) imm = B_imm; 
+        else if (InstType == S_type) imm = S_imm;
+        else                         imm = 0    ;
     end
     /*
     assign imm =InstType == I_type ? I_imm :

@@ -90,35 +90,25 @@ module ysyx_22050550_CACHE(
 `else
 `ifdef ysyx_22050550_FAST
     wire [`ysyx_22050550_TagBus] Tag[3:0];
-    wire Tag0Wen = (!io_r_last && REFILL && io_r_valid && chooseway==2'd0) ;
-    //wire [`ysyx_22050550_TagBus] Tag0Data = AddrTag; //写数据
+    wire Tag0Wen = (!io_r_last && REFILL && io_r_valid && chooseway==2'd0);
+    wire Tag1Wen = (!io_r_last && REFILL && io_r_valid && chooseway==2'd1);
+    wire Tag2Wen = (!io_r_last && REFILL && io_r_valid && chooseway==2'd2);
+    wire Tag3Wen = (!io_r_last && REFILL && io_r_valid && chooseway==2'd3);
+
     reg [`ysyx_22050550_TagWidth-1:0] Tag0 [0:`ysyx_22050550_GroupNum-1];
+    reg [`ysyx_22050550_TagWidth-1:0] Tag1 [0:`ysyx_22050550_GroupNum-1];
+    reg [`ysyx_22050550_TagWidth-1:0] Tag2 [0:`ysyx_22050550_GroupNum-1];
+    reg [`ysyx_22050550_TagWidth-1:0] Tag3 [0:`ysyx_22050550_GroupNum-1];
+
     assign Tag[0] = Tag0[AddrGroup];
+    assign Tag[1] = Tag1[AddrGroup];
+    assign Tag[2] = Tag2[AddrGroup];
+    assign Tag[3] = Tag3[AddrGroup];
+
     always @(posedge clock) begin
         if (Tag0Wen) Tag0[AddrGroup] <= AddrTag;
-    end
-    wire Tag1Wen = (!io_r_last && REFILL && io_r_valid && chooseway==2'd1);
-    //wire [`ysyx_22050550_TagBus] Tag1Data = AddrTag; //写数据
-    reg [`ysyx_22050550_TagWidth-1:0] Tag1 [0:`ysyx_22050550_GroupNum-1];
-    assign Tag[1] = Tag1[AddrGroup];
-    wire Tag1en[0:`ysyx_22050550_GroupNum-1];
-    always @(posedge clock) begin
         if (Tag1Wen) Tag1[AddrGroup] <= AddrTag;
-    end
-    wire Tag2Wen = (!io_r_last && REFILL && io_r_valid && chooseway==2'd2);
-    //wire [`ysyx_22050550_TagBus] Tag2Data = AddrTag; //写数据
-    reg [`ysyx_22050550_TagWidth-1:0] Tag2 [0:`ysyx_22050550_GroupNum-1];
-    assign Tag[2] = Tag2[AddrGroup];
-    wire Tag2en[0:`ysyx_22050550_GroupNum-1];
-    always @(posedge clock) begin
         if (Tag2Wen) Tag2[AddrGroup] <= AddrTag;
-    end
-    wire Tag3Wen = (!io_r_last && REFILL && io_r_valid && chooseway==2'd3);
-    //wire [`ysyx_22050550_TagBus] Tag3Data = AddrTag; //写数据
-    reg [`ysyx_22050550_TagWidth-1:0] Tag3 [0:`ysyx_22050550_GroupNum-1];
-    assign Tag[3] = Tag3[AddrGroup];
-    wire Tag3en[0:`ysyx_22050550_GroupNum-1];
-    always @(posedge clock) begin
         if (Tag3Wen) Tag3[AddrGroup] <= AddrTag;
     end
 `else
@@ -181,10 +171,10 @@ module ysyx_22050550_CACHE(
     //valid dirty
     reg  valid [63:0];
     reg  dirty [63:0];
-    wire [63:0] validen ;
+    
     wire validWriteEn ;
     wire validWriteData;
-    wire [63:0] dirtyen ;
+    
     wire dirtyWriteEn ;
     wire dirtyWriteData;
 `ifdef ysyx_22050550_FAST
@@ -193,6 +183,8 @@ module ysyx_22050550_CACHE(
         if(dirtyWriteEn) dirty[useaddr] <= dirtyWriteData;
     end
 `else
+    wire [63:0] validen ;
+    wire [63:0] dirtyen ;
     generate
         for (genvar i = 0; i < 64; i = i+1) begin : valid_dirty
             assign validen[i] = validWriteEn & (useaddr == i);
@@ -211,8 +203,8 @@ module ysyx_22050550_CACHE(
     //wire [`ysyx_22050550_AddrWidth-1:0] AddrTagshift =(io_Cache_addr >> (`ysyx_22050550_GroupWidth+`ysyx_22050550_BlockWidth));
     //wire [`ysyx_22050550_TagBus] AddrTag = AddrTagshift[`ysyx_22050550_TagBus];
     //移位的操作好像也会降低性能，能够不移位的地方就换成位拼接
-    wire [`ysyx_22050550_TagBus] AddrTag = io_Cache_addr[31:`ysyx_22050550_GroupWidth+`ysyx_22050550_BlockWidth];
-    wire [`ysyx_22050550_BlockBus]AddrBlock =  io_Cache_addr[`ysyx_22050550_BlockBus];
+    wire [`ysyx_22050550_TagBus]  AddrTag    = io_Cache_addr[31:`ysyx_22050550_GroupWidth+`ysyx_22050550_BlockWidth];
+    wire [`ysyx_22050550_BlockBus]AddrBlock  =  io_Cache_addr[`ysyx_22050550_BlockBus];
     //wire [`ysyx_22050550_AddrWidth-1:0]AddrGroupshift = (io_Cache_addr >> (`ysyx_22050550_BlockWidth));
     //wire [`ysyx_22050550_GroupBus] AddrGroup = AddrGroupshift[`ysyx_22050550_GroupBus];
     wire [`ysyx_22050550_GroupBus] AddrGroup = io_Cache_addr[7:`ysyx_22050550_BlockWidth];
@@ -384,7 +376,7 @@ module ysyx_22050550_CACHE(
                 end
             end
             replace:begin
-                //从总线写回cacheline
+                //从总线写回cacheline   last => miss
                 if (io_w_valid && io_w_ready) begin
                     if(io_w_last) begin
                         next = miss;
@@ -398,6 +390,7 @@ module ysyx_22050550_CACHE(
                 end
             end 
             refill:begin
+                //从RAM读取 last => lookup
                 if(io_r_valid && io_r_ready)begin
                     if (io_r_last) begin
                         next = lookup;
@@ -434,6 +427,18 @@ module ysyx_22050550_CACHE(
         refill  , chooseaddr
     }));
     */
+    /*
+        lookup 
+            Hit 
+                读操作 向Mem申请读HITWAY的数据 dataok延迟一周期拉高
+                写操作 向hitway写 并且dirty使能拉高
+            !hit 
+                要跳转miss了 这个周期chooseway的random拉高 保存随即选择的路
+    */
+    wire LOOKUP = state == lookup;
+    //读
+    //写也是一样的 cachehit了就行
+
     //hit 情况下的写入
     //data write mux 
     //需要考虑非对齐的情况 ，不用Mux了
@@ -478,10 +483,7 @@ module ysyx_22050550_CACHE(
             {8'hff}      , ~(low64mask<< addrblockshift) 
     }));
     */
-    //refill情况下的写入
-    wire[127:0] refilldata = !io_r_last ? {{64{1'b0}} ,io_r_rdata} : {io_r_rdata,{64{1'b0}}};
-    wire[127:0] refillben  = !io_r_last ? {{64{1'b1}} ,{64{1'b0}}} : {{64{1'b0}},{64{1'b1}}};
-    //dirty只在两种情况下写 一个是lookup命中了 写脏  一个是replace完成
+        //dirty只在两种情况下写 一个是lookup命中了 写脏  一个是replace完成
     //dirty write   data en mux  en 高有效
     assign dirtyWriteEn = (LOOKUP & cachehit & io_Cache_op) ||  
                           (REPLACE& io_w_valid & io_w_last); 
@@ -494,29 +496,6 @@ module ysyx_22050550_CACHE(
     }));
     */
     assign dirtyWriteData = (LOOKUP& cachehit & io_Cache_op); 
-                         //:REPLACE ? !(io_w_valid & io_w_last): 0;
-    // REFILL? !(io_r_last& io_r_valid) : 0;
-    /*
-    ysyx_22050550_MuxKeyWithDefault#(2,3,1) DirtyDataMux(
-        .out(dirtyWriteData),.key(state),.default_out(0),.lut({
-        lookup  , cachehit & io_Cache_op ? 1'b1:1'b0,
-        refill  , !(io_r_last& io_r_valid)   
-    }));
-    */
-    //valid只有一种情况需要写入  refill完成写valid
-    assign validWriteEn = REFILL && io_r_last& io_r_valid;
-    assign validWriteData = 1'b1;
-    /*
-        lookup 
-            Hit 
-                读操作 向Mem申请读HITWAY的数据 dataok延迟一周期拉高
-                写操作 向hitway写 并且dirty使能拉高
-            !hit 
-                要跳转miss了 这个周期chooseway的random拉高 保存随即选择的路
-    */
-    wire LOOKUP = state == lookup;
-    //读
-    //写也是一样的 cachehit了就行
     //如果Tag使用寄存器  idle那个周期useaddr就发过去了，hit的话，lookup当周期就能拿到数据
     //所以dataok不用延迟一周期。 但如果是从refill跳回lookup 回到lookup当周期才申请读，此时dataok还是要延迟的
     //Ram那边改了，支持同时读写 CACHE仍然使用寄存器，这样子仿真可以更快
@@ -561,7 +540,7 @@ module ysyx_22050550_CACHE(
         end
         else if((io_w_valid && io_w_ready))  begin 
             if(io_w_last ) Reglen <= 1'b0;
-            else Reglen <=  Reglen - 1'b1;
+            else           Reglen <=  Reglen - 1'b1;
         end
     end
 `else
@@ -573,8 +552,8 @@ module ysyx_22050550_CACHE(
             Reglen <= 1'b1;
         end
         else if((io_w_valid && io_w_ready) || (io_r_valid&&io_r_ready))  begin 
-            if(io_w_last || io_r_last) Reglen <= 1'b0;
-            else Reglen <=  Reglen - 1'b1;
+            if(io_w_last || io_r_last)  Reglen <= 1'b0;
+            else                        Reglen <=  Reglen - 1'b1;
         end
         else 
             Reglen <= Reglen;
@@ -625,6 +604,22 @@ module ysyx_22050550_CACHE(
         r_valid r_ready了就把tag写入，
     */
     wire REFILL = state == refill;
+        //refill情况下的写入
+    wire[127:0] refilldata = !io_r_last ? {{64{1'b0}} ,io_r_rdata} : {io_r_rdata,{64{1'b0}}};
+    wire[127:0] refillben  = !io_r_last ? {{64{1'b1}} ,{64{1'b0}}} : {{64{1'b0}},{64{1'b1}}};
+
+                         //:REPLACE ? !(io_w_valid & io_w_last): 0;
+    // REFILL? !(io_r_last& io_r_valid) : 0;
+    /*
+    ysyx_22050550_MuxKeyWithDefault#(2,3,1) DirtyDataMux(
+        .out(dirtyWriteData),.key(state),.default_out(0),.lut({
+        lookup  , cachehit & io_Cache_op ? 1'b1:1'b0,
+        refill  , !(io_r_last& io_r_valid)   
+    }));
+    */
+    //valid只有一种情况需要写入  refill完成写valid
+    assign validWriteEn = REFILL && io_r_last& io_r_valid;
+    assign validWriteData = 1'b1;
     assign io_r_ready = REFILL;
     //向tag和mem写  valid 拉高 dirty 拉低
     //只有这样个状态需要向mem写入   写入都是低位有效
