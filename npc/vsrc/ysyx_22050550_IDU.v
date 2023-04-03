@@ -95,8 +95,8 @@ module ysyx_22050550_IDU(
     //faster
     reg     [2:0] InstType;
     always@(opcode) begin
-             if(!io_IFID_valid)                                             InstType = Bad_type;
-        else if(opcode ==`ysyx_22050550_R1 ||opcode ==`ysyx_22050550_R2 )   InstType = R_type ;
+             //if(!io_IFID_valid)                                             InstType = Bad_type;
+             if(opcode ==`ysyx_22050550_R1 ||opcode ==`ysyx_22050550_R2 )   InstType = R_type ;
         else if ((opcode ==`ysyx_22050550_I1 ||opcode ==`ysyx_22050550_I2||opcode ==`ysyx_22050550_I3)||
     (opcode ==`ysyx_22050550_I4 ||opcode ==`ysyx_22050550_I5))              InstType = I_type ;
         else if ((opcode ==`ysyx_22050550_S1 ))                             InstType = S_type ;
