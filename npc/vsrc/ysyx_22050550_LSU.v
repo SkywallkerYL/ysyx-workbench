@@ -294,7 +294,7 @@ import "DPI-C" function void pmem_write(input longint Dpi_waddr, input longint D
     wire [`ysyx_22050550_RegBus] cachedata = io_Cache_data          ; 
     wire [`ysyx_22050550_RegBus] LsuData   = io_Cache_dataok?cachedata:Dpi_rflag?Devicedata:64'h0;
 `else 
-    
+    /*************************Cache Not Use Sram ****************************/
     localparam swait = 2'd0, swaitready = 2'd1, sread = 2'd2;
     reg [1:0] Rstate, Rnext;
     //状态跳转
