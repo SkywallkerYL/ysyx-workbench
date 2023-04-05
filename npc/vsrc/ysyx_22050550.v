@@ -491,6 +491,30 @@ wire [ 0:0] DevSram_w_last     ;
 wire [ 0:0] DevSram_b_ready    ; 
 wire [ 0:0] DevSram_b_valid    ; 
 `endif 
+`ifndef  ysyx_22050550_LSUUSECACHE
+wire [ 0:0] DevSram_ar_ready   ; 
+wire [ 0:0] DevSram_ar_valid   ; 
+wire [63:0] DevSram_ar_addr    ; 
+wire [ 7:0] DevSram_ar_len     ; 
+wire [ 2:0] DevSram_ar_size    ; 
+wire [ 1:0] DevSram_ar_burst   ; 
+wire [ 0:0] DevSram_r_valid    ; 
+wire [63:0] DevSram_r_rdata    ; 
+wire [ 0:0] DevSram_r_ready    ; 
+wire [ 0:0] DevSram_aw_ready   ; 
+wire [ 0:0] DevSram_aw_valid   ; 
+wire [63:0] DevSram_aw_addr    ; 
+wire [ 7:0] DevSram_aw_len     ; 
+wire [ 2:0] DevSram_aw_size    ; 
+wire [ 1:0] DevSram_aw_burst   ; 
+wire [ 0:0] DevSram_w_ready    ; 
+wire [ 0:0] DevSram_w_valid    ; 
+wire [63:0] DevSram_w_data     ; 
+wire [ 7:0] DevSram_w_strb     ; 
+wire [ 0:0] DevSram_w_last     ; 
+wire [ 0:0] DevSram_b_ready    ; 
+wire [ 0:0] DevSram_b_valid    ; 
+`endif 
 //LS TO Abiter
 wire [ 0:0] Lsu_Cache_valid    ;  
 wire [ 0:0] Lsu_Cache_op       ;  
@@ -558,6 +582,30 @@ ysyx_22050550_LSU LSU(
     //.io_LSU_valid     (Lsu_wen      )           ,
     //.io_LSU_rdata     (Lsu_wdata    )           ,
 `ifdef ysyx_22050550_DEVICEUSEAXI
+    .io_ar_ready      (DevSram_ar_ready )         ,
+    .io_ar_valid      (DevSram_ar_valid )         ,    
+    .io_ar_addr       (DevSram_ar_addr  )         ,
+    .io_ar_len        (DevSram_ar_len   )         ,
+    .io_ar_size       (DevSram_ar_size  )         ,    
+    .io_ar_burst      (DevSram_ar_burst )         , 
+    .io_r_valid       (DevSram_r_valid  )         ,
+    .io_r_rdata       (DevSram_r_rdata  )         ,
+    .io_r_ready       (DevSram_r_ready  )         ,
+    .io_aw_ready      (DevSram_aw_ready )         ,
+    .io_aw_valid      (DevSram_aw_valid )         , 
+    .io_aw_addr       (DevSram_aw_addr  )         ,
+    .io_aw_len        (DevSram_aw_len   )         ,
+    .io_aw_size       (DevSram_aw_size  )         , 
+    .io_aw_burst      (DevSram_aw_burst )         ,
+    .io_w_ready       (DevSram_w_ready  )         , 
+    .io_w_valid       (DevSram_w_valid  )         ,
+    .io_w_data        (DevSram_w_data   )         ,
+    .io_w_strb        (DevSram_w_strb   )         ,
+    .io_w_last        (DevSram_w_last   )         ,
+    .io_b_ready       (DevSram_b_ready  )         ,
+    .io_b_valid       (DevSram_b_valid  )         ,
+`endif
+`ifndef ysyx_22050550_LSUUSECACHE
     .io_ar_ready      (DevSram_ar_ready )         ,
     .io_ar_valid      (DevSram_ar_valid )         ,    
     .io_ar_addr       (DevSram_ar_addr  )         ,
@@ -1097,6 +1145,32 @@ ysyx_22050550_SRAM LSRAM(
 );
 `endif
 `ifdef ysyx_22050550_DEVICEUSEAXI
+ysyx_22050550_SRAM DSRAM(	
+  .clock                (clock)                 ,
+  .reset                (reset)                 ,
+  .io_Sram_ar_valid     (DevSram_ar_valid   )   ,
+  .io_Sram_ar_bits_addr (DevSram_ar_addr    )   ,
+  .io_Sram_r_ready      (DevSram_r_ready   )   ,
+  .io_ar_len            (DevSram_ar_len     )   ,
+  .io_ar_size           (DevSram_ar_size    )   ,
+  .io_ar_burst          (DevSram_ar_burst   )   ,
+  .io_Sram_aw_valid     (DevSram_aw_valid    )   ,
+  .io_Sram_aw_bits_addr (DevSram_aw_addr    )   ,
+  .io_aw_len            (DevSram_aw_len     )   ,
+  .io_aw_size           (DevSram_aw_size    )   ,   
+  .io_aw_burst          (DevSram_aw_burst   )   ,
+  .io_Sram_w_valid      (DevSram_w_valid    )   ,
+  .io_Sram_w_bits_data  (DevSram_w_data     )   ,
+  .io_Sram_w_bits_strb  (DevSram_w_strb     )   ,
+  .io_Sram_ar_ready     (DevSram_ar_ready   )   ,
+  .io_Sram_r_valid      (DevSram_r_valid    )   ,
+  .io_Sram_r_bits_data  (DevSram_r_rdata    )   ,
+  .io_Sram_r_bits_last  (                   )   ,
+  .io_Sram_aw_ready     (DevSram_aw_ready   )   ,
+  .io_Sram_w_ready      (DevSram_w_ready    ) 
+);
+`endif 
+`ifndef ysyx_22050550_LSUUSECACHE
 ysyx_22050550_SRAM DSRAM(	
   .clock                (clock)                 ,
   .reset                (reset)                 ,

@@ -77,6 +77,30 @@ module ysyx_22050550_LSU(
     output [0:0]  io_b_ready                ,
     input  [0:0]  io_b_valid                ,
 `endif 
+`ifndef ysyx_22050550_LSUUSECACHE
+    input  [0:0]  io_ar_ready               ,
+    output [0:0]  io_ar_valid               ,    
+    output [63:0] io_ar_addr                ,
+    output [7:0]  io_ar_len                 ,
+    output [2:0]  io_ar_size                ,    
+    output [1:0]  io_ar_burst               , 
+    input  [0:0]  io_r_valid                ,
+    input  [63:0] io_r_rdata                ,
+    output [0:0]  io_r_ready                ,
+    input  [0:0]  io_aw_ready               ,
+    output [0:0]  io_aw_valid               , 
+    output [63:0] io_aw_addr                ,
+    output [7:0]  io_aw_len                 ,
+    output [2:0]  io_aw_size                , 
+    output [1:0]  io_aw_burst               ,
+    input  [0:0]  io_w_ready                , 
+    output [0:0]  io_w_valid                ,
+    output [63:0] io_w_data                 ,
+    output [7:0]  io_w_strb                 ,
+    output [0:0]  io_w_last                 ,
+    output [0:0]  io_b_ready                ,
+    input  [0:0]  io_b_valid                ,
+`endif 
     /***********Cache***********/
     output [0:0]  io_Cache_valid            ,
     output [0:0]  io_Cache_op               ,
@@ -226,23 +250,20 @@ import "DPI-C" function void pmem_write(input longint Dpi_waddr, input longint D
        if(Dpi_rflag) pmem_read(io_EXLS_alures,Devicedata);
     end
 
-    wire [`ysyx_22050550_RegBus] LsuData   = io_Cache_dataok?cachedata:Dpi_rflag?Devicedata:64'h0;
-`endif 
     
+`endif 
+`ifdef ysyx_22050550_LSUUSECACHE
     /****************Cache 通信读写内存*******************/
     localparam Cachewait= 2'd0, CacheBusy = 2'd1;
     reg [1:0] Cache , Cachenext;
     always@(posedge clock)begin
-        if(reset) Cache <= Cachewait;
-        else Cache <= Cachenext;
+        if(reset)  Cache <= Cachewait;
+        else if (Pmem&&(io_EXLS_rflag||io_EXLS_wflag)) Cache <= Cachenext;
     end
     always@(*)begin
         case (Cache)
             Cachewait: begin
-                if (Pmem&&io_EXLS_rflag)begin
-                    Cachenext = CacheBusy;
-                end
-                else if(Pmem&&io_EXLS_wflag) begin
+                if (io_Cache_valid)begin
                     Cachenext = CacheBusy;
                 end
                 else Cachenext = Cachewait;
@@ -262,7 +283,7 @@ import "DPI-C" function void pmem_write(input longint Dpi_waddr, input longint D
         因为dataok那个周期 是lookup的后一个周期，lookup那个周期 读数据是拿不出来的
         如果lookuph后又跳转回idle，会因为这边的valid又进行状态跳转。
     */
-    assign io_Cache_valid = Pmem&&(io_EXLS_rflag||io_EXLS_wflag) && !(io_Cache_dataok)    ;  
+    assign io_Cache_valid = Pmem&&(io_EXLS_rflag||io_EXLS_wflag) && !(io_Cache_dataok)    ; 
     assign io_Cache_op    = io_EXLS_wflag & (!io_EXLS_rflag)        ;
     assign io_Cache_addr  = io_EXLS_alures                          ;  
     assign io_Cache_wdata = io_EXLS_writedata                       ;  
@@ -270,7 +291,117 @@ import "DPI-C" function void pmem_write(input longint Dpi_waddr, input longint D
     wire cachebusy = (Cache == Cachewait && io_Cache_valid) || (Cache==CacheBusy && (!(io_Cache_dataok)));
     wire lsubusy = DeviceReadBusy || DeviceWriteBusy || cachebusy   ;
     wire lsuvalid = !lsubusy                                        ;
-    wire [`ysyx_22050550_RegBus] cachedata = io_Cache_data          ;
+    wire [`ysyx_22050550_RegBus] cachedata = io_Cache_data          ; 
+    wire [`ysyx_22050550_RegBus] LsuData   = io_Cache_dataok?cachedata:Dpi_rflag?Devicedata:64'h0;
+`else 
+    
+    localparam swait = 2'd0, swaitready = 2'd1, sread = 2'd2;
+    reg [1:0] Rstate, Rnext;
+    //状态跳转
+    always@(posedge clock) begin
+        if(reset) Rstate <= swait;
+        else Rstate <= Rnext;
+    end
+    //读状态机组合逻辑
+    always@(*) begin
+        case (Rstate)
+            swait:begin
+                if(io_ar_ready&&io_ar_valid) begin
+                    Rnext = sread;
+                end
+                else if(io_ar_valid) begin
+                    Rnext = swaitready;
+                end
+                else Rnext = swait;
+            end 
+            swaitready:begin
+                if(io_ar_ready&&io_ar_valid) Rnext = sread;
+                else Rnext = swaitready;
+            end
+            sread:begin
+                if(io_r_ready&&io_r_valid) begin
+                    Rnext = swait;
+                end
+                else Rnext = sread;
+            end
+            default:Rnext = swait; 
+        endcase
+    end 
+    //读状态地址连线 // 这里还没有考虑CLint
+    assign io_ar_valid = (Rstate == swait && io_EXLS_rflag && (Pmem))||(Rstate==swaitready);
+    assign io_ar_addr  = io_EXLS_alures;
+    assign io_ar_len   = 0;           
+    assign io_ar_size  = 3;          
+    assign io_ar_burst = 2'b01;          
+    assign io_r_ready  = Rstate == sread;
+    wire [`ysyx_22050550_RegBus] Pmemdata = io_r_rdata;
+    wire PmemReadBusy = (Rstate == swait &&(io_ar_ready&&io_ar_valid))||(Rstate==swaitready)||(Rstate==sread &&(!(io_r_ready&&io_r_valid)));
+    /*******************写状态机*******************/
+    
+    localparam swaitW = 2'd0, swaitreadyW = 2'd1, swrite = 2'd2, sresp = 2'd3;
+    reg [1:0] Wstate, Wnext;
+    //状态跳转
+    always@(posedge clock) begin
+        if(reset) Wstate <= swaitW;
+        else Wstate <= Wnext;
+    end
+    //读状态机组合逻辑
+    always@(*) begin
+        case (Wstate)
+            swaitW:begin
+                if(io_aw_ready&&io_aw_valid) begin
+                    Wnext = swrite;
+                end
+                else if(io_aw_valid) begin
+                    Wnext = swaitreadyW;
+                end
+                else Wnext = swaitW;
+            end 
+            swaitreadyW:begin
+                if(io_aw_ready&&io_aw_valid) Wnext = swrite;
+                else Wnext = swaitreadyW;
+            end
+            swrite:begin
+                if(io_w_ready&&io_w_valid) begin
+                    Wnext = swaitW;
+                end
+                else Wnext = swrite;
+            end
+            sresp:begin
+                if(io_b_valid&&io_b_ready)begin
+                    Wnext = swaitW;
+                end
+                else Wnext = sresp;
+            end
+            default:Wnext = swaitW; 
+        endcase
+    end 
+    //写状态地址连线 // 这里还没有考虑CLint
+    assign io_aw_valid = (Wstate == swaitW && io_EXLS_wflag && (Pmem))||(Wstate==swaitreadyW);
+    assign io_aw_addr  = io_EXLS_alures;
+    assign io_aw_len   = 0;           
+    assign io_aw_size  = 3;          
+    assign io_aw_burst = 2'b01; 
+    assign io_w_valid  = Wstate == swrite;
+    assign io_w_data   = io_EXLS_writedata;
+    assign io_w_strb   = io_EXLS_wmask;
+    assign io_w_last   = 1'b1;
+    assign io_b_ready  = 1'b0;
+    wire PmemWriteBusy = (Wstate == swaitW &&(io_aw_ready&&io_aw_valid))||(Wstate==swaitreadyW)||(Wstate==swrite &&(!(io_w_ready&&io_w_valid)));
+
+    //wire [`ysyx_22050550_RegBus] LsuData   = io_Cache_dataok?cachedata:io_r_ready&&io_r_valid?Devicedata:64'h0;
+    assign io_Cache_valid = 0                                                             ;
+    assign io_Cache_op    = io_EXLS_wflag & (!io_EXLS_rflag)        ;
+    assign io_Cache_addr  = io_EXLS_alures                          ;  
+    assign io_Cache_wdata = io_EXLS_writedata                       ;  
+    assign io_Cache_wmask = io_EXLS_wmask                           ;  
+    wire cachebusy = 0;
+    wire lsubusy = PmemReadBusy || PmemWriteBusy || cachebusy   ;
+    wire lsuvalid = !lsubusy                                        ;
+    wire [`ysyx_22050550_RegBus] cachedata = Pmemdata               ;
+    wire [`ysyx_22050550_RegBus] LsuData   = io_r_ready&&io_r_valid?cachedata:Dpi_rflag?Devicedata:64'h0;
+`endif 
+
     //for faster
     //
     reg [`ysyx_22050550_RegBus] maskData ;
