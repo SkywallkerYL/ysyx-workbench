@@ -406,14 +406,14 @@ import "DPI-C" function void pmem_write(input longint Dpi_waddr, input longint D
     //
     reg [`ysyx_22050550_RegBus] maskData ;
     always @(*) begin
-             if (!io_EXLS_rflag) maskData <= 0;
-        else if (io_EXLS_func3 ==`ysyx_22050550_LB ) maskData <= {{(56){LsuData[7]}},LsuData[7:0]}  ;   
-        else if (io_EXLS_func3 ==`ysyx_22050550_LH ) maskData <= {{(48){LsuData[15]}},LsuData[15:0]};
-        else if (io_EXLS_func3 ==`ysyx_22050550_LW ) maskData <= {{(32){LsuData[31]}},LsuData[31:0]};
-        else if (io_EXLS_func3 ==`ysyx_22050550_LD ) maskData <= LsuData                            ;   
-        else if (io_EXLS_func3 ==`ysyx_22050550_LWU) maskData <= {{(32){1'b0}},LsuData[31:0]}       ;   
-        else if (io_EXLS_func3 ==`ysyx_22050550_LHU) maskData <= {{(48){1'b0}},LsuData[15:0]}       ;   
-        else if (io_EXLS_func3 ==`ysyx_22050550_LBU) maskData <= {{(56){1'b0}},LsuData[7:0]}        ; 
+             if (!io_EXLS_rflag) maskData = 0;
+        else if (io_EXLS_func3 ==`ysyx_22050550_LB ) maskData = {{(56){LsuData[7]}},LsuData[7:0]}  ;   
+        else if (io_EXLS_func3 ==`ysyx_22050550_LH ) maskData = {{(48){LsuData[15]}},LsuData[15:0]};
+        else if (io_EXLS_func3 ==`ysyx_22050550_LW ) maskData = {{(32){LsuData[31]}},LsuData[31:0]};
+        else if (io_EXLS_func3 ==`ysyx_22050550_LD ) maskData = LsuData                            ;   
+        else if (io_EXLS_func3 ==`ysyx_22050550_LWU) maskData = {{(32){1'b0}},LsuData[31:0]}       ;   
+        else if (io_EXLS_func3 ==`ysyx_22050550_LHU) maskData = {{(48){1'b0}},LsuData[15:0]}       ;   
+        else if (io_EXLS_func3 ==`ysyx_22050550_LBU) maskData = {{(56){1'b0}},LsuData[7:0]}        ; 
         //else                                         maskData <= LsuData                            ; 
     end
     /*
