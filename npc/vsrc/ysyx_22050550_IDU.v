@@ -108,7 +108,7 @@ module ysyx_22050550_IDU(
     /*
     wire    [2:0] InstType;
     
-    //其实这样并不能完全识别出所有未实现的指令。。。但是目前只能这样了先，出问题的时候开difftest看看。
+    //
     assign InstType = (opcode ==`ysyx_22050550_R1 ||opcode ==`ysyx_22050550_R2 )? R_type:
     (opcode ==`ysyx_22050550_I1 ||opcode ==`ysyx_22050550_I2||opcode ==`ysyx_22050550_I3)||
     (opcode ==`ysyx_22050550_I4 ||opcode ==`ysyx_22050550_I5) ? I_type :
