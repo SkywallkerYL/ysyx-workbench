@@ -61,14 +61,15 @@ module ysyx_22050550_EXU(
 );
     /*************ALU****************/
     
-    wire [`ysyx_22050550_RegBus] MulDivRes;
+    reg  [`ysyx_22050550_RegBus] MulDivRes;
     wire [`ysyx_22050550_RegBus] src1 = io_id_AluOp_rd1;
     wire [`ysyx_22050550_RegBus] src2 = io_id_AluOp_rd2;
     wire [4:0] OP = io_id_AluOp_op;
     //faster
     reg  [`ysyx_22050550_RegBus] ALURes;
     always@(io_id_AluOp_op) begin
-             if(OP == `ysyx_22050550_ADD ) ALURes = src1 + src2                               ;
+             if(!io_id_valid)              ALURes = 0                                         ;
+        else if(OP == `ysyx_22050550_ADD ) ALURes = src1 + src2                               ;
         else if(OP == `ysyx_22050550_SUB ) ALURes = src1 - src2                               ;
         else if(OP == `ysyx_22050550_MUL ) ALURes = MulDivRes                                 ;
         else if(OP == `ysyx_22050550_MULW) ALURes = MulDivRes                                 ;
@@ -227,7 +228,14 @@ module ysyx_22050550_EXU(
     end 
     wire alubusy  = (state==swait && (mulvalid||divvalid)) || (state==swaitready) ||(state==sdoing &&(!(muloutvalid||divoutvalid)));
     wire aluvalid = !alubusy;
-    assign MulDivRes = muloutvalid ? mulres : divoutvalid ? divres : RegMulDiv;
+    //faster
+    always@(*) begin
+        if(!muloutvalid && !divoutvalid) MulDivRes = RegMulDiv;
+        else if (muloutvalid)            MulDivRes = mulres   ;
+        else if (divoutvalid)            MulDivRes = divres   ;
+    end
+    //assign MulDivRes = muloutvalid ? mulres : divoutvalid ? divres : RegMulDiv;
+
     assign io_EXLS_pc       =      io_id_pc                         ;
     assign io_EXLS_inst     =      io_id_inst                       ;
     /*************valid-ready握手信号****************/      
