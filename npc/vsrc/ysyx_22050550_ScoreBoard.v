@@ -16,7 +16,7 @@ module ysyx_22050550_ScoreBoard(
 );
     //idu优先，即优先把寄存器busy拉高
     // Idu 申请写的情况下，busy拉高
-    //WBU申请写回的情况下，Busy拉低 但是如果此时IDU也是拉高的，那么busy也要拉高
+    //WBU申请写回的情况下，Busy拉低 但是如果此时IDU也是拉高的，那么busy也要拉高 !(Iduwen&&io_IDU_waddr==io_WBU_waddr)
     
     reg  busy [31 : 0] ;//32
     assign busy[0] =1'd0;
