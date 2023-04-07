@@ -61,6 +61,17 @@ module ysyx_22050550_WBU(
 );
     //根据是否是csr 指令或者load指令 决定对寄存器的写回的数据的选取
     wire [11:0] csrind = io_LSWB_inst[31:20]; 
+    reg [63:0] csrwritedata;
+    always@(csrind) begin
+        if(!io_LSWB_csrflag)                     csrwritedata = 0      ;
+        else if(csrind ==`ysyx_22050550_MTVEC  ) csrwritedata = mtvec  ;
+        else if(csrind ==`ysyx_22050550_MCAUSE ) csrwritedata = mcause ;
+        else if(csrind ==`ysyx_22050550_MSTATUS) csrwritedata = mstatus;
+        else if(csrind ==`ysyx_22050550_MEPC   ) csrwritedata = mepc   ;
+        else if(csrind ==`ysyx_22050550_CSRMIE ) csrwritedata = mie    ;
+        else if(csrind ==`ysyx_22050550_CSRMIP ) csrwritedata = mip    ;
+    end
+    /*
     wire [63:0] csrwritedata;
     assign csrwritedata = 
     csrind ==`ysyx_22050550_MTVEC   ? mtvec  :
@@ -69,6 +80,7 @@ module ysyx_22050550_WBU(
     csrind ==`ysyx_22050550_MEPC    ? mepc   :
     csrind ==`ysyx_22050550_CSRMIE  ? mie    :
     csrind ==`ysyx_22050550_CSRMIP  ? mip    :64'h0;
+    */
     /*
     ysyx_22050550_MuxKeyWithDefault#(6,12,`ysyx_22050550_REGWIDTH) CsrMux(
         .out(csrwritedata),.key(csrind),.default_out(64'h0),.lut({
@@ -95,6 +107,17 @@ module ysyx_22050550_WBU(
     }));
     */
     //根据匹配结果进行写回
+    reg [63:0] csren;
+    always@(csrind) begin
+        if(!io_LSWB_csrflag)                     csren = 0           ;
+        else if(csrind ==`ysyx_22050550_MTVEC  ) csren = 8'b00000100 ;
+        else if(csrind ==`ysyx_22050550_MCAUSE ) csren = 8'b00000010 ;
+        else if(csrind ==`ysyx_22050550_MSTATUS) csren = 8'b00001000 ;
+        else if(csrind ==`ysyx_22050550_MEPC   ) csren = 8'b00000001 ;
+        else if(csrind ==`ysyx_22050550_CSRMIE ) csren = 8'b00010000 ;
+        else if(csrind ==`ysyx_22050550_CSRMIP ) csren = 8'b00100000 ;
+    end
+    /*
     wire [7:0] csren;
     assign csren = 
     csrind == `ysyx_22050550_MTVEC   ? 8'b00000100 : 
@@ -103,6 +126,7 @@ module ysyx_22050550_WBU(
     csrind == `ysyx_22050550_MEPC    ? 8'b00000001 : 
     csrind == `ysyx_22050550_CSRMIE  ? 8'b00010000 : 
     csrind == `ysyx_22050550_CSRMIP  ? 8'b00100000 : 8'h0;
+    */
     /* 
     ysyx_22050550_MuxKeyWithDefault#(6,12,8) CsrenMux(
         .out(csren),.key(csrind),.default_out(8'h0),.lut({
