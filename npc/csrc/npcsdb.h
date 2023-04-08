@@ -143,6 +143,7 @@ void isa_reg_display(){
   //printf("0x%08lx\n",*cpu_gpr);
   return;
 }
+
 static int cmd_info(char *args){
   if (args==NULL) return 0;
   char *arg = strtok(NULL," ");

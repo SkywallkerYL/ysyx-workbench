@@ -177,6 +177,24 @@ long initial_default_img(){
 }
 #ifdef CONFIG_DIFFTEST
 CPU_state npc_r;
+CPU_state npc_before;
+void REG_difftest_display(){
+  printf("before inst\n");
+  for (int i = 0; i < 32; i++)
+  {
+    printf("%s \t 0x%08lx\n",regs[i],npc_before.gpr[i]);
+  }
+
+  printf("mepc:%08lx\n",npc_before.gpr[33]);
+  printf("mcause:%08lx\n",npc_before.gpr[34]);
+  printf("mtvec:%08lx\n",npc_before.gpr[35]);
+  printf("mstatus:%08lx\n",npc_before.gpr[36]);
+  printf("mie:%08lx\n",npc_before.gpr[37]);
+  printf("mip:%08lx\n",npc_before.gpr[38]);
+  //Log("local pc at :%08lx inst:%08x  Next pc:%08lx",localpc,localinst,localnpc);
+  //printf("0x%08lx\n",*cpu_gpr);
+  return;
+}
 #endif
 uint64_t localpc  ;
 uint32_t localinst;
@@ -223,8 +241,16 @@ void sim_once(uint64_t n){
     //printf("copy\n");
     for (int i = 0; i < 32; i++)
     {
+      npc_before.gpr[i] = npc_r.gpr[i];
       npc_r.gpr[i]= cpu_gpr[i];
+      
     }
+    npc_before.pc = npc_r.pc;
+//printf("valid pc:0x%lx\n",npc_r.pc);
+    npc_before.mepc     = npc_r.mepc    ;
+    npc_before.mcause   = npc_r.mcause  ;
+    npc_before.mtvec    = npc_r.mtvec   ;
+    npc_before.mstatus  = npc_r.mstatus ;
     //这里是用来difftest的，skip的，skip时
     //把npc一条指令执行完的状态拷贝给nemu，即WBU valid拉高的后一个周期
     //因此这里的pc相当于next pc，即，要拷贝localnpc，
@@ -233,9 +259,9 @@ void sim_once(uint64_t n){
     //如果要跳过该条指令的话，nemu中的pc正好是该指令执行完成的npc
     npc_r.pc = localnpc;
     //printf("valid pc:0x%lx\n",npc_r.pc);
-    npc_r.mepc = cpu_gpr[33];
-    npc_r.mcause = cpu_gpr[34];
-    npc_r.mtvec = cpu_gpr[35];
+    npc_r.mepc    = cpu_gpr[33];
+    npc_r.mcause  = cpu_gpr[34];
+    npc_r.mtvec   = cpu_gpr[35];
     npc_r.mstatus = cpu_gpr[36];
   }
 #endif
@@ -360,6 +386,9 @@ static void execute(uint64_t n) {
       //assert_fail_msg();
       printf(ANSI_FMT("Instr not implement or other situation!\n", ANSI_FG_RED));
       printf("pc: 0x%016lx Inst: %s\n",pc,inst_buf);
+#ifdef CONFIG_DIFFTEST
+      REG_difftest_display();
+#endif
       isa_reg_display();
       statistic();
       break;
