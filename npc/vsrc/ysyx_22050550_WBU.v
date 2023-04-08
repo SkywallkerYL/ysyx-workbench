@@ -146,12 +146,33 @@ module ysyx_22050550_WBU(
     wire [7:0] flagwbcsren = csren & {(8){io_LSWB_csrflag}};
     //处理一下ecall 和mret
     //ecall时要写Mepc 和mstatus
+    //faster????? eee no
+    /*
+    wire [7:0] ecallcsren = 8'b00001011; 
+    reg [`ysyx_22050550_RegBus] ecallfinal  ;
+    reg [`ysyx_22050550_RegBus] ecallpc     ;
+    reg [`ysyx_22050550_RegBus] ecallmcause ;
+    always @ (io_LSWB_ecallflag) begin
+        if(io_LSWB_ecallflag) begin
+            ecallfinal   = ((mstatus & (~64'h80)) | ((mstatus & (64'h8)) << 4)) & (~64'h8); 
+            ecallpc      = io_LSWB_pc;
+            ecallmcause  = (Reg17==(~64'h0)||Reg17<=64'h13)? 64'hb:0;
+        end
+    end
+    */
+    /*
+    reg [`ysyx_22050550_RegBus] ecallfinal  = ((mstatus & (~64'h80)) | ((mstatus & (64'h8)) << 4)) & (~64'h8); //mie置0禁用中断
+    reg [`ysyx_22050550_RegBus] ecallpc     = io_LSWB_pc;
+    reg [`ysyx_22050550_RegBus] ecallmcause = (Reg17==(~64'h0)||Reg17<=64'h13)? 64'hb:0;
+    */
+    
     wire [7:0] ecallcsren = 8'b00001011; 
     wire [`ysyx_22050550_RegBus] oldmie = mstatus & (64'h8);//保存mie位
     wire [`ysyx_22050550_RegBus] ecallnewmstatus = (mstatus & (~64'h80)) | (oldmie << 4);//赋给mpie
     wire [`ysyx_22050550_RegBus] ecallfinal = ecallnewmstatus & (~64'h8); //mie置0禁用中断
     wire [`ysyx_22050550_RegBus] ecallpc = io_LSWB_pc;
     wire [`ysyx_22050550_RegBus] ecallmcause = (Reg17==(~64'h0)||Reg17<=64'h13)? 64'hb:0;
+    
     //mret
     wire [7:0] mretcsren  = 8'b00001000;
     wire [`ysyx_22050550_RegBus] oldmpie = mstatus & (64'h80);//保存mpie位
