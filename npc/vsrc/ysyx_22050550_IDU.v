@@ -103,7 +103,7 @@ module ysyx_22050550_IDU(
         else if ((opcode ==`ysyx_22050550_J1 ))                             InstType = J_type ;
         else if ((opcode ==`ysyx_22050550_B1 ))                             InstType = B_type ;
         else if (opcode ==`ysyx_22050550_U1 ||opcode ==`ysyx_22050550_U2  ) InstType = U_type ; 
-        //else                                                                InstType = Bad_type;
+        else                                                                InstType = Bad_type;
     end
     /*
     wire    [2:0] InstType;
