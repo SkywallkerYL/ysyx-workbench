@@ -102,7 +102,10 @@ ifeq ($(wildcard $(shell which $(CC))),)
 endif
 
 ## 5. Compilation Rules
-
+# $@ 表示目标文件
+# $^ 表示所有依赖文件
+# $< 表示第一个依赖文件
+# $? 表示比目标文件还要新的依赖文件列表
 ### Rule (compile): a single `.c` -> `.o` (gcc)
 $(DST_DIR)/%.o: %.c
 	@mkdir -p $(dir $@) && echo + CC $<
