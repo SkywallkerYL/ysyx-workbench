@@ -249,7 +249,7 @@ int NDL_Init(uint32_t flags) {
   }
   //获取屏幕大小
   dispinfo();
-  printf("h:%d w:%d\n",screen_h,screen_w);
+  printf("dispinfo h:%d w:%d\n",screen_h,screen_w);
   return 0;
 }
 
