@@ -32,6 +32,7 @@ module ysyx_22050550_PCREG(
     //wire [`ysyx_22050550_RegBus] jalpc  = (Id_jal[0] || Id_jal[2])?(Id_Pc + Id_imm) : 0     ;
     //wire [`ysyx_22050550_RegBus] jalrpc = Id_jal[4]?(Id_imm + Id_rs1) & (~(64'h1)):0  ;
     //faster
+    /*
     reg  [`ysyx_22050550_RegBus] jumpc;
     always@(Id_jal) begin
              if (!(|Id_jal)              ) jumpc = Pc_4                          ;
@@ -41,14 +42,15 @@ module ysyx_22050550_PCREG(
         else if (Id_jal[1]               ) jumpc = Id_mretpc                     ;
         else                               jumpc = Pc_4                          ;
     end
-    /*
+    */
+    
     wire [`ysyx_22050550_RegBus] jumpc = 
     !(|Id_jal)              ? Pc_4                          :     
     (Id_jal[0] || Id_jal[2])? (Id_Pc + Id_imm)              :
     Id_jal[4]               ? (Id_imm + Id_rs1) & (~(64'h1)):
     Id_jal[3]               ? Id_ecallpc                    :
     Id_jal[1]               ? Id_mretpc                     : Pc_4;
-    */
+    
     /*
     ysyx_22050550_MuxKeyWithDefault #(6,4,`ysyx_22050550_REGWIDTH) PCMUX(
         .out(jumpc),.key(Id_jal),.default_out(Pc_4),.lut({

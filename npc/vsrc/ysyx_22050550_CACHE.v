@@ -307,7 +307,7 @@ module ysyx_22050550_CACHE(
     always@(posedge clock) begin
         if(reset) state <= idle;
 `ifdef ysyx_22050550_FAST
-        else if(!(state==idle && !io_Cache_valid))state <= next;
+        else state <= next;
 `else
         else state <= next;
 `endif 
@@ -458,6 +458,7 @@ module ysyx_22050550_CACHE(
     wire [127:0] low8mask  = 128'hff        ; wire [127:0] low16mask = 128'hffff                ; 
     wire [127:0] low32mask = 128'hffff_ffff ; wire [127:0] low64mask = 128'hffff_ffff_ffff_ffff ;
     //for faster  保留latch
+    /*
     reg  [127:0] hitDataBen;
     always@(*) begin
              if (io_Cache_wmask == 0)        hitDataBen = ~128'b0                      ;
@@ -467,14 +468,15 @@ module ysyx_22050550_CACHE(
         else if (io_Cache_wmask == {8'hff} ) hitDataBen = ~(low64mask<< addrblockshift);
         //else                                 hitDataBen = ~128'b0                      ;
     end
-    /*
+    */
+    
     wire [127:0] hitDataBen;
     assign hitDataBen = 
     io_Cache_wmask == {8'b1}  ? ~(low8mask << addrblockshift):
     io_Cache_wmask == {8'b11} ? ~(low16mask<< addrblockshift):
     io_Cache_wmask == {8'hf}  ? ~(low32mask<< addrblockshift):
     io_Cache_wmask == {8'hff} ? ~(low64mask<< addrblockshift):~128'b0;
-    */
+    
     /*
     ysyx_22050550_MuxKeyWithDefault#(4,8,128) hitDataBenMux(
         .out(hitDataBen),.key({io_Cache_wmask}),.default_out(~128'b0),.lut({

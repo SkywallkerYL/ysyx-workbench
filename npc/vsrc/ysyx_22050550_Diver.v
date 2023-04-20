@@ -33,7 +33,7 @@ module ysyx_22050550_Diver (
         if(reset) begin
             state <= Idle;
         end
-        else if(io_Exu_DivValid) state <= next;
+        else state <= next;
     end 
     always @(*) begin
         case (state)

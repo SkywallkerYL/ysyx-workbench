@@ -14,3 +14,9 @@
 
 
 ysyxSoC
+navy-apps/libs/libc/build/libc-riscv64.a
+navy-apps/libs/libc/build/libc-riscv64.a
+navy-apps/libs/libc/build
+navy-apps/libs/libc/build/*.a
+navy-apps/libs/libc/build/*.o
+navy-apps/libs/libc/build/riscv64/src/argz/*.o

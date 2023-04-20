@@ -93,6 +93,7 @@ module ysyx_22050550_IDU(
 
     
     //faster
+    /*
     reg     [2:0] InstType;
     always@(opcode) begin
              if(!io_IFID_valid)                                             InstType = Bad_type;
@@ -105,7 +106,8 @@ module ysyx_22050550_IDU(
         else if (opcode ==`ysyx_22050550_U1 ||opcode ==`ysyx_22050550_U2  ) InstType = U_type ; 
         else                                                                InstType = Bad_type;
     end
-    /*
+    */
+    
     wire    [2:0] InstType;
     
     //
@@ -116,7 +118,7 @@ module ysyx_22050550_IDU(
     (opcode ==`ysyx_22050550_J1 )? J_type :
     (opcode ==`ysyx_22050550_B1 )? B_type :
     (opcode ==`ysyx_22050550_U1 ||opcode ==`ysyx_22050550_U2  )? U_type : Bad_type;
-    */
+    
     /*
     ysyx_22050550_MuxKeyWithDefault#(12,7,3) InstMux(
         .out(InstType),.key(opcode),.default_out(Bad_type),.lut({
@@ -138,6 +140,7 @@ module ysyx_22050550_IDU(
     wire [`ysyx_22050550_RegBus] J_imm= {{(`ysyx_22050550_REGWIDTH-20){io_IFID_inst[31]}},io_IFID_inst[19:12],io_IFID_inst[20],io_IFID_inst[30:21],1'b0};
     wire [`ysyx_22050550_RegBus] B_imm= {{(`ysyx_22050550_REGWIDTH-12){io_IFID_inst[31]}},io_IFID_inst[7],io_IFID_inst[30:25],io_IFID_inst[11:8],1'b0};
     wire [`ysyx_22050550_RegBus] S_imm= {{(`ysyx_22050550_REGWIDTH-12){io_IFID_inst[31]}},io_IFID_inst[31:25],io_IFID_inst[11:7]};
+    /*
     reg     [`ysyx_22050550_RegBus] imm  ;
     always@(InstType)begin
              if (!io_IFID_valid)     imm = 0    ;
@@ -148,7 +151,7 @@ module ysyx_22050550_IDU(
         else if (InstType == S_type) imm = S_imm;
         //else                         imm = 0    ;
     end
-    
+    */
     /*
     reg     [`ysyx_22050550_RegBus] imm  ;
     always@(InstType)begin
@@ -161,13 +164,13 @@ module ysyx_22050550_IDU(
         //else                         imm = 0    ;
     end
     */
-    /*
+    wire     [`ysyx_22050550_RegBus] imm  ;
     assign imm =InstType == I_type ? I_imm :
                 InstType == U_type ? U_imm :
                 InstType == J_type ? J_imm :
                 InstType == B_type ? B_imm :
                 InstType == S_type ? S_imm :`ysyx_22050550_REGWIDTH'h0;
-    */
+    
     /*
     ysyx_22050550_MuxKeyWithDefault#(5,3,`ysyx_22050550_REGWIDTH) ImmMux(
         .out(imm),.key(InstType),.default_out(`ysyx_22050550_REGWIDTH'h0),.lut({
@@ -228,7 +231,7 @@ module ysyx_22050550_IDU(
 
     
     wire[9:0] ItypeOpKey = {func3,opcode};
-    
+    /*
     reg [4:0] Itype_Op;
     always @(ItypeOpKey)begin
              if(InstType !=  I_type)                     Itype_Op = `ysyx_22050550_ADD                          ;
@@ -243,8 +246,8 @@ module ysyx_22050550_IDU(
         else if(ItypeOpKey == {3'b001,`ysyx_22050550_I1})Itype_Op = `ysyx_22050550_SLLW                         ;
         //else                                             Itype_Op = `ysyx_22050550_ADD                          ;
     end
+    */
     
-    /*
     wire[4:0] Itype_Op;
     assign Itype_Op = 
     ItypeOpKey == {3'b100,`ysyx_22050550_I2}? `ysyx_22050550_XOR                          :                           
@@ -256,7 +259,7 @@ module ysyx_22050550_IDU(
     ItypeOpKey == {3'b101,`ysyx_22050550_I1}? ALflag?`ysyx_22050550_SRA:`ysyx_22050550_SRL: 
     ItypeOpKey == {3'b001,`ysyx_22050550_I2}? `ysyx_22050550_SLL                          : 
     ItypeOpKey == {3'b001,`ysyx_22050550_I1}? `ysyx_22050550_SLLW  :  `ysyx_22050550_ADD;
-    */
+    
         /*
     ysyx_22050550_MuxKeyWithDefault#(9,10,5) ItypeOpMux(
         .out(Itype_Op),.key(ItypeOpKey),.default_out(`ysyx_22050550_ADD),.lut({
@@ -276,7 +279,7 @@ module ysyx_22050550_IDU(
     //貌似三目运算符没有always 快，改称always试试 额 效果不大 还变慢了。。
     //发现一个提升性能的方法，就是用·用ifelse，这样子对于条件的判断会提前结束。
     //最先给一个条件，这样子就省掉了许多不必要的，性能会提升很多很多。
-    
+    /*
     reg [4:0] Rtype_Op;
     always @(RtypeOpKey) begin
              if(InstType !=  R_type)                                 Rtype_Op = `ysyx_22050550_ADD   ;
@@ -304,8 +307,8 @@ module ysyx_22050550_IDU(
         else if(RtypeOpKey == {7'b0000000,3'b110,`ysyx_22050550_R1}) Rtype_Op = `ysyx_22050550_OR    ;
         //else                                                         Rtype_Op =`ysyx_22050550_ADD    ;
     end
+    */
     
-    /*
     wire [4:0] Rtype_Op;
     assign Rtype_Op = 
     RtypeOpKey == {7'b0100000,3'b000,`ysyx_22050550_R1} ? `ysyx_22050550_SUB   :
@@ -330,7 +333,7 @@ module ysyx_22050550_IDU(
     RtypeOpKey == {7'b0000000,3'b101,`ysyx_22050550_R1} ? `ysyx_22050550_SRL   :
     RtypeOpKey == {7'b0000000,3'b111,`ysyx_22050550_R1} ? `ysyx_22050550_AND   :
     RtypeOpKey == {7'b0000000,3'b110,`ysyx_22050550_R1} ? `ysyx_22050550_OR    :`ysyx_22050550_ADD;
-    */
+    
     /*
     ysyx_22050550_MuxKeyWithDefault#(22,17,5) RtypeOpMux(
         .out(Rtype_Op),.key(RtypeOpKey),.default_out(`ysyx_22050550_ADD),.lut({
@@ -386,6 +389,7 @@ module ysyx_22050550_IDU(
     wire usign32 = remuw;
     wire rs2low5 = srlw || sllw  || sraw;
     //Btype相关 这里与chisel相同的思路
+    /*
     reg [4:0] Btype;
     wire[2:0] BtypeKey = {func3};
     always@(func3) begin
@@ -398,7 +402,8 @@ module ysyx_22050550_IDU(
         else if(func3 == 3'b110) Btype = 5'b00011 ;
         //else                     Btype = 5'd0     ;
     end
-    /*
+    */
+    
     wire[4:0] Btype;
     wire[2:0] BtypeKey = {func3};
     assign Btype =
@@ -408,7 +413,7 @@ module ysyx_22050550_IDU(
     BtypeKey == 3'b111 ? 5'b01101 :
     BtypeKey == 3'b100 ? 5'b00010 :
     BtypeKey == 3'b110 ? 5'b00011 : 5'd0;
-    */
+    
     /*
     ysyx_22050550_MuxKeyWithDefault#(6,3,5) BtypeOpMux(
         .out(Btype),.key(BtypeKey),.default_out(5'd0),.lut({
@@ -427,6 +432,7 @@ module ysyx_22050550_IDU(
     wire jump = InstType == B_type &&((less&Btype[1])||(bigger&Btype[2])||(eq&Btype[3])||(ueq&Btype[4]));
     //S_type
     wire writeflag = opcode == `ysyx_22050550_S1;
+    /*
     reg [7:0] wmask ;
     wire[2:0] StypeKey = {func3};
     always@(func3) begin
@@ -437,7 +443,8 @@ module ysyx_22050550_IDU(
         else if (StypeKey == 3'b000) wmask = 8'b00000001 ;
         //else                         wmask = 8'd0        ;
     end
-    /*
+    */
+    
     wire [7:0] wmask;
     wire[2:0] StypeKey = {func3};
     assign wmask = 
@@ -445,7 +452,7 @@ module ysyx_22050550_IDU(
     StypeKey == 3'b010 ? 8'b00001111 :
     StypeKey == 3'b001 ? 8'b00000011 :
     StypeKey == 3'b000 ? 8'b00000001 : 8'd0 ;
-    */
+    
     /*
     ysyx_22050550_MuxKeyWithDefault#(4,3,8) StypeMaskMux(
         .out(wmask),.key(StypeKey),.default_out(8'd0),.lut({
@@ -460,17 +467,19 @@ module ysyx_22050550_IDU(
     wire lui   = opcode == `ysyx_22050550_U2;
 
     //final op
+    /*
     reg [4:0]ExuOp;
     always@(opcode) begin
              if(InstType == I_type) ExuOp = Itype_Op;
         else if(InstType == R_type) ExuOp = Rtype_Op;
                                else ExuOp = `ysyx_22050550_ADD;
     end
-    /*
+    */
+    
     wire[4:0] ExuOp;
     assign ExuOp = InstType == I_type ? Itype_Op:
                    InstType == R_type ? Rtype_Op:`ysyx_22050550_ADD;
-    */
+    
     /*
     ysyx_22050550_MuxKeyWithDefault#(2,3,5) ExuOpMux(
         .out(ExuOp),.key(InstType),.default_out(`ysyx_22050550_ADD),.lut({

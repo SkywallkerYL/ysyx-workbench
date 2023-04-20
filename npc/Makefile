@@ -100,6 +100,7 @@ CSRC += $(SRC_AUTO_BIND)
 #include $(NVBOARD_HOME)/scripts/nvboard.mk
 #rules for verilator
 INCFLAGS = $(addprefix -I, $(INC_PATH))
+CFLAGS += -w
 CFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""
 VCFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""
 #CFLAGS += -I/usr/lib/llvm-14/include -std=c++14   

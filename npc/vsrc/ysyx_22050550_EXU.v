@@ -61,11 +61,12 @@ module ysyx_22050550_EXU(
 );
     /*************ALU****************/
     
-    reg  [`ysyx_22050550_RegBus] MulDivRes;
+    wire  [`ysyx_22050550_RegBus] MulDivRes;
     wire [`ysyx_22050550_RegBus] src1 = io_id_AluOp_rd1;
     wire [`ysyx_22050550_RegBus] src2 = io_id_AluOp_rd2;
     wire [4:0] OP = io_id_AluOp_op;
     //faster
+    /*
     reg  [`ysyx_22050550_RegBus] ALURes;
     always@(io_id_AluOp_op) begin
              if(!io_id_valid)              ALURes = 0                                         ;
@@ -88,7 +89,8 @@ module ysyx_22050550_EXU(
         else if(OP == `ysyx_22050550_SLLW) ALURes = src1 << src2[4:0]                         ;
         //else                               ALURes = 0                                         ;
     end
-    /*
+    */
+    
     wire [`ysyx_22050550_RegBus] ALURes;
     assign ALURes = 
     OP == `ysyx_22050550_ADD  ? src1 + src2                               :
@@ -108,7 +110,7 @@ module ysyx_22050550_EXU(
     OP == `ysyx_22050550_SRL  ? src1 >> src2                              :
     OP == `ysyx_22050550_SLL  ? src1 << src2[5:0]                         :
     OP == `ysyx_22050550_SLLW ? src1 << src2[4:0]                         :   src1+src2;
-    */
+    
     /* 
     ysyx_22050550_MuxKeyWithDefault#(17,5,`ysyx_22050550_REGWIDTH) AluMux(
         .out(ALURes),.key(OP),.default_out(src1+src2),.lut({
@@ -229,12 +231,12 @@ module ysyx_22050550_EXU(
     wire alubusy  = (state==swait && (mulvalid||divvalid)) || (state==swaitready) ||(state==sdoing &&(!(muloutvalid||divoutvalid)));
     wire aluvalid = !alubusy;
     //faster
-    always@(*) begin
-        if(!muloutvalid && !divoutvalid) MulDivRes = RegMulDiv;
-        else if (muloutvalid)            MulDivRes = mulres   ;
-        else if (divoutvalid)            MulDivRes = divres   ;
-    end
-    //assign MulDivRes = muloutvalid ? mulres : divoutvalid ? divres : RegMulDiv;
+    // always@(*) begin
+    //     if(!muloutvalid && !divoutvalid) MulDivRes = RegMulDiv;
+    //     else if (muloutvalid)            MulDivRes = mulres   ;
+    //     else if (divoutvalid)            MulDivRes = divres   ;
+    // end
+    assign MulDivRes = muloutvalid ? mulres : divoutvalid ? divres : RegMulDiv;
 
     assign io_EXLS_pc       =      io_id_pc                         ;
     assign io_EXLS_inst     =      io_id_inst                       ;

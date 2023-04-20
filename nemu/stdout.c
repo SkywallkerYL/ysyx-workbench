@@ -1,14 +1,12 @@
-# 0 "src/memory/vaddr.c"
+# 0 "src/engine/interpreter/init.c"
 # 0 "<built-in>"
 # 0 "<command-line>"
 # 1 "/usr/include/stdc-predef.h" 1 3 4
 # 0 "<command-line>" 2
-# 1 "src/memory/vaddr.c"
-# 16 "src/memory/vaddr.c"
-# 1 "/home/yangli/ysyx-workbench/nemu/include/isa.h" 1
-# 20 "/home/yangli/ysyx-workbench/nemu/include/isa.h"
-# 1 "/home/yangli/ysyx-workbench/nemu/src/isa/riscv64/include/isa-def.h" 1
-# 19 "/home/yangli/ysyx-workbench/nemu/src/isa/riscv64/include/isa-def.h"
+# 1 "src/engine/interpreter/init.c"
+# 16 "src/engine/interpreter/init.c"
+# 1 "/home/yangli/ysyx-workbench/nemu/include/cpu/cpu.h" 1
+# 19 "/home/yangli/ysyx-workbench/nemu/include/cpu/cpu.h"
 # 1 "/home/yangli/ysyx-workbench/nemu/include/common.h" 1
 # 19 "/home/yangli/ysyx-workbench/nemu/include/common.h"
 # 1 "/usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h" 1 3 4
@@ -2945,136 +2943,21 @@ extern NEMUState nemu_state;
 uint64_t get_time();
 # 22 "/home/yangli/ysyx-workbench/nemu/include/debug.h" 2
 # 48 "/home/yangli/ysyx-workbench/nemu/include/common.h" 2
-# 20 "/home/yangli/ysyx-workbench/nemu/src/isa/riscv64/include/isa-def.h" 2
+# 20 "/home/yangli/ysyx-workbench/nemu/include/cpu/cpu.h" 2
 
-typedef struct {
-  word_t gpr[32];
-  vaddr_t pc;
+void cpu_exec(uint64_t n);
 
-  word_t mepc,mcause,mtvec,mstatus;
-  word_t mie ,mip;
+void set_nemu_state(int state, vaddr_t pc, int halt_ret);
+void invalid_inst(vaddr_t thispc);
+# 17 "src/engine/interpreter/init.c" 2
 
+void sdb_mainloop();
 
-  word_t rwaddr;
-  word_t wdata;
-
-
-} riscv64_CPU_state;
-
-
-typedef struct {
-  union {
-    uint32_t val;
-  } inst;
-} riscv64_ISADecodeInfo;
-# 21 "/home/yangli/ysyx-workbench/nemu/include/isa.h" 2
-
-
-
-typedef riscv64_CPU_state CPU_state;
-typedef riscv64_ISADecodeInfo ISADecodeInfo;
-
-
-extern char isa_logo[];
-void init_isa();
-
-
-extern CPU_state cpu;
-void isa_reg_display();
-word_t isa_reg_str2val(const char *name, 
-# 34 "/home/yangli/ysyx-workbench/nemu/include/isa.h" 3 4
-                                        _Bool 
-# 34 "/home/yangli/ysyx-workbench/nemu/include/isa.h"
-                                             *success);
-
-
-struct Decode;
-int isa_exec_once(struct Decode *s);
-
-
-enum { MMU_DIRECT, MMU_TRANSLATE, MMU_FAIL };
-enum { MEM_TYPE_IFETCH, MEM_TYPE_READ, MEM_TYPE_WRITE };
-enum { MEM_RET_OK, MEM_RET_FAIL, MEM_RET_CROSS_PAGE };
-
-
-
-paddr_t isa_mmu_translate(vaddr_t vaddr, int len, int type);
-
-
-vaddr_t isa_raise_intr(word_t NO, vaddr_t epc);
-
-word_t isa_query_intr();
-
-
-
-# 55 "/home/yangli/ysyx-workbench/nemu/include/isa.h" 3 4
-_Bool 
-# 55 "/home/yangli/ysyx-workbench/nemu/include/isa.h"
-    isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc);
-void isa_difftest_attach();
-# 17 "src/memory/vaddr.c" 2
-# 1 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h" 1
-# 26 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h"
-uint8_t* guest_to_host(paddr_t paddr);
-
-paddr_t host_to_guest(uint8_t *haddr);
-
-static inline 
-# 30 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h" 3 4
-             _Bool 
-# 30 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h"
-                  in_pmem(paddr_t addr) {
-  return addr - 0x80000000 < 0x8000000;
-}
+void engine_start() {
 
 
 
 
+  sdb_mainloop();
 
-word_t paddr_read(paddr_t addr, int len);
-void paddr_write(paddr_t addr, int len, word_t data);
-
-
-union var8
-{
-    char p[8];
-    int64_t i;
-};
-union var4
-{
-    char p[4];
-    int32_t i;
-};
-union var2
-{
-    char p[2];
-    int16_t i;
-};
-union var1
-{
-    char p;
-    int8_t i;
-};
-
-
-
-void init_ftrace(char * elf_file);
-
-void log_ftrace(paddr_t addr,
-# 67 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h" 3 4
-                            _Bool 
-# 67 "/home/yangli/ysyx-workbench/nemu/include/memory/paddr.h"
-                                 jarlflag, int rd ,word_t imm, int rs1,word_t src1);
-# 18 "src/memory/vaddr.c" 2
-
-word_t vaddr_ifetch(vaddr_t addr, int len) {
-  return paddr_read(addr, len);
-}
-
-word_t vaddr_read(vaddr_t addr, int len) {
-  return paddr_read(addr, len);
-}
-
-void vaddr_write(vaddr_t addr, int len, word_t data) {
-  paddr_write(addr, len, data);
 }
