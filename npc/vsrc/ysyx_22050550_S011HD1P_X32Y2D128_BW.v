@@ -20,23 +20,12 @@ wire [Wen_Width-1:0] bwen = ~BWEN;
 
 reg [Bits-1:0] ram [0:Word_Depth-1];
 always @(posedge CLK) begin
-`ifdef ysyx_22050550_RealRam    
     if(cen && wen) begin
         ram[A] <= (D & bwen) | (ram[A] & ~bwen);
     end
     //改一下 支持同时读写这样子仿真快一些
 
     Q <= cen && !wen ? ram[A] : (D & bwen) | {4{$random}};
-`else 
-    if(wen) begin
-        ram[A] <= (D & bwen) | (ram[A] & ~bwen);
-    end
-    if(cen) begin
-        if(wen ) Q <= (D & bwen) | (ram[A] & ~bwen);
-        else     Q <= ram[A];
-    end
-    //Q <= cen && !wen ? ram[A] : (D & bwen) | (ram[A] & ~bwen);
-`endif
 end
 
 endmodule

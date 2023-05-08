@@ -20,15 +20,6 @@ module ysyx_22050550_ScoreBoard(
     
     reg  busy [31 : 0] ;//32
     assign busy[0] =1'd0;
-`ifdef ysyx_22050550_FAST
-    wire  Iduwen  = io_IDU_wen                                          ;
-    wire  Wbuwen  = io_WBU_wen && !(Iduwen&&io_IDU_waddr==io_WBU_waddr) ;
-    
-    always @(posedge clock) begin
-        if((Iduwen)&&(|io_IDU_waddr)) busy[io_IDU_waddr] <= 1'b1;
-        if(Wbuwen && |io_WBU_waddr)busy[io_WBU_waddr] <= 1'b0;
-    end
-`else
     
     wire  [31:1] Iduwen     ;
     wire  [31:1] Wbuwen     ;
@@ -49,7 +40,6 @@ module ysyx_22050550_ScoreBoard(
             
         end
     endgenerate
-`endif
     assign io_IDU_busy1    = busy[io_IDU_raddr1] & io_IDU_valid;
     assign io_IDU_busy2    = busy[io_IDU_raddr2] & io_IDU_valid;
     

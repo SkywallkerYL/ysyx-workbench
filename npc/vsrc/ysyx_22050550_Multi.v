@@ -103,7 +103,7 @@ module  ysyx_22050550_Multi(
         if(reset) begin
             state <= Idle;
         end
-        else if (io_Exu_MulValid)state <= next;
+        else state <= next;
     end 
     always @(*) begin
         case (state)
@@ -124,21 +124,6 @@ module  ysyx_22050550_Multi(
             default: next = Idle;
         endcase
     end
-`ifdef ysyx_22050550_FAST
-    always @(posedge clock) begin
-        if(state == Busy)       Prod <= Prodin  ;
-        else if (state == Valid)Prod <= 0       ;
-    end
-    wire [127:0] MultiplicandEx1 = {{32{1'b0}},io_Exu_Multiplicand,{32{1'b0}}};
-    wire [127:0] MultiplicandEx2 = {io_Exu_Multiplicand,{64{1'b0}}};
-    always @(posedge clock) begin
-        if(state == Idle && io_Exu_MulValid) Sum <= io_Exu_Mulw ? MultiplicandEx1 : MultiplicandEx2;
-    end
-    always @(posedge clock) begin
-        if(state == Busy)                           ind <= ind + 2;
-        else if (state == Idle && io_Exu_MulValid)  ind <= 0      ;
-    end
-`else 
     wire Proden = state == Busy || state == Valid;
     wire [127:0] realProd = state == Busy ? Prodin : 0;
     ysyx_22050550_Reg # (128,128'd0)ProdReg(
@@ -153,11 +138,11 @@ module  ysyx_22050550_Multi(
         .clock(clock),
         .reset(reset),
         .wen(Sumen),
-        .din(io_Exu_Mulw?{{64{1'b0}},io_Exu_Multiplicand}<<32:{{64{1'b0}},io_Exu_Multiplicand}<<64),
+        .din(io_Exu_Mulw?{{32{1'b0}},io_Exu_Multiplicand,{32{1'b0}}}:{io_Exu_Multiplicand,{64{1'b0}}}),
         .dout(Sum)
     );
     wire inden =  (state == Idle && io_Exu_MulValid) || (state == Busy);
-    wire [5:0] indinput = (state == Idle && io_Exu_MulValid) ? 0 :(state == Busy) ? ind + 2:0;
+    wire [5:0] indinput = (state == Busy) ? ind + 2:0;
     ysyx_22050550_Reg # (6,6'd0)IndReg(
         .clock(clock),
         .reset(reset),
@@ -165,7 +150,6 @@ module  ysyx_22050550_Multi(
         .din(indinput),
         .dout(ind)
     );
-`endif 
     assign io_Exu_MulReady = state == Idle;
     assign io_Exu_OutValid = state == Valid;
     assign io_Exu_ResultL  = Prod[63:0];

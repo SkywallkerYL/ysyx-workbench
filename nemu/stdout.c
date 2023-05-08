@@ -1,12 +1,14 @@
-# 0 "src/engine/interpreter/init.c"
+# 0 "src/device/io/port-io.c"
 # 0 "<built-in>"
 # 0 "<command-line>"
 # 1 "/usr/include/stdc-predef.h" 1 3 4
 # 0 "<command-line>" 2
-# 1 "src/engine/interpreter/init.c"
-# 16 "src/engine/interpreter/init.c"
-# 1 "/home/yangli/ysyx-workbench/nemu/include/cpu/cpu.h" 1
-# 19 "/home/yangli/ysyx-workbench/nemu/include/cpu/cpu.h"
+# 1 "src/device/io/port-io.c"
+# 16 "src/device/io/port-io.c"
+# 1 "/home/yangli/ysyx-workbench/nemu/include/device/map.h" 1
+# 19 "/home/yangli/ysyx-workbench/nemu/include/device/map.h"
+# 1 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 1
+# 19 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
 # 1 "/home/yangli/ysyx-workbench/nemu/include/common.h" 1
 # 19 "/home/yangli/ysyx-workbench/nemu/include/common.h"
 # 1 "/usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h" 1 3 4
@@ -2943,21 +2945,252 @@ extern NEMUState nemu_state;
 uint64_t get_time();
 # 22 "/home/yangli/ysyx-workbench/nemu/include/debug.h" 2
 # 48 "/home/yangli/ysyx-workbench/nemu/include/common.h" 2
-# 20 "/home/yangli/ysyx-workbench/nemu/include/cpu/cpu.h" 2
+# 20 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 2
+# 1 "/home/yangli/ysyx-workbench/nemu/include/difftest-def.h" 1
+# 20 "/home/yangli/ysyx-workbench/nemu/include/difftest-def.h"
+# 1 "/home/yangli/ysyx-workbench/nemu/include/generated/autoconf.h" 1
+# 21 "/home/yangli/ysyx-workbench/nemu/include/difftest-def.h" 2
 
-void cpu_exec(uint64_t n);
-
-void set_nemu_state(int state, vaddr_t pc, int halt_ret);
-void invalid_inst(vaddr_t thispc);
-# 17 "src/engine/interpreter/init.c" 2
-
-void sdb_mainloop();
-
-void engine_start() {
-
-
+enum { DIFFTEST_TO_DUT, DIFFTEST_TO_REF };
+# 21 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 2
+# 31 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+static inline void difftest_skip_ref() {}
+static inline void difftest_skip_dut(int nr_ref, int nr_dut) {}
+static inline void difftest_set_patch(void (*fn)(void *arg), void *arg) {}
+static inline void difftest_step(vaddr_t pc, vaddr_t npc) {}
+static inline void difftest_detach() {}
+static inline void difftest_attach() {}
 
 
-  sdb_mainloop();
+extern void (*ref_difftest_memcpy)(paddr_t addr, void *buf, size_t n, 
+# 39 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
+                                                                     _Bool 
+# 39 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+                                                                          direction);
+extern void (*ref_difftest_regcpy)(void *dut, 
+# 40 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
+                                             _Bool 
+# 40 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+                                                  direction);
+extern void (*ref_difftest_exec)(uint64_t n);
+extern void (*ref_difftest_raise_intr)(uint64_t NO);
 
+static inline 
+# 44 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
+             _Bool 
+# 44 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+                  difftest_check_reg(const char *name, vaddr_t pc, word_t ref, word_t dut) {
+  if (ref != dut) {
+    do { printf("\33[1;34m" "[%s:%d %s] " "%s is different after executing instruction at pc = " "0x%016"
+# 46 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
+   "l" "x" 
+# 46 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+   ", right = " "0x%016"
+# 46 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
+   "l" "x" 
+# 46 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+   ", wrong = " "0x%016"
+# 46 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
+   "l" "x" 
+# 46 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+   ", diff = " "0x%016"
+# 46 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
+   "l" "x" 
+# 46 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+   "\33[0m" "\n", "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h", 46, __func__, name, pc, ref, dut, ref ^ dut); ; } while (0)
+
+                                      ;
+    return 
+# 49 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
+          0
+# 49 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+               ;
+  }
+  return 
+# 51 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h" 3 4
+        1
+# 51 "/home/yangli/ysyx-workbench/nemu/include/cpu/difftest.h"
+            ;
+}
+# 20 "/home/yangli/ysyx-workbench/nemu/include/device/map.h" 2
+
+typedef void(*io_callback_t)(uint32_t, int, 
+# 21 "/home/yangli/ysyx-workbench/nemu/include/device/map.h" 3 4
+                                           _Bool
+# 21 "/home/yangli/ysyx-workbench/nemu/include/device/map.h"
+                                               );
+uint8_t* new_space(int size);
+
+typedef struct {
+  const char *name;
+
+  paddr_t low;
+  paddr_t high;
+  void *space;
+  io_callback_t callback;
+} IOMap;
+
+static inline 
+# 33 "/home/yangli/ysyx-workbench/nemu/include/device/map.h" 3 4
+             _Bool 
+# 33 "/home/yangli/ysyx-workbench/nemu/include/device/map.h"
+                  map_inside(IOMap *map, paddr_t addr) {
+  return (addr >= map->low && addr <= map->high);
+}
+
+static inline int find_mapid_by_addr(IOMap *maps, int size, paddr_t addr) {
+  int i;
+  for (i = 0; i < size; i ++) {
+    if (map_inside(maps + i, addr)) {
+      difftest_skip_ref();
+      return i;
+    }
+  }
+  return -1;
+}
+
+void add_pio_map(const char *name, ioaddr_t addr,
+        void *space, uint32_t len, io_callback_t callback);
+void add_mmio_map(const char *name, paddr_t addr,
+        void *space, uint32_t len, io_callback_t callback);
+
+word_t map_read(paddr_t addr, int len, IOMap *map);
+void map_write(paddr_t addr, int len, word_t data, IOMap *map);
+# 17 "src/device/io/port-io.c" 2
+
+
+
+
+static IOMap maps[16] = {};
+static int nr_map = 0;
+
+
+void add_pio_map(const char *name, ioaddr_t addr, void *space, uint32_t len, io_callback_t callback) {
+  
+# 26 "src/device/io/port-io.c" 3 4
+ ((void) sizeof ((
+# 26 "src/device/io/port-io.c"
+ nr_map < 16
+# 26 "src/device/io/port-io.c" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 26 "src/device/io/port-io.c"
+ nr_map < 16
+# 26 "src/device/io/port-io.c" 3 4
+ ) ; else __assert_fail (
+# 26 "src/device/io/port-io.c"
+ "nr_map < NR_MAP"
+# 26 "src/device/io/port-io.c" 3 4
+ , "src/device/io/port-io.c", 26, __extension__ __PRETTY_FUNCTION__); }))
+# 26 "src/device/io/port-io.c"
+                        ;
+  
+# 27 "src/device/io/port-io.c" 3 4
+ ((void) sizeof ((
+# 27 "src/device/io/port-io.c"
+ addr + len <= 65535
+# 27 "src/device/io/port-io.c" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 27 "src/device/io/port-io.c"
+ addr + len <= 65535
+# 27 "src/device/io/port-io.c" 3 4
+ ) ; else __assert_fail (
+# 27 "src/device/io/port-io.c"
+ "addr + len <= PORT_IO_SPACE_MAX"
+# 27 "src/device/io/port-io.c" 3 4
+ , "src/device/io/port-io.c", 27, __extension__ __PRETTY_FUNCTION__); }))
+# 27 "src/device/io/port-io.c"
+                                        ;
+  maps[nr_map] = (IOMap){ .name = name, .low = addr, .high = addr + len - 1,
+    .space = space, .callback = callback };
+  do { printf("\33[1;34m" "[%s:%d %s] " "Add port-io map '%s' at [" "0x%08"
+# 30 "src/device/io/port-io.c" 3 4
+ "x" 
+# 30 "src/device/io/port-io.c"
+ ", " "0x%08"
+# 30 "src/device/io/port-io.c" 3 4
+ "x" 
+# 30 "src/device/io/port-io.c"
+ "]" "\33[0m" "\n", "src/device/io/port-io.c", 30, __func__, maps[nr_map].name, maps[nr_map].low, maps[nr_map].high); ; } while (0)
+                                                             ;
+
+  nr_map ++;
+}
+
+
+uint32_t pio_read(ioaddr_t addr, int len) {
+  
+# 38 "src/device/io/port-io.c" 3 4
+ ((void) sizeof ((
+# 38 "src/device/io/port-io.c"
+ addr + len - 1 < 65535
+# 38 "src/device/io/port-io.c" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 38 "src/device/io/port-io.c"
+ addr + len - 1 < 65535
+# 38 "src/device/io/port-io.c" 3 4
+ ) ; else __assert_fail (
+# 38 "src/device/io/port-io.c"
+ "addr + len - 1 < PORT_IO_SPACE_MAX"
+# 38 "src/device/io/port-io.c" 3 4
+ , "src/device/io/port-io.c", 38, __extension__ __PRETTY_FUNCTION__); }))
+# 38 "src/device/io/port-io.c"
+                                           ;
+  int mapid = find_mapid_by_addr(maps, nr_map, addr);
+  
+# 40 "src/device/io/port-io.c" 3 4
+ ((void) sizeof ((
+# 40 "src/device/io/port-io.c"
+ mapid != -1
+# 40 "src/device/io/port-io.c" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 40 "src/device/io/port-io.c"
+ mapid != -1
+# 40 "src/device/io/port-io.c" 3 4
+ ) ; else __assert_fail (
+# 40 "src/device/io/port-io.c"
+ "mapid != -1"
+# 40 "src/device/io/port-io.c" 3 4
+ , "src/device/io/port-io.c", 40, __extension__ __PRETTY_FUNCTION__); }))
+# 40 "src/device/io/port-io.c"
+                    ;
+  return map_read(addr, len, &maps[mapid]);
+}
+
+void pio_write(ioaddr_t addr, int len, uint32_t data) {
+  
+# 45 "src/device/io/port-io.c" 3 4
+ ((void) sizeof ((
+# 45 "src/device/io/port-io.c"
+ addr + len - 1 < 65535
+# 45 "src/device/io/port-io.c" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 45 "src/device/io/port-io.c"
+ addr + len - 1 < 65535
+# 45 "src/device/io/port-io.c" 3 4
+ ) ; else __assert_fail (
+# 45 "src/device/io/port-io.c"
+ "addr + len - 1 < PORT_IO_SPACE_MAX"
+# 45 "src/device/io/port-io.c" 3 4
+ , "src/device/io/port-io.c", 45, __extension__ __PRETTY_FUNCTION__); }))
+# 45 "src/device/io/port-io.c"
+                                           ;
+  int mapid = find_mapid_by_addr(maps, nr_map, addr);
+  
+# 47 "src/device/io/port-io.c" 3 4
+ ((void) sizeof ((
+# 47 "src/device/io/port-io.c"
+ mapid != -1
+# 47 "src/device/io/port-io.c" 3 4
+ ) ? 1 : 0), __extension__ ({ if (
+# 47 "src/device/io/port-io.c"
+ mapid != -1
+# 47 "src/device/io/port-io.c" 3 4
+ ) ; else __assert_fail (
+# 47 "src/device/io/port-io.c"
+ "mapid != -1"
+# 47 "src/device/io/port-io.c" 3 4
+ , "src/device/io/port-io.c", 47, __extension__ __PRETTY_FUNCTION__); }))
+# 47 "src/device/io/port-io.c"
+                    ;
+  map_write(addr, len, data, &maps[mapid]);
 }

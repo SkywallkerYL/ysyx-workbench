@@ -65,22 +65,14 @@ wire                            if_id_valid;
 reg [`ysyx_22050550_RegBus]     Rif_id_pc;
 reg [`ysyx_22050550_InstBus]    Rif_id_inst;
 reg                             Rif_id_valid;
-`ifdef ysyx_22050550_FAST
-always@(posedge clock) begin
-    if (Id_ready) begin
-        Rif_id_pc    <= if_id_pc    ;
-        Rif_id_inst  <= if_id_inst  ;
-        Rif_id_valid <= if_id_valid ;
-    end
-end
-`else
+
 ysyx_22050550_Reg # (`ysyx_22050550_REGWIDTH,64'd0)Regif_id_pc(
     .clock(clock),.reset(reset),.wen(Id_ready),.din(if_id_pc),      .dout(Rif_id_pc     ));
 ysyx_22050550_Reg # (`ysyx_22050550_INSTWIDTH,32'd0)Regif_id_inst(
     .clock(clock),.reset(reset),.wen(Id_ready),.din(if_id_inst),    .dout(Rif_id_inst   ));
 ysyx_22050550_Reg # (1,1'd0)Regif_id_valid(
     .clock(clock),.reset(reset),.wen(Id_ready),.din(if_id_valid),   .dout(Rif_id_valid  ));
-`endif 
+ 
 // ID_Regfile
 wire [63:0] RegFileID_CSRs_mepc  ;
 wire [63:0] RegFileID_CSRs_mtvec ;
@@ -229,36 +221,6 @@ reg [ 0:0] Ridex_alumask     ;
 reg [ 2:0] Ridex_func3       ;
 //reg [ 6:0] Ridex_func7       ;
 reg [63:0] Ridex_NextPc      ;
-`ifdef ysyx_22050550_FAST
-always @(posedge clock) begin
-    if(EX_ID_ready) begin
-        Ridex_pc        <= idex_pc        ;
-        Ridex_inst      <= idex_inst      ;
-        Ridex_valid     <= idex_valid     ;
-        Ridex_rs1addr   <= idex_rs1addr   ;
-        Ridex_abort     <= idex_abort     ;
-        Ridex_rs2       <= idex_rs2       ;
-        Ridex_imm       <= idex_imm       ;
-        Ridex_AluOp_rd1 <= idex_AluOp_rd1 ;
-        Ridex_AluOp_rd2 <= idex_AluOp_rd2 ;
-        Ridex_AluOp_op  <= idex_AluOp_op  ;
-        Ridex_waddr     <= idex_waddr     ;
-        Ridex_wen       <= idex_wen       ;
-        Ridex_wflag     <= idex_wflag     ;
-        Ridex_rflag     <= idex_rflag     ;
-        Ridex_csrflag   <= idex_csrflag   ;
-        Ridex_jalrflag  <= idex_jalrflag  ;
-        Ridex_ecallflag <= idex_ecallflag ;
-        Ridex_mretflag  <= idex_mretflag  ;
-        Ridex_breakflag <= idex_breakflag ;
-        Ridex_wmask     <= idex_wmask     ;
-        Ridex_choose    <= idex_choose    ;
-        Ridex_alumask   <= idex_alumask   ;
-        Ridex_func3     <= idex_func3     ;
-        Ridex_NextPc    <= idex_NextPc    ;
-    end
-end
-`else
 ysyx_22050550_Reg # (`ysyx_22050550_REGWIDTH,64'd0)Regidex_pc       (.clock(clock),.reset(reset),.wen(EX_ID_ready),.din(idex_pc        ),.dout(Ridex_pc       ));
 ysyx_22050550_Reg # (`ysyx_22050550_INSTWIDTH,32'd0)Regidex_inst    (.clock(clock),.reset(reset),.wen(EX_ID_ready),.din(idex_inst      ),.dout(Ridex_inst     ));
 ysyx_22050550_Reg # (1,1'd0)                       Regidex_valid    (.clock(clock),.reset(reset),.wen(EX_ID_ready),.din(idex_valid     ),.dout(Ridex_valid    ));
@@ -282,9 +244,8 @@ ysyx_22050550_Reg # (8,8'd0)                       Regidex_wmask    (.clock(cloc
 ysyx_22050550_Reg # (2,2'd0)                       Regidex_choose   (.clock(clock),.reset(reset),.wen(EX_ID_ready),.din(idex_choose    ),.dout(Ridex_choose   ));
 ysyx_22050550_Reg # (1,1'd0)                       Regidex_alumask  (.clock(clock),.reset(reset),.wen(EX_ID_ready),.din(idex_alumask   ),.dout(Ridex_alumask  ));
 ysyx_22050550_Reg # (3,3'd0)                       Regidex_func3    (.clock(clock),.reset(reset),.wen(EX_ID_ready),.din(idex_func3     ),.dout(Ridex_func3    ));
-//ysyx_22050550_Reg # (7,7'd0)                       Regidex_func7    (.clock(clock),.reset(reset),.wen(EX_ID_ready),.din(idex_func7     ),.dout(Ridex_func7    ));
 ysyx_22050550_Reg # (`ysyx_22050550_REGWIDTH,64'd0)Regidex_NextPc   (.clock(clock),.reset(reset),.wen(EX_ID_ready),.din(idex_NextPc    ),.dout(Ridex_NextPc   ));
-`endif 
+ 
 //EXU TO LsU
 wire [ 0:0] LS_ready       ; 
 wire [63:0] EXLS_pc        ;
@@ -307,12 +268,8 @@ wire [ 0:0] EXLS_rflag     ;
 wire [63:0] EXLS_writedata ;
 wire [ 7:0] EXLS_wmask     ;
 wire [ 2:0] EXLS_func3     ;
-//wire [ 6:0] EXLS_func7     ;
 wire [63:0] EXLS_NextPc    ;
 
-//wire [ 4:0] Exu_waddr   ; 
-//wire [63:0] Exu_wdata   ; 
-//wire [ 0:0] Exu_wen     ; 
 
 
 ysyx_22050550_EXU EXU(
@@ -362,11 +319,7 @@ ysyx_22050550_EXU EXU(
     .io_EXLS_writedata(EXLS_writedata )         ,
     .io_EXLS_wmask    (EXLS_wmask     )         ,
     .io_EXLS_func3    (EXLS_func3     )         ,
-    //.io_EXLS_func7    (EXLS_func7     )         ,
     .io_EXLS_NextPc   (EXLS_NextPc    )         ,  
-    //.io_EXU_waddr   (Exu_waddr  )  , 
-    //.io_EXU_valid   (Exu_wen    )  , 
-    //.io_EXU_rdata   (Exu_wdata  )  , 
     .io_ReadyID_ready (EX_ID_ready    )         
 );
 //EX_LS
@@ -390,35 +343,7 @@ reg [ 0:0] REXLS_rflag     ;
 reg [63:0] REXLS_writedata ;
 reg [ 7:0] REXLS_wmask     ;
 reg [ 2:0] REXLS_func3     ;
-//reg [ 6:0] REXLS_func7     ;
 reg [63:0] REXLS_NextPc    ;
-`ifdef ysyx_22050550_FAST
-always @ (posedge clock) begin
-    if(LS_ready) begin
-        REXLS_pc         <= EXLS_pc        ;
-        REXLS_rs2        <= EXLS_rs2       ;
-        REXLS_inst       <= EXLS_inst      ;
-        REXLS_valid      <= EXLS_valid     ;
-        REXLS_rs1        <= EXLS_rs1       ;
-        REXLS_imm        <= EXLS_imm       ;
-        REXLS_wdaddr     <= EXLS_wdaddr    ;
-        REXLS_wen        <= EXLS_wen       ;
-        REXLS_csrflag    <= EXLS_csrflag   ;
-        REXLS_jalrflag   <= EXLS_jalrflag  ;
-        REXLS_ecallflag  <= EXLS_ecallflag ;
-        REXLS_mretflag   <= EXLS_mretflag  ;
-        REXLS_ebreak     <= EXLS_ebreak    ;
-        REXLS_abort      <= EXLS_abort     ;
-        REXLS_alures     <= EXLS_alures    ;
-        REXLS_wflag      <= EXLS_wflag     ;
-        REXLS_rflag      <= EXLS_rflag     ;
-        REXLS_writedata  <= EXLS_writedata ;
-        REXLS_wmask      <= EXLS_wmask     ;
-        REXLS_func3      <= EXLS_func3     ;
-        REXLS_NextPc     <= EXLS_NextPc    ;
-    end
-end
-`else
 ysyx_22050550_Reg # (64,64'd0)RegEXLS_pc        (.clock(clock),.reset(reset),.wen(LS_ready),.din(EXLS_pc        ),.dout(REXLS_pc        ));
 ysyx_22050550_Reg # (64,64'd0)RegEXLS_rs2       (.clock(clock),.reset(reset),.wen(LS_ready),.din(EXLS_rs2       ),.dout(REXLS_rs2       ));
 ysyx_22050550_Reg # (32,32'd0)RegEXLS_inst      (.clock(clock),.reset(reset),.wen(LS_ready),.din(EXLS_inst      ),.dout(REXLS_inst      ));
@@ -439,9 +364,8 @@ ysyx_22050550_Reg # ( 1, 1'd0)RegEXLS_rflag     (.clock(clock),.reset(reset),.we
 ysyx_22050550_Reg # (64,64'd0)RegEXLS_writedata (.clock(clock),.reset(reset),.wen(LS_ready),.din(EXLS_writedata ),.dout(REXLS_writedata ));
 ysyx_22050550_Reg # ( 8, 8'd0)RegEXLS_wmask     (.clock(clock),.reset(reset),.wen(LS_ready),.din(EXLS_wmask     ),.dout(REXLS_wmask     ));
 ysyx_22050550_Reg # ( 3, 3'd0)RegEXLS_func3     (.clock(clock),.reset(reset),.wen(LS_ready),.din(EXLS_func3     ),.dout(REXLS_func3     ));
-//ysyx_22050550_Reg # ( 7, 7'd0)RegEXLS_func7     (.clock(clock),.reset(reset),.wen(LS_ready),.din(EXLS_func7     ),.dout(REXLS_func7     ));
 ysyx_22050550_Reg # (64,64'd0)RegEXLS_NextPc    (.clock(clock),.reset(reset),.wen(LS_ready),.din(EXLS_NextPc    ),.dout(REXLS_NextPc    ));
-`endif 
+ 
 //LS TO WB
 wire [ 0:0] WB_ready  ;
 wire [63:0] LSWB_pc        ;
@@ -454,7 +378,6 @@ wire [ 4:0] LSWB_wdaddr    ;
 wire [ 0:0] LSWB_wen       ;
 wire [ 0:0] LSWB_csrflag   ;
 wire [ 0:0] LSWB_readflag  ;
-//wire [ 0:0] LSWB_writeflag ;
 wire [ 0:0] LSWB_jalrflag  ;
 wire [ 0:0] LSWB_ecallflag ;
 wire [ 0:0] LSWB_mretflag  ;
@@ -464,9 +387,7 @@ wire [ 0:0] LSWB_SkipRef   ;
 wire [63:0] LSWB_alures    ;
 wire [63:0] LSWB_lsures    ;
 wire [ 2:0] LSWB_func3     ;
-//wire [ 6:0] LSWB_func7     ;
 wire [63:0] LSWB_NextPc    ;
-//LS TO Device Ram
 `ifdef  ysyx_22050550_DEVICEUSEAXI
 wire [ 0:0] DevSram_ar_ready   ; 
 wire [ 0:0] DevSram_ar_valid   ; 
@@ -476,6 +397,7 @@ wire [ 2:0] DevSram_ar_size    ;
 wire [ 1:0] DevSram_ar_burst   ; 
 wire [ 0:0] DevSram_r_valid    ; 
 wire [63:0] DevSram_r_rdata    ; 
+wire [ 1:0] DevSram_r_rresp    ;
 wire [ 0:0] DevSram_r_ready    ; 
 wire [ 0:0] DevSram_aw_ready   ; 
 wire [ 0:0] DevSram_aw_valid   ; 
@@ -490,30 +412,7 @@ wire [ 7:0] DevSram_w_strb     ;
 wire [ 0:0] DevSram_w_last     ; 
 wire [ 0:0] DevSram_b_ready    ; 
 wire [ 0:0] DevSram_b_valid    ; 
-`endif 
-`ifndef  ysyx_22050550_LSUUSECACHE
-wire [ 0:0] DevSram_ar_ready   ; 
-wire [ 0:0] DevSram_ar_valid   ; 
-wire [63:0] DevSram_ar_addr    ; 
-wire [ 7:0] DevSram_ar_len     ; 
-wire [ 2:0] DevSram_ar_size    ; 
-wire [ 1:0] DevSram_ar_burst   ; 
-wire [ 0:0] DevSram_r_valid    ; 
-wire [63:0] DevSram_r_rdata    ; 
-wire [ 0:0] DevSram_r_ready    ; 
-wire [ 0:0] DevSram_aw_ready   ; 
-wire [ 0:0] DevSram_aw_valid   ; 
-wire [63:0] DevSram_aw_addr    ; 
-wire [ 7:0] DevSram_aw_len     ; 
-wire [ 2:0] DevSram_aw_size    ; 
-wire [ 1:0] DevSram_aw_burst   ; 
-wire [ 0:0] DevSram_w_ready    ; 
-wire [ 0:0] DevSram_w_valid    ; 
-wire [63:0] DevSram_w_data     ; 
-wire [ 7:0] DevSram_w_strb     ; 
-wire [ 0:0] DevSram_w_last     ; 
-wire [ 0:0] DevSram_b_ready    ; 
-wire [ 0:0] DevSram_b_valid    ; 
+wire [ 1:0] DevSram_b_bresp	   ;   
 `endif 
 //LS TO Abiter
 wire [ 0:0] Lsu_Cache_valid    ;  
@@ -523,10 +422,6 @@ wire [63:0] Lsu_Cache_wdata    ;
 wire [ 7:0] Lsu_Cache_wmask    ;  
 wire [63:0] Lsu_Cache_data     ;  
 wire [ 0:0] Lsu_Cache_dataok   ;  
-//LS TO BYPASS
-//wire [ 4:0] Lsu_waddr   ;
-//wire [63:0] Lsu_wdata   ;
-//wire [ 0:0] Lsu_wen     ;
 
 
 ysyx_22050550_LSU LSU(
@@ -552,7 +447,6 @@ ysyx_22050550_LSU LSU(
     .io_EXLS_rflag    (REXLS_valid?REXLS_rflag    :0 ) ,   
     .io_EXLS_wmask    (            REXLS_wmask       ) ,          
     .io_EXLS_func3    (            REXLS_func3       ) , 
-    //.io_EXLS_func7    (REXLS_valid?REXLS_func7    :0 ) ,      
     .io_EXLS_NextPc   (REXLS_valid?REXLS_NextPc   :0 ) ,
     .io_ReadyWB_ready (WB_ready)             , 
     .io_LSWB_pc       (LSWB_pc        )      ,
@@ -565,7 +459,6 @@ ysyx_22050550_LSU LSU(
     .io_LSWB_wen      (LSWB_wen       )      ,
     .io_LSWB_csrflag  (LSWB_csrflag   )      , 
     .io_LSWB_readflag (LSWB_readflag  )      , 
-//   .io_LSWB_writeflag(LSWB_writeflag )      ,      
     .io_LSWB_jalrflag (LSWB_jalrflag  )      ,        
     .io_LSWB_ecallflag(LSWB_ecallflag )      ,        
     .io_LSWB_mretflag (LSWB_mretflag  )      ,        
@@ -574,13 +467,9 @@ ysyx_22050550_LSU LSU(
     .io_LSWB_SkipRef  (LSWB_SkipRef   )      ,    
     .io_LSWB_alures   (LSWB_alures    )      ,  
     .io_LSWB_lsures   (LSWB_lsures    )      ,
-    .io_LSWB_func3    (LSWB_func3     )      ,
-    //.io_LSWB_func7    (LSWB_func7     )      ,
+	.io_LSWB_func3    (LSWB_func3     )      ,
     .io_LSWB_NextPc   (LSWB_NextPc    )      ,  
     .io_ReadyEX_ready (LS_ready)             ,
-    //.io_LSU_waddr     (Lsu_waddr    )           ,
-    //.io_LSU_valid     (Lsu_wen      )           ,
-    //.io_LSU_rdata     (Lsu_wdata    )           ,
 `ifdef ysyx_22050550_DEVICEUSEAXI
     .io_ar_ready      (DevSram_ar_ready )         ,
     .io_ar_valid      (DevSram_ar_valid )         ,    
@@ -590,6 +479,7 @@ ysyx_22050550_LSU LSU(
     .io_ar_burst      (DevSram_ar_burst )         , 
     .io_r_valid       (DevSram_r_valid  )         ,
     .io_r_rdata       (DevSram_r_rdata  )         ,
+	.io_r_rresp		  (DevSram_r_rresp  )		  ,
     .io_r_ready       (DevSram_r_ready  )         ,
     .io_aw_ready      (DevSram_aw_ready )         ,
     .io_aw_valid      (DevSram_aw_valid )         , 
@@ -604,30 +494,7 @@ ysyx_22050550_LSU LSU(
     .io_w_last        (DevSram_w_last   )         ,
     .io_b_ready       (DevSram_b_ready  )         ,
     .io_b_valid       (DevSram_b_valid  )         ,
-`endif
-`ifndef ysyx_22050550_LSUUSECACHE
-    .io_ar_ready      (DevSram_ar_ready )         ,
-    .io_ar_valid      (DevSram_ar_valid )         ,    
-    .io_ar_addr       (DevSram_ar_addr  )         ,
-    .io_ar_len        (DevSram_ar_len   )         ,
-    .io_ar_size       (DevSram_ar_size  )         ,    
-    .io_ar_burst      (DevSram_ar_burst )         , 
-    .io_r_valid       (DevSram_r_valid  )         ,
-    .io_r_rdata       (DevSram_r_rdata  )         ,
-    .io_r_ready       (DevSram_r_ready  )         ,
-    .io_aw_ready      (DevSram_aw_ready )         ,
-    .io_aw_valid      (DevSram_aw_valid )         , 
-    .io_aw_addr       (DevSram_aw_addr  )         ,
-    .io_aw_len        (DevSram_aw_len   )         ,
-    .io_aw_size       (DevSram_aw_size  )         , 
-    .io_aw_burst      (DevSram_aw_burst )         ,
-    .io_w_ready       (DevSram_w_ready  )         , 
-    .io_w_valid       (DevSram_w_valid  )         ,
-    .io_w_data        (DevSram_w_data   )         ,
-    .io_w_strb        (DevSram_w_strb   )         ,
-    .io_w_last        (DevSram_w_last   )         ,
-    .io_b_ready       (DevSram_b_ready  )         ,
-    .io_b_valid       (DevSram_b_valid  )         ,
+	.io_b_bresp       (DevSram_b_bresp  )	      ,
 `endif
     .io_Cache_valid   (Lsu_Cache_valid    )         ,
     .io_Cache_op      (Lsu_Cache_op       )         ,
@@ -636,7 +503,6 @@ ysyx_22050550_LSU LSU(
     .io_Cache_wmask   (Lsu_Cache_wmask    )         ,
     .io_Cache_data    (Lsu_Cache_data     )         ,
     .io_Cache_dataok  (Lsu_Cache_dataok   )         
-    //.printflag        (printflag)
 );
 //LS_WB
 reg [63:0] RLSWB_pc        ;
@@ -659,34 +525,7 @@ reg [ 0:0] RLSWB_SkipRef   ;
 reg [63:0] RLSWB_alures    ;
 reg [63:0] RLSWB_lsures    ;
 reg [ 2:0] RLSWB_func3     ;
-//reg [ 6:0] RLSWB_func7     ;
 reg [63:0] RLSWB_NextPc    ;
-`ifdef ysyx_22050550_FAST
-    always@(posedge clock) begin
-        if(WB_ready) begin
-            RLSWB_pc         <= LSWB_pc         ;
-            RLSWB_rs2        <= LSWB_rs2        ;
-            RLSWB_inst       <= LSWB_inst       ;
-            RLSWB_valid      <= LSWB_valid      ;
-            RLSWB_rs1        <= LSWB_rs1        ;
-            RLSWB_imm        <= LSWB_imm        ;
-            RLSWB_wdaddr     <= LSWB_wdaddr     ;
-            RLSWB_wen        <= LSWB_wen        ;
-            RLSWB_csrflag    <= LSWB_csrflag    ;
-            RLSWB_readflag   <= LSWB_readflag   ;
-            RLSWB_jalrflag   <= LSWB_jalrflag   ;
-            RLSWB_ecallflag  <= LSWB_ecallflag  ;
-            RLSWB_mretflag   <= LSWB_mretflag   ;
-            RLSWB_ebreak     <= LSWB_ebreak     ;
-            RLSWB_abort      <= LSWB_abort      ;
-            RLSWB_SkipRef    <= LSWB_SkipRef    ;
-            RLSWB_alures     <= LSWB_alures     ;
-            RLSWB_lsures     <= LSWB_lsures     ;
-            RLSWB_func3      <= LSWB_func3      ;
-            RLSWB_NextPc     <= LSWB_NextPc     ; 
-        end
-    end
-`else
 ysyx_22050550_Reg # (64,64'd0)RegLSWB_pc               (.clock(clock),.reset(reset),.wen(WB_ready),.din(LSWB_pc        ),.dout(RLSWB_pc         ));
 ysyx_22050550_Reg # (64,64'd0)RegLSWB_rs2              (.clock(clock),.reset(reset),.wen(WB_ready),.din(LSWB_rs2       ),.dout(RLSWB_rs2        ));
 ysyx_22050550_Reg # (32,32'd0)RegLSWB_inst             (.clock(clock),.reset(reset),.wen(WB_ready),.din(LSWB_inst      ),.dout(RLSWB_inst       ));
@@ -697,7 +536,6 @@ ysyx_22050550_Reg # ( 5, 5'd0)RegLSWB_wdaddr           (.clock(clock),.reset(res
 ysyx_22050550_Reg # ( 1, 1'd0)RegLSWB_wen              (.clock(clock),.reset(reset),.wen(WB_ready),.din(LSWB_wen       ),.dout(RLSWB_wen        ));
 ysyx_22050550_Reg # ( 1, 1'd0)RegLSWB_csrflag          (.clock(clock),.reset(reset),.wen(WB_ready),.din(LSWB_csrflag   ),.dout(RLSWB_csrflag    ));
 ysyx_22050550_Reg # ( 1, 1'd0)RegLSWB_readflag         (.clock(clock),.reset(reset),.wen(WB_ready),.din(LSWB_readflag  ),.dout(RLSWB_readflag   ));
-//ysyx_22050550_Reg # ( 1, 1'd0)RegLSWB_writeflag        (.clock(clock),.reset(reset),.wen(WB_ready),.din(LSWB_writeflag ),.dout(RLSWB_writeflag  ));
 ysyx_22050550_Reg # ( 1, 1'd0)RegLSWB_jalrflag         (.clock(clock),.reset(reset),.wen(WB_ready),.din(LSWB_jalrflag  ),.dout(RLSWB_jalrflag   ));
 ysyx_22050550_Reg # ( 1, 1'd0)RegLSWB_ecallflag        (.clock(clock),.reset(reset),.wen(WB_ready),.din(LSWB_ecallflag ),.dout(RLSWB_ecallflag  ));
 ysyx_22050550_Reg # ( 1, 1'd0)RegLSWB_mretflag         (.clock(clock),.reset(reset),.wen(WB_ready),.din(LSWB_mretflag  ),.dout(RLSWB_mretflag   ));
@@ -707,9 +545,8 @@ ysyx_22050550_Reg # ( 1, 1'd0)RegLSWB_SkipRef          (.clock(clock),.reset(res
 ysyx_22050550_Reg # (64,64'd0)RegLSWB_alures           (.clock(clock),.reset(reset),.wen(WB_ready),.din(LSWB_alures    ),.dout(RLSWB_alures     ));
 ysyx_22050550_Reg # (64,64'd0)RegLSWB_lsures           (.clock(clock),.reset(reset),.wen(WB_ready),.din(LSWB_lsures    ),.dout(RLSWB_lsures     ));
 ysyx_22050550_Reg # ( 3, 3'd0)RegLSWB_func3            (.clock(clock),.reset(reset),.wen(WB_ready),.din(LSWB_func3     ),.dout(RLSWB_func3      ));
-//ysyx_22050550_Reg # ( 7, 7'd0)RegLSWB_func7            (.clock(clock),.reset(reset),.wen(WB_ready),.din(LSWB_func7     ),.dout(RLSWB_func7      ));
 ysyx_22050550_Reg # (64,64'd0)RegLSWB_NextPc           (.clock(clock),.reset(reset),.wen(WB_ready),.din(LSWB_NextPc    ),.dout(RLSWB_NextPc     ));
-`endif 
+ 
 //WBU REGFILE
 wire [63:0] WBU_mepc    ;
 wire [63:0] WBU_mcause  ;
@@ -741,7 +578,6 @@ ysyx_22050550_WBU WBU(
     .io_LSWB_abort     (RLSWB_valid? RLSWB_abort    :0 )            ,
     .io_LSWB_jalrflag  (RLSWB_valid? RLSWB_jalrflag :0 )            ,
     .io_LSWB_readflag  (RLSWB_valid? RLSWB_readflag :0 )            ,
-    //.io_LSWB_writeflag (RLSWB_valid? RLSWB_writeflag:0 )            ,
     .io_LSWB_csrflag   (RLSWB_valid? RLSWB_csrflag  :0 )            ,
     .io_LSWB_ecallflag (RLSWB_valid? RLSWB_ecallflag:0 )            ,
     .io_LSWB_mretflag  (RLSWB_valid? RLSWB_mretflag :0 )            ,
@@ -754,7 +590,6 @@ ysyx_22050550_WBU WBU(
     .io_LSWB_waddr     (             RLSWB_wdaddr      )            ,    
     .io_LSWB_wen       (RLSWB_valid? RLSWB_wen      :0 )            ,      
     .io_LSWB_func3     (             RLSWB_func3       )            , 
-    //.io_LSWB_func7     (RLSWB_valid? RLSWB_func7    :0 )            ,      
     .io_LSWB_NextPc    (             RLSWB_NextPc      )            ,
 
     .mepc              (RegFileID_CSRs_mepc )             ,
@@ -786,8 +621,6 @@ ysyx_22050550_WBU WBU(
     .io_WBTOP_abort    (DeBugabort    )             , 
     .io_WBTOP_SkipRef  (DeBugSkipRef  )             ,
     .io_WBTOP_NextPc   (DeBugNextPc   )             ,
-    //.io_WBTOP_writeflag(writeflag     )             ,
-    //.io_WBTOP_writeaddr(writeaddr     )             ,  
     .io_ReadyWB_ready  (WB_ready)             
 );
 wire [63:0] DeBugpc       ; 
@@ -802,8 +635,6 @@ wire [ 0:0] DeBugabort    ;
 wire [ 0:0] DeBugSkipRef  ; 
 wire [63:0] DeBugNextPc   ; 
 wire [63:0] Reg10         ;
-//wire [ 0:0] writeflag     ;
-//wire [63:0] writeaddr     ;
 reg difftest;
 reg skipref ;
 
@@ -882,9 +713,6 @@ ysyx_22050550_REGS REGS(
     .wbcsren       (wbcsren             )                  ,
     .io_IDU_raddr1 (rsaddr1)           ,
     .io_IDU_raddr2 (rsaddr2)           ,
-    //.addrdataen    (writeflag)                 ,
-    //.waddr         (writeaddr)                 ,
-    //.wdata         (DeBugrs2)                  ,
     .io_waddr      (Wbu_waddr       )                  ,
     .io_wdata      (Wbu_wdata       )                  ,
     .io_wen        (Wbu_wen         )                  ,
@@ -901,6 +729,7 @@ wire [ 1:0] Icache_ar_burst ;
 wire [ 0:0] Icache_r_valid  ; 
 wire [ 0:0] Icache_r_last   ; 
 wire [63:0] Icache_r_rdata  ; 
+wire [ 1:0] Icache_r_rresp  ;
 wire [ 0:0] Icache_r_ready  ; 
 
 ysyx_22050550_CACHE ICache(
@@ -915,6 +744,7 @@ ysyx_22050550_CACHE ICache(
     .io_r_valid   (Icache_r_valid  )  ,
     .io_r_last    (Icache_r_last   )  ,
     .io_r_rdata   (Icache_r_rdata  )  ,
+	.io_r_rresp   (Icache_r_rresp  )  ,
     .io_r_ready   (Icache_r_ready  )  ,
     .io_aw_ready  (0)             ,
     .io_aw_valid  ()             , 
@@ -929,6 +759,7 @@ ysyx_22050550_CACHE ICache(
     .io_w_last    ()             ,
     .io_b_ready   ()             ,
     .io_b_valid   (0)             ,
+	.io_b_bresp   (0)             ,
 
     .pc              (if_id_pc)             ,
     .io_Cache_valid  (ICache_valid  )          ,
@@ -948,7 +779,8 @@ wire [ 2:0] Lsu_ar_size  ;
 wire [ 1:0] Lsu_ar_burst ; 
 wire [ 0:0] Lsu_r_valid  ; 
 wire [ 0:0] Lsu_r_last   ; 
-wire [63:0] Lsu_r_rdata  ; 
+wire [63:0] Lsu_r_rdata  ;
+wire [ 1:0] Lsu_r_rresp  ; 
 wire [ 0:0] Lsu_r_ready  ; 
 wire [ 0:0] Lsu_aw_ready ; 
 wire [ 0:0] Lsu_aw_valid ; 
@@ -963,6 +795,7 @@ wire [ 7:0] Lsu_w_strb   ;
 wire [ 0:0] Lsu_w_last   ; 
 wire [ 0:0] Lsu_b_ready  ; 
 wire [ 0:0] Lsu_b_valid  ; 
+wire [ 1:0] Lsu_b_bresp  ; 
 
 ysyx_22050550_CACHE DCache(
     .clock        (clock)             ,
@@ -976,6 +809,7 @@ ysyx_22050550_CACHE DCache(
     .io_r_valid   (Lsu_r_valid  )             ,
     .io_r_last    (Lsu_r_last   )             ,
     .io_r_rdata   (Lsu_r_rdata  )             ,
+	.io_r_rresp   (Lsu_r_rresp  )			  ,
     .io_r_ready   (Lsu_r_ready  )             ,
     .io_aw_ready  (Lsu_aw_ready )             ,
     .io_aw_valid  (Lsu_aw_valid )             , 
@@ -990,6 +824,7 @@ ysyx_22050550_CACHE DCache(
     .io_w_last    (Lsu_w_last   )             ,
     .io_b_ready   (Lsu_b_ready  )             ,
     .io_b_valid   (Lsu_b_valid  )             ,
+	.io_b_bresp   (Lsu_b_bresp  )			  ,
 
     .pc              (REXLS_valid?REXLS_pc       :0),
     .io_Cache_valid  (Lsu_Cache_valid    )          ,
@@ -1002,7 +837,6 @@ ysyx_22050550_CACHE DCache(
 
 );
 
-`ifdef ysyx_22050550_UseArbiter
 ysyx_22050550_RamArbiter RamArbiter(	
   .io_ifu_Axi_ar_valid     (Icache_ar_valid )        ,
   .io_ifu_Axi_ar_bits_addr (Icache_ar_addr  )        ,
@@ -1023,18 +857,21 @@ ysyx_22050550_RamArbiter RamArbiter(
   .io_sram_Axi_ar_ready    (Sram_ar_ready)        ,
   .io_sram_Axi_r_valid     (Sram_r_valid    )        ,
   .io_sram_Axi_r_bits_data (Sram_r_bits_data)        ,
+  .io_sram_Axi_r_rresp     (Sram_r_rresp)		  ,
   .io_sram_Axi_r_bits_last (Sram_r_bits_last)        ,
   .io_sram_Axi_aw_ready    (Sram_aw_ready)        ,
   .io_sram_Axi_w_ready     (Sram_w_ready)        ,
   .io_ifu_Axi_ar_ready     ( Icache_ar_ready)        ,
   .io_ifu_Axi_r_valid      ( Icache_r_valid )        ,
   .io_ifu_Axi_r_bits_data  ( Icache_r_rdata )        ,
+  .io_ifu_Axi_r_rresp	   ( Icache_r_rresp )		 ,
   .io_ifu_Axi_r_bits_last  ( Icache_r_last  )        ,
   .io_ifu_Axi_aw_ready     ()        ,
   .io_ifu_Axi_w_ready      ()        ,
   .io_lsu_Axi_ar_ready     (Lsu_ar_ready    )        ,
   .io_lsu_Axi_r_valid      (Lsu_r_valid     )        ,
   .io_lsu_Axi_r_bits_data  (Lsu_r_rdata     )        ,
+  .io_lsu_Axi_r_rresp	   (Lsu_r_rresp     )		 ,
   .io_lsu_Axi_r_bits_last  (Lsu_r_last      )        ,
   .io_lsu_Axi_aw_ready     (Lsu_aw_ready    )        ,
   .io_lsu_Axi_w_ready      (Lsu_w_ready     )        ,
@@ -1064,10 +901,16 @@ wire [ 7:0] Sram_w_bits_strb  ;
 wire [ 0:0] Sram_ar_ready     ;
 wire [ 0:0] Sram_r_valid      ;
 wire [63:0] Sram_r_bits_data  ;
+wire [ 1:0] Sram_r_rresp	  ;
 wire [ 0:0] Sram_r_bits_last  ;
 wire [ 0:0] Sram_aw_ready     ;
 wire [ 0:0] Sram_w_ready      ;
-
+wire [ 0:0] Sram_b_valid      ;
+wire [ 0:0] Sram_b_ready      ;
+wire [ 1:0] Sram_b_bresp      ;
+assign Lsu_b_valid = Sram_b_valid ;  
+assign Sram_b_ready = Lsu_b_ready ;  
+assign Lsu_b_bresp = Sram_b_bresp ; 
 
 
 ysyx_22050550_SRAM PSRAM(	
@@ -1091,59 +934,13 @@ ysyx_22050550_SRAM PSRAM(
   .io_Sram_r_valid      (Sram_r_valid      )   ,
   .io_Sram_r_bits_data  (Sram_r_bits_data  )   ,
   .io_Sram_r_bits_last  (Sram_r_bits_last  )   ,
+  .io_Sram_r_rresp		(Sram_r_rresp	   )   ,	
   .io_Sram_aw_ready     (Sram_aw_ready     )   ,
-  .io_Sram_w_ready      (Sram_w_ready      )
+  .io_Sram_w_ready      (Sram_w_ready      )   , 
+  .io_b_ready			(Sram_b_ready	   )   ,	
+  .io_b_valid			(Sram_b_valid      )   ,
+  .io_b_bresp			(Sram_b_bresp	   )   
 );
-`else 
-ysyx_22050550_SRAM ISRAM(	
-  .clock                (clock)   ,
-  .reset                (reset)   ,
-  .io_Sram_ar_valid     (Icache_ar_valid    )   ,
-  .io_Sram_ar_bits_addr (Icache_ar_addr     )   ,
-  .io_Sram_r_ready      (Icache_r_ready     )   ,
-  .io_ar_len            (8'd1               )   ,
-  .io_ar_size           (4                  )   ,
-  .io_ar_burst          (2'b01              )   ,
-  .io_Sram_aw_valid     (1'b0               )   ,
-  .io_Sram_aw_bits_addr (0                  )   ,
-  .io_aw_len            (8'd1               )   ,
-  .io_aw_size           (4                  )   ,   
-  .io_aw_burst          (2'b01              )   ,
-  .io_Sram_w_valid      (0                  )   ,
-  .io_Sram_w_bits_data  (0                  )   ,
-  .io_Sram_w_bits_strb  (0                  )   ,
-  .io_Sram_ar_ready     (Icache_ar_ready    )   ,
-  .io_Sram_r_valid      (Icache_r_valid     )   ,
-  .io_Sram_r_bits_data  (Icache_r_rdata     )   ,
-  .io_Sram_r_bits_last  (Icache_r_last      )   ,
-  .io_Sram_aw_ready     (                   )   ,
-  .io_Sram_w_ready      (                   )
-);
-ysyx_22050550_SRAM LSRAM(	
-  .clock                (clock)   ,
-  .reset                (reset)   ,
-  .io_Sram_ar_valid     (Lsu_ar_valid       )   ,
-  .io_Sram_ar_bits_addr (Lsu_ar_addr        )   ,
-  .io_Sram_r_ready      (Lsu_r_ready        )   ,
-  .io_ar_len            (8'd1               )   ,
-  .io_ar_size           (4                  )   ,
-  .io_ar_burst          (2'b01              )   ,
-  .io_Sram_aw_valid     (Lsu_aw_valid       )   ,
-  .io_Sram_aw_bits_addr (Lsu_aw_addr        )   ,
-  .io_aw_len            (8'd1               )   ,
-  .io_aw_size           (4                  )   ,   
-  .io_aw_burst          (2'b01              )   ,
-  .io_Sram_w_valid      (Lsu_w_valid        )   ,
-  .io_Sram_w_bits_data  (Lsu_w_data         )   ,
-  .io_Sram_w_bits_strb  (Lsu_w_strb         )   ,
-  .io_Sram_ar_ready     (Lsu_ar_ready       )   ,
-  .io_Sram_r_valid      (Lsu_r_valid        )   ,
-  .io_Sram_r_bits_data  (Lsu_r_rdata        )   ,
-  .io_Sram_r_bits_last  (Lsu_r_last         )   ,
-  .io_Sram_aw_ready     (Lsu_aw_ready     )   ,
-  .io_Sram_w_ready      (Lsu_w_ready      )
-);
-`endif
 `ifdef ysyx_22050550_DEVICEUSEAXI
 ysyx_22050550_SRAM DSRAM(	
   .clock                (clock)                 ,
@@ -1166,34 +963,12 @@ ysyx_22050550_SRAM DSRAM(
   .io_Sram_r_valid      (DevSram_r_valid    )   ,
   .io_Sram_r_bits_data  (DevSram_r_rdata    )   ,
   .io_Sram_r_bits_last  (                   )   ,
+  .io_Sram_r_rresp      (DevSram_r_rresp	)   ,
   .io_Sram_aw_ready     (DevSram_aw_ready   )   ,
-  .io_Sram_w_ready      (DevSram_w_ready    ) 
-);
-`endif 
-`ifndef ysyx_22050550_LSUUSECACHE
-ysyx_22050550_SRAM DSRAM(	
-  .clock                (clock)                 ,
-  .reset                (reset)                 ,
-  .io_Sram_ar_valid     (DevSram_ar_valid   )   ,
-  .io_Sram_ar_bits_addr (DevSram_ar_addr    )   ,
-  .io_Sram_r_ready      (DevSram_r_ready   )   ,
-  .io_ar_len            (DevSram_ar_len     )   ,
-  .io_ar_size           (DevSram_ar_size    )   ,
-  .io_ar_burst          (DevSram_ar_burst   )   ,
-  .io_Sram_aw_valid     (DevSram_aw_valid    )   ,
-  .io_Sram_aw_bits_addr (DevSram_aw_addr    )   ,
-  .io_aw_len            (DevSram_aw_len     )   ,
-  .io_aw_size           (DevSram_aw_size    )   ,   
-  .io_aw_burst          (DevSram_aw_burst   )   ,
-  .io_Sram_w_valid      (DevSram_w_valid    )   ,
-  .io_Sram_w_bits_data  (DevSram_w_data     )   ,
-  .io_Sram_w_bits_strb  (DevSram_w_strb     )   ,
-  .io_Sram_ar_ready     (DevSram_ar_ready   )   ,
-  .io_Sram_r_valid      (DevSram_r_valid    )   ,
-  .io_Sram_r_bits_data  (DevSram_r_rdata    )   ,
-  .io_Sram_r_bits_last  (                   )   ,
-  .io_Sram_aw_ready     (DevSram_aw_ready   )   ,
-  .io_Sram_w_ready      (DevSram_w_ready    ) 
+  .io_Sram_w_ready      (DevSram_w_ready    )   ,
+  .io_b_ready			(DevSram_b_ready    )   ,
+  .io_b_valid			(DevSram_b_valid    )   ,
+  .io_b_bresp			(DevSram_b_bresp    )   
 );
 `endif 
 ysyx_22050550_ByPass ByPass(
@@ -1203,16 +978,9 @@ ysyx_22050550_ByPass ByPass(
     .io_IDU_raddr1 (Pass_rs1)                 ,
     .io_IDU_raddr2 (Pass_rs2)                 ,
     .io_IDU_rdata  (Pass_rdata)                 ,
-    //.io_IDU_wen    ()                 ,
     .io_IDU_pass1  (Pass_pass1)                 ,
     .io_IDU_pass2  (Pass_pass2)                 ,
     
-    //.io_EXU_waddr  (Exu_waddr   )           ,
-    //.io_EXU_valid  (Exu_wen     )           ,
-    //.io_EXU_rdata  (Exu_wdata   )           ,
-    //.io_LSU_waddr  (Lsu_waddr   )           ,
-    //.io_LSU_valid  (Lsu_wen     )           ,
-    //.io_LSU_rdata  (Lsu_wdata   )           ,
     .io_WBU_waddr  (Wbu_waddr   )                 ,
     .io_WBU_valid  (Wbu_wen     )                 ,
     .io_WBU_rdata  (Wbu_wdata   )                 

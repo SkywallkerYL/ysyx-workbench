@@ -78,9 +78,9 @@
 `define ysyx_22050550_GroupNum         2**(`ysyx_22050550_GroupWidth)
 `define ysyx_22050550_TagWidth        24    // 64-4-4 addr-group-block  32减野性
 `define ysyx_22050550_TagBus          (`ysyx_22050550_TagWidth-1):0    
-//`define ysyx_22050550_TagUseRam
-//`define ysyx_22050550_RealRam
-//`define ysyx_22050550_DEVICEUSEAXI
+`define ysyx_22050550_TagUseRam
+`define ysyx_22050550_RealRam
+`define ysyx_22050550_DEVICEUSEAXI
 `define ysyx_22050550_UseArbiter
 `define ysyx_22050550_CacheUseLFSR
 
@@ -90,4 +90,4 @@
 
 `define ysyx_22050550_PipBundle
 //部分数组型的寄存器使用模板的话会极大的降低仿真效率，打开这个开关使用不用模板实现的寄存器
-`define ysyx_22050550_FAST
+//`define ysyx_22050550_FAST

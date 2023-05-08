@@ -18,18 +18,21 @@ module ysyx_22050550_RamArbiter(
   input         io_sram_Axi_ar_ready            ,
                 io_sram_Axi_r_valid             ,
   input  [63:0] io_sram_Axi_r_bits_data         ,
+  input  [ 1:0] io_sram_Axi_r_rresp				,
   input         io_sram_Axi_r_bits_last         ,
                 io_sram_Axi_aw_ready            ,
                 io_sram_Axi_w_ready             ,
   output        io_ifu_Axi_ar_ready             ,
                 io_ifu_Axi_r_valid              ,
   output [63:0] io_ifu_Axi_r_bits_data          ,
+  output [1:0]  io_ifu_Axi_r_rresp				,
   output        io_ifu_Axi_r_bits_last          ,
                 io_ifu_Axi_aw_ready             ,
                 io_ifu_Axi_w_ready              ,
                 io_lsu_Axi_ar_ready             ,
                 io_lsu_Axi_r_valid              ,
   output [63:0] io_lsu_Axi_r_bits_data          ,
+  output [1:0 ] io_lsu_Axi_r_rresp				,
   output        io_lsu_Axi_r_bits_last          ,
                 io_lsu_Axi_aw_ready             ,
                 io_lsu_Axi_w_ready              ,
@@ -42,39 +45,7 @@ module ysyx_22050550_RamArbiter(
   output [63:0] io_sram_Axi_w_bits_data         ,
   output [7:0]  io_sram_Axi_w_bits_strb
 );
-  //好像直接用chisel生存的会快一些
-`ifdef ysyx_22050550_FAST
-  wire _io_ifu_Axi_ar_ready_T_2 = io_ifu_Axi_ar_valid & io_sram_Axi_ar_ready & ~io_lsu_Axi_ar_valid;	
-  wire _io_lsu_Axi_ar_ready_T = io_lsu_Axi_ar_valid & io_sram_Axi_ar_ready;	
-  wire _io_ifu_Axi_aw_ready_T_2 = io_ifu_Axi_aw_valid & io_sram_Axi_aw_ready & ~io_lsu_Axi_aw_valid;	
-  wire _io_lsu_Axi_aw_ready_T = io_lsu_Axi_aw_valid & io_sram_Axi_aw_ready;	
-  wire _io_ifu_Axi_w_ready_T_2 = io_ifu_Axi_w_valid & io_sram_Axi_w_ready & ~io_lsu_Axi_w_valid;	
-  wire _io_lsu_Axi_w_ready_T = io_lsu_Axi_w_valid & io_sram_Axi_w_ready;	
-  assign io_ifu_Axi_ar_ready = _io_ifu_Axi_ar_ready_T_2;	
-  assign io_ifu_Axi_r_valid = io_ifu_Axi_r_ready & io_sram_Axi_r_valid & ~io_lsu_Axi_r_ready;	
-  assign io_ifu_Axi_r_bits_data = io_sram_Axi_r_bits_data;	
-  assign io_ifu_Axi_r_bits_last = io_sram_Axi_r_bits_last;	
-  assign io_ifu_Axi_aw_ready = _io_ifu_Axi_aw_ready_T_2;	
-  assign io_ifu_Axi_w_ready = _io_ifu_Axi_w_ready_T_2;	
-  assign io_lsu_Axi_ar_ready = _io_lsu_Axi_ar_ready_T;	
-  assign io_lsu_Axi_r_valid = io_lsu_Axi_r_ready & io_sram_Axi_r_valid;
-  assign io_lsu_Axi_r_bits_data = io_sram_Axi_r_bits_data;	
-  assign io_lsu_Axi_r_bits_last = io_sram_Axi_r_bits_last;	
-  assign io_lsu_Axi_aw_ready = _io_lsu_Axi_aw_ready_T;	
-  assign io_lsu_Axi_w_ready = _io_lsu_Axi_w_ready_T;	
-  assign io_sram_Axi_ar_valid = io_ifu_Axi_ar_valid | io_lsu_Axi_ar_valid;	
-  assign io_sram_Axi_ar_bits_addr = _io_lsu_Axi_ar_ready_T ? io_lsu_Axi_ar_bits_addr : _io_ifu_Axi_ar_ready_T_2 ?
-                io_ifu_Axi_ar_bits_addr : 64'h0;	
-  assign io_sram_Axi_r_ready = io_ifu_Axi_r_ready | io_lsu_Axi_r_ready;	
-  assign io_sram_Axi_aw_valid = io_ifu_Axi_aw_valid | io_lsu_Axi_aw_valid;	
-  assign io_sram_Axi_aw_bits_addr = _io_lsu_Axi_aw_ready_T ? io_lsu_Axi_aw_bits_addr : _io_ifu_Axi_aw_ready_T_2 ?
-                io_ifu_Axi_aw_bits_addr : 64'h0;	
-  assign io_sram_Axi_w_valid = io_ifu_Axi_w_valid | io_lsu_Axi_w_valid;	
-  assign io_sram_Axi_w_bits_data = _io_lsu_Axi_w_ready_T ? io_lsu_Axi_w_bits_data : _io_ifu_Axi_w_ready_T_2 ?
-                io_ifu_Axi_w_bits_data : 64'h0;	
-  assign io_sram_Axi_w_bits_strb = _io_lsu_Axi_w_ready_T ? io_lsu_Axi_w_bits_strb : _io_ifu_Axi_w_ready_T_2 ?
-                io_ifu_Axi_w_bits_strb : 8'h0;
-`else         
+  //好像直接用chisel生存的会快一些         
   //这里直接从chisel 赋值过来
   //ar 
   
@@ -98,6 +69,8 @@ module ysyx_22050550_RamArbiter(
     assign io_ifu_Axi_r_bits_last = io_sram_Axi_r_bits_last;
     assign io_lsu_Axi_r_bits_data = io_sram_Axi_r_bits_data;
     assign io_lsu_Axi_r_bits_last = io_sram_Axi_r_bits_last;
+	assign io_lsu_Axi_r_rresp     = io_sram_Axi_r_rresp    ; 
+	assign io_ifu_Axi_r_rresp     = io_sram_Axi_r_rresp	   ; 
     //actually write signal from ifu is always false
     // 
     //aw
@@ -130,5 +103,5 @@ module ysyx_22050550_RamArbiter(
     //assign io_ifu_Axi_b_bits_resp = io_sram_Axi_b_bits_resp                                       ;
     //assign io_lsu_Axi_b_bits_resp = io_sram_Axi_b_bits_resp                                       ;
   
-`endif 
+
 endmodule
