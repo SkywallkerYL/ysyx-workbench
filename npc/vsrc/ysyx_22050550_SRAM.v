@@ -30,12 +30,18 @@ module ysyx_22050550_SRAM(
     wire [63:0] Dpi_raddr, Dpi_waddr ,Dpi_rdata, Dpi_wdata;
     wire [7:0]  Dpi_wmask; 
     reg [63:0] raddrReg, waddrReg;
+	wire raddren =( io_Sram_ar_valid && io_Sram_ar_ready )||(io_Sram_r_valid && io_Sram_r_ready);
+	wire [63:0] raddrin = ( io_Sram_ar_valid && io_Sram_ar_ready ) ? io_Sram_ar_bits_addr 
+						: ( io_Sram_r_valid  && io_Sram_r_ready  ) ? raddrReg + 64'd8 : raddrReg ;
     ysyx_22050550_Reg # (64,64'd0)Regraddr(
-    .clock(clock),.reset(reset),.wen(io_Sram_ar_valid&&io_Sram_ar_ready),
-    .din(io_Sram_ar_bits_addr),.dout(raddrReg));
+    .clock(clock),.reset(reset),.wen(raddren),
+    .din(raddrin),.dout(raddrReg));
+	wire waddren =( io_Sram_aw_valid && io_Sram_aw_ready )||(io_Sram_w_valid && io_Sram_w_ready);
+	wire [63:0] waddrin = ( io_Sram_aw_valid && io_Sram_aw_ready ) ? io_Sram_aw_bits_addr 
+						: ( io_Sram_w_valid  && io_Sram_w_ready  ) ? waddrReg + 64'd8 : waddrReg ; 
     ysyx_22050550_Reg # (64,64'd0)Regwaddr(
-    .clock(clock),.reset(reset),.wen(io_Sram_aw_valid&&io_Sram_aw_ready),
-    .din(io_Sram_aw_bits_addr),.dout(waddrReg));
+    .clock(clock),.reset(reset),.wen(waddren),
+    .din(waddrin),.dout(waddrReg));
  
     //实现类似chisel 只不过用DPI访问内存
     //仅支持INCR型突发传输   size 设定为 128//CACHE那边的突发传输类型只能是这个
@@ -58,7 +64,7 @@ module ysyx_22050550_SRAM(
                 else ReadNext = readwait;
             end 
             read: begin
-                if(Reglen!=0) begin
+                if(Reglen!=ARLEN) begin
                     ReadNext = read;
                 end
                 else ReadNext = readwait;
@@ -85,8 +91,8 @@ module ysyx_22050550_SRAM(
     assign io_Sram_ar_ready = ReadState == readwait;
     wire ReglenEn = (ReadState == readwait && io_Sram_ar_valid) 
                  || (ReadState == read && io_Sram_r_valid);
-    wire [7:0] RegLenIn = (ReadState == readwait && io_Sram_ar_valid) ? io_ar_len
-                        : (ReadState == read && io_Sram_r_ready) ? Reglen-1 : Reglen;
+    wire [7:0] RegLenIn = (ReadState == readwait && io_Sram_ar_valid) ? 0
+                        : (ReadState == read && io_Sram_r_ready) ? Reglen+1 : Reglen;
     ysyx_22050550_Reg # (8,8'd0) RegLen (
         .clock(clock),
         .reset(reset),
@@ -94,15 +100,24 @@ module ysyx_22050550_SRAM(
         .din(RegLenIn),
         .dout(Reglen)
     );
+	reg [7:0] ARLEN ; 
+	ysyx_22050550_Reg # (8,8'd0) arlen (
+        .clock(clock),
+        .reset(reset),
+        .wen(ReadState == readwait &&io_Sram_ar_valid),
+        .din(io_ar_len),
+        .dout(ARLEN)
+    );
+
     /*
 		00 : OKAY   : NORMAL access success
 		01 : EXOKAY : Exclusive accsess OKAY 
 		10 : SLEVRR : Slave error 
 		11 : DECERR : Decode error 
 	*/ 
-    assign io_Sram_r_bits_last = ReadState == read && Reglen == 0;
+    assign io_Sram_r_bits_last = ReadState == read && Reglen == ARLEN;
     //目前只有两种情况，先这样写了  作为设备内存 arlen本身就是0
-    assign Dpi_raddr =  (io_ar_len==0 || Reglen==1) ? raddrReg : raddrReg + {{57'b0},ReadAddrAdd};
+    assign Dpi_raddr =  raddrReg ; 
     assign io_Sram_r_bits_data = ReadData;	
     assign io_Sram_r_rresp = 2'b00;			
     assign io_Sram_r_valid = ReadState == read;
@@ -125,18 +140,20 @@ module ysyx_22050550_SRAM(
                 else WriteNext = writewait;
             end 
             write: begin
-                if(WReglen!=0) begin
+                if(WReglen!=AwLEN) begin
                     WriteNext = write;
                 end
-				else if (io_b_ready && io_b_valid) begin 
+				else begin 
 					WriteNext = writeresponse; 
 				end
-                else WriteNext = write;
             end
 			writeresponse: begin 
-				if(writeOkay) begin
-					WriteNext = writewait; 
-				end 
+				if (io_b_ready && io_b_valid) begin 
+					if(io_b_bresp == 2'b00) begin 
+						WriteNext = writewait; 
+					end 
+					else writeresponse = writewait ;
+				end
 				else WriteNext = writeresponse ; 
 			end 
             default: WriteNext = writewait;
@@ -144,7 +161,7 @@ module ysyx_22050550_SRAM(
     end
     wire writeOkay = 1'b1; 
 	assign io_b_bresp = 2'b00;
-    assign io_b_valid = WriteState == write && WReglen == 0;
+    assign io_b_valid = WriteState == writeresponse;
     wire [6:0] WriteAddrAdd;
     //DPI最多只支持64位，更大的size一次也只传64个
     assign WriteAddrAdd =  io_aw_size == 3'b000 ?  7'd1 :
@@ -163,8 +180,8 @@ module ysyx_22050550_SRAM(
     assign io_Sram_aw_ready = WriteState == writewait;
     wire WReglenEn = (WriteState == writewait && io_Sram_aw_valid) 
                  || (WriteState == write && io_Sram_w_valid);
-    wire [7:0] WRegLenIn = (WriteState == writewait && io_Sram_aw_valid) ? io_aw_len
-                        : (WriteState == write && io_Sram_w_valid && WReglen != 0 ) ? WReglen-1 : WReglen;
+    wire [7:0] WRegLenIn = (WriteState == writewait && io_Sram_aw_valid) ? 0
+                        : (WriteState == write && io_Sram_w_valid) ? WReglen+1 : WReglen;
     ysyx_22050550_Reg # (8,8'd0) WRegLen (
         .clock(clock),
         .reset(reset),
@@ -172,10 +189,18 @@ module ysyx_22050550_SRAM(
         .din(WRegLenIn),
         .dout(WReglen)
     );
+	reg [7:0] AwLEN ; 
+	ysyx_22050550_Reg # (8,8'd0) awlen (
+        .clock(clock),
+        .reset(reset),
+        .wen(WriteState == writewait && io_Sram_aw_valid),
+        .din(io_aw_len),
+        .dout(AwLEN)
+    );
 
     //目前只有两种情况，先这样写了
-    assign Dpi_waddr =  (io_aw_len==0 || WReglen==1) ? waddrReg : waddrReg + {{57'b0},WriteAddrAdd };
-    assign Dpi_wdata =  io_Sram_w_bits_data;
+    assign Dpi_waddr =  waddrReg ;
+    assign Dpi_wdata =  WriteData;
     assign Dpi_wmask =  io_Sram_w_bits_strb;
     assign io_Sram_w_ready = WriteState == write;
     assign Dpi_wflag =  io_Sram_w_valid && io_Sram_w_ready;

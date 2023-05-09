@@ -50,10 +50,10 @@ module ysyx_22050550_RamArbiter(
   //ar 
   
     assign io_sram_Axi_ar_valid = io_ifu_Axi_ar_valid || io_lsu_Axi_ar_valid                          ;
-    assign io_ifu_Axi_ar_ready = io_ifu_Axi_ar_valid && io_sram_Axi_ar_ready &&(!io_lsu_Axi_ar_valid) ;
-    assign io_lsu_Axi_ar_ready = io_lsu_Axi_ar_valid && io_sram_Axi_ar_ready                          ;
-    assign io_sram_Axi_ar_bits_addr = io_lsu_Axi_ar_ready ? io_lsu_Axi_ar_bits_addr : 
-                                      io_ifu_Axi_ar_ready ? io_ifu_Axi_ar_bits_addr : 0;
+    assign io_ifu_Axi_ar_ready = io_sram_Axi_ar_ready &&(!io_lsu_Axi_ar_valid) ;
+    assign io_lsu_Axi_ar_ready = io_sram_Axi_ar_ready                          ;
+    assign io_sram_Axi_ar_bits_addr = io_lsu_Axi_ar_valid ? io_lsu_Axi_ar_bits_addr : 
+                                      io_ifu_Axi_ar_valid ? io_ifu_Axi_ar_bits_addr : 0;
     //这几个信号由于一直是同一个值，chisel生成的时候好像就省略了
     //assign io_sram_Axi_ar_bits_len  = io_lsu_Axi_ar_ready ? io_lsu_Axi_ar_bits_len  :
     //                                  io_ifu_Axi_ar_ready ? io_ifu_Axi_ar_bits_len  : 0;
@@ -63,8 +63,8 @@ module ysyx_22050550_RamArbiter(
     //                                  io_ifu_Axi_ar_ready ? io_ifu_Axi_ar_bits_burst: 2'b01 ;
     
     assign io_sram_Axi_r_ready  = io_ifu_Axi_r_ready || io_lsu_Axi_r_ready                            ; 
-    assign io_ifu_Axi_r_valid   = io_ifu_Axi_r_ready && io_sram_Axi_r_valid &&(!io_lsu_Axi_r_ready)   ;
-    assign io_lsu_Axi_r_valid   = io_lsu_Axi_r_ready && io_sram_Axi_r_valid                           ;
+    assign io_ifu_Axi_r_valid   = io_sram_Axi_r_valid &&(!io_lsu_Axi_r_ready)   ;
+    assign io_lsu_Axi_r_valid   = io_sram_Axi_r_valid                           ;
     assign io_ifu_Axi_r_bits_data = io_sram_Axi_r_bits_data;
     assign io_ifu_Axi_r_bits_last = io_sram_Axi_r_bits_last;
     assign io_lsu_Axi_r_bits_data = io_sram_Axi_r_bits_data;
@@ -75,10 +75,10 @@ module ysyx_22050550_RamArbiter(
     // 
     //aw
     assign io_sram_Axi_aw_valid = io_ifu_Axi_aw_valid || io_lsu_Axi_aw_valid                          ;
-    assign io_ifu_Axi_aw_ready = io_ifu_Axi_aw_valid && io_sram_Axi_aw_ready&&(!io_lsu_Axi_aw_valid)  ;
-    assign io_lsu_Axi_aw_ready = io_lsu_Axi_aw_valid && io_sram_Axi_aw_ready                          ;
-    assign io_sram_Axi_aw_bits_addr = io_lsu_Axi_aw_ready?io_lsu_Axi_aw_bits_addr:                  
-                                      io_ifu_Axi_aw_ready?io_ifu_Axi_aw_bits_addr: 0;
+    assign io_ifu_Axi_aw_ready = io_sram_Axi_aw_ready&&(!io_lsu_Axi_aw_valid)  ;
+    assign io_lsu_Axi_aw_ready = io_sram_Axi_aw_ready                          ;
+    assign io_sram_Axi_aw_bits_addr = io_lsu_Axi_aw_valid?io_lsu_Axi_aw_bits_addr:                  
+                                      io_ifu_Axi_aw_valid?io_ifu_Axi_aw_bits_addr: 0;
     //assign io_sram_Axi_aw_size = io_lsu_Axi_aw_ready?io_lsu_Axi_aw_bits_size:
     //                             io_ifu_Axi_aw_ready?io_ifu_Axi_aw_bits_size:3'b011;
     //assign io_sram_Axi_aw_len  = io_lsu_Axi_aw_ready?io_lsu_Axi_aw_bits_len :
@@ -88,12 +88,12 @@ module ysyx_22050550_RamArbiter(
 
     //w
     assign io_sram_Axi_w_valid = io_ifu_Axi_w_valid || io_lsu_Axi_w_valid                         ;
-    assign io_ifu_Axi_w_ready = io_ifu_Axi_w_valid && io_sram_Axi_w_ready&&(!io_lsu_Axi_w_valid)  ;
-    assign io_lsu_Axi_w_ready = io_lsu_Axi_w_valid && io_sram_Axi_w_ready                         ;
-    assign io_sram_Axi_w_bits_data =  io_lsu_Axi_w_ready?io_lsu_Axi_w_bits_data:
-                                      io_ifu_Axi_w_ready?io_ifu_Axi_w_bits_data:0;
-    assign io_sram_Axi_w_bits_strb =  io_lsu_Axi_w_ready?io_lsu_Axi_w_bits_strb:
-                                      io_ifu_Axi_w_ready?io_ifu_Axi_w_bits_strb:0;
+    assign io_ifu_Axi_w_ready = io_sram_Axi_w_ready&&(!io_lsu_Axi_w_valid)  ;
+    assign io_lsu_Axi_w_ready = io_sram_Axi_w_ready                         ;
+    assign io_sram_Axi_w_bits_data =  io_lsu_Axi_w_valid?io_lsu_Axi_w_bits_data:
+                                      io_ifu_Axi_w_valid ?io_ifu_Axi_w_bits_data:0;
+    assign io_sram_Axi_w_bits_strb =  io_lsu_Axi_w_valid ?io_lsu_Axi_w_bits_strb:
+                                      io_ifu_Axi_w_valid ?io_ifu_Axi_w_bits_strb:0;
     //assign io_sram_Axi_w_bits_last =  io_lsu_Axi_w_ready?io_lsu_Axi_w_bits_last:
     //                                  io_ifu_Axi_w_ready?io_ifu_Axi_w_bits_last:0;
     //b

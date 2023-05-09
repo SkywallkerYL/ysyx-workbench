@@ -260,7 +260,10 @@ module ysyx_22050550_CACHE(
 					if(io_b_bresp == 2'b00) begin // OKAY  
 						next = miss;  
 					end 
+					//  not OKAY 
+					else next = idle ; 
 				end 
+				else next = wresp; 
 			end 
             replace:begin
                 //从总线写回cacheline   last => miss
@@ -394,7 +397,7 @@ module ysyx_22050550_CACHE(
     assign io_aw_burst = 2'b01;
     //要根据当前选中的Tag获取其在主存的块号确定回传的地址 低位舍掉
    
-    wire [`ysyx_22050550_RegBus] addr = {Tag[chooseway],AddrGroup,4'b0}; 
+    wire [`ysyx_22050550_RegBus] addr = {32'b0,Tag[chooseway],AddrGroup,4'b0}; 
     assign io_aw_addr = Reglen==0? addr : addr + 8;
     //不需要写回 不需要写回的时候用
     assign io_ar_valid = MISS & !(axivalid);
@@ -404,7 +407,7 @@ module ysyx_22050550_CACHE(
     //Reglen 当前这个周期还是  miss这个周期  下一个周期变1
      //这里其实应该有一个addrreg一直加的，直到last满足，但是只有两种情况，就简单一点了。
      //其实这里的addr不用+ sram那边检测到突发传输，会自动+地址
-    assign io_ar_addr  = {AddrTag,AddrGroup,4'b0} ;//Reglen==0? {AddrTag,AddrGroup,4'b0} : {AddrTag,AddrGroup,4'b0} + 8;
+    assign io_ar_addr  = {32'b0,AddrTag,AddrGroup,4'b0} ;//Reglen==0? {AddrTag,AddrGroup,4'b0} : {AddrTag,AddrGroup,4'b0} + 8;
     /*
         replace :
             w valid 并且 ready的时候

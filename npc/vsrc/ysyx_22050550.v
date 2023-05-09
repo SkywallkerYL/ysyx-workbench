@@ -7,7 +7,124 @@ module ysyx_22050550(
             io_jalr             ,
             io_instvalid        ,
             io_difftestvalid    ,
-            io_SkipRef
+            io_SkipRef			,
+	input			io_interrupt		,
+	input			io_master_awready	,
+	output			io_master_awvalid	,	
+	output [3:0]	io_master_awid		,   
+	output [31:0]	io_master_awaddr	,   
+	output [7:0]	io_master_awlen		,   
+	output [2:0]	io_master_awsize 	,   
+	output [1:0]	io_master_awburst	,	
+	input			io_master_wready 	,   
+	output			io_master_wvalid 	,   
+	output [63:0]	io_master_wdata	 	,   
+	output [7:0]	io_master_wstrb	 	,   
+	output			io_master_wlast	 	,   
+	output			io_master_bready 	,   
+	input			io_master_bvalid 	,   
+	input [3:0]		io_master_bid	 	,   
+	input [1:0]		io_master_bresp	 	,   
+	input			io_master_arready	,	
+	output			io_master_arvalid	,	
+	output [3:0]	io_master_arid	 	,   
+	output [31:0]	io_master_araddr 	,   
+	output [7:0]	io_master_arlen	 	,   
+	output [2:0]	io_master_arsize 	,   
+	output [1:0]	io_master_arburst	,	
+	output			io_master_rready 	,   
+	input			io_master_rvalid 	,   
+	input [3:0]		io_master_rid	 	,   
+	input [1:0]		io_master_rresp	 	,   
+	input [63:0]	io_master_rdata	 	,   
+	input			io_master_rlast	 	,   
+	
+	output          io_slave_awready	, 
+	input           io_slave_awvalid	, 
+	input      [3:0]io_slave_awid		, 
+	input     [31:0]io_slave_awaddr		, 
+	input      [7:0]io_slave_awlen		, 
+	input      [2:0]io_slave_awsize		, 
+	input      [1:0]io_slave_awburst	, 
+	output          io_slave_wready		, 
+	input           io_slave_wvalid		, 
+	input     [63:0]io_slave_wdata		, 
+	input      [7:0]io_slave_wstrb		, 
+	input           io_slave_wlast		, 
+	input           io_slave_bready		, 
+	output          io_slave_bvalid		, 
+	output    [3:0] io_slave_bid		, 
+	output    [1:0] io_slave_bresp		, 
+	output          io_slave_arready	, 
+	input           io_slave_arvalid	, 
+	input     [3:0] io_slave_arid		, 
+	input    [31:0] io_slave_araddr		, 
+	input     [7:0] io_slave_arlen		, 
+	input     [2:0] io_slave_arsize		, 
+	input     [1:0] io_slave_arburst	, 
+	input           io_slave_rready		, 
+	output          io_slave_rvalid		, 
+	output    [3:0] io_slave_rid		, 
+	output    [1:0] io_slave_rresp		, 
+	output   [63:0] io_slave_rdata		, 
+	output          io_slave_rlast		,
+
+    output [5:0]	io_sram0_addr		,
+    output			io_sram0_cen		,
+    output			io_sram0_wen		,
+    output [127:0]	io_sram0_wmask		,
+    output [127:0]	io_sram0_wdata		,
+    input [127:0]	io_sram0_rdata		,
+    
+    output [5:0]	io_sram1_addr		,
+    output			io_sram1_cen		,
+    output			io_sram1_wen		,
+    output [127:0]	io_sram1_wmask		,
+    output [127:0]	io_sram1_wdata		,
+    input [127:0]	io_sram1_rdata		,
+    
+    output [5:0]	io_sram2_addr		,
+    output			io_sram2_cen		,
+    output			io_sram2_wen		,
+    output [127:0]	io_sram2_wmask		,
+    output [127:0]	io_sram2_wdata		,
+    input [127:0]	io_sram2_rdata		,
+    
+    output [5:0]	io_sram3_addr		,
+    output			io_sram3_cen		,
+    output			io_sram3_wen		,
+    output [127:0]	io_sram3_wmask		,
+    output [127:0]	io_sram3_wdata		,
+    input [127:0]	io_sram3_rdata		,
+    
+    output [5:0]	io_sram4_addr		,
+    output			io_sram4_cen		,
+    output			io_sram4_wen		,
+    output [127:0]	io_sram4_wmask		,
+    output [127:0]	io_sram4_wdata		,
+    input [127:0]	io_sram4_rdata		,
+    
+    output [5:0]	io_sram5_addr		,
+    output			io_sram5_cen		,
+    output			io_sram5_wen		,
+    output [127:0]	io_sram5_wmask		,
+    output [127:0]	io_sram5_wdata		,
+    input [127:0]	io_sram5_rdata		,
+    
+    output [5:0]	io_sram6_addr		,
+    output			io_sram6_cen		,
+    output			io_sram6_wen		,
+    output [127:0]	io_sram6_wmask		,
+    output [127:0]	io_sram6_wdata		,
+    input [127:0]	io_sram6_rdata		,
+    
+    output [5:0]	io_sram7_addr		,
+    output			io_sram7_cen		,
+    output			io_sram7_wen		,
+    output [127:0]	io_sram7_wmask		,
+    output [127:0]	io_sram7_wdata		,
+    input [127:0]	io_sram7_rdata
+
 );
 
 wire IF_ready;
@@ -912,7 +1029,7 @@ assign Lsu_b_valid = Sram_b_valid ;
 assign Sram_b_ready = Lsu_b_ready ;  
 assign Lsu_b_bresp = Sram_b_bresp ; 
 
-
+/*
 ysyx_22050550_SRAM PSRAM(	
   .clock                (clock)   ,
   .reset                (reset)   ,
@@ -941,7 +1058,6 @@ ysyx_22050550_SRAM PSRAM(
   .io_b_valid			(Sram_b_valid      )   ,
   .io_b_bresp			(Sram_b_bresp	   )   
 );
-`ifdef ysyx_22050550_DEVICEUSEAXI
 ysyx_22050550_SRAM DSRAM(	
   .clock                (clock)                 ,
   .reset                (reset)                 ,
@@ -970,7 +1086,79 @@ ysyx_22050550_SRAM DSRAM(
   .io_b_valid			(DevSram_b_valid    )   ,
   .io_b_bresp			(DevSram_b_bresp    )   
 );
-`endif 
+*/ 
+//修改成Device 和 内存的Sram 共用同一个SRAM   加一层arbiter
+wire [ 0:0] TopSram_ar_valid     = DevSram_ar_valid || Sram_ar_valid ; 
+wire [63:0] TopSram_ar_bits_addr = DevSram_ar_valid ? DevSram_ar_addr : Sram_ar_valid ? Sram_ar_bits_addr : 0;
+wire [ 0:0] TopSram_r_ready      = DevSram_r_ready || Sram_r_ready  ;
+//ready 信号应该不能与valid相关联
+wire [ 7:0] TopSram_ar_len      = DevSram_ar_valid ? DevSram_ar_len : Sram_ar_valid ? Sram_ar_len : 8'd1   ;
+wire [ 2:0] TopSram_ar_size     = DevSram_ar_valid ? DevSram_ar_size : Sram_ar_valid ? Sram_ar_size: 3'd4   ;
+wire [ 1:0] TopSram_ar_burst    = 2'b01   ;
+wire [ 0:0] TopSram_aw_valid     = DevSram_aw_valid || Sram_aw_valid  ;
+wire [63:0] TopSram_aw_bits_addr = DevSram_aw_valid ? DevSram_aw_addr : Sram_aw_valid ? Sram_aw_bits_addr : 0;
+wire [ 7:0] TopSram_aw_len      = DevSram_aw_valid ? DevSram_aw_len : Sram_aw_valid ? Sram_aw_len : 1    ;
+wire [ 2:0] TopSram_aw_size     = DevSram_aw_valid ? DevSram_aw_size : Sram_aw_valid ? Sram_aw_size : 4    ;
+wire [ 1:0] TopSram_aw_burst    = 2'b01   ;
+wire [ 0:0] TopSram_w_valid     = DevSram_w_valid || Sram_w_valid  ;
+wire [63:0] TopSram_w_bits_data = DevSram_w_valid ? DevSram_w_data :Sram_w_bits_data  ;
+wire [ 7:0] TopSram_w_bits_strb = DevSram_w_valid ? DevSram_w_strb :Sram_w_bits_strb  ;
+wire [ 0:0] TopSram_ar_ready     ;
+//设备优先
+assign DevSram_ar_ready = TopSram_ar_ready ;   
+assign Sram_ar_ready    = TopSram_ar_ready && !DevSram_ar_valid;
+wire [ 0:0] TopSram_r_valid      ;
+assign DevSram_r_valid = TopSram_r_valid ;
+assign Sram_r_valid    = TopSram_r_valid ; 
+wire [63:0] TopSram_r_bits_data   ;
+assign DevSram_r_rdata = TopSram_r_bits_data ;
+assign Sram_r_bits_data= TopSram_r_bits_data ;
+wire [ 1:0] TopSram_r_rresp	    ;
+assign DevSram_r_rresp = TopSram_r_rresp ; 
+assign Sram_r_rresp    = TopSram_r_rresp ; 
+wire [ 0:0] TopSram_r_bits_last  ;
+assign Sram_r_bits_last  = TopSram_r_bits_last ; 
+wire [ 0:0] TopSram_aw_ready     ;
+assign DevSram_aw_ready = TopSram_aw_ready ; 
+assign Sram_aw_ready    = TopSram_aw_ready && !DevSram_aw_valid;
+wire [ 0:0] TopSram_w_ready      ;
+assign DevSram_w_ready  = TopSram_w_ready ; 
+assign Sram_w_ready     = TopSram_w_ready && !DevSram_w_valid ; 
+wire [ 0:0] TopSram_b_valid      ;
+assign DevSram_b_valid = TopSram_b_valid ;
+assign Sram_b_valid    = TopSram_b_valid ;
+wire [ 0:0] TopSram_b_ready = DevSram_b_ready || Sram_b_ready     ;
+wire [ 1:0] TopSram_b_bresp      ;
+assign DevSram_b_bresp = TopSram_b_bresp ; 
+assign Sram_b_bresp    = TopSram_b_bresp ;
+ysyx_22050550_SRAM SRAM(	
+  .clock                (clock)   ,
+  .reset                (reset)   ,
+  .io_Sram_ar_valid     (TopSram_ar_valid     )   ,
+  .io_Sram_ar_bits_addr (TopSram_ar_bits_addr )   ,
+  .io_Sram_r_ready      (TopSram_r_ready      )   ,
+  .io_ar_len            (TopSram_ar_len       )   ,
+  .io_ar_size           (TopSram_ar_size      )   ,
+  .io_ar_burst          (TopSram_ar_burst     )   ,
+  .io_Sram_aw_valid     (TopSram_aw_valid     )   ,
+  .io_Sram_aw_bits_addr (TopSram_aw_bits_addr )   ,
+  .io_aw_len            (TopSram_aw_len       )   ,
+  .io_aw_size           (TopSram_aw_size      )   ,   
+  .io_aw_burst          (TopSram_aw_burst     )   ,
+  .io_Sram_w_valid      (TopSram_w_valid      )   ,
+  .io_Sram_w_bits_data  (TopSram_w_bits_data  )   ,
+  .io_Sram_w_bits_strb  (TopSram_w_bits_strb  )   ,
+  .io_Sram_ar_ready     (TopSram_ar_ready     )   ,
+  .io_Sram_r_valid      (TopSram_r_valid      )   ,
+  .io_Sram_r_bits_data  (TopSram_r_bits_data  )   ,
+  .io_Sram_r_bits_last  (TopSram_r_bits_last  )   ,
+  .io_Sram_r_rresp		(TopSram_r_rresp	   )   ,	
+  .io_Sram_aw_ready     (TopSram_aw_ready     )   ,
+  .io_Sram_w_ready      (TopSram_w_ready      )   , 
+  .io_b_ready			(TopSram_b_ready	   )   ,	
+  .io_b_valid			(TopSram_b_valid      )   ,
+  .io_b_bresp			(TopSram_b_bresp	   )   
+);
 ysyx_22050550_ByPass ByPass(
     .clock         (clock)                ,
     .reset         (reset)                ,

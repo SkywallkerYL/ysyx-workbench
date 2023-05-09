@@ -362,7 +362,7 @@ module ysyx_22050550_IDU(
     }));
     */
     wire mret = io_IFID_inst == 32'h30200073;
-    assign io_idex_mretflag = mret;
+    //assign io_idex_mretflag = mret;
     /*
     wire [4:0] lsumask; 
     ysyx_22050550_MuxKeyWithDefault#(7,3,5) LoadMux(
