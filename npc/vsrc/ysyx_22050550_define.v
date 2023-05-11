@@ -56,6 +56,15 @@
 `define ysyx_22050550_CSRMIE          12'h304
 `define ysyx_22050550_CSRMIP          12'h344
 
+//CLINT 
+`define ysyx_22050550_CLINTBASE			64'h02000000
+`define ysyx_22050550_CLINTEND			64'h0200BFFF
+`define ysyx_22050550_MTIMECMP			64'h02004000
+`define ysyx_22050550_MTIME				64'h0200BFF8
+`define ysyx_22050550_MSIPADDR			64'h02000000
+
+
+
 //Cache
 `define ysyx_22050550_AddrWidth       64
 `define ysyx_22050550_DataWidth       8     // 默认主存一个地址存8位

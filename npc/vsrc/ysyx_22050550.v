@@ -127,6 +127,10 @@ module ysyx_22050550(
 
 );
 
+//流水线冲刷信号
+wire Flush; 
+
+
 wire IF_ready;
 wire [ 4:0] io_IDNPC_jal    ;
 wire [63:0] io_IDNPC_IdPc   ;
@@ -148,7 +152,7 @@ ysyx_22050550_PCREG PCREG(
     .Id_ecallpc (io_IDNPC_ecallpc) , 
     .Id_mretpc  (io_IDNPC_mretpc) ,     
     .Id_valid   (io_IDNPC_valid) , 
-       
+    .irujump    (irujump		),   
     .npc        (if_pc) ,
     .NextPc     (NextPc)
 );
@@ -619,7 +623,14 @@ ysyx_22050550_LSU LSU(
     .io_Cache_wdata   (Lsu_Cache_wdata    )         ,
     .io_Cache_wmask   (Lsu_Cache_wmask    )         ,
     .io_Cache_data    (Lsu_Cache_data     )         ,
-    .io_Cache_dataok  (Lsu_Cache_dataok   )         
+    .io_Cache_dataok  (Lsu_Cache_dataok   )			,        
+
+	.ren				(ClintRen			)		,
+	.wen				(ClintWen			)		,
+	.raddr				(ClintRaddr			)		,
+	.waddr				(ClintWaddr			)		,
+	.wdata				(ClintWdata			)		,
+	.rdata				(ClintRdata			)		
 );
 //LS_WB
 reg [63:0] RLSWB_pc        ;
@@ -684,6 +695,8 @@ wire [63:0] Wbu_wdata   ;
 wire [ 0:0] Wbu_wen     ;
 wire [0:0] Score_WScore_wen    =  Wbu_wen   ;
 wire [4:0] Score_WScore_waddr  =  Wbu_waddr ;
+wire [63:0] regfilepc	; 
+wire irujump			;
 
 ysyx_22050550_WBU WBU(
     .clock             (clock)            ,
@@ -716,6 +729,7 @@ ysyx_22050550_WBU WBU(
     .mie               (WBU_mie             )             ,
     .mip               (RegFileID_CSRs_mip  )             ,
     .Reg17             (WBU_Reg17           )             ,
+	.regfilepc		   (regfilepc			)			  ,
     .wbmepc            (wbmepc              )             ,
     .wbmcause          (wbmcause            )             ,
     .wbmtvec           (wbmtvec             )             ,
@@ -738,7 +752,34 @@ ysyx_22050550_WBU WBU(
     .io_WBTOP_abort    (DeBugabort    )             , 
     .io_WBTOP_SkipRef  (DeBugSkipRef  )             ,
     .io_WBTOP_NextPc   (DeBugNextPc   )             ,
-    .io_ReadyWB_ready  (WB_ready)             
+    .io_ReadyWB_ready  (WB_ready	  )				,
+	.interrupt         (io_interrupt  )				,
+	.clintinterrupt    (clintinterrupt)				,
+	.irujump           (irujump		  )				
+);
+//Clint 
+assign Flush = irujump     ; 
+wire clintinterrupt ;
+wire ClintRen  ;
+wire [63:0] ClintRaddr ;
+wire ClintWen ;
+wire [63:0] ClintWaddr ;
+wire [63:0] ClintWdata  ;
+wire [63:0] ClintRdata  ; 
+ysyx_22050550_CLINT CLINT (
+	.clock	(clock		)			, 
+	.reset	(reset		)			,
+	.ren	(ClintRen	)			,
+	.raddr	(ClintRaddr	)			,
+	.wen	(ClintWen	)			,
+	.waddr	(ClintWaddr	)			,
+	.wdata	(ClintWdata	)			,	
+
+	.rdata	(ClintRdata	)			,
+
+	.clintmtip(clintinterrupt)			,
+	.mtimereg (			)			,
+	.mtimecmpreg (				)	
 );
 wire [63:0] DeBugpc       ; 
 wire [63:0] DeBugrs2      ; 
@@ -820,6 +861,7 @@ ysyx_22050550_REGS REGS(
     .mip           (RegFileID_CSRs_mip      ),     
     .Reg17         (WBU_Reg17               ),
     .Reg10         (Reg10                   ),
+	.regfilepc     (regfilepc				),
     .pc            (DeBugpc             )                  ,
     .wbmepc        (wbmepc              )                  ,
     .wbmcause      (wbmcause            )                  ,
@@ -885,7 +927,10 @@ ysyx_22050550_CACHE ICache(
     .io_Cache_wdata  (0)          ,
     .io_Cache_wmask  (0)          ,
     .io_Cache_data   (ICache_Data   )          ,
-    .io_Cache_dataok (ICache_dataok )          
+    .io_Cache_dataok (ICache_dataok )			,         
+
+	.CacheFlush      (Flush			)			,
+	.ls_interrupt    (				)			
 
 );
 wire [ 0:0] Lsu_ar_ready ; 
@@ -950,7 +995,9 @@ ysyx_22050550_CACHE DCache(
     .io_Cache_wdata  (Lsu_Cache_wdata    )          ,
     .io_Cache_wmask  (Lsu_Cache_wmask    )          ,
     .io_Cache_data   (Lsu_Cache_data     )          ,
-    .io_Cache_dataok (Lsu_Cache_dataok   )          
+    .io_Cache_dataok (Lsu_Cache_dataok   )          ,
+	.CacheFlush      (Flush			)			,
+	.ls_interrupt    (				)			
 
 );
 
@@ -1188,6 +1235,7 @@ ysyx_22050550_ScoreBoard ScoreBoard(
     .io_WBU_waddr (Score_WScore_waddr)                  ,
     .io_WBU_wen   (Score_WScore_wen)                  
 );
+//顶层    
 
 
 endmodule

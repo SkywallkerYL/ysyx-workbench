@@ -86,12 +86,20 @@ module ysyx_22050550_LSU(
     output [63:0] io_Cache_wdata            ,
     output [7:0]  io_Cache_wmask            ,
     input  [63:0] io_Cache_data             ,
-    input         io_Cache_dataok           
+    input         io_Cache_dataok			,          
     //To IDU for DEGUB
     //output printflag 
+	// CLINT 
+	output			ren			,
+	output 	[63:0]	raddr		,
+	output	        wen			,
+	output	[63:0]	waddr		,
+	output	[63:0]	wdata		,
+	input	[63:0]  rdata					
 );  
     //设备地址都在 a0000000+ 这里判断可以简单一点
     wire Pmem = io_EXLS_alures[31:28] == 4'h8;
+	wire Clint = (io_EXLS_alures >= `ysyx_22050550_CLINTBASE) && (io_EXLS_alures <= `ysyx_22050550_CLINTEND); 
     //wire Pmem = io_EXLS_alures>=`ysyx_22050550_PLeft && io_EXLS_alures < `ysyx_22050550_PRight;
 
     //设备通信状态机 读状态机
@@ -129,7 +137,7 @@ module ysyx_22050550_LSU(
         endcase
     end 
     //读状态地址连线 // 这里还没有考虑CLint
-    assign io_ar_valid = (Rstate == swait && io_EXLS_rflag && (!Pmem))||(Rstate==swaitready);
+    assign io_ar_valid = (Rstate == swait && io_EXLS_rflag && (!Pmem)&&(!Clint))||(Rstate==swaitready);
     assign io_ar_addr  = io_EXLS_alures;
     assign io_ar_len   = 0;           
     assign io_ar_size  = 3;          
@@ -178,7 +186,7 @@ module ysyx_22050550_LSU(
         endcase
     end 
     //写状态地址连线 // 这里还没有考虑CLint
-    assign io_aw_valid = (Wstate == swaitW && io_EXLS_wflag && (!Pmem))||(Wstate==swaitreadyW);
+    assign io_aw_valid = (Wstate == swaitW && io_EXLS_wflag && (!Pmem)&&(!Clint))||(Wstate==swaitreadyW);
     assign io_aw_addr  = io_EXLS_alures;
     assign io_aw_len   = 0;           
     assign io_aw_size  = 3;          
@@ -261,12 +269,18 @@ module ysyx_22050550_LSU(
     assign io_LSWB_ecallflag=      io_EXLS_ecallflag                  ;
     assign io_LSWB_mretflag =      io_EXLS_mretflag                   ;
     assign io_LSWB_ebreak   =      io_EXLS_ebreak                     ;
-    assign io_LSWB_SkipRef  =      (io_EXLS_wflag||io_EXLS_rflag) &&(!Pmem);//读写内存并且非pmem地址
+    assign io_LSWB_SkipRef  =      (io_EXLS_wflag||io_EXLS_rflag) &&(!Pmem)&&(!Clint);//读写内存并且非pmem地址
     assign io_LSWB_func3    =      io_EXLS_func3                      ;
     //assign io_LSWB_func7    =      io_EXLS_func7                      ;
     assign io_LSWB_NextPc   =      io_EXLS_NextPc                     ;
     assign io_LSWB_alures   =      io_EXLS_alures                     ;
-    assign io_LSWB_lsures   =      maskData                           ; 
+    assign io_LSWB_lsures   =      Clint? rdata : maskData					    ; 
+	//CLINT  
+	assign ren				=		io_EXLS_rflag						;
+	assign wen				=		io_EXLS_wflag						;
+	assign raddr			=		io_EXLS_alures						;
+	assign waddr			=		io_EXLS_alures						;
+	assign wdata			=		io_EXLS_rs2							;
     
     
 `ifdef ysyx_22050550_LSUDEBUG

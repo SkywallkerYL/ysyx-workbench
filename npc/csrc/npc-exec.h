@@ -342,7 +342,7 @@ static void execute(uint64_t n) {
     instend++;
     if ((instend-inststart) >= LOOKUPINST ){
       instend = 0;
-      Log("local pc at :%08lx inst:%08x  Next pc:%08lx",localpc,localinst,localnpc);
+      Log("local pc at :%08lx inst:%08x  Next pc:%08lx wavenum:%ld",localpc,localinst,localnpc,wavecount);	  
     }
 #endif
       //sim_once();

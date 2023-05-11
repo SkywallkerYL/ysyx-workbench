@@ -11,6 +11,7 @@ module ysyx_22050550_REGS(
     output [63:0] mip                            ,
     output [63:0] Reg17                          ,
     output [63:0] Reg10                          ,
+	output [63:0] regfilepc						 ,
     input  [63:0] pc                             ,
     input  [63:0] wbmepc                         ,
     input  [63:0] wbmcause                       ,
@@ -140,6 +141,7 @@ module ysyx_22050550_REGS(
     assign mip     = regs[38]       ;
     assign Reg17   = regs[17]       ; 
     assign Reg10   = regs[10]       ;
+	assign regfilepc = regs[32]		;
     assign io_IDU_rdata1 = regs[{{1'b0},io_IDU_raddr1}]   ;
     assign io_IDU_rdata2 = regs[{{1'b0},io_IDU_raddr2}]   ;
 endmodule

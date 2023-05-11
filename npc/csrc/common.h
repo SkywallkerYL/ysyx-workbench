@@ -34,10 +34,10 @@
 
 //#define WAVE
 
-#define WAVE_BEGIN 0
-#define WAVE_END   10000
+#define WAVE_BEGIN 1484000
+#define WAVE_END   1484600
 
-//#define LOOKUPINST 1000000
+//#define LOOKUPINST 10000
 
 #define TRACE_CONDITION(a,begin,end)   ((a>=begin)&&(a<end))
 

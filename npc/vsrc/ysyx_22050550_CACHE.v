@@ -38,10 +38,51 @@ module ysyx_22050550_CACHE(
     input  [63:0] io_Cache_wdata            ,
     input  [7:0]  io_Cache_wmask            ,
     output [63:0] io_Cache_data             ,
-    output        io_Cache_dataok           
+    output        io_Cache_dataok           ,
     /*********DataArray·的Sram 例化在顶层 这里内部只保留tagarray********/
     /*********暂时先实现在内部 **********/                   
+
+	/*************CACHE冲刷信号，用来冲刷掉CACHE的状态机*****************/
+	input		CacheFlush					,
+	/****************访存异常信号，给WBU，进行一次异常处理***************/
+	output		ls_interrupt					
+
 );
+	assign ls_interrupt  = 1'b0;
+	//用一个flush的寄存器   
+	//如果冲刷的时候   CACHE不在idle 状态， 那么 flush寄存器拉高，
+	//直到当前cache的操作完成发送dataok后，再把flush拉低。   并且在此期间如果
+	//要写入valid的信号，则把valid要写无效。真正发送的dataok信号应该是状态机的
+	//dataok和!flush相与 这个flush 是外部的flush信号和寄存器的flush相或 
+	/*
+	reg flush ;
+	wire flushen = CacheFlush || LOOKUP ; 
+	wire flushin = CacheFlush ? 1'b1 : LOOKUP ? 1'b0 : flush ;
+    ysyx_22050550_Reg #(1,1'b0) flushreg (
+        .reset(reset),
+        .clock(clock),
+        .wen(flushen),
+        .din(flushin),
+        .dout(flush)
+    );
+	wire realflush = flush || CacheFlush ;
+	*/
+	//addr的寄存器 因为考虑到流水线的冲刷，io_cache_addr是直接LSU的组合逻辑链
+	//接过来的 流水线冲刷后，那边置0了，这样子，此时还给SRAM发送的话就会导致访
+	//存错误 那么就要锁存一下数据，应该就不会有访存错误了，同时也保证AXI的状态
+	//机正常跳转。
+	/*
+	reg [63:0] Cache_addr ;
+	ysyx_22050550_Reg #(64,64'b0) AddrReg (
+        .reset(reset),
+        .clock(clock),
+        .wen(IDLE||io_Cache_valid),
+        .din(io_Cache_addr ),
+        .dout(Cache_addr)  
+    );
+	*/  
+
+	//让Cache的状态机继续执行 暂时还不实现。
     /*
         采用官方提供的RAM模板实现，
         data array采用1块sram实现
@@ -118,11 +159,11 @@ module ysyx_22050550_CACHE(
     //wire [`ysyx_22050550_AddrWidth-1:0] AddrTagshift =(io_Cache_addr >> (`ysyx_22050550_GroupWidth+`ysyx_22050550_BlockWidth));
     //wire [`ysyx_22050550_TagBus] AddrTag = AddrTagshift[`ysyx_22050550_TagBus];
     //移位的操作好像也会降低性能，能够不移位的地方就换成位拼接
-    wire [`ysyx_22050550_TagBus]  AddrTag    = io_Cache_addr[31:`ysyx_22050550_GroupWidth+`ysyx_22050550_BlockWidth];
-    wire [`ysyx_22050550_BlockBus]AddrBlock  =  io_Cache_addr[`ysyx_22050550_BlockBus];
+    wire [`ysyx_22050550_TagBus]  AddrTag    = io_Cache_addr[31:`ysyx_22050550_GroupWidth+`ysyx_22050550_BlockWidth];// : Cache_addr[31:8];
+    wire [`ysyx_22050550_BlockBus]AddrBlock  = io_Cache_addr[`ysyx_22050550_BlockBus];// : Cache_addr[3:0];
     //wire [`ysyx_22050550_AddrWidth-1:0]AddrGroupshift = (io_Cache_addr >> (`ysyx_22050550_BlockWidth));
     //wire [`ysyx_22050550_GroupBus] AddrGroup = AddrGroupshift[`ysyx_22050550_GroupBus];
-    wire [`ysyx_22050550_GroupBus] AddrGroup = io_Cache_addr[7:`ysyx_22050550_BlockWidth];
+    wire [`ysyx_22050550_GroupBus] AddrGroup = io_Cache_addr[7:`ysyx_22050550_BlockWidth];// : Cache_addr[7:4];
     wire [`ysyx_22050550_RegBus] DataOut;
     //根据块内地址确定输出的   默认32位对齐
     //实际情况是存在非对齐的访问，这里不用MUX来写了，直接通过移位解决。
@@ -217,7 +258,7 @@ module ysyx_22050550_CACHE(
     always@(*) begin
         case (state)
             idle:begin
-                if(io_Cache_valid) begin
+				if(io_Cache_valid) begin
                     next = lookup;
                 end
                 else begin
@@ -226,7 +267,7 @@ module ysyx_22050550_CACHE(
             end 
             lookup:begin
                 //命中
-                if(cachehit) begin 
+				if(cachehit) begin 
                     //读命中 直接读出数据 
                     //写命中 ...
                     next = idle;
@@ -237,7 +278,7 @@ module ysyx_22050550_CACHE(
             end
             miss:begin
                 //需要写回 向总线申请写回
-                if(axivalid) begin
+               if(axivalid) begin
                     if(io_aw_valid && io_aw_ready) begin
                         next = replace;
                     end
@@ -267,8 +308,8 @@ module ysyx_22050550_CACHE(
 			end 
             replace:begin
                 //从总线写回cacheline   last => miss
-				//last -> wresp ;  
-                if (io_w_valid && io_w_ready) begin
+				//last -> wresp ; 
+				if (io_w_valid && io_w_ready) begin
                     if(io_w_last) begin
                         next = wresp;
                     end
@@ -282,7 +323,7 @@ module ysyx_22050550_CACHE(
             end 
             refill:begin
                 //从RAM读取 last => lookup
-                if(io_r_valid && io_r_ready)begin
+				if(io_r_valid && io_r_ready)begin
                     if (io_r_last) begin
                         next = lookup;
                     end
@@ -297,7 +338,8 @@ module ysyx_22050550_CACHE(
             default:next = idle; 
         endcase
     end 
-    
+    // 添加了Cache的异常处理，整理一下要做的事，  读写异常的 
+	// 都是将对应的行标记为无效。
     /*
         根据不同的状态对总线 以及Mem申请读或者写 整理一下每个状态下做的事情
         注意Tag和Mem的数据都是延迟一周期才能拿到
@@ -354,10 +396,12 @@ module ysyx_22050550_CACHE(
     //所以dataok不用延迟一周期。 但如果是从refill跳回lookup 回到lookup当周期才申请读，此时dataok还是要延迟的
     //Ram那边改了，支持同时读写 CACHE仍然使用寄存器，这样子仿真可以更快
     wire dataokin = LOOKUP && cachehit;
+	wire Cache_DataOk ;
     ysyx_22050550_Reg # (1,1'd0) dataok (
                 .clock(clock),.reset(reset),.wen(1'b1),.din(dataokin),
-                .dout(io_Cache_dataok));
+                .dout(Cache_DataOk));
     assign io_Cache_data = DataOut;
+	assign io_Cache_dataok = Cache_DataOk ;//&& !(realflush);
     assign saveen = LOOKUP && !cachehit;
     //写 hit dirty拉高
     //assign dirtyWriteEn = LOOKUP && hit & io_Cache_op;
@@ -448,8 +492,16 @@ module ysyx_22050550_CACHE(
     }));
     */
     //valid只有一种情况需要写入  refill完成写valid
+	//现在新增了一种情况， 就是读写异常，此时需要把 valid 写无效。
+	//一个是读异常 此时     state == refill  resp!=0
+	//一个是写异常 此时     state == wresp   resp != 0
+	//这个功能还是暂时不实现了。先解决clint中断的问题。
+	//还有一个是当冲刷信号到来的时候，要对已经写入的valid行置无效
+	//新增一个 flushwrite 信号 注意usaddr 是hitaddr是，要检验是否是真的hit  
+	//感觉很复杂 ，先不实现
+	//wire flushwrite = CacheFlush 
     assign validWriteEn = REFILL && io_r_last& io_r_valid;
-    assign validWriteData = 1'b1;
+    assign validWriteData = 1'b1;//&&(!realflush);
     assign io_r_ready = REFILL;
     //向tag和mem写  valid 拉高 dirty 拉低
     //只有这样个状态需要向mem写入   写入都是低位有效

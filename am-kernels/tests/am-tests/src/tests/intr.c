@@ -7,7 +7,7 @@
 //nemu 没有实现CLINT 因此会出错
 void mtimecmpadd(){
   uint64_t old  =  * (volatile uint64_t *)MTIMECMPADDR;
-  *(volatile uint64_t *) MTIMECMPADDR =  (uint64_t) (old+10000);
+  *(volatile uint64_t *) MTIMECMPADDR =  (uint64_t) (old+1000000);
 }
 #define NATIVE
 #ifndef NATIVE
@@ -40,9 +40,11 @@ void hello_intr() {
   printf("  t = timer, d = device, y = yield\n");
   io_read(AM_INPUT_CONFIG);
   iset(1);
-  //MTIP_reset();
-  //mtimecmpadd();
-  int n = 5;
+#ifndef NATIVE 
+  MTIP_reset();
+  mtimecmpadd();
+#endif 
+  int n = 100;
   //i最大迭代比较小的时候会出问题
   //具体是对于通用寄存器的恢复的会出问题
   //导致对于n的记录会出问题，不会完全触发每次yield

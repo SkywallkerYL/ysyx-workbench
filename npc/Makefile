@@ -58,7 +58,7 @@ VERILATOR_FLAGS += -Wno-fatal
 #for testbench
 VERILATOR_CFLAGS += -cc --exe --noassert
 #-Os -x-assign 0 --trace --coverage
-VERILATOR_CFLAGS +=	--x-assign fast --x-initial fast
+VERILATOR_CFLAGS +=	--x-assign fast --x-initial fast 
 #VERILATOR_CFLAGS +=  --trace --coverage 
 VERILATOR_CFLAGS +=  --build 
 VERILATOR_CFLAGS += -Wno-fatal -O3 
