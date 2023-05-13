@@ -100,36 +100,60 @@ module ysyx_22050550_CACHE(
     //Tag array  16组 每组4路   一共64行
     /**** Tag例化4块，同时对一组内每一路读出Tag*****/
     //不要Last那个周期写，进入refill了 valid了就写，这样子下个周期就能读Tag，下下个周期进入lookup就能拿到tag的数据
-
-    wire [`ysyx_22050550_TagBus] Tag[3:0];
-    wire Tag0Wen = !(!io_r_last && REFILL && io_r_valid && chooseway==2'd0) ;
-    wire [`ysyx_22050550_TagBus] Tag0Ben = 0;//写使能，写掩码，都是低位有效
+	wire [`ysyx_22050550_TagBus] Tag[3:0];
+    wire Tag0Wen = (!io_r_last && REFILL && io_r_valid && chooseway==2'd0) ;
     wire [`ysyx_22050550_TagBus] Tag0Data = AddrTag; //写数据
-    ysyx_22050550_TagAaaryMem Tag_Array0(
-        .Q(Tag[0]), .CLK(clock), .CEN(1'b0), 
-        .WEN(Tag0Wen), .BWEN(Tag0Ben), .A(AddrGroup), .D(Tag0Data)
-    );
-    wire Tag1Wen = !(!io_r_last && REFILL && io_r_valid && chooseway==2'd1);
-    wire [`ysyx_22050550_TagBus] Tag1Ben = 0;//写使能，写掩码，都是低位有效
+    reg [`ysyx_22050550_TagWidth-1:0] Tag0 [0:`ysyx_22050550_GroupNum-1];
+    assign Tag[0] = Tag0[AddrGroup];
+    wire Tag0en[0:`ysyx_22050550_GroupNum-1];
+    generate
+        for (genvar i = 0; i < `ysyx_22050550_GroupNum; i = i+1) begin 
+            assign Tag0en[i] = Tag0Wen & (AddrGroup == i);
+            ysyx_22050550_Reg # (`ysyx_22050550_TagWidth,`ysyx_22050550_TagWidth'd0)
+                Treg0 (.clock(clock),.reset(reset),.wen(Tag0en[i]),
+                .din(Tag0Data),.dout(Tag0[i]));
+        end
+    endgenerate
+    wire Tag1Wen = (!io_r_last && REFILL && io_r_valid && chooseway==2'd1);
     wire [`ysyx_22050550_TagBus] Tag1Data = AddrTag; //写数据
-    ysyx_22050550_TagAaaryMem Tag_Array1(
-        .Q(Tag[1]), .CLK(clock), .CEN(1'b0), 
-        .WEN(Tag1Wen), .BWEN(Tag1Ben), .A(AddrGroup), .D(Tag1Data)
-    );
-    wire Tag2Wen = !(!io_r_last && REFILL && io_r_valid && chooseway==2'd2);
-    wire [`ysyx_22050550_TagBus] Tag2Ben = 0;//写使能，写掩码，都是低位有效
+    reg [`ysyx_22050550_TagWidth-1:0] Tag1 [0:`ysyx_22050550_GroupNum-1];
+    assign Tag[1] = Tag1[AddrGroup];
+    wire Tag1en[0:`ysyx_22050550_GroupNum-1];
+    generate
+        for (genvar i = 0; i < `ysyx_22050550_GroupNum; i = i+1) begin  
+            assign Tag1en[i] = Tag1Wen & (AddrGroup == i);
+            ysyx_22050550_Reg # (`ysyx_22050550_TagWidth,`ysyx_22050550_TagWidth'd0)
+                Treg1 (.clock(clock),.reset(reset),.wen(Tag1en[i]),
+                .din(Tag1Data),.dout(Tag1[i]));
+        end
+    endgenerate
+    wire Tag2Wen = (!io_r_last && REFILL && io_r_valid && chooseway==2'd2);
     wire [`ysyx_22050550_TagBus] Tag2Data = AddrTag; //写数据
-    ysyx_22050550_TagAaaryMem Tag_Array2(
-        .Q(Tag[2]), .CLK(clock), .CEN(1'b0), 
-        .WEN(Tag2Wen), .BWEN(Tag2Ben), .A(AddrGroup), .D(Tag2Data)
-    );
-    wire Tag3Wen = !(!io_r_last && REFILL && io_r_valid && chooseway==2'd3);
-    wire [`ysyx_22050550_TagBus] Tag3Ben = 0;//写使能，写掩码，都是低位有效
+    reg [`ysyx_22050550_TagWidth-1:0] Tag2 [0:`ysyx_22050550_GroupNum-1];
+    assign Tag[2] = Tag2[AddrGroup];
+    wire Tag2en[0:`ysyx_22050550_GroupNum-1];
+    generate
+        for (genvar i = 0; i < `ysyx_22050550_GroupNum; i = i+1) begin  
+            assign Tag2en[i] = Tag2Wen & (AddrGroup == i);
+            ysyx_22050550_Reg # (`ysyx_22050550_TagWidth,`ysyx_22050550_TagWidth'd0)
+                Treg2 (.clock(clock),.reset(reset),.wen(Tag2en[i]),
+                .din(Tag2Data),.dout(Tag2[i]));
+        end
+    endgenerate
+    wire Tag3Wen = (!io_r_last && REFILL && io_r_valid && chooseway==2'd3);
     wire [`ysyx_22050550_TagBus] Tag3Data = AddrTag; //写数据
-    ysyx_22050550_TagAaaryMem Tag_Array3(
-        .Q(Tag[3]), .CLK(clock), .CEN(1'b0), 
-        .WEN(Tag3Wen), .BWEN(Tag3Ben), .A(AddrGroup), .D(Tag3Data)
-    );
+    reg [`ysyx_22050550_TagWidth-1:0] Tag3 [0:`ysyx_22050550_GroupNum-1];
+    assign Tag[3] = Tag3[AddrGroup];
+    wire Tag3en[0:`ysyx_22050550_GroupNum-1];
+    generate
+        for (genvar i = 0; i < `ysyx_22050550_GroupNum; i = i+1) begin  
+            assign Tag3en[i] = Tag3Wen & (AddrGroup == i);
+            ysyx_22050550_Reg # (`ysyx_22050550_TagWidth,`ysyx_22050550_TagWidth'd0)
+                Treg2 (.clock(clock),.reset(reset),.wen(Tag3en[i]),
+                .din(Tag3Data),.dout(Tag3[i]));
+        end
+    endgenerate
+    
     //reg [`ysyx_22050550_TagBus] tag [63 : 0];
     //valid dirty
     reg  valid [63:0];
