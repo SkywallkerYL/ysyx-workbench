@@ -59,7 +59,7 @@ module ysyx_22050550_REGS(
     ysyx_22050550_Reg # (`ysyx_22050550_REGWIDTH,64'd0)regpc (
         .clock(clock),
         .reset(reset),
-        .wen(1'b1),
+        .wen(io_valid),
         .din(pc),
         .dout(regs[32])
     );

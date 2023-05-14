@@ -54,8 +54,9 @@ module ysyx_22050550_EXU(
 
     //output  [4:0]  io_EXU_waddr              ,
     //output         io_EXU_valid              ,
-    //output [63:0]  io_EXU_rdata              ,
-
+    //output [63:0]  io_EXU_rdata              ,  
+	input		  io_id_flush			   ,
+	output		  io_EXLS_flush				,
 
     output        io_ReadyID_ready          
 );
@@ -241,7 +242,7 @@ module ysyx_22050550_EXU(
     assign io_EXLS_pc       =      io_id_pc                         ;
     assign io_EXLS_inst     =      io_id_inst                       ;
     /*************valid-ready握手信号****************/      
-    assign io_EXLS_valid    =      io_id_valid && aluvalid          ;
+    assign io_EXLS_valid    =      io_id_valid && aluvalid && !io_id_flush ;
     assign io_ReadyID_ready =      io_ReadyLS_ready && (!alubusy)   ;
 
     assign io_EXLS_rs1      =      io_id_rs1addr                    ;
@@ -263,6 +264,7 @@ module ysyx_22050550_EXU(
     assign io_EXLS_NextPc   =      io_id_NextPc                     ;
     assign io_EXLS_alures   =      maskres                          ;
 
+	assign io_EXLS_flush    =	   io_id_flush						;
     //bypass
     //assign io_EXU_waddr = io_EXLS_wdaddr;
     //assign io_EXU_valid = io_EXLS_wen && io_EXLS_valid && !io_id_csrflag && !io_id_rflag;

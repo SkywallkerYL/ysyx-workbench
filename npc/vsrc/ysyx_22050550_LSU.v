@@ -48,6 +48,8 @@ module ysyx_22050550_LSU(
     //output [6:0]  io_LSWB_func7                 ,
     output [63:0] io_LSWB_NextPc                ,  
     output        io_ReadyEX_ready              ,
+	input		  io_EXLS_flush					,
+	output        io_LSWB_flush					,
     //bypass
     //output  [4:0]  io_LSU_waddr                   ,
     //output         io_LSU_valid                   ,
@@ -254,7 +256,7 @@ module ysyx_22050550_LSU(
     assign io_LSWB_pc       =      io_EXLS_pc                         ;
     assign io_LSWB_inst     =      io_EXLS_inst                       ;
     /*************valid-ready握手信号****************/      
-    assign io_LSWB_valid    =      io_EXLS_valid    && lsuvalid       ;
+    assign io_LSWB_valid    =      io_EXLS_valid    && lsuvalid &&!io_EXLS_flush ;
     assign io_ReadyEX_ready =      io_ReadyWB_ready && (!lsubusy)     ;
 
     assign io_LSWB_rs1      =      io_EXLS_rs1addr                    ;
@@ -275,6 +277,7 @@ module ysyx_22050550_LSU(
     assign io_LSWB_NextPc   =      io_EXLS_NextPc                     ;
     assign io_LSWB_alures   =      io_EXLS_alures                     ;
     assign io_LSWB_lsures   =      Clint? rdata : maskData					    ; 
+	assign io_LSWB_flush    =	   io_EXLS_flush						;
 	//CLINT  
 	assign ren				=		io_EXLS_rflag						;
 	assign wen				=		io_EXLS_wflag						;

@@ -61,8 +61,19 @@ module ysyx_22050550_WBU(
     output        io_ReadyWB_ready              ,  
 	input		  interrupt						,//外部中断 时钟中断 或者 其他的异步中断  比如访存等，，，虽然还没实现。
 	input		  clintinterrupt				,
+	//input	      io_iru_flush						, 
+	// 来自顶层的冲刷信号寄存器的信息，当这个信号拉高的时候，表明此时正在进行流水线
+	// 的冲刷，需要对ecallpc啥的进行写入，保证记录到执行完毕的最后一条指令的pc。
+	input		  io_wbu_flush					, 
+		// 来自流水线的冲刷信息  
+	output		  io_topflush					, 
+	// 这个信号用来送给顶层的冲刷寄存器，表明WBU已经收到了冲刷的信息，然后把顶层的冲刷给置0，
+	// 表明冲刷完成
+	output		  iruflush						,
+	// 异常处理模块受到了中断信号 需要发送中断,对流水线进行冲刷
 	output        irujump						
 );
+	assign io_topflush = io_wbu_flush			;
     //根据是否是csr 指令或者load指令 决定对寄存器的写回的数据的选取
     wire [11:0] csrind = io_LSWB_inst[31:20]; 
     
@@ -82,23 +93,24 @@ module ysyx_22050550_WBU(
     assign csrwrite = 
     io_LSWB_func3 == 3'b001 ? io_LSWB_alures :
     io_LSWB_func3 == 3'b010 ? io_LSWB_alures | csrwritedata : 64'h0;
-    wire [7:0] csren;
-    assign csren = 
-    csrind == `ysyx_22050550_MTVEC   ? 8'b00000100 : 
-    csrind == `ysyx_22050550_MCAUSE  ? 8'b00000010 : 
-    csrind == `ysyx_22050550_MSTATUS ? 8'b00001000 : 
-    csrind == `ysyx_22050550_MEPC    ? 8'b00000001 : 
-    csrind == `ysyx_22050550_CSRMIE  ? 8'b00010000 : 
-    csrind == `ysyx_22050550_CSRMIP  ? 8'b00100000 : 8'h0;
+    
+//	wire [7:0] csren;
+//    assign csren = 
+//    csrind == `ysyx_22050550_MTVEC   ? 8'b00000100 : 
+//    csrind == `ysyx_22050550_MCAUSE  ? 8'b00000010 : 
+//    csrind == `ysyx_22050550_MSTATUS ? 8'b00001000 : 
+//    csrind == `ysyx_22050550_MEPC    ? 8'b00000001 : 
+//    csrind == `ysyx_22050550_CSRMIE  ? 8'b00010000 : 
+//    csrind == `ysyx_22050550_CSRMIP  ? 8'b00100000 : 8'h0;
     
     //csrflag为高的情况下的写回使能
     wire [`ysyx_22050550_RegBus] flagwbcsr = csrwrite;
-    wire [7:0] flagwbcsren = csren & {(8){io_LSWB_csrflag}};
+    //wire [7:0] flagwbcsren = csren & {(8){io_LSWB_csrflag}};
     //处理一下ecall 和mret
     //ecall时要写Mepc 和mstatus
 	//注意一下 时钟中断的处理也与ecall类似，只不过是mcause不一样
 	//其他的中断 比如外部中断， 或者访存错误引起的中断应该也是一样
-    wire [7:0] ecallcsren = 8'b00001011; 
+   // wire [7:0] ecallcsren = 8'b00001011; 
     wire [`ysyx_22050550_RegBus] oldmie = mstatus & (64'h8);//保存mie位
     wire [`ysyx_22050550_RegBus] ecallnewmstatus = (mstatus & (~64'h80)) | (oldmie << 4);//赋给mpie
     wire [`ysyx_22050550_RegBus] ecallfinal = ecallnewmstatus & (~64'h8); //mie置0禁用中断
@@ -112,12 +124,21 @@ module ysyx_22050550_WBU(
 	//的mtip 位要拉低
 	wire clintintr = mstatus[3] && mie[7] && clintinterrupt ;
 	wire outintr   = mstatus[3] && mie[7] && interrupt      ;
-	wire intr = clintintr || outintr ; 
+	reg  inter; 
+	//中断会导致流水线的冲刷， 在因为中断导致的冲刷完成之前， 
+	//都要一直记录ecallpc等数值，这样子才能保证记录到最后一条完成的指令 ，然后
+	//再跳转到中断处理程序 因为fencei指令导致的中断可不管 
+	wire interen   =( clintintr ||outintr ) || io_wbu_flush ;
+	wire interin   = clintintr || outintr ; 
+	ysyx_22050550_Reg # (1,1'd0)RegInter(
+    .clock(clock),.reset(reset),.wen(interen),.din(interin ),.dout(inter     ));
+
+	wire intr = clintintr || outintr || inter ; 
 	wire mtipvalid = mip[7];
 	//wire [7:0] interrupten = 8'b00001011;  
-	wire [7:0] clintintren = 8'b00100000;
+//	wire [7:0] clintintren = 8'b00100000;
     //mret
-    wire [7:0] mretcsren  = 8'b00001000;
+//    wire [7:0] mretcsren  = 8'b00001000;
     wire [`ysyx_22050550_RegBus] oldmpie = mstatus & (64'h80);//保存mpie位
     wire [`ysyx_22050550_RegBus] mretnewmstatus = (mstatus & (~64'h8)) | (oldmpie >> 4);//赋给mie
     wire [`ysyx_22050550_RegBus] mretfinal = mretnewmstatus | (64'h80); //恢复使能
@@ -128,17 +149,26 @@ module ysyx_22050550_WBU(
     wire [63:0] inwbmstatus=   io_LSWB_csrflag?flagwbcsr :io_LSWB_ecallflag? ecallfinal: io_LSWB_mretflag?mretfinal: 0 ;
     wire [63:0] inwbmie    =   io_LSWB_csrflag?flagwbcsr : 0 ;
     wire [63:0] inwbmip    =   io_LSWB_csrflag?flagwbcsr : 0 ;
-    wire [7:0 ] inwbcsren  =   io_LSWB_csrflag?flagwbcsren :  io_LSWB_ecallflag?ecallcsren:io_LSWB_mretflag?mretcsren:0;
+//    wire [7:0 ] inwbcsren  =   io_LSWB_csrflag?flagwbcsren :  io_LSWB_ecallflag?ecallcsren:io_LSWB_mretflag?mretcsren:0;
 	//这个中断的异常号暂时没找到，暂定为16
 	wire [63:0] intrmcause = 64'd16;
+	//记录一下当前执行的或者已经执行完成的
+	//pc ,保证后面返回正确 。。
 	assign wbmepc   = intr ? ecallpc : inwbmepc ; 
-	assign wbmcause = intr ? intrmcause : inwbmcause ; 
+	assign wbmcause = interin ? intrmcause : inwbmcause ; 
 	assign wbmtvec  = inwbmtvec						 ; 
-	assign wbmstatus= intr ? ecallfinal : inwbmstatus;
+	assign wbmstatus= interin ? ecallfinal : inwbmstatus;
 	assign wbmie    = inwbmie						 ;  
 	assign wbmip    = mtipvalid ? inwbmip &(~64'h80): inwbmip   ; // mip 的mtip位拉低仅用计时器中断
-	wire [7:0] intrcsren  = intr ? ecallcsren : inwbcsren		;
-	assign wbcsren  = mtipvalid ? intrcsren | clintintren : intrcsren ;
+//	wire [7:0] intrcsren  = intr ? ecallcsren|inwbcsren : inwbcsren		;
+	wire mepcen   = intr    || io_LSWB_ecallflag  ||(io_LSWB_csrflag && csrind == `ysyx_22050550_MEPC); 
+	wire mcauseen = interin || io_LSWB_ecallflag  ||(io_LSWB_csrflag && csrind == `ysyx_22050550_MCAUSE);
+	wire mtvecen  = (io_LSWB_csrflag && csrind == `ysyx_22050550_MTVEC );
+	wire mstatusen= interin || io_LSWB_ecallflag|| io_LSWB_mretflag   ||(io_LSWB_csrflag && csrind == `ysyx_22050550_MSTATUS);
+	wire mieen    = (io_LSWB_csrflag && csrind == `ysyx_22050550_CSRMIE) ;
+	wire mipen	  = mtipvalid || (io_LSWB_csrflag && csrind == `ysyx_22050550_CSRMIP) ;
+	assign wbcsren  = {2'b00,mipen,mieen,mstatusen,mtvecen,mcauseen,mepcen} ;
+		//mtipvalid ? intrcsren | clintintren : intrcsren ;
 	
 
 
@@ -159,6 +189,7 @@ module ysyx_22050550_WBU(
     assign io_WBTOP_ebreak   =      io_LSWB_ebreak                     ;
     assign io_WBTOP_NextPc   =      io_LSWB_NextPc                     ;
 	assign irujump			 =		intr							   ;
+	assign iruflush			 =      clintintr || outintr			   ;
     //assign io_WBTOP_writeflag=      io_LSWB_writeflag                  ;
     
 	//assign io_WBTOP_writeaddr=      io_LSWB_alures                     ;

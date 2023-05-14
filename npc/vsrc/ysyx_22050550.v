@@ -128,7 +128,18 @@ module ysyx_22050550(
 );
 
 //流水线冲刷信号
+//记录一下对流水线冲刷的理解， 冲刷应该从第一级开始通过流水线向后清空，但是清
+//空时，应该保证这一级的指令已经执行完毕
+//冲刷信号应该要一直拉高   直到其传递到WBU 。此时也要暂停取指，直到冲刷信号拉
+//低， 这样子才能保证之前的指令都执行完毕。
 wire Flush; 
+//fence.i 信号   
+reg FLUSH ;
+wire flushen = Flush || Top_flush ; 
+wire flushin = Flush   ;
+ysyx_22050550_Reg # (1,1'd0)RegFlush(
+    .clock(clock),.reset(reset),.wen(flushen),.din(flushin),.dout(FLUSH     ));
+wire realflush = Flush || FLUSH ;
 
 
 wire IF_ready;
@@ -176,24 +187,27 @@ ysyx_22050550_IFU IFU(
     .ready       (IF_ready)       ,
     //to cache
     .Cache_valid (ICache_valid  )   ,
-    .Cache_addr  (ICache_addr   )       
+    .Cache_addr  (ICache_addr   )   ,
+	.io_flush    (realflush		)	
 );
 //IF_ID
 wire [`ysyx_22050550_RegBus]    if_id_pc;
 wire [`ysyx_22050550_InstBus]   if_id_inst;
 wire                            if_id_valid;
-
+wire							if_id_flush = realflush;
 reg [`ysyx_22050550_RegBus]     Rif_id_pc;
 reg [`ysyx_22050550_InstBus]    Rif_id_inst;
 reg                             Rif_id_valid;
-
+reg                             Rif_id_flush;
 ysyx_22050550_Reg # (`ysyx_22050550_REGWIDTH,64'd0)Regif_id_pc(
     .clock(clock),.reset(reset),.wen(Id_ready),.din(if_id_pc),      .dout(Rif_id_pc     ));
 ysyx_22050550_Reg # (`ysyx_22050550_INSTWIDTH,32'd0)Regif_id_inst(
     .clock(clock),.reset(reset),.wen(Id_ready),.din(if_id_inst),    .dout(Rif_id_inst   ));
 ysyx_22050550_Reg # (1,1'd0)Regif_id_valid(
     .clock(clock),.reset(reset),.wen(Id_ready),.din(if_id_valid),   .dout(Rif_id_valid  ));
- 
+ysyx_22050550_Reg # (1,1'd0)Regif_id_flush(
+    .clock(clock),.reset(reset),.wen(Id_ready),.din(if_id_flush),   .dout(Rif_id_flush  ));
+
 // ID_Regfile
 wire [63:0] RegFileID_CSRs_mepc  ;
 wire [63:0] RegFileID_CSRs_mtvec ;
@@ -246,6 +260,8 @@ wire [ 0:0] idex_alumask     ;
 wire [ 2:0] idex_func3       ;       
 //wire [ 6:0] idex_func7       ;       
 wire [63:0] idex_NextPc      ;       
+wire    fence	;
+wire    idex_flush				;
 ysyx_22050550_IDU IDU(
   .reset       (reset)        ,
   .clock       (clock)        ,
@@ -312,7 +328,10 @@ ysyx_22050550_IDU IDU(
   .io_Score_RScore_rdaddr2 (Score_RScore_rdaddr2 ) ,
   .io_Pass_rs1             (Pass_rs1   ) ,     
   .io_Pass_rs2             (Pass_rs2   ) ,
-  .io_Pass_valid           (Pass_valid ) 
+  .io_Pass_valid           (Pass_valid ) ,
+  .io_if_flush			   (Rif_id_flush) ,
+  .io_id_flush			   (idex_flush  ),
+  .io_fence				   (fence	   ) 
   //.printflag                (printflag)
 );
 //wire printflag;
@@ -342,6 +361,7 @@ reg [ 0:0] Ridex_alumask     ;
 reg [ 2:0] Ridex_func3       ;
 //reg [ 6:0] Ridex_func7       ;
 reg [63:0] Ridex_NextPc      ;
+reg		   Ridex_flush		;
 ysyx_22050550_Reg # (`ysyx_22050550_REGWIDTH,64'd0)Regidex_pc       (.clock(clock),.reset(reset),.wen(EX_ID_ready),.din(idex_pc        ),.dout(Ridex_pc       ));
 ysyx_22050550_Reg # (`ysyx_22050550_INSTWIDTH,32'd0)Regidex_inst    (.clock(clock),.reset(reset),.wen(EX_ID_ready),.din(idex_inst      ),.dout(Ridex_inst     ));
 ysyx_22050550_Reg # (1,1'd0)                       Regidex_valid    (.clock(clock),.reset(reset),.wen(EX_ID_ready),.din(idex_valid     ),.dout(Ridex_valid    ));
@@ -366,7 +386,7 @@ ysyx_22050550_Reg # (2,2'd0)                       Regidex_choose   (.clock(cloc
 ysyx_22050550_Reg # (1,1'd0)                       Regidex_alumask  (.clock(clock),.reset(reset),.wen(EX_ID_ready),.din(idex_alumask   ),.dout(Ridex_alumask  ));
 ysyx_22050550_Reg # (3,3'd0)                       Regidex_func3    (.clock(clock),.reset(reset),.wen(EX_ID_ready),.din(idex_func3     ),.dout(Ridex_func3    ));
 ysyx_22050550_Reg # (`ysyx_22050550_REGWIDTH,64'd0)Regidex_NextPc   (.clock(clock),.reset(reset),.wen(EX_ID_ready),.din(idex_NextPc    ),.dout(Ridex_NextPc   ));
- 
+ysyx_22050550_Reg # (1,1'd0)                       Regidex_flush    (.clock(clock),.reset(reset),.wen(EX_ID_ready),.din(idex_flush     ),.dout(Ridex_flush    ));
 //EXU TO LsU
 wire [ 0:0] LS_ready       ; 
 wire [63:0] EXLS_pc        ;
@@ -390,8 +410,7 @@ wire [63:0] EXLS_writedata ;
 wire [ 7:0] EXLS_wmask     ;
 wire [ 2:0] EXLS_func3     ;
 wire [63:0] EXLS_NextPc    ;
-
-
+wire		EXLS_flush	   ;
 
 ysyx_22050550_EXU EXU(
     .clock            (clock)         ,
@@ -441,6 +460,8 @@ ysyx_22050550_EXU EXU(
     .io_EXLS_wmask    (EXLS_wmask     )         ,
     .io_EXLS_func3    (EXLS_func3     )         ,
     .io_EXLS_NextPc   (EXLS_NextPc    )         ,  
+	.io_id_flush	  (Ridex_flush    )			,
+	.io_EXLS_flush    (EXLS_flush	  )			,
     .io_ReadyID_ready (EX_ID_ready    )         
 );
 //EX_LS
@@ -465,6 +486,7 @@ reg [63:0] REXLS_writedata ;
 reg [ 7:0] REXLS_wmask     ;
 reg [ 2:0] REXLS_func3     ;
 reg [63:0] REXLS_NextPc    ;
+reg		   REXLS_flush	   ;
 ysyx_22050550_Reg # (64,64'd0)RegEXLS_pc        (.clock(clock),.reset(reset),.wen(LS_ready),.din(EXLS_pc        ),.dout(REXLS_pc        ));
 ysyx_22050550_Reg # (64,64'd0)RegEXLS_rs2       (.clock(clock),.reset(reset),.wen(LS_ready),.din(EXLS_rs2       ),.dout(REXLS_rs2       ));
 ysyx_22050550_Reg # (32,32'd0)RegEXLS_inst      (.clock(clock),.reset(reset),.wen(LS_ready),.din(EXLS_inst      ),.dout(REXLS_inst      ));
@@ -486,7 +508,7 @@ ysyx_22050550_Reg # (64,64'd0)RegEXLS_writedata (.clock(clock),.reset(reset),.we
 ysyx_22050550_Reg # ( 8, 8'd0)RegEXLS_wmask     (.clock(clock),.reset(reset),.wen(LS_ready),.din(EXLS_wmask     ),.dout(REXLS_wmask     ));
 ysyx_22050550_Reg # ( 3, 3'd0)RegEXLS_func3     (.clock(clock),.reset(reset),.wen(LS_ready),.din(EXLS_func3     ),.dout(REXLS_func3     ));
 ysyx_22050550_Reg # (64,64'd0)RegEXLS_NextPc    (.clock(clock),.reset(reset),.wen(LS_ready),.din(EXLS_NextPc    ),.dout(REXLS_NextPc    ));
- 
+ysyx_22050550_Reg # ( 1, 1'd0)RegEXLS_flush     (.clock(clock),.reset(reset),.wen(LS_ready),.din(EXLS_flush     ),.dout(REXLS_flush     ));
 //LS TO WB
 wire [ 0:0] WB_ready  ;
 wire [63:0] LSWB_pc        ;
@@ -509,6 +531,7 @@ wire [63:0] LSWB_alures    ;
 wire [63:0] LSWB_lsures    ;
 wire [ 2:0] LSWB_func3     ;
 wire [63:0] LSWB_NextPc    ;
+wire        LSWB_flush     ;
 `ifdef  ysyx_22050550_DEVICEUSEAXI
 wire [ 0:0] DevSram_ar_ready   ; 
 wire [ 0:0] DevSram_ar_valid   ; 
@@ -591,6 +614,8 @@ ysyx_22050550_LSU LSU(
 	.io_LSWB_func3    (LSWB_func3     )      ,
     .io_LSWB_NextPc   (LSWB_NextPc    )      ,  
     .io_ReadyEX_ready (LS_ready)             ,
+	.io_EXLS_flush    (REXLS_flush    )		 ,
+	.io_LSWB_flush	  (LSWB_flush     )		 ,
 `ifdef ysyx_22050550_DEVICEUSEAXI
     .io_ar_ready      (DevSram_ar_ready )         ,
     .io_ar_valid      (DevSram_ar_valid )         ,    
@@ -654,6 +679,7 @@ reg [63:0] RLSWB_alures    ;
 reg [63:0] RLSWB_lsures    ;
 reg [ 2:0] RLSWB_func3     ;
 reg [63:0] RLSWB_NextPc    ;
+reg		   RLSWB_flush	   ;
 ysyx_22050550_Reg # (64,64'd0)RegLSWB_pc               (.clock(clock),.reset(reset),.wen(WB_ready),.din(LSWB_pc        ),.dout(RLSWB_pc         ));
 ysyx_22050550_Reg # (64,64'd0)RegLSWB_rs2              (.clock(clock),.reset(reset),.wen(WB_ready),.din(LSWB_rs2       ),.dout(RLSWB_rs2        ));
 ysyx_22050550_Reg # (32,32'd0)RegLSWB_inst             (.clock(clock),.reset(reset),.wen(WB_ready),.din(LSWB_inst      ),.dout(RLSWB_inst       ));
@@ -673,7 +699,8 @@ ysyx_22050550_Reg # ( 1, 1'd0)RegLSWB_SkipRef          (.clock(clock),.reset(res
 ysyx_22050550_Reg # (64,64'd0)RegLSWB_alures           (.clock(clock),.reset(reset),.wen(WB_ready),.din(LSWB_alures    ),.dout(RLSWB_alures     ));
 ysyx_22050550_Reg # (64,64'd0)RegLSWB_lsures           (.clock(clock),.reset(reset),.wen(WB_ready),.din(LSWB_lsures    ),.dout(RLSWB_lsures     ));
 ysyx_22050550_Reg # ( 3, 3'd0)RegLSWB_func3            (.clock(clock),.reset(reset),.wen(WB_ready),.din(LSWB_func3     ),.dout(RLSWB_func3      ));
-ysyx_22050550_Reg # (64,64'd0)RegLSWB_NextPc           (.clock(clock),.reset(reset),.wen(WB_ready),.din(LSWB_NextPc    ),.dout(RLSWB_NextPc     ));
+ysyx_22050550_Reg # (64,64'd0)RegLSWB_NextPc           (.clock(clock),.reset(reset),.wen(WB_ready),.din(LSWB_NextPc    ),.dout(RLSWB_NextPc     )); 
+ysyx_22050550_Reg # ( 1, 1'd0)RegLSWB_flush            (.clock(clock),.reset(reset),.wen(WB_ready),.din(LSWB_flush     ),.dout(RLSWB_flush      ));
  
 //WBU REGFILE
 wire [63:0] WBU_mepc    ;
@@ -697,7 +724,8 @@ wire [0:0] Score_WScore_wen    =  Wbu_wen   ;
 wire [4:0] Score_WScore_waddr  =  Wbu_waddr ;
 wire [63:0] regfilepc	; 
 wire irujump			;
-
+wire iruflush			;
+wire Top_flush			;
 ysyx_22050550_WBU WBU(
     .clock             (clock)            ,
     .reset             (reset)            ,
@@ -755,10 +783,13 @@ ysyx_22050550_WBU WBU(
     .io_ReadyWB_ready  (WB_ready	  )				,
 	.interrupt         (io_interrupt  )				,
 	.clintinterrupt    (clintinterrupt)				,
+	.io_wbu_flush	   (RLSWB_flush	  )				,
+	.io_topflush	   (Top_flush	  )				,	
+	.iruflush		   (iruflush	  )				,
 	.irujump           (irujump		  )				
 );
 //Clint 
-assign Flush = irujump     ; 
+assign Flush = iruflush || fence     ; 
 wire clintinterrupt ;
 wire ClintRen  ;
 wire [63:0] ClintRaddr ;

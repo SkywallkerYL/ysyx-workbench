@@ -67,8 +67,10 @@ module ysyx_22050550_IDU(
                     io_Score_RScore_waddr   ,
                     io_Pass_rs1             ,
                     io_Pass_rs2             ,
-  output            io_Pass_valid 
-
+  output            io_Pass_valid			,
+  input				io_if_flush				,
+  output			io_id_flush				,
+  output			io_fence			
   //input             printflag 
 );
     //assign io_idex_pc = io_IFID_pc;
@@ -113,7 +115,7 @@ module ysyx_22050550_IDU(
     //
     assign InstType = (opcode ==`ysyx_22050550_R1 ||opcode ==`ysyx_22050550_R2 )? R_type:
     (opcode ==`ysyx_22050550_I1 ||opcode ==`ysyx_22050550_I2||opcode ==`ysyx_22050550_I3)||
-    (opcode ==`ysyx_22050550_I4 ||opcode ==`ysyx_22050550_I5) ? I_type :
+    (opcode ==`ysyx_22050550_I4 ||opcode ==`ysyx_22050550_I5||opcode ==`ysyx_22050550_I6) ? I_type :
     (opcode ==`ysyx_22050550_S1 )? S_type :
     (opcode ==`ysyx_22050550_J1 )? J_type :
     (opcode ==`ysyx_22050550_B1 )? B_type :
@@ -550,13 +552,19 @@ module ysyx_22050550_IDU(
     wire realbusy1 = io_Score_RScore_busy1 & (!io_Pass_pass1);
     wire realbusy2 = io_Score_RScore_busy2 & (!io_Pass_pass2);
 
+	//fence.i 整理一下执行fence.i 时要做的事，一个是冲刷流水线  
+	//一个是 Cache 中所有指令缓存都标记为无效，  所有指令缓存中的脏数据写会内
+	//存，以确保内存中的数据与指令缓存中的数据一致  
+	//并且禁止指令流的预取  
+	wire fence  = io_IFID_inst == 32'h0000100f;
+	assign io_fence = fence					;
 
     assign io_IDRegFile_raddr1  = rs1;
     assign io_IDRegFile_raddr2  = rs2;
     assign io_idex_pc           = io_IFID_pc;
     assign io_idex_inst         = io_IFID_inst;
     /************valid握手信号***************/
-    assign io_idex_valid        = io_IFID_valid && (!realbusy1) && (!realbusy2);//*
+    assign io_idex_valid        = io_IFID_valid && (!realbusy1) && (!realbusy2) && !io_if_flush ;//*
     assign io_idex_rs1addr      = rs1;
     assign io_idex_abort        = InstType == Bad_type;
     assign io_idex_rs2          = rData2;
@@ -566,7 +574,8 @@ module ysyx_22050550_IDU(
     assign io_idex_AluOp_op     = ExuOp;
     assign io_idex_waddr        = rd;
     //注意ret指令也会把wen拉高，但是这个时候rd
-    assign io_idex_wen          = (InstType !=S_type) && (InstType != B_type)&& (InstType != Bad_type);
+	//fence.i 指令没有对寄存器的写
+    assign io_idex_wen          = (InstType !=S_type) && (InstType != B_type)&& (InstType != Bad_type)&&(opcode != `ysyx_22050550_I6);
     assign io_idex_wflag        = writeflag ;
     assign io_idex_rflag        = readflag  ;
     assign io_idex_csrflag      = csrflag   ;
@@ -599,6 +608,7 @@ module ysyx_22050550_IDU(
     //assign io_Score_WScore_waddr = io_idex_waddr;
 
     assign io_Pass_valid = io_IFID_valid;
+	assign io_id_flush   = io_if_flush  ;
 
 `ifdef ysyx_22050550_IDUDEBUG
     wire printflagin =  1;

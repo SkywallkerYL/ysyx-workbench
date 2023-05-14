@@ -7,7 +7,7 @@
 //nemu 没有实现CLINT 因此会出错
 void mtimecmpadd(){
   uint64_t old  =  * (volatile uint64_t *)MTIMECMPADDR;
-  *(volatile uint64_t *) MTIMECMPADDR =  (uint64_t) (old+1000000);
+  *(volatile uint64_t *) MTIMECMPADDR =  (uint64_t) (old+10000);
 }
 #define NATIVE
 #ifndef NATIVE

@@ -12,6 +12,7 @@
 `define ysyx_22050550_I3              7'b0000011
 `define ysyx_22050550_I4              7'b1100111 //jalr
 `define ysyx_22050550_I5              7'b1110011 //CSR
+`define ysyx_22050550_I6			  7'b0001111 // fence.i
 `define ysyx_22050550_J1              7'b1101111
 `define ysyx_22050550_R1              7'b0110011
 `define ysyx_22050550_R2              7'b0111011
