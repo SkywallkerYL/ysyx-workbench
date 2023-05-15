@@ -789,7 +789,7 @@ ysyx_22050550_WBU WBU(
 	.irujump           (irujump		  )				
 );
 //Clint 
-assign Flush = iruflush || fence     ; 
+assign Flush = iruflush || fence || Icache_fence || Dcache_fence      ; 
 wire clintinterrupt ;
 wire ClintRen  ;
 wire [63:0] ClintRaddr ;
@@ -921,7 +921,7 @@ wire [ 0:0] Icache_r_last   ;
 wire [63:0] Icache_r_rdata  ; 
 wire [ 1:0] Icache_r_rresp  ;
 wire [ 0:0] Icache_r_ready  ; 
-
+wire		Icache_fence    ;
 ysyx_22050550_CACHE ICache(
     .clock        (clock)             ,
     .reset        (reset)             ,
@@ -960,7 +960,10 @@ ysyx_22050550_CACHE ICache(
     .io_Cache_data   (ICache_Data   )          ,
     .io_Cache_dataok (ICache_dataok )			,         
 
-	.CacheFlush      (Flush			)			,
+	//.CacheFlush      (Flush			)			,
+	.io_fence		 (	fence			)			,
+	.io_wbu_flush	 (	Top_flush		)			,
+	.io_fencei		 (	Icache_fence	)			,
 	.ls_interrupt    (				)			
 
 );
@@ -989,7 +992,7 @@ wire [ 0:0] Lsu_w_last   ;
 wire [ 0:0] Lsu_b_ready  ; 
 wire [ 0:0] Lsu_b_valid  ; 
 wire [ 1:0] Lsu_b_bresp  ; 
-
+wire		Dcache_fence ; 
 ysyx_22050550_CACHE DCache(
     .clock        (clock)             ,
     .reset        (reset)             ,
@@ -1027,7 +1030,10 @@ ysyx_22050550_CACHE DCache(
     .io_Cache_wmask  (Lsu_Cache_wmask    )          ,
     .io_Cache_data   (Lsu_Cache_data     )          ,
     .io_Cache_dataok (Lsu_Cache_dataok   )          ,
-	.CacheFlush      (Flush			)			,
+	//	.CacheFlush      (Flush			)			,
+	.io_fence		 (	fence			)			,
+	.io_wbu_flush	 (	Top_flush		)			,
+	.io_fencei		 (	Dcache_fence	)			,
 	.ls_interrupt    (				)			
 
 );

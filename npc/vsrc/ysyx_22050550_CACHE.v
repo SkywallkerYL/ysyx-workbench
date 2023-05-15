@@ -43,7 +43,10 @@ module ysyx_22050550_CACHE(
     /*********暂时先实现在内部 **********/                   
 
 	/*************CACHE冲刷信号，用来冲刷掉CACHE的状态机*****************/
-	input		CacheFlush					,
+//	input		CacheFlush					,
+	input		io_fence					,
+	input		io_wbu_flush				,
+	output		io_fencei					,
 	/****************访存异常信号，给WBU，进行一次异常处理***************/
 	output		ls_interrupt					
 
@@ -266,10 +269,107 @@ module ysyx_22050550_CACHE(
          
     
     wire [5:0] chooseaddr = {AddrGroup,chooseway};//(AddrGroup <<2) | chooseway;
-    wire axivalid ;//有效且脏的情况下向总线申请 把cache内容写回内存
+    wire axivalid ;//有效且脏的情况下向总线申请 把cache内容写回内存 
+	//fence  相关寄存器  
+	reg fencei;
+	// 受到io_fence时写入   当完成遍历时，拉低 
+	wire fenceen = io_fence ||(fstate == fencevalid && fnext == fenceidle );
+	wire fencein = io_fence ;
+    ysyx_22050550_Reg # (1,1'd0) regfence(
+        .clock(clock),
+        .reset(reset),
+        .wen(fenceen),
+        .din(fencein),
+        .dout(fencei)
+    );
+	//wire FENCE = state == fence ;
+	wire realfence = io_fence || fencei  ;
+	assign io_fencei  = realfence ;
+	reg [5:0] fencecnt ;//cacheline 的计数器 用来遍历每一行 决定当前行是否写回
+	wire fencecnten ;
+	//进入valid态的时候， fencecnt 置0  
+	//当在valid态并且当前行不脏的时候，fencecnt +1 
+	//
+	assign fencecnten = (fstate == fenceidle  && realfence && io_wbu_flush &&IDLE) 
+					||  (fstate == fencevalid && !io_aw_valid  ); 
+	wire [5:0] fencecntin; 
+	assign fencecntin =  (fstate == fenceidle  && realfence && io_wbu_flush &&IDLE) ? 0
+						: (fstate == fencevalid && !io_aw_valid  ) ? fencecnt + 6'd1 : fencecnt ;
+	ysyx_22050550_Reg # (6,6'd0) regfencecnt(
+        .clock(clock),
+        .reset(reset),
+        .wen(fencecnten),
+        .din(fencecntin),
+        .dout(fencecnt) 
+    );
+	wire [5:0] fenceaddr = fencecnt; 
+	//fence 相关的状态机  用来进行dirtycacheline的写回 
+	//只有当主状态机回到idle之后，这边的状态机才会启动
+	//应该是idu收到fence指令后，立刻发送流水线冲刷信号 
+	//直到wbu收到冲刷信号，表明流水线冲刷完成，此时开始执行fencei指令，并且取
+	//指级的取指也要暂停，直到fencei指令执行完毕,这样子就保证了 fencei之前的指
+	//令都全部执行完成
+	localparam fenceidle=2'd0,fencevalid=2'd1 ,fencedirty=2'd2,fenceresp=2'd3;
+	reg [1:0] fstate , fnext ;
+	always@(posedge clock) begin 
+		if (reset) fstate <= fenceidle;
+		else fstate <= fnext ;
+	end 
+
+	always @(*) begin 
+		case (fstate)  
+			fenceidle : begin 
+				if(realfence && io_wbu_flush &&IDLE ) begin 
+					//   保证冲刷的信号是由fencei指令引起的  
+					fnext = fencevalid ;
+				end 
+				else fnext = fenceidle ;
+			end 
+			fencevalid : begin 
+				//计数器开始遍历所有的行   如果当前的行不是脏的话，就单纯的将
+				//valid 给置0 否则就 进行写回操作，将脏的行写回   
+				if(io_aw_valid && io_aw_ready) begin 
+					fnext = fencedirty ;
+				end 
+				else if (io_aw_valid) begin 
+					fnext = fencevalid ;
+				end 
+				else if (fencecnt == 6'd63) begin 
+					fnext = fenceidle ;
+				end 
+				else fnext = fencevalid ;
+			end
+			fencedirty : begin 
+				if(io_w_valid && io_w_ready )begin 
+					if (io_w_last) begin 
+						fnext = fenceresp ;
+					end 
+					else fnext = fencedirty ;
+				end 
+				else fnext = fencedirty ;
+			end 
+			fenceresp : begin 
+				if(io_b_valid && io_b_ready) begin 
+					if(io_b_bresp == 2'b00) begin 
+						fnext = fencevalid ;
+					end 
+					else fnext = fencevalid ;
+				end 
+				else fnext = fenceresp;
+			end 
+			default : fnext = fenceidle ; 
+		endcase 
+	end 
+				
     //cache 状态机 idle :: lookup :: miss :: replace :: refill 
     localparam idle = 3'd0, lookup = 3'd1, miss = 3'd2, replace = 3'd3,refill = 3'd4;
-	localparam wresp = 3'd5; //another state to handle bresp 
+	localparam wresp = 3'd5 ;// fence = 3'd6 ; //another state to handle bresp 
+	//添加fence.i指令的实现     
+	//将cache 内的dirty line 给全部写回 ，然后将多有的cacheline 给置无效。。
+	//cache  内置一个寄存器  ，只有在idle 或者能跳回idle的态，才能跳转到fencei
+	//态。这样子就保证了执行fencei之前，其他的指令都已经执行完成，并且保证了,
+	//并且跳转到fencei 之后，以及fencei信号发送过来的时候，流水线都要发送冲刷
+	//信号 这样子性能虽然会有损失，但是因该可以比较简单的实现  
     reg [2:0] state ;
     reg [2:0] next  ;
     //状态跳转 省掉一些状态的跳转，这样子性能又能快一些了。
@@ -281,10 +381,13 @@ module ysyx_22050550_CACHE(
     
     always@(*) begin
         case (state)
-            idle:begin
+            idle:begin 
 				if(io_Cache_valid) begin
                     next = lookup;
                 end
+				//else if (realfence) begin 
+				//	next = fence ;
+				//end 
                 else begin
                     next = idle;
                 end
@@ -294,7 +397,10 @@ module ysyx_22050550_CACHE(
 				if(cachehit) begin 
                     //读命中 直接读出数据 
                     //写命中 ...
-                    next = idle;
+					//if (realfence) begin 
+					//	next = fence ;
+					//end
+					 next = idle;
                 end
                 else  begin
                     next = miss;
@@ -307,7 +413,7 @@ module ysyx_22050550_CACHE(
                         next = replace;
                     end
                     else begin
-                        next = miss;
+                         next = miss;
                     end
                 end
                 //不需要写回，向总线申请refill
@@ -317,14 +423,17 @@ module ysyx_22050550_CACHE(
                     end   
                     else begin
                         next = miss;
-                    end
-                end
+                     end
+                end 
             end
 			wresp : begin 
 				if(io_b_valid && io_b_ready) begin 
 					if(io_b_bresp == 2'b00) begin // OKAY  
 						next = miss;  
 					end 
+					//else if (realfence) begin 
+					//	next = fence ;
+					//end 
 					//  not OKAY 
 					else next = idle ; 
 				end 
@@ -373,7 +482,7 @@ module ysyx_22050550_CACHE(
     */
     wire IDLE = state == idle; // Tag一直在读 不用管 
     //data addr mux
-    assign useaddr = IDLE||LOOKUP ? hitaddr : chooseaddr;
+    assign useaddr = fstate!=fenceidle ? fenceaddr : IDLE||LOOKUP ? hitaddr : chooseaddr;
     /*
         lookup 
             Hit 
@@ -406,7 +515,8 @@ module ysyx_22050550_CACHE(
         //dirty只在两种情况下写 一个是lookup命中了 写脏  一个是replace完成
     //dirty write   data en mux  en 高有效
     assign dirtyWriteEn = (LOOKUP & cachehit & io_Cache_op) ||  
-                          (REPLACE& io_w_valid & io_w_last); 
+                          (REPLACE& io_w_valid & io_w_last) || 
+						  (fstate==fencedirty &io_w_valid & io_w_last) ; 
     //REFILL? io_r_last& io_r_valid : 0;
     /*
     ysyx_22050550_MuxKeyWithDefault#(2,3,1) DirtyEnMux(
@@ -459,13 +569,13 @@ module ysyx_22050550_CACHE(
     end
     wire MISS = state == miss;
     assign axivalid    = valid[useaddr] && dirty[useaddr];
-    assign io_aw_valid =  MISS & axivalid ;
+    assign io_aw_valid =  (MISS & axivalid) || (fstate==fencevalid && axivalid)  ;
     assign io_aw_len   = 1;
     assign io_aw_size  = 4;
     assign io_aw_burst = 2'b01;
     //要根据当前选中的Tag获取其在主存的块号确定回传的地址 低位舍掉
    
-    wire [`ysyx_22050550_RegBus] addr = {32'b0,Tag[chooseway],AddrGroup,4'b0}; 
+    wire [`ysyx_22050550_RegBus] addr = fstate != fenceidle ? {32'b0,Tag[fenceaddr[1:0]],fenceaddr[5:2],4'b0} : {32'b0,Tag[chooseway],AddrGroup,4'b0}; 
     assign io_aw_addr = Reglen==0? addr : addr + 8;
     //不需要写回 不需要写回的时候用
     assign io_ar_valid = MISS & !(axivalid);
@@ -484,11 +594,11 @@ module ysyx_22050550_CACHE(
                 len = 0的时候 last拉高
     */
     wire REPLACE = state == replace         ;
-    assign io_w_valid   = REPLACE              ;
-    assign io_w_last    = REPLACE&&Reglen == 0 ;
+    assign io_w_valid   = REPLACE ||(fstate == fencedirty )       ;
+    assign io_w_last    = (REPLACE&&Reglen == 0)||(fstate == fencedirty && Reglen == 0) ;
     assign io_w_data    = Reglen ? DataRead[63:0] : DataRead[127:64];
     assign io_w_strb    = 8'hff;
-    assign io_b_ready   = state == wresp ;
+    assign io_b_ready   = state == wresp || (fstate == fenceresp ) ;
     /*
         refill :
             r valid 并且ready的时候
@@ -517,15 +627,16 @@ module ysyx_22050550_CACHE(
     */
     //valid只有一种情况需要写入  refill完成写valid
 	//现在新增了一种情况， 就是读写异常，此时需要把 valid 写无效。
-	//一个是读异常 此时     state == refill  resp!=0
+	//一个是读异常 此时     state == refill  resp!0
 	//一个是写异常 此时     state == wresp   resp != 0
 	//这个功能还是暂时不实现了。先解决clint中断的问题。
 	//还有一个是当冲刷信号到来的时候，要对已经写入的valid行置无效
 	//新增一个 flushwrite 信号 注意usaddr 是hitaddr是，要检验是否是真的hit  
 	//感觉很复杂 ，先不实现
 	//wire flushwrite = CacheFlush 
-    assign validWriteEn = REFILL && io_r_last& io_r_valid;
-    assign validWriteData = 1'b1;//&&(!realflush);
+	//当处于fencevalid 状态并且不需要写回的时候 将valid 置无效   
+    assign validWriteEn = (REFILL && io_r_last& io_r_valid) ||(fstate ==fencevalid && !io_aw_valid );
+    assign validWriteData = REFILL && io_r_last & io_r_valid ;//&&(!realflush);
     assign io_r_ready = REFILL;
     //向tag和mem写  valid 拉高 dirty 拉低
     //只有这样个状态需要向mem写入   写入都是低位有效
@@ -539,6 +650,7 @@ module ysyx_22050550_CACHE(
     //这样子该后可以在部分周期内省掉对寄存器的操作，仿真更快
     assign DataCen = 1'b0;
     //print一些debug信息
+	  
 `ifdef ysyx_22050550_CACHEDEBUG
     always@(posedge clock) begin
         //pc == `ysyx_22050550_DEBUGPC
@@ -554,6 +666,6 @@ module ysyx_22050550_CACHE(
     end
     end
 `endif 
+endmodule 
 
 
-endmodule
