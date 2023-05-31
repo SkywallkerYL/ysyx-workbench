@@ -194,7 +194,7 @@ ysyx_22050550_IFU IFU(
 wire [`ysyx_22050550_RegBus]    if_id_pc;
 wire [`ysyx_22050550_InstBus]   if_id_inst;
 wire                            if_id_valid;
-wire							if_id_flush = realflush;
+wire							if_id_flush = realflush && !ICache_busy; 
 reg [`ysyx_22050550_RegBus]     Rif_id_pc;
 reg [`ysyx_22050550_InstBus]    Rif_id_inst;
 reg                             Rif_id_valid;
@@ -649,7 +649,7 @@ ysyx_22050550_LSU LSU(
     .io_Cache_wmask   (Lsu_Cache_wmask    )         ,
     .io_Cache_data    (Lsu_Cache_data     )         ,
     .io_Cache_dataok  (Lsu_Cache_dataok   )			,        
-
+	.io_Cache_busy	  (Dcache_busy		  )			,
 	.ren				(ClintRen			)		,
 	.wen				(ClintWen			)		,
 	.raddr				(ClintRaddr			)		,
@@ -922,6 +922,7 @@ wire [63:0] Icache_r_rdata  ;
 wire [ 1:0] Icache_r_rresp  ;
 wire [ 0:0] Icache_r_ready  ; 
 wire		Icache_fence    ;
+wire		ICache_busy		;
 ysyx_22050550_CACHE ICache(
     .clock        (clock)             ,
     .reset        (reset)             ,
@@ -959,7 +960,7 @@ ysyx_22050550_CACHE ICache(
     .io_Cache_wmask  (0)          ,
     .io_Cache_data   (ICache_Data   )          ,
     .io_Cache_dataok (ICache_dataok )			,         
-
+	.io_Cache_busy   (ICache_busy	)			,
 	//.CacheFlush      (Flush			)			,
 	.io_fence		 (	fence			)			,
 	.io_wbu_flush	 (	Top_flush		)			,
@@ -993,6 +994,7 @@ wire [ 0:0] Lsu_b_ready  ;
 wire [ 0:0] Lsu_b_valid  ; 
 wire [ 1:0] Lsu_b_bresp  ; 
 wire		Dcache_fence ; 
+wire		Dcache_busy  ;
 ysyx_22050550_CACHE DCache(
     .clock        (clock)             ,
     .reset        (reset)             ,
@@ -1030,6 +1032,7 @@ ysyx_22050550_CACHE DCache(
     .io_Cache_wmask  (Lsu_Cache_wmask    )          ,
     .io_Cache_data   (Lsu_Cache_data     )          ,
     .io_Cache_dataok (Lsu_Cache_dataok   )          ,
+	.io_Cache_busy   (Dcache_busy)					,
 	//	.CacheFlush      (Flush			)			,
 	.io_fence		 (	fence			)			,
 	.io_wbu_flush	 (	Top_flush		)			,
@@ -1088,13 +1091,13 @@ ysyx_22050550_RamArbiter RamArbiter(
 wire [ 0:0] Sram_ar_valid     ;
 wire [63:0] Sram_ar_bits_addr ;
 wire [ 0:0] Sram_r_ready      ;
-wire [ 7:0] Sram_ar_len      = 8'd1    ;
-wire [ 2:0] Sram_ar_size     = 4        ;
+wire [ 7:0] Sram_ar_len      = 8'd0    ;
+wire [ 2:0] Sram_ar_size     = 2        ;
 wire [ 1:0] Sram_ar_burst    = 2'b01   ;
 wire [ 0:0] Sram_aw_valid     ;
 wire [63:0] Sram_aw_bits_addr ;
-wire [ 7:0] Sram_aw_len      = 8'd1    ;
-wire [ 2:0] Sram_aw_size     = 4       ;
+wire [ 7:0] Sram_aw_len      = 8'd0    ;
+wire [ 2:0] Sram_aw_size     = 2       ;
 wire [ 1:0] Sram_aw_burst    = 2'b01   ;
 wire [ 0:0] Sram_w_valid      ;
 wire [63:0] Sram_w_bits_data  ;
@@ -1176,13 +1179,13 @@ wire [ 0:0] TopSram_ar_valid     = DevSram_ar_valid || Sram_ar_valid ;
 wire [63:0] TopSram_ar_bits_addr = DevSram_ar_valid ? DevSram_ar_addr : Sram_ar_valid ? Sram_ar_bits_addr : 0;
 wire [ 0:0] TopSram_r_ready      = DevSram_r_ready || Sram_r_ready  ;
 //ready 信号应该不能与valid相关联
-wire [ 7:0] TopSram_ar_len      = DevSram_ar_valid ? DevSram_ar_len : Sram_ar_valid ? Sram_ar_len : 8'd1   ;
-wire [ 2:0] TopSram_ar_size     = DevSram_ar_valid ? DevSram_ar_size : Sram_ar_valid ? Sram_ar_size: 3'd4   ;
+wire [ 7:0] TopSram_ar_len      = DevSram_ar_valid ? DevSram_ar_len : Sram_ar_valid ? Sram_ar_len : 8'd0   ;
+wire [ 2:0] TopSram_ar_size     = DevSram_ar_valid ? DevSram_ar_size : Sram_ar_valid ? Sram_ar_size: 3'd2  ;
 wire [ 1:0] TopSram_ar_burst    = 2'b01   ;
 wire [ 0:0] TopSram_aw_valid     = DevSram_aw_valid || Sram_aw_valid  ;
 wire [63:0] TopSram_aw_bits_addr = DevSram_aw_valid ? DevSram_aw_addr : Sram_aw_valid ? Sram_aw_bits_addr : 0;
-wire [ 7:0] TopSram_aw_len      = DevSram_aw_valid ? DevSram_aw_len : Sram_aw_valid ? Sram_aw_len : 1    ;
-wire [ 2:0] TopSram_aw_size     = DevSram_aw_valid ? DevSram_aw_size : Sram_aw_valid ? Sram_aw_size : 4    ;
+wire [ 7:0] TopSram_aw_len      = DevSram_aw_valid ? DevSram_aw_len : Sram_aw_valid ? Sram_aw_len : 0   ;
+wire [ 2:0] TopSram_aw_size     = DevSram_aw_valid ? DevSram_aw_size : Sram_aw_valid ? Sram_aw_size : 2    ;
 wire [ 1:0] TopSram_aw_burst    = 2'b01   ;
 wire [ 0:0] TopSram_w_valid     = DevSram_w_valid || Sram_w_valid  ;
 wire [63:0] TopSram_w_bits_data = DevSram_w_valid ? DevSram_w_data :Sram_w_bits_data  ;

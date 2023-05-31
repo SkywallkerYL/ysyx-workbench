@@ -89,6 +89,7 @@ module ysyx_22050550_LSU(
     output [7:0]  io_Cache_wmask            ,
     input  [63:0] io_Cache_data             ,
     input         io_Cache_dataok			,          
+	input		  io_Cache_busy				,
     //To IDU for DEGUB
     //output printflag 
 	// CLINT 
@@ -237,7 +238,7 @@ module ysyx_22050550_LSU(
     assign io_Cache_addr  = io_EXLS_alures                          ;  
     assign io_Cache_wdata = io_EXLS_writedata                       ;  
     assign io_Cache_wmask = io_EXLS_wmask                           ;  
-    wire cachebusy = (Cache == Cachewait && io_Cache_valid) || (Cache==CacheBusy && (!(io_Cache_dataok)));
+    wire cachebusy = (io_Cache_busy)  || (Cache == Cachewait && io_Cache_valid) || (Cache==CacheBusy && (!(io_Cache_dataok)));
     wire lsubusy = DeviceReadBusy || DeviceWriteBusy || cachebusy   ;
     wire lsuvalid = !lsubusy                                        ;
     wire [`ysyx_22050550_RegBus] cachedata = io_Cache_data          ; 

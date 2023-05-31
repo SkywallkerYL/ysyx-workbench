@@ -19,7 +19,8 @@ int main() {
 			k ++;
 		}
 	}
-
+	
+//	asm volatile("fence.i");
 	check(k == 4);
 
 	return 0;

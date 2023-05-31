@@ -1,4 +1,4 @@
-ID ?= 00000000
+ID ?= 22050550
 
 TOP = ysyx_$(ID)
 V_FILE = ../soc/$(TOP).v

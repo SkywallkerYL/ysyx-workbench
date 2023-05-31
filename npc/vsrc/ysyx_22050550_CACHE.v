@@ -39,6 +39,7 @@ module ysyx_22050550_CACHE(
     input  [7:0]  io_Cache_wmask            ,
     output [63:0] io_Cache_data             ,
     output        io_Cache_dataok           ,
+	output		  io_Cache_busy				,
     /*********DataArray·的Sram 例化在顶层 这里内部只保留tagarray********/
     /*********暂时先实现在内部 **********/                   
 
@@ -52,6 +53,9 @@ module ysyx_22050550_CACHE(
 
 );
 	assign ls_interrupt  = 1'b0;
+	wire wrbusy = next != idle ;
+	wire fencebusy = fnext != fenceidle; 
+	assign io_Cache_busy  = wrbusy || fencebusy ; 
 	//用一个flush的寄存器   
 	//如果冲刷的时候   CACHE不在idle 状态， 那么 flush寄存器拉高，
 	//直到当前cache的操作完成发送dataok后，再把flush拉低。   并且在此期间如果
@@ -104,7 +108,7 @@ module ysyx_22050550_CACHE(
     /**** Tag例化4块，同时对一组内每一路读出Tag*****/
     //不要Last那个周期写，进入refill了 valid了就写，这样子下个周期就能读Tag，下下个周期进入lookup就能拿到tag的数据
 	wire [`ysyx_22050550_TagBus] Tag[3:0];
-    wire Tag0Wen = (!io_r_last && REFILL && io_r_valid && chooseway==2'd0) ;
+    wire Tag0Wen = ( REFILL && io_r_valid && chooseway==2'd0) ;
     wire [`ysyx_22050550_TagBus] Tag0Data = AddrTag; //写数据
     reg [`ysyx_22050550_TagWidth-1:0] Tag0 [0:`ysyx_22050550_GroupNum-1];
     assign Tag[0] = Tag0[AddrGroup];
@@ -117,7 +121,7 @@ module ysyx_22050550_CACHE(
                 .din(Tag0Data),.dout(Tag0[i]));
         end
     endgenerate
-    wire Tag1Wen = (!io_r_last && REFILL && io_r_valid && chooseway==2'd1);
+    wire Tag1Wen = ( REFILL && io_r_valid && chooseway==2'd1);
     wire [`ysyx_22050550_TagBus] Tag1Data = AddrTag; //写数据
     reg [`ysyx_22050550_TagWidth-1:0] Tag1 [0:`ysyx_22050550_GroupNum-1];
     assign Tag[1] = Tag1[AddrGroup];
@@ -130,7 +134,7 @@ module ysyx_22050550_CACHE(
                 .din(Tag1Data),.dout(Tag1[i]));
         end
     endgenerate
-    wire Tag2Wen = (!io_r_last && REFILL && io_r_valid && chooseway==2'd2);
+    wire Tag2Wen = (REFILL && io_r_valid && chooseway==2'd2);
     wire [`ysyx_22050550_TagBus] Tag2Data = AddrTag; //写数据
     reg [`ysyx_22050550_TagWidth-1:0] Tag2 [0:`ysyx_22050550_GroupNum-1];
     assign Tag[2] = Tag2[AddrGroup];
@@ -143,7 +147,7 @@ module ysyx_22050550_CACHE(
                 .din(Tag2Data),.dout(Tag2[i]));
         end
     endgenerate
-    wire Tag3Wen = (!io_r_last && REFILL && io_r_valid && chooseway==2'd3);
+    wire Tag3Wen = (REFILL && io_r_valid && chooseway==2'd3);
     wire [`ysyx_22050550_TagBus] Tag3Data = AddrTag; //写数据
     reg [`ysyx_22050550_TagWidth-1:0] Tag3 [0:`ysyx_22050550_GroupNum-1];
     assign Tag[3] = Tag3[AddrGroup];
@@ -183,14 +187,20 @@ module ysyx_22050550_CACHE(
     endgenerate
     //记录对应组 某一路是否命中
     wire [3:0] hit   ;
+	reg [31:0] RegCacheAddr; 
+	always @(posedge clock) begin 
+		if (reset) RegCacheAddr <= 0 ;
+		else if(io_Cache_valid) RegCacheAddr <= io_Cache_addr[31:0] ; 
+	end 
+	wire[31:0]  true_cache_addr = io_Cache_valid ? io_Cache_addr[31:0] : RegCacheAddr ; 
     //wire [`ysyx_22050550_AddrWidth-1:0] AddrTagshift =(io_Cache_addr >> (`ysyx_22050550_GroupWidth+`ysyx_22050550_BlockWidth));
     //wire [`ysyx_22050550_TagBus] AddrTag = AddrTagshift[`ysyx_22050550_TagBus];
     //移位的操作好像也会降低性能，能够不移位的地方就换成位拼接
-    wire [`ysyx_22050550_TagBus]  AddrTag    = io_Cache_addr[31:`ysyx_22050550_GroupWidth+`ysyx_22050550_BlockWidth];// : Cache_addr[31:8];
-    wire [`ysyx_22050550_BlockBus]AddrBlock  = io_Cache_addr[`ysyx_22050550_BlockBus];// : Cache_addr[3:0];
+    wire [`ysyx_22050550_TagBus]  AddrTag    = true_cache_addr[31:`ysyx_22050550_GroupWidth+`ysyx_22050550_BlockWidth];// : Cache_addr[31:8];
+    wire [`ysyx_22050550_BlockBus]AddrBlock  = true_cache_addr[`ysyx_22050550_BlockBus];// : Cache_addr[3:0];
     //wire [`ysyx_22050550_AddrWidth-1:0]AddrGroupshift = (io_Cache_addr >> (`ysyx_22050550_BlockWidth));
     //wire [`ysyx_22050550_GroupBus] AddrGroup = AddrGroupshift[`ysyx_22050550_GroupBus];
-    wire [`ysyx_22050550_GroupBus] AddrGroup = io_Cache_addr[7:`ysyx_22050550_BlockWidth];// : Cache_addr[7:4];
+    wire [`ysyx_22050550_GroupBus] AddrGroup = true_cache_addr[7:`ysyx_22050550_BlockWidth];// : Cache_addr[7:4];
     wire [`ysyx_22050550_RegBus] DataOut;
     //根据块内地址确定输出的   默认32位对齐
     //实际情况是存在非对齐的访问，这里不用MUX来写了，直接通过移位解决。
@@ -252,7 +262,7 @@ module ysyx_22050550_CACHE(
     always @(posedge clock) begin
         if (reset)
           lfsr <= 16'b1;	
-        else
+        else 
           lfsr <= {lfsr[0] ^ lfsr[2] ^ lfsr[3] ^ lfsr[5], lfsr[15:1]};	
     end 
     assign random = lfsr[1:0];
@@ -382,7 +392,7 @@ module ysyx_22050550_CACHE(
     always@(*) begin
         case (state)
             idle:begin 
-				if(io_Cache_valid) begin
+				if(io_Cache_valid && fnext == fenceidle) begin
                     next = lookup;
                 end
 				//else if (realfence) begin 
@@ -458,7 +468,13 @@ module ysyx_22050550_CACHE(
                 //从RAM读取 last => lookup
 				if(io_r_valid && io_r_ready)begin
                     if (io_r_last) begin
-                        next = lookup;
+						if (Reglen == 2'd3) begin 
+							next = lookup; 
+						end 
+						//只读完了一个，说明还要接着读，返回miss  
+						else begin 
+							next = miss ;
+						end 
                     end
                     else begin
                         next = refill;
@@ -515,8 +531,8 @@ module ysyx_22050550_CACHE(
         //dirty只在两种情况下写 一个是lookup命中了 写脏  一个是replace完成
     //dirty write   data en mux  en 高有效
     assign dirtyWriteEn = (LOOKUP & cachehit & io_Cache_op) ||  
-                          (REPLACE& io_w_valid & io_w_last) || 
-						  (fstate==fencedirty &io_w_valid & io_w_last) ; 
+                          (REPLACE& io_w_valid & io_w_last &(Reglen == 2'd3)) || 
+						  (fstate==fencedirty &io_w_valid & io_w_last & (Reglen == 2'd3)) ; 
     //REFILL? io_r_last& io_r_valid : 0;
     /*
     ysyx_22050550_MuxKeyWithDefault#(2,3,1) DirtyEnMux(
@@ -554,38 +570,55 @@ module ysyx_22050550_CACHE(
                 用一个len 寄存器记录
                 ar len = 1    ar size = 4  
     */
-    reg Reglen ;
+   // 没有突发传输了  Reglen 只有在  一次传输结束的时候，才+  
+   // 进入下一次传输后 状态机的跳转也该一下，
+   // read 只有Reglen = 1 的时候才标志结束    否则跳回miss 进行下一次传输  
+   // write 以axialid 为标志  ，修改dirty的写即可
+    reg [1:0] Reglen ;
     always @ (posedge clock) begin
         if (reset) begin
-            Reglen <= 1'b0;
+            Reglen <=2'b00;
         end
-        else if((io_aw_valid && io_aw_ready) || (io_ar_valid && io_ar_ready))  begin
-            Reglen <= 1'b1;
+        //else if((io_aw_valid && io_aw_ready) || (io_ar_valid && io_ar_ready))  begin
+        //    Reglen <= 1'b1;
+        //end
+        else if((io_w_valid && io_w_ready))  begin 
+            if(io_w_last )  Reglen <= Reglen + 2'b1;
+            //else                        Reglen <=  Reglen - 1'b1;
         end
-        else if((io_w_valid && io_w_ready) || (io_r_valid&&io_r_ready))  begin 
-            if(io_w_last || io_r_last)  Reglen <= 1'b0;
-            else                        Reglen <=  Reglen - 1'b1;
-        end
+		else if ((io_r_valid && io_r_ready)) begin 
+			if (io_r_last) Reglen <= Reglen + 2'b1 ; 
+		end 
     end
     wire MISS = state == miss;
     assign axivalid    = valid[useaddr] && dirty[useaddr];
     assign io_aw_valid =  (MISS & axivalid) || (fstate==fencevalid && axivalid)  ;
-    assign io_aw_len   = 1;
-    assign io_aw_size  = 4;
+    assign io_aw_len   = 0;
+    assign io_aw_size  = 2;
     assign io_aw_burst = 2'b01;
-    //要根据当前选中的Tag获取其在主存的块号确定回传的地址 低位舍掉
-   
-    wire [`ysyx_22050550_RegBus] addr = fstate != fenceidle ? {32'b0,Tag[fenceaddr[1:0]],fenceaddr[5:2],4'b0} : {32'b0,Tag[chooseway],AddrGroup,4'b0}; 
-    assign io_aw_addr = Reglen==0? addr : addr + 8;
+    //要根据当前选中的Tag获取其在主存的块号确定回传的地址 低位舍掉 
+	wire [`ysyx_22050550_TagBus] fenceTag = fenceaddr[1:0] == 2'd0 ? Tag0[fenceaddr[5:2]] : 
+											fenceaddr[1:0] == 2'd1 ? Tag1[fenceaddr[5:2]] :
+											fenceaddr[1:0] == 2'd2 ? Tag2[fenceaddr[5:2]] :
+											fenceaddr[1:0] == 2'd3 ? Tag3[fenceaddr[5:2]] : 0;
+    wire [`ysyx_22050550_RegBus] addr = fstate != fenceidle ? {32'b0,fenceTag,fenceaddr[5:2],4'b0} : {32'b0,Tag[chooseway],AddrGroup,4'b0}; 
+    assign io_aw_addr = Reglen==0? addr		: 
+						Reglen==1? addr + 4 :
+						Reglen==2? addr + 8 : 
+						Reglen==3? addr + 12 : addr ;
     //不需要写回 不需要写回的时候用
     assign io_ar_valid = MISS & !(axivalid);
-    assign io_ar_len   = 1;
+    assign io_ar_len   = 0;
     assign io_ar_burst = 2'b01; 
-    assign io_ar_size  = 4;
+    assign io_ar_size  = 2;
     //Reglen 当前这个周期还是  miss这个周期  下一个周期变1
      //这里其实应该有一个addrreg一直加的，直到last满足，但是只有两种情况，就简单一点了。
      //其实这里的addr不用+ sram那边检测到突发传输，会自动+地址
-    assign io_ar_addr  = {32'b0,AddrTag,AddrGroup,4'b0} ;//Reglen==0? {AddrTag,AddrGroup,4'b0} : {AddrTag,AddrGroup,4'b0} + 8;
+    assign io_ar_addr  = Reglen == 0 ? {32'b0,AddrTag,AddrGroup,4'b0} :  
+						 Reglen == 1 ? {32'b0,AddrTag,AddrGroup,4'd4} : 
+						 Reglen == 2 ? {32'b0,AddrTag,AddrGroup,4'd8} : 
+						 Reglen == 3 ? {32'b0,AddrTag,AddrGroup,4'd12}: {32'b0,AddrTag,AddrGroup,4'b0};
+
     /*
         replace :
             w valid 并且 ready的时候
@@ -595,9 +628,13 @@ module ysyx_22050550_CACHE(
     */
     wire REPLACE = state == replace         ;
     assign io_w_valid   = REPLACE ||(fstate == fencedirty )       ;
-    assign io_w_last    = (REPLACE&&Reglen == 0)||(fstate == fencedirty && Reglen == 0) ;
-    assign io_w_data    = Reglen ? DataRead[63:0] : DataRead[127:64];
-    assign io_w_strb    = 8'hff;
+    assign io_w_last    = io_w_valid ;//(REPLACE&&Reglen == 0)||(fstate == fencedirty && Reglen == 0) ;
+    assign io_w_data    = Reglen == 0  ? {{32'd0},   DataRead[31:0]  } : 
+						  Reglen ==	1  ? {{32'd0},	 DataRead[63:32] } :
+						  Reglen == 2  ? {{32'd0},   DataRead[95:64] } :
+						  Reglen == 3  ? {{32'd0},   DataRead[127:96]} : 64'b0 ;
+	
+    assign io_w_strb    = 8'h0f;
     assign io_b_ready   = state == wresp || (fstate == fenceresp ) ;
     /*
         refill :
@@ -613,9 +650,14 @@ module ysyx_22050550_CACHE(
     */
     wire REFILL = state == refill;
         //refill情况下的写入
-    wire[127:0] refilldata = !io_r_last ? {{64{1'b0}} ,io_r_rdata} : {io_r_rdata,{64{1'b0}}};
-    wire[127:0] refillben  = !io_r_last ? {{64{1'b1}} ,{64{1'b0}}} : {{64{1'b0}},{64{1'b1}}};
-
+    wire[127:0] refilldata =Reglen == 0 ? {{96{1'b0}} ,io_r_rdata[31:0]} :
+							Reglen == 1 ? {{64{1'b0}} ,io_r_rdata[31:0],{32{1'b0}}} :
+							Reglen == 2 ? {{32{1'b0}} ,io_r_rdata[31:0],{64{1'b0}}} :
+							Reglen == 3 ? {io_r_rdata[31:0],{96{1'b0}}} :0 ;
+    wire[127:0] refillben  = Reglen == 0 ? {{32{1'b1}},{32{1'b1}},{32{1'b1}},{32{1'b0}}} : 
+							 Reglen == 1 ? {{32{1'b1}},{32{1'b1}},{32{1'b0}},{32{1'b1}}} :
+							 Reglen == 2 ? {{32{1'b1}},{32{1'b0}},{32{1'b1}},{32{1'b1}}} :	
+							 Reglen == 3 ? {{32{1'b0}},{32{1'b1}},{32{1'b1}},{32{1'b1}}} : {128{1'b1}} ; 
                          //:REPLACE ? !(io_w_valid & io_w_last): 0;
     // REFILL? !(io_r_last& io_r_valid) : 0;
     /*
@@ -635,8 +677,8 @@ module ysyx_22050550_CACHE(
 	//感觉很复杂 ，先不实现
 	//wire flushwrite = CacheFlush 
 	//当处于fencevalid 状态并且不需要写回的时候 将valid 置无效   
-    assign validWriteEn = (REFILL && io_r_last& io_r_valid) ||(fstate ==fencevalid && !io_aw_valid );
-    assign validWriteData = REFILL && io_r_last & io_r_valid ;//&&(!realflush);
+    assign validWriteEn = (REFILL && io_r_last& io_r_valid && Reglen == 3) ||(fstate ==fencevalid && !io_aw_valid );
+    assign validWriteData = REFILL && io_r_last & io_r_valid && (Reglen == 3);//&&(!realflush);
     assign io_r_ready = REFILL;
     //向tag和mem写  valid 拉高 dirty 拉低
     //只有这样个状态需要向mem写入   写入都是低位有效

@@ -9,7 +9,7 @@ void mtimecmpadd(){
   uint64_t old  =  * (volatile uint64_t *)MTIMECMPADDR;
   *(volatile uint64_t *) MTIMECMPADDR =  (uint64_t) (old+10000);
 }
-#define NATIVE
+//#define NATIVE
 #ifndef NATIVE
 void MTIP_reset(){
   uintptr_t mstatus,mie;
@@ -18,6 +18,9 @@ void MTIP_reset(){
   //printf("mie:%x, mstatus:%x\n",mie,mstatus);
   asm volatile("csrw mstatus, %0" : : "r"(mstatus|(1<<3)));
   asm volatile("csrw mie, %0" : : "r"(mie|(1<<7)));
+}
+void fenceitest(){
+	asm volatile("fence.i");
 }
 #endif
 Context *simple_trap(Event ev, Context *ctx) {
@@ -41,8 +44,10 @@ void hello_intr() {
   io_read(AM_INPUT_CONFIG);
   iset(1);
 #ifndef NATIVE 
+  fenceitest();
   MTIP_reset();
   mtimecmpadd();
+  //fenceitest();
 #endif 
   int n = 100;
   //i最大迭代比较小的时候会出问题
@@ -53,6 +58,7 @@ void hello_intr() {
   while (n--) {
     for (volatile int i = 0; i < 1000; i++) ;
     yield();
+//	fenceitest();
     //n++;
     //break;
   }

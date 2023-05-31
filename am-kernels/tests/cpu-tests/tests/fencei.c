@@ -6,7 +6,7 @@
  ************************************************************************/
 
 #include<stdio.h>
-#define NATIVE_H
+//#define NATIVE_H
 #ifndef NATIVE_H 
 
 void fenceitest(){
@@ -15,7 +15,18 @@ void fenceitest(){
 
 
 int main() {
+	int a[32];
+	for (int i = 0 ; i < 32 ; i ++) {
+		a[i] = i;
+	}
+
 	fenceitest();
+
+	for (int i = 0 ; i < 32 ; i ++ ){
+		a[i] = -i;
+	}
+	if (a[0] != 0 ) return -1 ;
+	return 0 ;
 }
 
 #endif 
