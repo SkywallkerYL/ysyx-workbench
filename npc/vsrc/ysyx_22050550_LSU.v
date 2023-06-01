@@ -219,7 +219,7 @@ module ysyx_22050550_LSU(
     assign io_aw_burst = 2'b01; 
     assign io_w_valid  = Wstate == swrite;
     assign io_w_data   = (storedouble && reglen == 1) ? {{32{1'b0}},io_EXLS_writedata[63:32]} : {{32{1'b0}},io_EXLS_writedata[31:0]} ;
-    assign io_w_strb   = (storedouble && reglen == 1) ? {{32{1'b0}},io_EXLS_wmask[7:4]} : io_EXLS_wmask; 
+    assign io_w_strb   = (storedouble && reglen == 1) ? {{4{1'b0}},io_EXLS_wmask[7:4]} : io_EXLS_wmask; 
     assign io_w_last   = 1'b1;
     assign io_b_ready  = Wstate == sresp ; 
     wire DeviceWriteBusy = (Wstate == swaitW &&(io_aw_ready&&io_aw_valid))||(Wstate==swaitreadyW)||(Wstate == sresp && (!(storedouble && (reglen == 0))));

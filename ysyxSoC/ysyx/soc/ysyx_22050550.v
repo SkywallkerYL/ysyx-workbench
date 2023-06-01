@@ -1321,7 +1321,7 @@ ysyx_22050550_IFU IFU(
 wire [`ysyx_22050550_RegBus]    if_id_pc;
 wire [`ysyx_22050550_InstBus]   if_id_inst;
 wire                            if_id_valid;
-wire							if_id_flush = realflush;
+wire							if_id_flush = realflush && !Icache_busy ;
 reg [`ysyx_22050550_RegBus]     Rif_id_pc;
 reg [`ysyx_22050550_InstBus]    Rif_id_inst;
 reg                             Rif_id_valid;
@@ -1780,7 +1780,7 @@ ysyx_22050550_LSU LSU(
     .io_Cache_wmask   (Lsu_Cache_wmask    )         ,
     .io_Cache_data    (Lsu_Cache_data     )         ,
     .io_Cache_dataok  (Lsu_Cache_dataok   )			,        
-
+	.io_Cache_busy	 (Dcache_busy )					,
 	.ren				(ClintRen			)		,
 	.wen				(ClintWen			)		,
 	.raddr				(ClintRaddr			)		,
@@ -2072,6 +2072,7 @@ wire [63:0]	Icache_w_data	;
 wire [ 7:0] Icache_w_strb	;
 wire		Icache_w_last	;
 wire		Icache_b_ready	;
+wire		Icache_busy		; 
 ysyx_22050550_CACHE ICache(
     .clock        (clock)             ,
     .reset        (reset)             ,
@@ -2109,7 +2110,7 @@ ysyx_22050550_CACHE ICache(
     .io_Cache_wmask  (0)          ,
     .io_Cache_data   (ICache_Data   )          ,
     .io_Cache_dataok (ICache_dataok )			,         
-
+	.io_Cache_busy	(Icache_busy	)			,
 	.io_sram_addr	(Icache_sram_addr), 
     .io_sram_cen	(Icache_sram_cen), 
     .io_sram_wen	(Icache_sram_wen), 
@@ -2155,7 +2156,7 @@ wire [ 0:0] Dcache_sram_wen  ;
 wire [127:0]Dcache_sram_wmask;
 wire [127:0]Dcache_sram_wdata;
 wire [127:0]Dcache_sram_rdata;
-
+wire		Dcache_busy		;
 ysyx_22050550_CACHE DCache(
     .clock        (clock)             ,
     .reset        (reset)             ,
@@ -2193,7 +2194,7 @@ ysyx_22050550_CACHE DCache(
     .io_Cache_wmask  (Lsu_Cache_wmask    )          ,
     .io_Cache_data   (Lsu_Cache_data     )          ,
     .io_Cache_dataok (Lsu_Cache_dataok   )          ,
-		
+	.io_Cache_busy	(Dcache_busy		)			,		
 	.io_sram_addr	(Dcache_sram_addr), 
     .io_sram_cen	(Dcache_sram_cen), 
     .io_sram_wen	(Dcache_sram_wen), 
@@ -2289,8 +2290,8 @@ wire [ 0:0] TopSram_ar_valid     = DevSram_ar_valid || Sram_ar_valid ;
 wire [63:0] TopSram_ar_bits_addr = DevSram_ar_valid ? DevSram_ar_addr : Sram_ar_valid ? Sram_ar_bits_addr : 0;
 wire [ 0:0] TopSram_r_ready      = DevSram_r_ready || Sram_r_ready  ;
 //ready 信号应该不能与valid相关联
-wire [ 7:0] TopSram_ar_len      = DevSram_ar_valid ? DevSram_ar_len : Sram_ar_valid ? Sram_ar_len : 8'd1   ;
-wire [ 2:0] TopSram_ar_size     = DevSram_ar_valid ? DevSram_ar_size : Sram_ar_valid ? Sram_ar_size: 3'd4   ;
+wire [ 7:0] TopSram_ar_len      = DevSram_ar_valid ? DevSram_ar_len : Sram_ar_valid ? Sram_ar_len : 8'd0   ;
+wire [ 2:0] TopSram_ar_size     = DevSram_ar_valid ? DevSram_ar_size : Sram_ar_valid ? Sram_ar_size: 3'd2   ;
 wire [ 1:0] TopSram_ar_burst    = DevSram_ar_valid ? DevSram_ar_burst : Sram_ar_valid ? Sram_ar_burst : 2'b01   ;
 wire [ 0:0] TopSram_aw_valid     = DevSram_aw_valid || Sram_aw_valid  ;
 wire [63:0] TopSram_aw_bits_addr = DevSram_aw_valid ? DevSram_aw_addr : Sram_aw_valid ? Sram_aw_bits_addr : 0;
@@ -3021,7 +3022,8 @@ module ysyx_22050550_LSU(
     output [63:0] io_Cache_wdata            ,
     output [7:0]  io_Cache_wmask            ,
     input  [63:0] io_Cache_data             ,
-    input         io_Cache_dataok			,          
+    input         io_Cache_dataok			,
+	input		  io_Cache_busy				,
     //To IDU for DEGUB
     //output printflag 
 	// CLINT 
@@ -3037,6 +3039,16 @@ module ysyx_22050550_LSU(
 	wire Clint = (io_EXLS_alures >= `ysyx_22050550_CLINTBASE) && (io_EXLS_alures <= `ysyx_22050550_CLINTEND); 
     //wire Pmem = io_EXLS_alures>=`ysyx_22050550_PLeft && io_EXLS_alures < `ysyx_22050550_PRight;
 
+	reg  reglen ; 
+	always@(posedge clock) begin 
+		if (reset) reglen <= 1'd0; 
+		// 写双字   
+		else if (io_EXLS_wflag &&!( Pmem) && !(Clint) && (Wstate == sresp) && (io_LSWB_func3 ==3'b011 ) ) 
+			reglen <= reglen + 1'd1  ; 
+		// 读双字 
+		else if (io_EXLS_rflag &&!( Pmem) && !(Clint) && (Rstate == sread) && (io_LSWB_func3 == `ysyx_22050550_LD) )
+			reglen <= reglen + 1'd1  ; 
+	end 
     //设备通信状态机 读状态机
 
     localparam swait = 2'd0, swaitready = 2'd1, sread = 2'd2;
@@ -3073,17 +3085,24 @@ module ysyx_22050550_LSU(
             end
             default:Rnext = swait; 
         endcase
-    end 
-    //读状态地址连线 // 这里还没有考虑CLint
-    assign io_ar_valid = (Rstate == swait && io_EXLS_rflag && (!Pmem)&&(!Clint))||(Rstate==swaitready);
-    assign io_ar_addr  = io_EXLS_alures;
+    end 	
+	wire readdevice = io_EXLS_rflag && (!Pmem) && (!Clint) ; 
+	wire loaddouble = readdevice && io_EXLS_func3 == `ysyx_22050550_LD ; 
+    assign io_ar_valid = (Rstate== swait && readdevice) || (Rstate == swait && loaddouble && (reglen == 1)) || (Rstate == swaitready);  
+    assign io_ar_addr  = (loaddouble && (reglen == 1)) ? io_EXLS_alures +4 : io_EXLS_alures ;
     assign io_ar_len   = 0;           
     assign io_ar_size  = 2;          
     assign io_ar_burst = 2'b01;          
-    assign io_r_ready  = Rstate == sread;
-    wire [`ysyx_22050550_RegBus] Devicedata = io_r_rdata;
-    wire DeviceReadBusy = (Rstate == swait &&(io_ar_ready&&io_ar_valid))||(Rstate==swaitready)||(Rstate==sread &&(!(io_r_ready&&io_r_valid)));
-    /*******************写状态机*******************/
+    assign io_r_ready  = Rstate == sread; 
+	reg [31:0]tmpdevicedata; 
+	always@(posedge clock) begin 
+		if(reset) tmpdevicedata  <= 0 ; 
+		else if ( io_r_valid && io_r_ready) tmpdevicedata <= io_r_rdata[31:0] ; 
+	end 
+    wire [`ysyx_22050550_RegBus] Devicedata = ( reglen == 1 ) ? { io_r_rdata[31:0] ,tmpdevicedata } : io_r_rdata;
+    wire DeviceReadBusy = (Rstate == swait &&(io_ar_ready&&io_ar_valid))||(Rstate==swaitready)||(Rstate==sread &&(!(io_r_ready&&io_r_valid)))
+	||(Rstate == sread && (io_r_valid) && (loaddouble) && reglen == 0);
+	
     
     localparam swaitW = 2'd0, swaitreadyW = 2'd1, swrite = 2'd2, sresp = 2'd3;
     reg [1:0] Wstate, Wnext;
@@ -3125,19 +3144,23 @@ module ysyx_22050550_LSU(
             default:Wnext = swaitW; 
         endcase
     end 
-    //写状态地址连线 // 这里还没有考虑CLint
-    assign io_aw_valid = (Wstate == swaitW && io_EXLS_wflag && (!Pmem)&&(!Clint))||(Wstate==swaitreadyW);
-    assign io_aw_addr  = io_EXLS_alures;
+	wire writedevicedata = io_EXLS_wflag && (!Pmem) && (!Clint) ; 
+	wire storedouble	 = writedevicedata && (io_EXLS_func3 == 3'b011); 
+
+    assign io_aw_valid = (Wstate == swaitW && writedevicedata )||(Wstate==swaitreadyW)||(Wstate == swaitW && writedevicedata && storedouble && reglen == 1);
+    assign io_aw_addr  = (storedouble && reglen == 1) ?  io_EXLS_alures+4 : io_EXLS_alures; 
     assign io_aw_len   = 0;           
-    assign io_aw_size  = 3;          
+    assign io_aw_size  = 2;          
     assign io_aw_burst = 2'b01; 
     assign io_w_valid  = Wstate == swrite;
-    assign io_w_data   = io_EXLS_writedata;
-    assign io_w_strb   = io_EXLS_wmask;
+    assign io_w_data   = (storedouble && reglen == 1) ? {{32{1'b0}},io_EXLS_writedata[63:32]} : {{32{1'b0}},io_EXLS_writedata[31:0]} ;
+    assign io_w_strb   = (storedouble && reglen == 1) ? {{4{1'b0}},io_EXLS_wmask[7:4]} : io_EXLS_wmask; 
     assign io_w_last   = 1'b1;
     assign io_b_ready  = Wstate == sresp ; 
-    wire DeviceWriteBusy = (Wstate == swaitW &&(io_aw_ready&&io_aw_valid))||(Wstate==swaitreadyW)||(Wstate==swrite &&(!(io_w_ready&&io_w_valid)));
+    wire DeviceWriteBusy = (Wstate == swaitW &&(io_aw_ready&&io_aw_valid))||(Wstate==swaitreadyW)||(Wstate == sresp && (!(storedouble && (reglen == 0))));
 
+    //写状态地址连线 // 这里还没有考虑CLint
+   
     wire [`ysyx_22050550_RegBus] LsuData   = io_Cache_dataok?cachedata:io_r_ready&&io_r_valid?Devicedata:64'h0;
 
     /****************Cache 通信读写内存*******************/
@@ -3175,7 +3198,7 @@ module ysyx_22050550_LSU(
     assign io_Cache_addr  = io_EXLS_alures                          ;  
     assign io_Cache_wdata = io_EXLS_writedata                       ;  
     assign io_Cache_wmask = io_EXLS_wmask                           ;  
-    wire cachebusy = (Cache == Cachewait && io_Cache_valid) || (Cache==CacheBusy && (!(io_Cache_dataok)));
+    wire cachebusy =(io_Cache_busy) || (Cache == Cachewait && io_Cache_valid) || (Cache==CacheBusy && (!(io_Cache_dataok)));
     wire lsubusy = DeviceReadBusy || DeviceWriteBusy || cachebusy   ;
     wire lsuvalid = !lsubusy                                        ;
     wire [`ysyx_22050550_RegBus] cachedata = io_Cache_data          ; 
@@ -3296,6 +3319,7 @@ module ysyx_22050550_CACHE(
     input  [7:0]  io_Cache_wmask            ,
     output [63:0] io_Cache_data             ,
     output        io_Cache_dataok           ,
+	output		  io_Cache_busy				,
     /*********DataArray·的Sram 例化在顶层 这里内部只保留tagarray********/
     /*********暂时先实现在内部 **********/                   
 	output [5:0]	io_sram_addr		,
@@ -3315,57 +3339,22 @@ module ysyx_22050550_CACHE(
 //	output		ls_interrupt					
 
 );
-//	assign ls_interrupt  = 1'b0;
-	//用一个flush的寄存器   
-	//如果冲刷的时候   CACHE不在idle 状态， 那么 flush寄存器拉高，
-	//直到当前cache的操作完成发送dataok后，再把flush拉低。   并且在此期间如果
-	//要写入valid的信号，则把valid要写无效。真正发送的dataok信号应该是状态机的
-	//dataok和!flush相与 这个flush 是外部的flush信号和寄存器的flush相或 
-	/*
-	reg flush ;
-	wire flushen = CacheFlush || LOOKUP ; 
-	wire flushin = CacheFlush ? 1'b1 : LOOKUP ? 1'b0 : flush ;
-    ysyx_22050550_Reg #(1,1'b0) flushreg (
-        .reset(reset),
-        .clock(clock),
-        .wen(flushen),
-        .din(flushin),
-        .dout(flush)
-    );
-	wire realflush = flush || CacheFlush ;
-	*/
-	//addr的寄存器 因为考虑到流水线的冲刷，io_cache_addr是直接LSU的组合逻辑链
-	//接过来的 流水线冲刷后，那边置0了，这样子，此时还给SRAM发送的话就会导致访
-	//存错误 那么就要锁存一下数据，应该就不会有访存错误了，同时也保证AXI的状态
-	//机正常跳转。
-	/*
-	reg [63:0] Cache_addr ;
-	ysyx_22050550_Reg #(64,64'b0) AddrReg (
-        .reset(reset),
-        .clock(clock),
-        .wen(IDLE||io_Cache_valid),
-        .din(io_Cache_addr ),
-        .dout(Cache_addr)  
-    );
-	*/  
-
-	//让Cache的状态机继续执行 暂时还不实现。
-    /*
-        采用官方提供的RAM模板实现，
-        data array采用1块sram实现
-    */
-    wire [5:0]      useaddr;
-    wire [127:0]    DataRead;
-    wire DataWen;
-    wire [127:0] DataBen  ;
-    wire [127:0] DataWrite;
-    wire DataCen;
+	wire wrbusy = next != idle ;
+	wire fencebusy = fnext != fenceidle; 
+	assign io_Cache_busy  = wrbusy || fencebusy ;
 	assign DataRead		 = io_sram_rdata ; 
 	assign io_sram_addr  = useaddr		;
 	assign io_sram_cen   = DataCen		;
 	assign io_sram_wen   = DataWen		;
 	assign io_sram_wmask = DataBen		;
 	assign io_sram_wdata = DataWrite	;
+    wire [5:0]      useaddr;
+    wire [127:0]    DataRead;
+    wire DataWen;
+    wire [127:0] DataBen  ;
+    wire [127:0] DataWrite;
+    wire DataCen;
+
    // ysyx_22050550_S011HD1P_X32Y2D128_BW Data_Array(
    //     .Q(DataRead), .CLK(clock), .CEN(DataCen),
    //     .WEN(DataWen), .BWEN(DataBen), .A(useaddr), .D(DataWrite)
@@ -3451,32 +3440,27 @@ module ysyx_22050550_CACHE(
                 .dout(dirty[i]));
         end
     endgenerate
-    //记录对应组 某一路是否命中
     wire [3:0] hit   ;
+	reg [31:0] RegCacheAddr; 
+	always @(posedge clock) begin 
+		if (reset) RegCacheAddr <= 0 ;
+		else if(io_Cache_valid) RegCacheAddr <= io_Cache_addr[31:0] ; 
+	end 
+	wire[31:0]  true_cache_addr = io_Cache_valid ? io_Cache_addr[31:0] : RegCacheAddr ; 
     //wire [`ysyx_22050550_AddrWidth-1:0] AddrTagshift =(io_Cache_addr >> (`ysyx_22050550_GroupWidth+`ysyx_22050550_BlockWidth));
     //wire [`ysyx_22050550_TagBus] AddrTag = AddrTagshift[`ysyx_22050550_TagBus];
     //移位的操作好像也会降低性能，能够不移位的地方就换成位拼接
-    wire [`ysyx_22050550_TagBus]  AddrTag    = io_Cache_addr[31:`ysyx_22050550_GroupWidth+`ysyx_22050550_BlockWidth];// : Cache_addr[31:8];
-    wire [`ysyx_22050550_BlockBus]AddrBlock  = io_Cache_addr[`ysyx_22050550_BlockBus];// : Cache_addr[3:0];
+    wire [`ysyx_22050550_TagBus]  AddrTag    = true_cache_addr[31:`ysyx_22050550_GroupWidth+`ysyx_22050550_BlockWidth];// : Cache_addr[31:8];
+    wire [`ysyx_22050550_BlockBus]AddrBlock  = true_cache_addr[`ysyx_22050550_BlockBus];// : Cache_addr[3:0];
     //wire [`ysyx_22050550_AddrWidth-1:0]AddrGroupshift = (io_Cache_addr >> (`ysyx_22050550_BlockWidth));
     //wire [`ysyx_22050550_GroupBus] AddrGroup = AddrGroupshift[`ysyx_22050550_GroupBus];
-    wire [`ysyx_22050550_GroupBus] AddrGroup = io_Cache_addr[7:`ysyx_22050550_BlockWidth];// : Cache_addr[7:4];
+    wire [`ysyx_22050550_GroupBus] AddrGroup = true_cache_addr[7:`ysyx_22050550_BlockWidth];// : Cache_addr[7:4];
     wire [`ysyx_22050550_RegBus] DataOut;
     //根据块内地址确定输出的   默认32位对齐
     //实际情况是存在非对齐的访问，这里不用MUX来写了，直接通过移位解决。
     wire [3+`ysyx_22050550_BlockWidth-1:0] addrblockshift = {AddrBlock,{3'b0}} ;
     wire [127:0] DataReadshift = (DataRead >> addrblockshift);
     assign DataOut = DataReadshift[63:0];
-    /*
-    ysyx_22050550_MuxKeyWithDefault#(4,`ysyx_22050550_BlockWidth,`ysyx_22050550_REGWIDTH) DataMux(
-        .out(DataOut),.key(AddrBlock),.default_out(DataRead[63:0]),.lut({
-        4'd0    , DataRead[63:0],
-        4'd4    , DataRead[95:32],
-        4'd8    , DataRead[127:64],
-        4'd12   , {{32{1'b0}},DataRead[127:96]}
-    }));
-    */
-    
     /*
         根据组号定位属于哪一组 然后在组内的每一路来比较tag看是否命中
         第i组第j路在tag内的行地址为i*4+j =>  {i,j}  这样子就没有乘法了
@@ -3652,7 +3636,7 @@ module ysyx_22050550_CACHE(
     always@(*) begin
         case (state)
             idle:begin 
-				if(io_Cache_valid) begin
+				if(io_Cache_valid && fnext == fenceidle)  begin
                     next = lookup;
                 end
 				//else if (realfence) begin 
@@ -3728,7 +3712,7 @@ module ysyx_22050550_CACHE(
                 //从RAM读取 last => lookup
 				if(io_r_valid && io_r_ready)begin
                     if (io_r_last) begin
-						if(Reglen == 1'b1)
+						if(Reglen == 2'd3)
 							next = lookup;
 						else next = miss; 
                     end
@@ -3787,16 +3771,9 @@ module ysyx_22050550_CACHE(
         //dirty只在两种情况下写 一个是lookup命中了 写脏  一个是replace完成
     //dirty write   data en mux  en 高有效
     assign dirtyWriteEn = (LOOKUP & cachehit & io_Cache_op) ||  
-                          (REPLACE& io_w_valid & io_w_last &(Reglen == 1'b1)) || 
-						  (fstate==fencedirty &io_w_valid & io_w_last&(Reglen == 1'b1)) ; 
-    //REFILL? io_r_last& io_r_valid : 0;
-    /*
-    ysyx_22050550_MuxKeyWithDefault#(2,3,1) DirtyEnMux(
-        .out(dirtyWriteEn),.key(state),.default_out(0),.lut({
-        lookup  , cachehit & io_Cache_op ? 1'b1:1'b0,
-        refill  , io_r_last& io_r_valid 
-    }));
-    */
+                          (REPLACE& io_w_valid & io_w_last &(Reglen == 2'd3)) || 
+						  (fstate==fencedirty &io_w_valid & io_w_last&(Reglen == 2'd3)) ; 
+    
     assign dirtyWriteData = (LOOKUP& cachehit & io_Cache_op); 
     //如果Tag使用寄存器  idle那个周期useaddr就发过去了，hit的话，lookup当周期就能拿到数据
     //所以dataok不用延迟一周期。 但如果是从refill跳回lookup 回到lookup当周期才申请读，此时dataok还是要延迟的
@@ -3809,70 +3786,56 @@ module ysyx_22050550_CACHE(
     assign io_Cache_data = DataOut;
 	assign io_Cache_dataok = Cache_DataOk ;//&& !(realflush);
     assign saveen = LOOKUP && !cachehit;
-    //写 hit dirty拉高
-    //assign dirtyWriteEn = LOOKUP && hit & io_Cache_op;
-    //assign dirtyWriteData = LOOKUP
-    /*
-        miss:
-            此时用chooseway的地址
-            axivalid 有效且脏 向总线写回
-                aw valid的时候传写回地址  把行内地址归0 即低block位掩去
-                同时向data array申请读 这样子下一个周期进入replace能把数据拿出来
-                写回的是一行cache 128位 一次最多写64位 突发写 写两次 写16个bytes
-                用一个len的寄存器记录
-                aw len = 1    aw size = 4  (2^4=16)
-            不需要写回 向总线申请refill
-                ar addr 行内地址归0 把低block位掩去
-                用一个len 寄存器记录
-                ar len = 1    ar size = 4  
-    */
-    reg Reglen ;
+    reg [1:0] Reglen ;
     always @ (posedge clock) begin
         if (reset) begin
-            Reglen <= 1'b0;
+            Reglen <=2'b00;
         end
-       // else if((io_aw_valid && io_aw_ready) || (io_ar_valid && io_ar_ready))  begin
-       //     Reglen <= 1'b1;
-       // end
-        else if((io_w_valid && io_w_ready) || (io_r_valid&&io_r_ready))  begin 
-            if(io_w_last || io_r_last)  Reglen <= Reglen + 1'b1;
-           // else                        Reglen <=  Reglen - 1'b1;
+        //else if((io_aw_valid && io_aw_ready) || (io_ar_valid && io_ar_ready))  begin
+        //    Reglen <= 1'b1;
+        //end
+        else if((io_w_valid && io_w_ready))  begin 
+            if(io_w_last )  Reglen <= Reglen + 2'b1;
+            //else                        Reglen <=  Reglen - 1'b1;
         end
+		else if ((io_r_valid && io_r_ready)) begin 
+			if (io_r_last) Reglen <= Reglen + 2'b1 ; 
+		end 
     end
     wire MISS = state == miss;
     assign axivalid    = valid[useaddr] && dirty[useaddr];
     assign io_aw_valid =  (MISS & axivalid) || (fstate==fencevalid && axivalid)  ;
     assign io_aw_len   = 0;
-    assign io_aw_size  = 4;
+    assign io_aw_size  = 2;
     assign io_aw_burst = 2'b01;
-    //要根据当前选中的Tag获取其在主存的块号确定回传的地址 低位舍掉
-   	wire [`ysyx_22050550_TagBus] fenceTag = fenceaddr[1:0] == 2'd0 ? Tag0[fenceaddr[5:2]] : 
+    //要根据当前选中的Tag获取其在主存的块号确定回传的地址 低位舍掉 
+	wire [`ysyx_22050550_TagBus] fenceTag = fenceaddr[1:0] == 2'd0 ? Tag0[fenceaddr[5:2]] : 
 											fenceaddr[1:0] == 2'd1 ? Tag1[fenceaddr[5:2]] :
 											fenceaddr[1:0] == 2'd2 ? Tag2[fenceaddr[5:2]] :
 											fenceaddr[1:0] == 2'd3 ? Tag3[fenceaddr[5:2]] : 0;
     wire [`ysyx_22050550_RegBus] addr = fstate != fenceidle ? {32'b0,fenceTag,fenceaddr[5:2],4'b0} : {32'b0,Tag[chooseway],AddrGroup,4'b0}; 
-    assign io_aw_addr = Reglen==0? addr : addr + 8;
+    assign io_aw_addr = Reglen==0? addr		: 
+						Reglen==1? addr + 4 :
+						Reglen==2? addr + 8 : 
+						Reglen==3? addr + 12 : addr ;
     //不需要写回 不需要写回的时候用
     assign io_ar_valid = MISS & !(axivalid);
     assign io_ar_len   = 0;
     assign io_ar_burst = 2'b01; 
-    assign io_ar_size  = 4;
-    //Reglen 当前这个周期还是  miss这个周期  下一个周期变1
-     //这里其实应该有一个addrreg一直加的，直到last满足，但是只有两种情况，就简单一点了。
-     //其实这里的addr不用+ sram那边检测到突发传输，会自动+地址
-    assign io_ar_addr  =Reglen == 0 ?  {32'b0,AddrTag,AddrGroup,4'b0}:  {32'b0,AddrTag,AddrGroup,4'b0}+8;//Reglen==0? {AddrTag,AddrGroup,4'b0} : {AddrTag,AddrGroup,4'b0} + 8;
-    /*
-        replace :
-            w valid 并且 ready的时候
-                写回地址是掩去block的地址加上  (1-RegLen)*8  
-                同时向data申请读 addr + Reglen*8 这样子下个周期才能把数据拿出来
-                len = 0的时候 last拉高
-    */
-    wire REPLACE = state == replace         ;
+    assign io_ar_size  = 2;
+    assign io_ar_addr  = Reglen == 0 ? {32'b0,AddrTag,AddrGroup,4'b0} :  
+						 Reglen == 1 ? {32'b0,AddrTag,AddrGroup,4'd4} : 
+						 Reglen == 2 ? {32'b0,AddrTag,AddrGroup,4'd8} : 
+						 Reglen == 3 ? {32'b0,AddrTag,AddrGroup,4'd12}: {32'b0,AddrTag,AddrGroup,4'b0};
+	wire REPLACE = state == replace         ;
     assign io_w_valid   = REPLACE ||(fstate == fencedirty )       ;
-    assign io_w_last    = 1'b1  ;//; (REPLACE&&Reglen == 0)||(fstate == fencedirty && Reglen == 0) ;
-    assign io_w_data    = Reglen == 0 ? DataRead[63:0] : DataRead[127:64];
-    assign io_w_strb    = 8'hff;
+    assign io_w_last    = io_w_valid ;//(REPLACE&&Reglen == 0)||(fstate == fencedirty && Reglen == 0) ;
+    assign io_w_data    = Reglen == 0  ? {{32'd0},   DataRead[31:0]  } : 
+						  Reglen ==	1  ? {{32'd0},	 DataRead[63:32] } :
+						  Reglen == 2  ? {{32'd0},   DataRead[95:64] } :
+						  Reglen == 3  ? {{32'd0},   DataRead[127:96]} : 64'b0 ;
+	
+    assign io_w_strb    = 8'h0f;
     assign io_b_ready   = state == wresp || (fstate == fenceresp ) ;
     /*
         refill :
@@ -3888,30 +3851,19 @@ module ysyx_22050550_CACHE(
     */
     wire REFILL = state == refill;
         //refill情况下的写入
-    wire[127:0] refilldata = Reglen == 0 ? {{64{1'b0}} ,io_r_rdata} : {io_r_rdata,{64{1'b0}}};
-    wire[127:0] refillben  = Reglen == 0 ? {{64{1'b1}} ,{64{1'b0}}} : {{64{1'b0}},{64{1'b1}}};
-
+    wire[127:0] refilldata =Reglen == 0 ? {{96{1'b0}} ,io_r_rdata[31:0]} :
+							Reglen == 1 ? {{64{1'b0}} ,io_r_rdata[31:0],{32{1'b0}}} :
+							Reglen == 2 ? {{32{1'b0}} ,io_r_rdata[31:0],{64{1'b0}}} :
+							Reglen == 3 ? {io_r_rdata[31:0],{96{1'b0}}} :0 ;
+    wire[127:0] refillben  = Reglen == 0 ? {{32{1'b1}},{32{1'b1}},{32{1'b1}},{32{1'b0}}} : 
+							 Reglen == 1 ? {{32{1'b1}},{32{1'b1}},{32{1'b0}},{32{1'b1}}} :
+							 Reglen == 2 ? {{32{1'b1}},{32{1'b0}},{32{1'b1}},{32{1'b1}}} :	
+							 Reglen == 3 ? {{32{1'b0}},{32{1'b1}},{32{1'b1}},{32{1'b1}}} : {128{1'b1}} ; 
                          //:REPLACE ? !(io_w_valid & io_w_last): 0;
-    // REFILL? !(io_r_last& io_r_valid) : 0;
-    /*
-    ysyx_22050550_MuxKeyWithDefault#(2,3,1) DirtyDataMux(
-        .out(dirtyWriteData),.key(state),.default_out(0),.lut({
-        lookup  , cachehit & io_Cache_op ? 1'b1:1'b0,
-        refill  , !(io_r_last& io_r_valid)   
-    }));
-    */
-    //valid只有一种情况需要写入  refill完成写valid
-	//现在新增了一种情况， 就是读写异常，此时需要把 valid 写无效。
-	//一个是读异常 此时     state == refill  resp!0
-	//一个是写异常 此时     state == wresp   resp != 0
-	//这个功能还是暂时不实现了。先解决clint中断的问题。
-	//还有一个是当冲刷信号到来的时候，要对已经写入的valid行置无效
-	//新增一个 flushwrite 信号 注意usaddr 是hitaddr是，要检验是否是真的hit  
-	//感觉很复杂 ，先不实现
-	//wire flushwrite = CacheFlush 
-	//当处于fencevalid 状态并且不需要写回的时候 将valid 置无效   
-    assign validWriteEn = (REFILL && io_r_last& io_r_valid && (Reglen == 1)) ||(fstate ==fencevalid && !io_aw_valid );
-    assign validWriteData = REFILL && io_r_last & io_r_valid && (Reglen == 1) ;//&&(!realflush);
+   
+   
+    assign validWriteEn = (REFILL && io_r_last& io_r_valid && (Reglen == 3)) ||(fstate ==fencevalid && !io_aw_valid );
+    assign validWriteData = REFILL && io_r_last & io_r_valid && (Reglen == 3) ;//&&(!realflush);
     assign io_r_ready = REFILL;
     //向tag和mem写  valid 拉高 dirty 拉低
     //只有这样个状态需要向mem写入   写入都是低位有效
