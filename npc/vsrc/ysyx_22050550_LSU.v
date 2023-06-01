@@ -105,6 +105,17 @@ module ysyx_22050550_LSU(
 	wire Clint = (io_EXLS_alures >= `ysyx_22050550_CLINTBASE) && (io_EXLS_alures <= `ysyx_22050550_CLINTEND); 
     //wire Pmem = io_EXLS_alures>=`ysyx_22050550_PLeft && io_EXLS_alures < `ysyx_22050550_PRight;
 
+	// 处理双字读写的寄存器 
+	reg  reglen ; 
+	always@(posedge clock) begin 
+		if (reset) reglen <= 1'd0; 
+		// 写双字   
+		else if (io_EXLS_wflag &&!( Pmem) && !(Clint) && (Wstate == sresp) && (io_LSWB_func3 ==3'b011 ) ) 
+			reglen <= reglen + 1'd1  ; 
+		// 读双字 
+		else if (io_EXLS_rflag &&!( Pmem) && !(Clint) && (Rstate == sread) && (io_LSWB_func3 == `ysyx_22050550_LD) )
+			reglen <= reglen + 1'd1  ; 
+	end 
     //设备通信状态机 读状态机
 
     localparam swait = 2'd0, swaitready = 2'd1, sread = 2'd2;
@@ -134,20 +145,29 @@ module ysyx_22050550_LSU(
                 if(io_r_ready&&io_r_valid) begin
                     Rnext = swait;
                 end
-                else Rnext = sread;
+                else Rnext = sread; 
             end
             default:Rnext = swait; 
         endcase
     end 
     //读状态地址连线 // 这里还没有考虑CLint
-    assign io_ar_valid = (Rstate == swait && io_EXLS_rflag && (!Pmem)&&(!Clint))||(Rstate==swaitready);
-    assign io_ar_addr  = io_EXLS_alures;
+	wire readdevice = io_EXLS_rflag && (!Pmem) && (!Clint) ; 
+	wire loaddouble = readdevice && io_EXLS_func3 == `ysyx_22050550_LD ; 
+    assign io_ar_valid = (Rstate== swait && readdevice) || (Rstate == swait && loaddouble && (reglen == 1)) || (Rstate == swaitready);  
+    assign io_ar_addr  = (loaddouble && (reglen == 1)) ? io_EXLS_alures +4 : io_EXLS_alures ;
     assign io_ar_len   = 0;           
-    assign io_ar_size  = 3;          
+    assign io_ar_size  = 2;          
     assign io_ar_burst = 2'b01;          
-    assign io_r_ready  = Rstate == sread;
-    wire [`ysyx_22050550_RegBus] Devicedata = io_r_rdata;
-    wire DeviceReadBusy = (Rstate == swait &&(io_ar_ready&&io_ar_valid))||(Rstate==swaitready)||(Rstate==sread &&(!(io_r_ready&&io_r_valid)));
+    assign io_r_ready  = Rstate == sread; 
+	reg [31:0]tmpdevicedata; 
+	always@(posedge clock) begin 
+		if(reset) tmpdevicedata  <= 0 ; 
+		else if ( io_r_valid && io_r_ready) tmpdevicedata <= io_r_rdata[31:0] ; 
+	end 
+    wire [`ysyx_22050550_RegBus] Devicedata = ( reglen == 1 ) ? { io_r_rdata[31:0] ,tmpdevicedata } : io_r_rdata;
+    wire DeviceReadBusy = (Rstate == swait &&(io_ar_ready&&io_ar_valid))||(Rstate==swaitready)||(Rstate==sread &&(!(io_r_ready&&io_r_valid)))
+	||(Rstate == sread && (io_r_valid) && (loaddouble) && reglen == 0);
+	
     /*******************写状态机*******************/
     
     localparam swaitW = 2'd0, swaitreadyW = 2'd1, swrite = 2'd2, sresp = 2'd3;
@@ -189,17 +209,20 @@ module ysyx_22050550_LSU(
         endcase
     end 
     //写状态地址连线 // 这里还没有考虑CLint
-    assign io_aw_valid = (Wstate == swaitW && io_EXLS_wflag && (!Pmem)&&(!Clint))||(Wstate==swaitreadyW);
-    assign io_aw_addr  = io_EXLS_alures;
+	wire writedevicedata = io_EXLS_wflag && (!Pmem) && (!Clint) ; 
+	wire storedouble	 = writedevicedata && (io_EXLS_func3 == 3'b011); 
+
+    assign io_aw_valid = (Wstate == swaitW && writedevicedata )||(Wstate==swaitreadyW)||(Wstate == swaitW && writedevicedata && storedouble && reglen == 1);
+    assign io_aw_addr  = (storedouble && reglen == 1) ?  io_EXLS_alures+4 : io_EXLS_alures; 
     assign io_aw_len   = 0;           
-    assign io_aw_size  = 3;          
+    assign io_aw_size  = 2;          
     assign io_aw_burst = 2'b01; 
     assign io_w_valid  = Wstate == swrite;
-    assign io_w_data   = io_EXLS_writedata;
-    assign io_w_strb   = io_EXLS_wmask;
+    assign io_w_data   = (storedouble && reglen == 1) ? {{32{1'b0}},io_EXLS_writedata[63:32]} : {{32{1'b0}},io_EXLS_writedata[31:0]} ;
+    assign io_w_strb   = (storedouble && reglen == 1) ? {{32{1'b0}},io_EXLS_wmask[7:4]} : io_EXLS_wmask; 
     assign io_w_last   = 1'b1;
     assign io_b_ready  = Wstate == sresp ; 
-    wire DeviceWriteBusy = (Wstate == swaitW &&(io_aw_ready&&io_aw_valid))||(Wstate==swaitreadyW)||(Wstate==swrite &&(!(io_w_ready&&io_w_valid)));
+    wire DeviceWriteBusy = (Wstate == swaitW &&(io_aw_ready&&io_aw_valid))||(Wstate==swaitreadyW)||(Wstate == sresp && (!(storedouble && (reglen == 0))));
 
     wire [`ysyx_22050550_RegBus] LsuData   = io_Cache_dataok?cachedata:io_r_ready&&io_r_valid?Devicedata:64'h0;
 
