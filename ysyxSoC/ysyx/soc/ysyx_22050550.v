@@ -274,7 +274,7 @@ module ysyx_22050550_PCREG(
     
     wire wen;
     assign wen = ready || (|Id_jal && Id_valid)||irujump ;
-    ysyx_22050550_Reg #(`ysyx_22050550_REGWIDTH,`ysyx_22050550_REGWIDTH'h30000000) regpc (
+	ysyx_22050550_Reg #(`ysyx_22050550_REGWIDTH,`ysyx_22050550_REGWIDTH'h30000000) regpc (
         .reset(reset),
         .clock(clock),
         .wen(wen),
@@ -1297,7 +1297,7 @@ ysyx_22050550_PCREG PCREG(
 wire Id_ready;
 wire ICache_dataok;
 wire [63:0] ICache_Data;
-wire ICache_valid;
+wire ICache_valid;/* verilator lint_off UNOPTFLAT*/
 wire [63:0] ICache_addr ;
 ysyx_22050550_IFU IFU(
     //.reset       (reset)        ,
@@ -3363,7 +3363,7 @@ module ysyx_22050550_CACHE(
     /**** Tag例化4块，同时对一组内每一路读出Tag*****/
     //不要Last那个周期写，进入refill了 valid了就写，这样子下个周期就能读Tag，下下个周期进入lookup就能拿到tag的数据
 	wire [`ysyx_22050550_TagBus] Tag[3:0];
-    wire Tag0Wen = (!io_r_last && REFILL && io_r_valid && chooseway==2'd0) ;
+    wire Tag0Wen = ( REFILL && io_r_valid && chooseway==2'd0) ;
     wire [`ysyx_22050550_TagBus] Tag0Data = AddrTag; //写数据
     reg [`ysyx_22050550_TagWidth-1:0] Tag0 [0:`ysyx_22050550_GroupNum-1];
     assign Tag[0] = Tag0[AddrGroup];
@@ -3376,7 +3376,7 @@ module ysyx_22050550_CACHE(
                 .din(Tag0Data),.dout(Tag0[i]));
         end
     endgenerate
-    wire Tag1Wen = (!io_r_last && REFILL && io_r_valid && chooseway==2'd1);
+    wire Tag1Wen = ( REFILL && io_r_valid && chooseway==2'd1);
     wire [`ysyx_22050550_TagBus] Tag1Data = AddrTag; //写数据
     reg [`ysyx_22050550_TagWidth-1:0] Tag1 [0:`ysyx_22050550_GroupNum-1];
     assign Tag[1] = Tag1[AddrGroup];
@@ -3389,7 +3389,7 @@ module ysyx_22050550_CACHE(
                 .din(Tag1Data),.dout(Tag1[i]));
         end
     endgenerate
-    wire Tag2Wen = (!io_r_last && REFILL && io_r_valid && chooseway==2'd2);
+    wire Tag2Wen = (  REFILL && io_r_valid && chooseway==2'd2);
     wire [`ysyx_22050550_TagBus] Tag2Data = AddrTag; //写数据
     reg [`ysyx_22050550_TagWidth-1:0] Tag2 [0:`ysyx_22050550_GroupNum-1];
     assign Tag[2] = Tag2[AddrGroup];
@@ -3402,7 +3402,7 @@ module ysyx_22050550_CACHE(
                 .din(Tag2Data),.dout(Tag2[i]));
         end
     endgenerate
-    wire Tag3Wen = (!io_r_last && REFILL && io_r_valid && chooseway==2'd3);
+    wire Tag3Wen = (  REFILL && io_r_valid && chooseway==2'd3);
     wire [`ysyx_22050550_TagBus] Tag3Data = AddrTag; //写数据
     reg [`ysyx_22050550_TagWidth-1:0] Tag3 [0:`ysyx_22050550_GroupNum-1];
     assign Tag[3] = Tag3[AddrGroup];
