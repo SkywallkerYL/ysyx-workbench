@@ -59,7 +59,8 @@ VERILATOR_FLAGS += -Wno-fatal
 VERILATOR_CFLAGS += -cc --exe --noassert
 #-Os -x-assign 0 --trace --coverage
 VERILATOR_CFLAGS +=	--x-assign fast --x-initial fast 
-#VERILATOR_CFLAGS +=  --trace --coverage 
+#VERILATOR_CFLAGS +=  --trace 
+#--coverage 
 VERILATOR_CFLAGS +=  --build 
 VERILATOR_CFLAGS += -Wno-fatal -O3 
 VERILATOR_CFLAGS += -DVL_DEBUG
@@ -133,7 +134,7 @@ all: default
 
 
 
-
+IMG ?= ../hello-flash1.bin
 NPCMODE=-d
 BATCHMODE ?= 
 #DIFFTESTNEMUFILE=/home/yangli/ysyx-workbench/nemu/build/riscv64-nemu-interpreter-so
@@ -163,7 +164,7 @@ run:
 	@echo "-------------------RUN-------------------"
 	@echo $(IMG)
 	@echo $(NPCMODE)
-	./obj_dir/V$(TOPNAMETEST) $(BATCHMODE) $(NPCMODE) $(IMG)
+	./obj_dir/V$(TOPNAMETEST) $(BATCHMODE) $(NPCMODE) $(IMG) /home/yangli/ysyx-workbench/npc/hello-flash.bin
 
 #gtkwave wave.vcd
 wave:

@@ -223,6 +223,32 @@ void sim_once(uint64_t n){
     localpc  = Pc_Fetch();
     localnpc = Dnpc_Fetch();
     localinst = Instr_Fetch();
+    //instend = 0;
+      int ilen = 4;
+      char inst_buf[128];
+      char *p = inst_buf; 
+      //这里也是一样 ,valid 的那个周期把这些取出来
+      uint64_t pc = localpc;//Pc_Fetch();
+      uint32_t instr = localinst;//
+      //uint32_t intsr1 = p_mem[pc-CONFIG_MBASE];
+      //printf("instr: 0x%08x\n",instr);
+      //printf("instr1: 0x%08x\n",intsr1);
+      uint8_t *inst =(uint8_t *)&instr;//(uint8_t *)&p_mem[pc-CONFIG_MBASE]; //(uint8_t *)&instr;
+      for (int i = ilen - 1; i >= 0; i --) {
+       p += snprintf(p, 4, " %02x", inst[i]);
+      }
+      int ilen_max = 4;
+      int space_len = ilen_max - ilen;
+      if (space_len < 0) space_len = 0;
+      space_len = space_len * 3 + 1;
+      memset(p, ' ', space_len);
+      p += space_len;
+      void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
+      disassemble(p,  inst_buf + sizeof(inst_buf) - p,pc, inst , ilen);
+      //assert_fail_msg();
+      //printf(ANSI_FMT("Instr not implement or other situation!\n", ANSI_FG_RED));
+      printf("pc: 0x%016lx Inst: %s\n",pc,inst_buf);
+      //Log("local pc at :%08lx inst:%08x  Next pc:%08lx wavenum:%ld",localpc,localinst,localnpc,wavecount);	  
 #ifdef LOOKUPINST
     uint64_t init     = (localpc-CONFIG_MBASE)     ;
     uint32_t realinst = *(uint32_t *)(&p_mem[init]);

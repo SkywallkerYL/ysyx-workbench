@@ -17,7 +17,7 @@
 #define vaddr_t uint64_t 
 //#define CONFIG_DIFFTEST
 //Itrace
-//#define CONFIG_ITRACE
+#define CONFIG_ITRACE
 
 #define ITRACE_BEGIN 0
 #define ITRACE_END   10000
@@ -34,20 +34,20 @@
 
 //#define WAVE
 
-#define WAVE_BEGIN 1440000
-#define WAVE_END   1452500
+#define WAVE_BEGIN 0
+#define WAVE_END   10000
 
-//#define LOOKUPINST 10000
+#define LOOKUPINST 10000
 
 
 #define TRACE_CONDITION(a,begin,end)   ((a>=begin)&&(a<end))
 
 #define DIFFTEST_REG_SIZE (sizeof(uint64_t) * 41) // GRPs + pc + 8
-#define CONFIG_MBASE 0x80000000
+#define CONFIG_MBASE 0x30000000
 #define CONFIG_MSIZE 0x8000000
 #define CONFIG_PC_RESET_OFFSET 0x0
 #define PG_ALIGN __attribute((aligned(4096)))
-static uint8_t pmem[CONFIG_MSIZE] PG_ALIGN = {};
+uint8_t pmem[CONFIG_MSIZE] PG_ALIGN = {};
 enum { DIFFTEST_TO_DUT, DIFFTEST_TO_REF };
 #define PMEM_LEFT  ((paddr_t)CONFIG_MBASE)
 #define PMEM_RIGHT ((paddr_t)CONFIG_MBASE + CONFIG_MSIZE - 1)
@@ -59,14 +59,16 @@ enum { DIFFTEST_TO_DUT, DIFFTEST_TO_REF };
 //This is important or it may cause some behavior difficault to understand
 uint32_t instr_mem[10];
 uint8_t p_mem[MSIZE];
+#define CONFIG_MBASE1 0x80000000
+#define PMEM_LEFT1  CONFIG_MBASE1
+#define PMEM_RIGHT1 (CONFIG_MBASE1+MSIZE -1) 
 
-
-#define DEVICE_BASE 0xa0000000
-#define MMIO_BASE 0xa0000000
+#define DEVICE_BASE 0x10000000
+#define MMIO_BASE 0x10000000
                 //0x01000000
 
 
-#define SERIAL_PORT     (DEVICE_BASE + 0x00003f8)
+#define SERIAL_PORT     (DEVICE_BASE + 0x0000000)
 #define KBD_ADDR        (DEVICE_BASE + 0x0000060)
 #define RTC_ADDR        (DEVICE_BASE + 0x0000048)
 #define VGACTL_ADDR     (DEVICE_BASE + 0x0000100)

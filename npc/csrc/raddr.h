@@ -46,6 +46,10 @@ extern "C" void pmem_read(long long raddr, long long *rdata){
     else if (raddr == VGACTL_ADDR){ //vga H W
         *rdata = (uint32_t)vgactl_port_base[0];
     }
+    else if(raddr <= 0x10000fff && raddr >= 0x10000000) {
+        *rdata = 0;
+
+    }
     else if (raddr == VGACTL_ADDR+2){ //vga H W
         *rdata = (uint32_t)vgactl_port_base[0] >> 16;
     }
@@ -58,6 +62,15 @@ extern "C" void pmem_read(long long raddr, long long *rdata){
     else if ((uint64_t)raddr>=(uint64_t)PMEM_LEFT&&(uint64_t)raddr<=PMEM_RIGHT){
         uint64_t init = (raddr-CONFIG_MBASE);
         *rdata = *(uint64_t *)(&p_mem[init]);
+        //printf("0x%llx\n",*rdata);
+#ifdef CONFIG_MTRACE
+        mtrace(0,raddr,8,*rdata);
+#endif
+        //printf("addr:0x%016x \t rdata: 0x%016x\n",raddr,*rdata );
+    }
+    else if ((uint64_t)raddr>=(uint64_t)PMEM_LEFT1&&(uint64_t)raddr<=PMEM_RIGHT1){
+        uint64_t init = (raddr-CONFIG_MBASE1);
+        *rdata = *(uint64_t *)(&pmem[init]);
         //printf("0x%llx\n",*rdata);
 #ifdef CONFIG_MTRACE
         mtrace(0,raddr,8,*rdata);
@@ -194,7 +207,7 @@ extern "C" void pmem_write(long long waddr, long long wdata,char wmask){
         }
         
     }
-    else if(waddr == 0xa00003f8){ // serial port
+    else if(waddr >= 0x10000000 && waddr<=0x10000fff){ // serial port
         //printf("pc:0x%08x\n",Pc_Fetch());
         printf("%c",c);
     }

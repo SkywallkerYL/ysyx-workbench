@@ -29,7 +29,7 @@ module ysyx_22050550_PCREG(
     
     wire wen;
     assign wen = ready || (|Id_jal && Id_valid)||irujump ;
-    ysyx_22050550_Reg #(`ysyx_22050550_REGWIDTH,`ysyx_22050550_REGWIDTH'h80000000) regpc (
+    ysyx_22050550_Reg #(`ysyx_22050550_REGWIDTH,`ysyx_22050550_REGWIDTH'h30000000) regpc (
         .reset(reset),
         .clock(clock),
         .wen(wen),

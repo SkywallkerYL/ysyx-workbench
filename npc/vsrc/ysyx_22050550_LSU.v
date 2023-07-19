@@ -101,19 +101,18 @@ module ysyx_22050550_LSU(
 	input	[63:0]  rdata					
 );  
     //设备地址都在 a0000000+ 这里判断可以简单一点
-    wire Pmem = io_EXLS_alures[31:28] == 4'h8;
+    wire Pmem = io_EXLS_alures[31:28] == 4'h8 ;//||  (io_EXLS_alures[31:28] >= 4'h8 && io_EXLS_alures[31:24]<=8'hfb);
 	wire Clint = (io_EXLS_alures >= `ysyx_22050550_CLINTBASE) && (io_EXLS_alures <= `ysyx_22050550_CLINTEND); 
     //wire Pmem = io_EXLS_alures>=`ysyx_22050550_PLeft && io_EXLS_alures < `ysyx_22050550_PRight;
 
-	// 处理双字读写的寄存器 
 	reg  reglen ; 
 	always@(posedge clock) begin 
 		if (reset) reglen <= 1'd0; 
 		// 写双字   
-		else if (io_EXLS_wflag &&!( Pmem) && !(Clint) && (Wstate == sresp) && (io_LSWB_func3 ==3'b011 ) ) 
+		else if (io_EXLS_wflag &&!( Pmem) && !(Clint) && (Wstate == sresp && io_b_valid) && (io_LSWB_func3 ==3'b011 ) ) 
 			reglen <= reglen + 1'd1  ; 
 		// 读双字 
-		else if (io_EXLS_rflag &&!( Pmem) && !(Clint) && (Rstate == sread) && (io_LSWB_func3 == `ysyx_22050550_LD) )
+		else if (io_EXLS_rflag &&!( Pmem) && !(Clint) && (Rstate == sread && io_r_valid) && (io_LSWB_func3 == `ysyx_22050550_LD) )
 			reglen <= reglen + 1'd1  ; 
 	end 
     //设备通信状态机 读状态机
@@ -142,15 +141,17 @@ module ysyx_22050550_LSU(
                 else Rnext = swaitready;
             end
             sread:begin
-                if(io_r_ready&&io_r_valid) begin
-                    Rnext = swait;
+                if(io_r_ready&&io_r_valid) begin 
+					if ( io_r_rresp == 2'b00) 
+						Rnext = swait;
+					else 
+						Rnext = swait ; 
                 end
-                else Rnext = sread; 
+                else Rnext = sread;
             end
             default:Rnext = swait; 
         endcase
-    end 
-    //读状态地址连线 // 这里还没有考虑CLint
+    end 	
 	wire readdevice = io_EXLS_rflag && (!Pmem) && (!Clint) ; 
 	wire loaddouble = readdevice && io_EXLS_func3 == `ysyx_22050550_LD ; 
     assign io_ar_valid = (Rstate== swait && readdevice) || (Rstate == swait && loaddouble && (reglen == 1)) || (Rstate == swaitready);  
@@ -165,10 +166,10 @@ module ysyx_22050550_LSU(
 		else if ( io_r_valid && io_r_ready) tmpdevicedata <= io_r_rdata[31:0] ; 
 	end 
     wire [`ysyx_22050550_RegBus] Devicedata = ( reglen == 1 ) ? { io_r_rdata[31:0] ,tmpdevicedata } : io_r_rdata;
-    wire DeviceReadBusy = (Rstate == swait &&(io_ar_ready&&io_ar_valid))||(Rstate==swaitready)||(Rstate==sread &&(!(io_r_ready&&io_r_valid)))
-	||(Rstate == sread && (io_r_valid) && (loaddouble) && reglen == 0);
+    wire DeviceReadNotBusy = (Rstate == swait && (!io_ar_valid)) || (Rstate == sread && (io_r_valid) && (!(loaddouble &&(reglen == 0))));
+	wire DeviceReadBusy = !DeviceReadNotBusy;//(Rstate == swait &&(io_ar_valid))||(Rstate==swaitready)||(Rstate==sread &&(!(io_r_ready&&io_r_valid)))
+	//||(Rstate == sread && (io_r_valid) && (loaddouble) && reglen == 0);
 	
-    /*******************写状态机*******************/
     
     localparam swaitW = 2'd0, swaitreadyW = 2'd1, swrite = 2'd2, sresp = 2'd3;
     reg [1:0] Wstate, Wnext;
@@ -201,14 +202,15 @@ module ysyx_22050550_LSU(
             end
             sresp:begin
                 if(io_b_valid&&io_b_ready)begin
+					if(io_b_bresp == 2'b00)
                     Wnext = swaitW;
+					else Wnext = swaitW ;
                 end
                 else Wnext = sresp;
             end
             default:Wnext = swaitW; 
         endcase
     end 
-    //写状态地址连线 // 这里还没有考虑CLint
 	wire writedevicedata = io_EXLS_wflag && (!Pmem) && (!Clint) ; 
 	wire storedouble	 = writedevicedata && (io_EXLS_func3 == 3'b011); 
 
@@ -222,8 +224,11 @@ module ysyx_22050550_LSU(
     assign io_w_strb   = (storedouble && reglen == 1) ? {{4{1'b0}},io_EXLS_wmask[7:4]} : io_EXLS_wmask; 
     assign io_w_last   = 1'b1;
     assign io_b_ready  = Wstate == sresp ; 
-    wire DeviceWriteBusy = (Wstate == swaitW &&(io_aw_ready&&io_aw_valid))||(Wstate==swaitreadyW)||(Wstate == sresp && (!(storedouble && (reglen == 0))));
+	wire DeviceWriteNotBusy = (Wstate == swaitW &&(!io_aw_valid)) ||(Wstate==sresp &&(io_b_valid)&&(!(storedouble && (reglen == 0))));
+    wire DeviceWriteBusy = !DeviceWriteNotBusy;//(Wstate == swaitW &&io_aw_valid)||(Wstate==swaitreadyW)||(Wstate ==swrite)||(Wstate == sresp && ((storedouble && (reglen == 0))));
 
+    //写状态地址连线 // 这里还没有考虑CLint
+   
     wire [`ysyx_22050550_RegBus] LsuData   = io_Cache_dataok?cachedata:io_r_ready&&io_r_valid?Devicedata:64'h0;
 
     /****************Cache 通信读写内存*******************/
@@ -261,7 +266,7 @@ module ysyx_22050550_LSU(
     assign io_Cache_addr  = io_EXLS_alures                          ;  
     assign io_Cache_wdata = io_EXLS_writedata                       ;  
     assign io_Cache_wmask = io_EXLS_wmask                           ;  
-    wire cachebusy = (io_Cache_busy)  || (Cache == Cachewait && io_Cache_valid) || (Cache==CacheBusy && (!(io_Cache_dataok)));
+    wire cachebusy =(io_Cache_busy) || (Cache == Cachewait && io_Cache_valid) || (Cache==CacheBusy && (!(io_Cache_dataok)));
     wire lsubusy = DeviceReadBusy || DeviceWriteBusy || cachebusy   ;
     wire lsuvalid = !lsubusy                                        ;
     wire [`ysyx_22050550_RegBus] cachedata = io_Cache_data          ; 
