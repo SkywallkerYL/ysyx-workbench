@@ -150,11 +150,11 @@ module ysyx_22050550_RamArbiter(
   //这里直接从chisel 赋值过来
   //ar 
   
-    assign io_sram_Axi_ar_valid = io_ifu_Axi_ar_valid || io_lsu_Axi_ar_valid                          ;
-    assign io_ifu_Axi_ar_ready = io_sram_Axi_ar_ready &&(!io_lsu_Axi_ar_valid) ;
-    assign io_lsu_Axi_ar_ready = io_sram_Axi_ar_ready                          ;
-    assign io_sram_Axi_ar_bits_addr = io_lsu_Axi_ar_valid ? io_lsu_Axi_ar_bits_addr : 
-                                      io_ifu_Axi_ar_valid ? io_ifu_Axi_ar_bits_addr : 0;
+    assign io_sram_Axi_ar_valid = (io_ifu_Axi_ar_valid&&!io_lsu_Axi_r_ready) || (io_lsu_Axi_ar_valid  && !io_ifu_Axi_r_ready  )                      ;
+    assign io_ifu_Axi_ar_ready = io_sram_Axi_ar_ready &&(!io_lsu_Axi_ar_valid)&&(!io_lsu_Axi_r_ready) ;
+    assign io_lsu_Axi_ar_ready = io_sram_Axi_ar_ready &&(!io_ifu_Axi_r_ready) ;
+    assign io_sram_Axi_ar_bits_addr = io_lsu_Axi_ar_valid ? io_lsu_Axi_ar_bits_addr :
+										io_ifu_Axi_ar_bits_addr;
     //这几个信号由于一直是同一个值，chisel生成的时候好像就省略了
     //assign io_sram_Axi_ar_bits_len  = io_lsu_Axi_ar_ready ? io_lsu_Axi_ar_bits_len  :
     //                                  io_ifu_Axi_ar_ready ? io_ifu_Axi_ar_bits_len  : 0;
@@ -257,23 +257,25 @@ module ysyx_22050550_PCREG(
     input                                       Id_valid    , 
     input										irujump     ,
 	//input           ce,
-    output          [`ysyx_22050550_RegBus] npc
-    
+    output          [`ysyx_22050550_RegBus] npc ,
+	output			[31:0]					outjumpc
    // output          [`ysyx_22050550_RegBus] NextPc
 );
     reg  [`ysyx_22050550_RegBus] RegPc ;
     wire [`ysyx_22050550_RegBus] Pc_4   = RegPc + 64'h4;
     
-    wire [`ysyx_22050550_RegBus] jumpc = 
+    wire [`ysyx_22050550_RegBus] jumpc1 = 
     (!(|Id_jal))&& (!irujump)	? Pc_4                          :
-	irujump						? Id_ecallpc					:
+	//irujump						? Id_ecallpc					:
     (Id_jal[0] || Id_jal[2])	? (Id_Pc + Id_imm)              :
     Id_jal[4]					? (Id_imm + Id_rs1) & (~(64'h1)):
     Id_jal[3]					? Id_ecallpc                    :
     Id_jal[1]					? Id_mretpc                     : Pc_4;
-    
+	//irujump						? (Id_ecallpc)					: Pc_4;
+	wire [63:0] jumpc = irujump ? Id_ecallpc : jumpc1 ;
+    wire jumpcvalid = jumpc[31:28] == 4'h3 || jumpc[31:28] >= 4'h8;
     wire wen;
-    assign wen = ready || (|Id_jal && Id_valid)||irujump ;
+    assign wen = (ready || (|Id_jal && Id_valid)||irujump) && jumpcvalid ;
 	ysyx_22050550_Reg #(`ysyx_22050550_REGWIDTH,`ysyx_22050550_REGWIDTH'h30000000) regpc (
         .reset(reset),
         .clock(clock),
@@ -282,7 +284,8 @@ module ysyx_22050550_PCREG(
         .dout(RegPc)
     );
 
-    assign npc = ((Id_jal != 5'd0 && Id_valid))? jumpc:RegPc;
+    assign npc = ((Id_jal != 5'd0 && Id_valid && jumpcvalid))? jumpc:RegPc;
+	assign outjumpc = jumpc1[31:0];
     //assign NextPc = npc;
 endmodule
 //`include "./vsrc/ysyx_22050550_define.v"
@@ -1098,7 +1101,7 @@ module ysyx_22050550_CLINT(
 	input	        wen			,
 	input	[63:0]	waddr		,
 	input	[63:0]	wdata		,
-
+	input			timervalid  ,
 	output	[63:0]	rdata		,
 
 	output			clintmtip	
@@ -1117,15 +1120,15 @@ ysyx_22050550_Reg # (64,64'd0) Mtime(
     .clock(clock),.reset(reset),.wen(mtimewen),
     .din(mtimein),.dout(mtime));
 	
-ysyx_22050550_Reg # (64,64'd1000000) Mtimecmp(
+ysyx_22050550_Reg # (64,64'd100000000) Mtimecmp(
 .clock(clock),.reset(reset),.wen(mtimecmpwen),
 .din(mtimecmpin),.dout(mtimecmp));
 
 wire mtip = mtime >=mtimecmp ; 
 
-assign mtimewen = (wen &&(waddr == `ysyx_22050550_MTIME)) || (!mtip);
+assign mtimewen = (wen &&(waddr == `ysyx_22050550_MTIME)) || (!mtip && timervalid) || (mtip);
 assign mtimein = (wen &&(waddr == `ysyx_22050550_MTIME)) ? wdata 
-				: !mtip ? mtime+64'h1 : mtime ; 
+				: (!mtip&&timervalid) ? mtime+64'h1 : (mtip) ? 0 : mtime ; 
 
 assign mtimecmpwen = wen &&(waddr == `ysyx_22050550_MTIMECMP);
 assign mtimecmpin  = wdata  ; 
@@ -1278,6 +1281,7 @@ wire [63:0] io_IDNPC_ecallpc;
 wire [63:0] io_IDNPC_mretpc ;
 wire [ 0:0] io_IDNPC_valid  ;
 wire [63:0] if_pc           ;
+wire [31:0] if_npc			;
 //wire [63:0] NextPc          ;
 ysyx_22050550_PCREG PCREG(                                                                                              
     .reset      (reset) ,
@@ -1291,7 +1295,8 @@ ysyx_22050550_PCREG PCREG(
     .Id_mretpc  (io_IDNPC_mretpc) ,     
     .Id_valid   (io_IDNPC_valid) , 
     .irujump    (irujump		),   
-    .npc        (if_pc) 
+    .npc        (if_pc),  
+	.outjumpc   (if_npc)
   //  .NextPc     (NextPc)
 );
 wire Id_ready;
@@ -1323,11 +1328,15 @@ wire [`ysyx_22050550_InstBus]   if_id_inst;
 wire                            if_id_valid;
 wire							if_id_flush = realflush && !Icache_busy ;
 reg [`ysyx_22050550_RegBus]     Rif_id_pc;
+//reg [31:0]						Rif_id_npc;
 reg [`ysyx_22050550_InstBus]    Rif_id_inst;
 reg                             Rif_id_valid;
 reg                             Rif_id_flush;
 ysyx_22050550_Reg # (`ysyx_22050550_REGWIDTH,64'd0)Regif_id_pc(
     .clock(clock),.reset(reset),.wen(Id_ready),.din(if_id_pc),      .dout(Rif_id_pc     ));
+//ysyx_22050550_Reg # (32,32'd0)Regif_id_npc(
+  //  .clock(clock),.reset(reset),.wen(Id_ready),.din(if_npc),      .dout(Rif_id_npc     ));
+
 ysyx_22050550_Reg # (`ysyx_22050550_INSTWIDTH,32'd0)Regif_id_inst(
     .clock(clock),.reset(reset),.wen(Id_ready),.din(if_id_inst),    .dout(Rif_id_inst   ));
 ysyx_22050550_Reg # (1,1'd0)Regif_id_valid(
@@ -1464,6 +1473,7 @@ ysyx_22050550_IDU IDU(
 //wire printflag;
 //ID_EX
 reg [63:0] Ridex_pc          ;
+reg [31:0] Ridex_npc		 ;
 reg [31:0] Ridex_inst        ;
 reg [ 0:0] Ridex_valid       ;
 //reg [ 4:0] Ridex_rs1addr     ;
@@ -1490,6 +1500,7 @@ reg [ 2:0] Ridex_func3       ;
 //reg [63:0] Ridex_NextPc      ;
 reg		   Ridex_flush		;
 ysyx_22050550_Reg # (`ysyx_22050550_REGWIDTH,64'd0)Regidex_pc       (.clock(clock),.reset(reset),.wen(EX_ID_ready),.din(idex_pc        ),.dout(Ridex_pc       ));
+ysyx_22050550_Reg # (32,32'd0)Regidex_npc       (.clock(clock),.reset(reset),.wen(EX_ID_ready&&idex_valid),.din(if_npc        ),.dout(Ridex_npc       ));
 ysyx_22050550_Reg # (`ysyx_22050550_INSTWIDTH,32'd0)Regidex_inst    (.clock(clock),.reset(reset),.wen(EX_ID_ready),.din(idex_inst      ),.dout(Ridex_inst     ));
 ysyx_22050550_Reg # (1,1'd0)                       Regidex_valid    (.clock(clock),.reset(reset),.wen(EX_ID_ready),.din(idex_valid     ),.dout(Ridex_valid    ));
 
@@ -1596,6 +1607,7 @@ ysyx_22050550_EXU EXU(
 );
 //EX_LS
 reg [63:0] REXLS_pc        ;
+reg [31:0] REXLS_npc		;
 reg [63:0] REXLS_rs2       ;
 reg [31:0] REXLS_inst      ;
 reg [ 0:0] REXLS_valid     ;
@@ -1618,6 +1630,7 @@ reg [ 2:0] REXLS_func3     ;
 //reg [63:0] REXLS_NextPc    ;
 reg		   REXLS_flush	   ;
 ysyx_22050550_Reg # (64,64'd0)RegEXLS_pc        (.clock(clock),.reset(reset),.wen(LS_ready),.din(EXLS_pc        ),.dout(REXLS_pc        ));
+ysyx_22050550_Reg # (32,32'd0)RegEXLS_npc        (.clock(clock),.reset(reset),.wen(LS_ready&&REXLS_valid),.din(Ridex_npc        ),.dout(REXLS_npc        ));
 ysyx_22050550_Reg # (64,64'd0)RegEXLS_rs2       (.clock(clock),.reset(reset),.wen(LS_ready),.din(EXLS_rs2       ),.dout(REXLS_rs2       ));
 ysyx_22050550_Reg # (32,32'd0)RegEXLS_inst      (.clock(clock),.reset(reset),.wen(LS_ready),.din(EXLS_inst      ),.dout(REXLS_inst      ));
 ysyx_22050550_Reg # ( 1, 1'd0)RegEXLS_valid     (.clock(clock),.reset(reset),.wen(LS_ready),.din(EXLS_valid     ),.dout(REXLS_valid     ));
@@ -1697,7 +1710,8 @@ wire [63:0] Lsu_Cache_wdata    ;
 wire [ 7:0] Lsu_Cache_wmask    ;  
 wire [63:0] Lsu_Cache_data     ;  
 wire [ 0:0] Lsu_Cache_dataok   ;  
-
+//
+//wire timervalid ;
 
 ysyx_22050550_LSU LSU(
     .clock            (clock)             ,
@@ -1790,6 +1804,7 @@ ysyx_22050550_LSU LSU(
 );
 //LS_WB
 reg [63:0] RLSWB_pc        ;
+reg [31:0] RLSWB_npc		;
 //reg [63:0] RLSWB_rs2       ;
 reg [31:0] RLSWB_inst      ;
 reg [ 0:0] RLSWB_valid     ;
@@ -1813,6 +1828,7 @@ reg [ 2:0] RLSWB_func3     ;
 reg		   RLSWB_flush	   ;
 ysyx_22050550_Reg # (64,64'd0)RegLSWB_pc               (.clock(clock),.reset(reset),.wen(WB_ready),.din(LSWB_pc        ),.dout(RLSWB_pc         ));
 
+ysyx_22050550_Reg # (32,32'd0)RegLSWB_npc               (.clock(clock),.reset(reset),.wen(WB_ready&&LSWB_valid ),.din(REXLS_npc        ),.dout(RLSWB_npc         ));
 //ysyx_22050550_Reg # (64,64'd0)RegLSWB_rs2              (.clock(clock),.reset(reset),.wen(WB_ready),.din(LSWB_rs2       ),.dout(RLSWB_rs2        ));
 ysyx_22050550_Reg # (32,32'd0)RegLSWB_inst             (.clock(clock),.reset(reset),.wen(WB_ready),.din(LSWB_inst      ),.dout(RLSWB_inst       ));
 ysyx_22050550_Reg # ( 1, 1'd0)RegLSWB_valid            (.clock(clock),.reset(reset),.wen(WB_ready),.din(LSWB_valid     ),.dout(RLSWB_valid      ));
@@ -1858,10 +1874,13 @@ wire [63:0] regfilepc	;
 wire irujump			;
 wire iruflush			;
 wire Top_flush			;
+wire timervalid			;			
 ysyx_22050550_WBU WBU(
     .clock             (clock)            ,
     .reset             (reset)            ,
     .io_LSWB_pc        (             RLSWB_pc          )            ,
+	//.io_LSWB_immnpc    (			)
+	.io_LSWB_npc       (			RLSWB_npc	),
     .io_LSWB_inst      (             RLSWB_inst        )            , 
     .io_LSWB_valid     (             RLSWB_valid       )            ,
    // .io_LSWB_rs1addr   (             RLSWB_rs1         )            , 
@@ -1915,6 +1934,7 @@ ysyx_22050550_WBU WBU(
     .io_ReadyWB_ready  (WB_ready	  )				,
 	.interrupt         (io_interrupt  )				,
 	.clintinterrupt    (clintinterrupt)				,
+	.timervalid		   (timervalid	  )				,
 	.io_wbu_flush	   (RLSWB_flush	  )				,
 	.io_topflush	   (Top_flush	  )				,	
 	.iruflush		   (iruflush	  )				,
@@ -1937,6 +1957,7 @@ ysyx_22050550_CLINT CLINT (
 	.wen	(ClintWen	)			,
 	.waddr	(ClintWaddr	)			,
 	.wdata	(ClintWdata	)			,	
+	.timervalid (timervalid)		,
 
 	.rdata	(ClintRdata	)			,
 
@@ -2287,25 +2308,26 @@ assign Sram_b_ready = Lsu_b_ready || Icache_b_ready ;
 assign Lsu_b_bresp = Sram_b_bresp ; 
 //修改成Device 和 内存的Sram 共用同一个SRAM   加一层arbiter
 wire [ 0:0] TopSram_ar_valid     = DevSram_ar_valid || Sram_ar_valid ; 
-wire [63:0] TopSram_ar_bits_addr = DevSram_ar_valid ? DevSram_ar_addr : Sram_ar_valid ? Sram_ar_bits_addr : 0;
+wire [63:0] TopSram_ar_bits_addr = DevSram_ar_valid ? DevSram_ar_addr : Sram_ar_bits_addr;
 wire [ 0:0] TopSram_r_ready      = DevSram_r_ready || Sram_r_ready  ;
 //ready 信号应该不能与valid相关联
-wire [ 7:0] TopSram_ar_len      = DevSram_ar_valid ? DevSram_ar_len : Sram_ar_valid ? Sram_ar_len : 8'd0   ;
-wire [ 1:0] TopSram_ar_burst     = DevSram_ar_valid ? DevSram_ar_burst : Sram_ar_valid ? Sram_ar_burst: 2'b00  ;
+wire [ 7:0] TopSram_ar_len      = DevSram_ar_valid ? DevSram_ar_len : Sram_ar_len   ;
+wire [ 1:0] TopSram_ar_burst     = DevSram_ar_valid ? DevSram_ar_burst :Sram_ar_burst  ;
 wire [ 2:0] TopSram_ar_size     = DevSram_ar_valid ? DevSram_ar_size : Sram_ar_valid ? Sram_ar_size: 3'd0   ;
 wire [ 0:0] TopSram_aw_valid     = DevSram_aw_valid || Sram_aw_valid  ;
-wire [63:0] TopSram_aw_bits_addr = DevSram_aw_valid || DevSram_w_valid ||DevSram_b_ready ? DevSram_aw_addr : Sram_aw_valid ? Sram_aw_bits_addr : 0;
-wire [ 7:0] TopSram_aw_len      = DevSram_aw_valid || DevSram_w_valid ||DevSram_b_ready? DevSram_aw_len : Sram_aw_valid ? Sram_aw_len : 0    ;
-wire [ 2:0] TopSram_aw_size     = DevSram_aw_valid || DevSram_w_valid ||DevSram_b_ready ? DevSram_aw_size : Sram_aw_valid ? Sram_aw_size : 0    ;
-wire [ 1:0] TopSram_aw_burst    =  DevSram_aw_valid || DevSram_w_valid ||DevSram_b_ready? DevSram_aw_burst : Sram_aw_valid ? Sram_aw_burst : 2'b00;
+wire [63:0] TopSram_aw_bits_addr = DevSram_aw_valid || DevSram_w_valid ||DevSram_b_ready ? DevSram_aw_addr : Sram_aw_bits_addr ;
+wire [ 7:0] TopSram_aw_len      = DevSram_aw_valid || DevSram_w_valid ||DevSram_b_ready? DevSram_aw_len : Sram_aw_len    ;
+wire [ 2:0] TopSram_aw_size     = DevSram_aw_valid || DevSram_w_valid ||DevSram_b_ready ? DevSram_aw_size :  Sram_aw_size    ;
+wire [ 1:0] TopSram_aw_burst    =  DevSram_aw_valid || DevSram_w_valid ||DevSram_b_ready? DevSram_aw_burst : Sram_aw_burst;
 wire [ 0:0] TopSram_w_valid     = DevSram_w_valid || Sram_w_valid  ;
 wire [63:0] TopSram_w_bits_data =  DevSram_aw_valid || DevSram_w_valid ||DevSram_b_ready? DevSram_w_data :Sram_w_bits_data  ;
 wire [ 7:0] TopSram_w_bits_strb = DevSram_aw_valid || DevSram_w_valid ||DevSram_b_ready ? DevSram_w_strb :Sram_w_bits_strb  ;
 wire		TopSram_w_bits_last =DevSram_aw_valid || DevSram_w_valid ||DevSram_b_ready ? DevSram_w_last : Sram_w_bits_last	  ;
 wire [ 0:0] TopSram_ar_ready     ;
 //设备优先
-assign DevSram_ar_ready = TopSram_ar_ready ;   
-assign Sram_ar_ready    = TopSram_ar_ready && !DevSram_ar_valid;
+//但是注意另一个已经进入状态机的时候，这个信号也不要发过去
+assign DevSram_ar_ready = TopSram_ar_ready && !Sram_r_ready;    
+assign Sram_ar_ready    = TopSram_ar_ready && !DevSram_ar_valid && !(DevSram_r_ready);
 wire [ 0:0] TopSram_r_valid      ;
 assign DevSram_r_valid = TopSram_r_valid ;
 assign Sram_r_valid    = TopSram_r_valid ; 
@@ -2318,8 +2340,8 @@ assign Sram_r_rresp    = TopSram_r_rresp ;
 wire [ 0:0] TopSram_r_bits_last  ;
 assign Sram_r_bits_last  = TopSram_r_bits_last ; 
 wire [ 0:0] TopSram_aw_ready     ;
-assign DevSram_aw_ready = TopSram_aw_ready ; 
-assign Sram_aw_ready    = TopSram_aw_ready && !DevSram_aw_valid;
+assign DevSram_aw_ready = TopSram_aw_ready &&(!Sram_w_valid) && (!Sram_b_ready)  ; 
+assign Sram_aw_ready    = TopSram_aw_ready && !DevSram_aw_valid&&(!DevSram_w_valid)&&(!DevSram_b_ready);
 wire [ 0:0] TopSram_w_ready      ;
 assign DevSram_w_ready  = TopSram_w_ready ; 
 assign Sram_w_ready     = TopSram_w_ready && !DevSram_w_valid ; 
@@ -2732,6 +2754,7 @@ module ysyx_22050550_WBU(
                   reset                         ,
     /*********Ls***********/
     input  [63:0] io_LSWB_pc                    ,
+	input  [31:0] io_LSWB_npc					,
     input  [31:0] io_LSWB_inst                  , 
     input         io_LSWB_valid                 ,
    // input  [4:0]  io_LSWB_rs1addr               , 
@@ -2789,6 +2812,7 @@ module ysyx_22050550_WBU(
     output        io_ReadyWB_ready              ,  
 	input		  interrupt						,//外部中断 时钟中断 或者 其他的异步中断  比如访存等，，，虽然还没实现。
 	input		  clintinterrupt				,
+	output	      timervalid					,
 	//input	      io_iru_flush						, 
 	// 来自顶层的冲刷信号寄存器的信息，当这个信号拉高的时候，表明此时正在进行流水线
 	// 的冲刷，需要对ecallpc啥的进行写入，保证记录到执行完毕的最后一条指令的pc。
@@ -2812,15 +2836,21 @@ module ysyx_22050550_WBU(
     csrind ==`ysyx_22050550_MSTATUS ? mstatus:
     csrind ==`ysyx_22050550_MEPC    ? mepc   :
     csrind ==`ysyx_22050550_CSRMIE  ? mie    :
-    csrind ==`ysyx_22050550_CSRMIP  ? mip    :64'h0;
+    csrind ==`ysyx_22050550_CSRMIP  ? mip    : 0;
+//	csrind == 12'h180				? 64'h8000000000000000 :	64'h0;
     
     wire [`ysyx_22050550_RegBus] writebackdata = io_LSWB_csrflag?csrwritedata : io_LSWB_readflag ? io_LSWB_lsures : io_LSWB_alures;
-    //处理csr指令 对csr进行写回
+    //处理csr指令 对csr进行写回 
+	wire [63:0] zimm = {   {59{1'b0}}   , io_LSWB_inst[19:15]};
     wire [63:0] csrwrite;
     //Idu那边在csrflag拉高的时候就把 rd2置0 这样子这里过来的就是rs1
     assign csrwrite = 
     io_LSWB_func3 == 3'b001 ? io_LSWB_alures :
-    io_LSWB_func3 == 3'b010 ? io_LSWB_alures | csrwritedata : 64'h0;
+    io_LSWB_func3 == 3'b010 ? io_LSWB_alures | csrwritedata : 
+	io_LSWB_func3 == 3'b111 ? csrwritedata &(~zimm) :
+	io_LSWB_func3 == 3'b110 ? csrwritedata | zimm : 
+	io_LSWB_func3 == 3'b011 ? (~io_LSWB_alures) & ( csrwritedata) :  
+	io_LSWB_func3 == 3'b101 ? zimm       : 64'h0;
     
 //	wire [7:0] csren;
 //    assign csren = 
@@ -2851,6 +2881,7 @@ module ysyx_22050550_WBU(
 	//首先满足以上条件时 mip 的 写如使能拉高。     产生一次计时器中断之后 mip 
 	//的mtip 位要拉低
 	wire clintintr = mstatus[3] && mie[7] && clintinterrupt ;
+	assign timervalid = mstatus[3] && mie[7] ;
 	wire outintr   = mstatus[3] && mie[7] && interrupt      ;
 	reg  inter; 
 	//中断会导致流水线的冲刷， 在因为中断导致的冲刷完成之前， 
@@ -2879,10 +2910,11 @@ module ysyx_22050550_WBU(
     wire [63:0] inwbmip    =   io_LSWB_csrflag?flagwbcsr : 0 ;
 //    wire [7:0 ] inwbcsren  =   io_LSWB_csrflag?flagwbcsren :  io_LSWB_ecallflag?ecallcsren:io_LSWB_mretflag?mretcsren:0;
 	//这个中断的异常号暂时没找到，暂定为16
-	wire [63:0] intrmcause = 64'd16;
+	//中断 时 最高位置1
+	wire [63:0] intrmcause ={{1'b1},63'd7};
 	//记录一下当前执行的或者已经执行完成的
 	//pc ,保证后面返回正确 。。
-	assign wbmepc   = intr ? ecallpc : inwbmepc ; 
+	assign wbmepc   = intr ? {{32'd0},io_LSWB_npc} : inwbmepc ; 
 	assign wbmcause = interin ? intrmcause : inwbmcause ; 
 	assign wbmtvec  = inwbmtvec						 ; 
 	assign wbmstatus= interin ? ecallfinal : inwbmstatus;
@@ -3035,7 +3067,7 @@ module ysyx_22050550_LSU(
 	input	[63:0]  rdata					
 );  
     //设备地址都在 a0000000+ 这里判断可以简单一点
-    wire Pmem = 0;//io_EXLS_alures[31:28] == 4'h3|| (io_EXLS_alures[31:28] >= 4'h8) ;// && io_EXLS_alures[31:24]<=8'hff);
+    wire Pmem = io_EXLS_alures[31:28] == 4'h3|| (io_EXLS_alures[31:28] >= 4'h8) ;// && io_EXLS_alures[31:24]<=8'hff);
 	wire Clint = (io_EXLS_alures >= `ysyx_22050550_CLINTBASE) && (io_EXLS_alures <= `ysyx_22050550_CLINTEND); 
     //wire Pmem = io_EXLS_alures>=`ysyx_22050550_PLeft && io_EXLS_alures < `ysyx_22050550_PRight;
 
@@ -3176,6 +3208,21 @@ module ysyx_22050550_LSU(
     //assign io_aw_size  = 2;          
     assign io_aw_burst = 2'b00; 
     assign io_w_valid  = Wstate == swrite;
+	wire [2:0] waddrmod = io_aw_addr[2:0] ;
+	//wire [63:0] finalwritedata = waddrmod == 3'b001 ? { io_EXLS_writedata[55:0],{8'b0}} :
+	//							 waddrmod == 3'b010 ? { io_EXLS_writedata[47:0],{16'b0}} :
+	//							 waddrmod == 3'b011 ? { io_EXLS_writedata[39:0],{24'b0}} :
+	//							 waddrmod == 3'b100 ? { io_EXLS_writedata[63:32],{32'b0}}: 
+	//							 waddrmod == 3'b101 ? { io_EXLS_writedata[63:40],{40'b0}} :
+	//							 waddrmod == 3'b110 ? { io_EXLS_writedata[63:48],{48'b0}} :
+	//						 	 waddrmod == 3'b111 ? { io_EXLS_writedata[63:56],{56'b0}} : io_EXLS_writedata ;
+	//wire [7:0] finalstrb  =		 waddrmod == 3'b001 ? { io_EXLS_writedata[55:0],{8'b0}} :
+	//							 waddrmod == 3'b010 ? { io_EXLS_writedata[47:0],{16'b0}} :
+	//							 waddrmod == 3'b011 ? { io_EXLS_writedata[39:0],{24'b0}} :
+	//							 waddrmod == 3'b100 ? { io_EXLS_writedata[63:32],{32'b0}}: 
+	//							 waddrmod == 3'b101 ? { io_EXLS_writedata[63:40],{40'b0}} :
+	//							 waddrmod == 3'b110 ? { io_EXLS_writedata[63:48],{48'b0}} :
+	//						 	 waddrmod == 3'b111 ? { io_EXLS_writedata[63:56],{56'b0}} :  {4'h0,io_EXLS_wmask[3:0]};
 	wire [7:0]  bytewrite = io_EXLS_writedata[7:0]; 
 	wire [15:0] halfwrite = io_EXLS_writedata[15:0];
 	wire [31:0] wordwrite = io_EXLS_writedata[31:0]; 
@@ -3185,6 +3232,8 @@ module ysyx_22050550_LSU(
 //                      io_EXLS_func3 ==  3'b011  ?    io_EXLS_writedata :  ;
     assign io_w_data   = (storedouble && reglen == 1) ? {2{finalwritedata[63:32]}} : {2{finalwritedata[31:0]}} ;
     //assign io_w_data   =  (storedouble && reglen == 1) ? {{32{1'b0}},io_EXLS_writedata[63:32]} : {{32{1'b0}},io_EXLS_writedata[31:0]} ;
+	//wire [2:0] waddrmod = io_aw_addr[2:0] ;
+	//wire [7:0] realstrb = waddrmod == 3'b001; 
     assign io_w_strb   = (storedouble && reglen == 1) ? {io_EXLS_wmask[7:4],4'h0} : {4'h0,io_EXLS_wmask[3:0]}; 
     //assign io_w_strb   = (storedouble && reglen == 1) ? {{4{1'b0}},io_EXLS_wmask[7:4]} : {4'h0,io_EXLS_wmask[3:0]}; 
     assign io_w_last   = 1'b1;
@@ -3874,13 +3923,17 @@ module ysyx_22050550_CACHE(
 //						  Reglen ==	1  ? {{32'd0},	 DataRead[63:32] } :
 //						  Reglen == 2  ? {{32'd0},   DataRead[95:64] } :
 //						  Reglen == 3  ? {{32'd0},   DataRead[127:96]} : 64'b0 ;
+//	wire [63:0] w_data_mem = Reglen[1] == 0  ? {   DataRead[63:0]  } : 
+//						  Reglen[1] ==	1  ? {  DataRead[63:32]    } :
+//						  Reglen == 2  ? {{32'd0},   DataRead[95:64] } :
+//						  Reglen == 3  ? { {32'd0} ,DataRead[127:96]} : 64'b0 ;
 	
-	assign io_w_data    = Reglen == 0  ? {{32'd0},   DataRead[31:0]  } : 
+	wire [63:0] w_data_flash = Reglen == 0  ? {{32'd0},   DataRead[31:0]  } : 
 						  Reglen ==	1  ? {DataRead[63:32],{32'd0}    } :
 						  Reglen == 2  ? {{32'd0},   DataRead[95:64] } :
 						  Reglen == 3  ? { DataRead[127:96], {32'd0}} : 64'b0 ;
-	
-    assign io_w_strb    = Reglen[0] ? 8'hf0 : 8'h0f;
+	assign io_w_data = w_data_flash ;
+    assign io_w_strb    = Reglen[0]  ? 8'hf0 : 8'h0f;
     assign io_b_ready   = state == wresp || (fstate == fenceresp ) ;
     /*
         refill :
