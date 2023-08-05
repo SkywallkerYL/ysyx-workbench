@@ -283,9 +283,16 @@ module ysyx_22050550_PCREG(
         .din(jumpc),
         .dout(RegPc)
     );
+	wire [`ysyx_22050550_RegBus] Idnextpc = 
+    //(!(|Id_jal))&& (!irujump)	? Pc_4                          :
+	//irujump						? Id_ecallpc					:
+    (Id_jal[0] || Id_jal[2])	? (Id_Pc + Id_imm)              :
+    Id_jal[4]					? (Id_imm + Id_rs1) & (~(64'h1)):
+    Id_jal[3]					? Id_ecallpc                    :
+    Id_jal[1]					? Id_mretpc                     : Id_Pc+4;
 
     assign npc = ((Id_jal != 5'd0 && Id_valid && jumpcvalid))? jumpc:RegPc;
-	assign outjumpc = jumpc1[31:0];
+	assign outjumpc = Idnextpc[31:0];
     //assign NextPc = npc;
 endmodule
 //`include "./vsrc/ysyx_22050550_define.v"
@@ -1630,7 +1637,7 @@ reg [ 2:0] REXLS_func3     ;
 //reg [63:0] REXLS_NextPc    ;
 reg		   REXLS_flush	   ;
 ysyx_22050550_Reg # (64,64'd0)RegEXLS_pc        (.clock(clock),.reset(reset),.wen(LS_ready),.din(EXLS_pc        ),.dout(REXLS_pc        ));
-ysyx_22050550_Reg # (32,32'd0)RegEXLS_npc        (.clock(clock),.reset(reset),.wen(LS_ready&&REXLS_valid),.din(Ridex_npc        ),.dout(REXLS_npc        ));
+ysyx_22050550_Reg # (32,32'd0)RegEXLS_npc        (.clock(clock),.reset(reset),.wen(LS_ready&&EXLS_valid),.din(Ridex_npc        ),.dout(REXLS_npc        ));
 ysyx_22050550_Reg # (64,64'd0)RegEXLS_rs2       (.clock(clock),.reset(reset),.wen(LS_ready),.din(EXLS_rs2       ),.dout(REXLS_rs2       ));
 ysyx_22050550_Reg # (32,32'd0)RegEXLS_inst      (.clock(clock),.reset(reset),.wen(LS_ready),.din(EXLS_inst      ),.dout(REXLS_inst      ));
 ysyx_22050550_Reg # ( 1, 1'd0)RegEXLS_valid     (.clock(clock),.reset(reset),.wen(LS_ready),.din(EXLS_valid     ),.dout(REXLS_valid     ));
@@ -2914,17 +2921,18 @@ module ysyx_22050550_WBU(
 	wire [63:0] intrmcause ={{1'b1},63'd7};
 	//记录一下当前执行的或者已经执行完成的
 	//pc ,保证后面返回正确 。。
+	//流水线冲刷完成后再把 
 	assign wbmepc   = intr ? {{32'd0},io_LSWB_npc} : inwbmepc ; 
-	assign wbmcause = interin ? intrmcause : inwbmcause ; 
+	assign wbmcause = intr&&io_wbu_flush ? intrmcause : inwbmcause ; 
 	assign wbmtvec  = inwbmtvec						 ; 
-	assign wbmstatus= interin ? ecallfinal : inwbmstatus;
+	assign wbmstatus= intr&&io_wbu_flush ? ecallfinal : inwbmstatus;
 	assign wbmie    = inwbmie						 ;  
 	assign wbmip    = mtipvalid ? inwbmip &(~64'h80): inwbmip   ; // mip 的mtip位拉低仅用计时器中断
 //	wire [7:0] intrcsren  = intr ? ecallcsren|inwbcsren : inwbcsren		;
 	wire mepcen   = intr    || io_LSWB_ecallflag  ||(io_LSWB_csrflag && csrind == `ysyx_22050550_MEPC); 
-	wire mcauseen = interin || io_LSWB_ecallflag  ||(io_LSWB_csrflag && csrind == `ysyx_22050550_MCAUSE);
+	wire mcauseen = (intr&&io_wbu_flush) || io_LSWB_ecallflag  ||(io_LSWB_csrflag && csrind == `ysyx_22050550_MCAUSE);
 	wire mtvecen  = (io_LSWB_csrflag && csrind == `ysyx_22050550_MTVEC );
-	wire mstatusen= interin || io_LSWB_ecallflag|| io_LSWB_mretflag   ||(io_LSWB_csrflag && csrind == `ysyx_22050550_MSTATUS);
+	wire mstatusen= (intr&&io_wbu_flush) || io_LSWB_ecallflag|| io_LSWB_mretflag   ||(io_LSWB_csrflag && csrind == `ysyx_22050550_MSTATUS);
 	wire mieen    = (io_LSWB_csrflag && csrind == `ysyx_22050550_CSRMIE) ;
 	wire mipen	  = mtipvalid || (io_LSWB_csrflag && csrind == `ysyx_22050550_CSRMIP) ;
 	assign wbcsren  = {2'b00,mipen,mieen,mstatusen,mtvecen,mcauseen,mepcen} ;
